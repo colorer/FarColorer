@@ -5,7 +5,7 @@ all: colorer.dll
 CYGWIN=-mno-cygwin
 #CYGWIN=
 
-shared_path=../../colorer/src/shared/
+shared_path=../libs/colorer/src/shared/
 obj_output=objs
 CPPFLAGS_CUSTOM+=-I../far3sdk -DUNICODE -D_UNICODE -D__CYGWIN__ -DWINVER=0x0500 -DCOLORER_FEATURE_USE_DL_MALLOC=FALSE -DCOLORER_FEATURE_USE_CHUNK_ALLOC=FALSE
 #CPPFLAGS_CUSTOM += -DCOLORER_FEATURE_LOGLEVEL=COLORER_FEATURE_LOGLEVEL_FULL

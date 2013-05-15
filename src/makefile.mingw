@@ -11,7 +11,7 @@ CP      = cp -f
 WINDRES = windres
 
 obj = o
-shared_path=../../colorer/src/shared/
+shared_path=../libs/colorer/src/shared/
 obj_output=objs
 obj_output_slash = $(obj_output)/
 

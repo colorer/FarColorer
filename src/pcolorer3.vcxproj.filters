@@ -87,235 +87,235 @@
     <ClInclude Include="tools.h">
       <Filter>pcolorer3</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\zlib\inffast.h">
+    <ClInclude Include="..\libs\colorer\src\zlib\inffast.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\zlib\inftrees.h">
+    <ClInclude Include="..\libs\colorer\src\zlib\inftrees.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\zlib\zutil.h">
+    <ClInclude Include="..\libs\colorer\src\zlib\zutil.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\zlib\contrib\minizip\ioapi.h">
+    <ClInclude Include="..\libs\colorer\src\zlib\contrib\minizip\ioapi.h">
       <Filter>zlib\minizip</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\zlib\contrib\minizip\unzip.h">
+    <ClInclude Include="..\libs\colorer\src\zlib\contrib\minizip\unzip.h">
       <Filter>zlib\minizip</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\zlib\contrib\minizip\zip.h">
+    <ClInclude Include="..\libs\colorer\src\zlib\contrib\minizip\zip.h">
       <Filter>zlib\minizip</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\_template.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\_template.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\ErrorHandler.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\ErrorHandler.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\FileType.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\FileType.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\HRCParser.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\HRCParser.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\LineSource.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\LineSource.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\ParserFactory.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\ParserFactory.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\ParserFactoryException.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\ParserFactoryException.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\Region.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\Region.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\RegionHandler.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\RegionHandler.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\Scheme.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\Scheme.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\TextParser.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\TextParser.h">
       <Filter>shared\colorer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\ConsoleTools.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\viewer\ConsoleTools.h">
       <Filter>shared\colorer\viewer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\ParsedLineWriter.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\viewer\ParsedLineWriter.h">
       <Filter>shared\colorer\viewer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\TextConsoleViewer.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\viewer\TextConsoleViewer.h">
       <Filter>shared\colorer\viewer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\TextLinesStore.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\viewer\TextLinesStore.h">
       <Filter>shared\colorer\viewer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\DefaultErrorHandler.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\DefaultErrorHandler.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\ErrorHandlerWriter.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\ErrorHandlerWriter.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\FileErrorHandler.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\FileErrorHandler.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\LineRegion.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\LineRegion.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsCompactSupport.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\LineRegionsCompactSupport.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsSupport.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\LineRegionsSupport.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\RegionDefine.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\RegionDefine.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\RegionMapper.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\RegionMapper.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\RegionMapperImpl.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\RegionMapperImpl.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\StyledRegion.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\StyledRegion.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\TextHRDMapper.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\TextHRDMapper.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\TextRegion.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\handlers\TextRegion.h">
       <Filter>shared\colorer\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\BaseEditor.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\editor\BaseEditor.h">
       <Filter>shared\colorer\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\EditorListener.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\editor\EditorListener.h">
       <Filter>shared\colorer\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\OutlineItem.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\editor\OutlineItem.h">
       <Filter>shared\colorer\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\Outliner.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\editor\Outliner.h">
       <Filter>shared\colorer\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\PairMatch.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\editor\PairMatch.h">
       <Filter>shared\colorer\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\HRCParserImpl.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\parsers\HRCParserImpl.h">
       <Filter>shared\colorer\parser</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\helpers\FileTypeImpl.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\parsers\helpers\FileTypeImpl.h">
       <Filter>shared\colorer\parser\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\helpers\HRCParserHelpers.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\parsers\helpers\HRCParserHelpers.h">
       <Filter>shared\colorer\parser\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\helpers\TextParserHelpers.h">
+    <ClInclude Include="..\libs\colorer\src\shared\colorer\parsers\helpers\TextParserHelpers.h">
       <Filter>shared\colorer\parser\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\BitArray.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\BitArray.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\Character.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\Character.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\CharacterClass.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\CharacterClass.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\DString.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\DString.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\Encodings.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\Encodings.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\SString.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\SString.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\String.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\String.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\StringBuffer.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\StringBuffer.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\UnicodeTools.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\UnicodeTools.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\x_charcategory.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\x_charcategory.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\x_charcategory2.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\x_charcategory2.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\x_charcategory_names.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\x_charcategory_names.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\x_defines.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\x_defines.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\x_encodings.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\x_encodings.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\unicode\x_tables.h">
+    <ClInclude Include="..\libs\colorer\src\shared\unicode\x_tables.h">
       <Filter>shared\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\Common.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\Common.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\Exception.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\Exception.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\Features.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\Features.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\Hashtable.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\Hashtable.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\HashtableCore.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\HashtableCore.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\Logging.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\Logging.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\MemoryChunks.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\MemoryChunks.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\MemoryOperator.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\MemoryOperator.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\Vector.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\Vector.h">
       <Filter>shared\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\FileInputSource.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\FileInputSource.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\FileWriter.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\FileWriter.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\HTTPInputSource.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\HTTPInputSource.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\InputSource.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\InputSource.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\JARInputSource.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\JARInputSource.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\MemoryFile.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\MemoryFile.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\SharedInputSource.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\SharedInputSource.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\StreamWriter.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\StreamWriter.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\common\io\Writer.h">
+    <ClInclude Include="..\libs\colorer\src\shared\common\io\Writer.h">
       <Filter>shared\common\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\xml\xmldom.h">
+    <ClInclude Include="..\libs\colorer\src\shared\xml\xmldom.h">
       <Filter>shared\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\colorer\src\shared\cregexp\cregexp.h">
+    <ClInclude Include="..\libs\colorer\src\shared\cregexp\cregexp.h">
       <Filter>shared\cregexp</Filter>
     </ClInclude>
     <ClInclude Include="ChooseTypeMenu.h">
@@ -344,151 +344,151 @@
     <ClCompile Include="tools.cpp">
       <Filter>pcolorer3</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\adler32.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\adler32.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\crc32.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\crc32.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\inffast.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\inffast.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\inflate.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\inflate.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\inftrees.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\inftrees.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\uncompr.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\uncompr.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\zutil.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\contrib\minizip\ioapi.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\contrib\minizip\ioapi.c">
       <Filter>zlib\minizip</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\zlib\contrib\minizip\unzip.c">
+    <ClCompile Include="..\libs\colorer\src\zlib\contrib\minizip\unzip.c">
       <Filter>zlib\minizip</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\ParserFactory.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\ParserFactory.cpp">
       <Filter>shared\colorer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\viewer\ConsoleTools.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\viewer\ConsoleTools.cpp">
       <Filter>shared\colorer\viewer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\viewer\TextConsoleViewer.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\viewer\TextConsoleViewer.cpp">
       <Filter>shared\colorer\viewer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\viewer\TextLinesStore.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\viewer\TextLinesStore.cpp">
       <Filter>shared\colorer\viewer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\ErrorHandlerWriter.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\ErrorHandlerWriter.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\FileErrorHandler.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\FileErrorHandler.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsCompactSupport.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\LineRegionsCompactSupport.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsSupport.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\LineRegionsSupport.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\RegionMapperImpl.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\RegionMapperImpl.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\StyledHRDMapper.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\StyledHRDMapper.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\TextHRDMapper.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\handlers\TextHRDMapper.cpp">
       <Filter>shared\colorer\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\editor\BaseEditor.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\editor\BaseEditor.cpp">
       <Filter>shared\colorer\editor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\editor\Outliner.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\editor\Outliner.cpp">
       <Filter>shared\colorer\editor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\HRCParserImpl.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\parsers\HRCParserImpl.cpp">
       <Filter>shared\colorer\parser</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\helpers\TextParserHelpers.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\parsers\helpers\TextParserHelpers.cpp">
       <Filter>shared\colorer\parser</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\TextParserImpl.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\parsers\TextParserImpl.cpp">
       <Filter>shared\colorer\parser</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\helpers\HRCParserHelpers.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\colorer\parsers\helpers\HRCParserHelpers.cpp">
       <Filter>shared\colorer\parser\helpers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\BitArray.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\BitArray.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\Character.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\Character.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\CharacterClass.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\CharacterClass.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\DString.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\DString.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\Encodings.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\Encodings.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\SString.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\SString.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\String.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\String.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\StringBuffer.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\StringBuffer.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\unicode\UnicodeTools.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\unicode\UnicodeTools.cpp">
       <Filter>shared\unicode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\Exception.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\Exception.cpp">
       <Filter>shared\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\Logging.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\Logging.cpp">
       <Filter>shared\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\MemoryChunks.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\MemoryChunks.cpp">
       <Filter>shared\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\FileInputSource.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\FileInputSource.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\FileWriter.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\FileWriter.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\HTTPInputSource.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\HTTPInputSource.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\InputSource.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\InputSource.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\JARInputSource.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\JARInputSource.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\SharedInputSource.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\SharedInputSource.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\StreamWriter.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\StreamWriter.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\common\io\Writer.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\common\io\Writer.cpp">
       <Filter>shared\common\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\xml\xmldom.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\xml\xmldom.cpp">
       <Filter>shared\xml</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\misc\malloc.c">
+    <ClCompile Include="..\libs\colorer\src\shared\misc\malloc.c">
       <Filter>shared\misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\colorer\src\shared\cregexp\cregexp.cpp">
+    <ClCompile Include="..\libs\colorer\src\shared\cregexp\cregexp.cpp">
       <Filter>shared\cregexp</Filter>
     </ClCompile>
     <ClCompile Include="ChooseTypeMenu.cpp">

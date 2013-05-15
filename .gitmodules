@@ -1,0 +1,3 @@
+[submodule "libs/colorer"]
+	path = libs/colorer
+	url = https://github.com/colorer/Colorer-library.git

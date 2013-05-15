@@ -35,13 +35,13 @@ LIBFLAGS= $(LIBFLAGS) /MACHINE:x64
 
 all: build install
 
-shared_path=../../colorer/src/shared/
+shared_path=../libs/colorer/src/shared/
 
 CPPFLAGS_CUSTOM = $(CPPFLAGS_CUSTOM) /D "COLORER_FEATURE_USE_DL_MALLOC=TRUE" /D "COLORER_FEATURE_USE_CHUNK_ALLOC=FALSE"
 CPPFLAGS_CUSTOM = $(CPPFLAGS_CUSTOM) /I "../far3sdk" /Zc:wchar_t /Zc:forScope
 CPPFLAGS_CUSTOM = $(CPPFLAGS_CUSTOM) /Fo"$(obj_output)\\" /D "_USRDLL"  /D "_CRT_SECURE_NO_DEPRECATE" /D "_WINDLL" /D "_UNICODE" /D "UNICODE"
 
-include ../../colorer/src/shared/makefile.colorer.vc
+include ../libs/colorer/src/shared/makefile.colorer.vc
 include _dependencies.dep
 include makefile.core
 
