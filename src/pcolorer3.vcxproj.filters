@@ -1,0 +1,508 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="far3sdk">
+      <UniqueIdentifier>{988568b9-5b32-4800-996a-1783d90fb9d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pcolorer3">
+      <UniqueIdentifier>{64a4efcf-9473-4505-8988-55886e785cd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zlib">
+      <UniqueIdentifier>{c9c10d02-2a5c-4c26-8508-1e645672f88c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zlib\minizip">
+      <UniqueIdentifier>{0812069f-5aa8-4db4-98cd-e08d9b4ef42a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{be594122-984b-48a1-ab0d-0a120abde07b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\colorer">
+      <UniqueIdentifier>{e0cec73d-ae66-46fa-a967-6e4663d1ee95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\colorer\viewer">
+      <UniqueIdentifier>{01c18444-8a0f-4637-87a0-5bd1e5b9d707}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\colorer\handlers">
+      <UniqueIdentifier>{d0823660-1375-432f-9abc-8f3774726377}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\colorer\editor">
+      <UniqueIdentifier>{2a23e4bd-7725-4cd2-bfbb-34a3c1f61f37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\colorer\parser">
+      <UniqueIdentifier>{7703107a-686e-4110-83a5-85b9df874895}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\colorer\parser\helpers">
+      <UniqueIdentifier>{07e73289-bf74-4272-907a-8202006b48bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\unicode">
+      <UniqueIdentifier>{e2dd8f17-6619-44bd-8f4c-5a18ae4a5e56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\common">
+      <UniqueIdentifier>{196dcf1b-466c-4f52-99bb-fd124cf17e64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\common\io">
+      <UniqueIdentifier>{ee606fab-7d08-4bc4-83ce-660bbcc41513}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\xml">
+      <UniqueIdentifier>{722e7d9b-a6f2-4da8-b474-bf1141029459}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\misc">
+      <UniqueIdentifier>{f0266138-7fd0-4932-bcf6-951d3a4fdbd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\cregexp">
+      <UniqueIdentifier>{3f86ed21-39a8-4353-a439-48004eaf6bbb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="pcolorer3.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\far3sdk\farcolor.hpp">
+      <Filter>far3sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\far3sdk\plugin.hpp">
+      <Filter>far3sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="FarEditor.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="FarEditorSet.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="FarHrcSettings.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="pcolorer.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsControl.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\zlib\inffast.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\zlib\inftrees.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\zlib\zutil.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\zlib\contrib\minizip\ioapi.h">
+      <Filter>zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\zlib\contrib\minizip\unzip.h">
+      <Filter>zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\zlib\contrib\minizip\zip.h">
+      <Filter>zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\_template.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\ErrorHandler.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\FileType.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\HRCParser.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\LineSource.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\ParserFactory.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\ParserFactoryException.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\Region.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\RegionHandler.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\Scheme.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\TextParser.h">
+      <Filter>shared\colorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\ConsoleTools.h">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\ParsedLineWriter.h">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\TextConsoleViewer.h">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\viewer\TextLinesStore.h">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\DefaultErrorHandler.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\ErrorHandlerWriter.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\FileErrorHandler.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\LineRegion.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsCompactSupport.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsSupport.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\RegionDefine.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\RegionMapper.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\RegionMapperImpl.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\StyledRegion.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\TextHRDMapper.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\handlers\TextRegion.h">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\BaseEditor.h">
+      <Filter>shared\colorer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\EditorListener.h">
+      <Filter>shared\colorer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\OutlineItem.h">
+      <Filter>shared\colorer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\Outliner.h">
+      <Filter>shared\colorer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\editor\PairMatch.h">
+      <Filter>shared\colorer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\HRCParserImpl.h">
+      <Filter>shared\colorer\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\helpers\FileTypeImpl.h">
+      <Filter>shared\colorer\parser\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\helpers\HRCParserHelpers.h">
+      <Filter>shared\colorer\parser\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\colorer\parsers\helpers\TextParserHelpers.h">
+      <Filter>shared\colorer\parser\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\BitArray.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\Character.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\CharacterClass.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\DString.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\Encodings.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\SString.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\String.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\StringBuffer.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\UnicodeTools.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\x_charcategory.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\x_charcategory2.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\x_charcategory_names.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\x_defines.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\x_encodings.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\unicode\x_tables.h">
+      <Filter>shared\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\Common.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\Exception.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\Features.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\Hashtable.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\HashtableCore.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\Logging.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\MemoryChunks.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\MemoryOperator.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\Vector.h">
+      <Filter>shared\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\FileInputSource.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\FileWriter.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\HTTPInputSource.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\InputSource.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\JARInputSource.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\MemoryFile.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\SharedInputSource.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\StreamWriter.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\common\io\Writer.h">
+      <Filter>shared\common\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\xml\xmldom.h">
+      <Filter>shared\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\colorer\src\shared\cregexp\cregexp.h">
+      <Filter>shared\cregexp</Filter>
+    </ClInclude>
+    <ClInclude Include="ChooseTypeMenu.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>pcolorer3</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FarEditor.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+    <ClCompile Include="FarEditorSet.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+    <ClCompile Include="FarHrcSettings.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+    <ClCompile Include="pcolorer.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsControl.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\adler32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\crc32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\inffast.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\inflate.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\inftrees.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\uncompr.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\zutil.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\contrib\minizip\ioapi.c">
+      <Filter>zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\zlib\contrib\minizip\unzip.c">
+      <Filter>zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\ParserFactory.cpp">
+      <Filter>shared\colorer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\viewer\ConsoleTools.cpp">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\viewer\TextConsoleViewer.cpp">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\viewer\TextLinesStore.cpp">
+      <Filter>shared\colorer\viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\ErrorHandlerWriter.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\FileErrorHandler.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsCompactSupport.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\LineRegionsSupport.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\RegionMapperImpl.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\StyledHRDMapper.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\handlers\TextHRDMapper.cpp">
+      <Filter>shared\colorer\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\editor\BaseEditor.cpp">
+      <Filter>shared\colorer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\editor\Outliner.cpp">
+      <Filter>shared\colorer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\HRCParserImpl.cpp">
+      <Filter>shared\colorer\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\helpers\TextParserHelpers.cpp">
+      <Filter>shared\colorer\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\TextParserImpl.cpp">
+      <Filter>shared\colorer\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\colorer\parsers\helpers\HRCParserHelpers.cpp">
+      <Filter>shared\colorer\parser\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\BitArray.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\Character.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\CharacterClass.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\DString.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\Encodings.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\SString.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\String.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\StringBuffer.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\unicode\UnicodeTools.cpp">
+      <Filter>shared\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\Exception.cpp">
+      <Filter>shared\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\Logging.cpp">
+      <Filter>shared\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\MemoryChunks.cpp">
+      <Filter>shared\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\FileInputSource.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\FileWriter.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\HTTPInputSource.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\InputSource.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\JARInputSource.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\SharedInputSource.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\StreamWriter.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\common\io\Writer.cpp">
+      <Filter>shared\common\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\xml\xmldom.cpp">
+      <Filter>shared\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\misc\malloc.c">
+      <Filter>shared\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\colorer\src\shared\cregexp\cregexp.cpp">
+      <Filter>shared\cregexp</Filter>
+    </ClCompile>
+    <ClCompile Include="ChooseTypeMenu.cpp">
+      <Filter>pcolorer3</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="pcolorer3.def">
+      <Filter>pcolorer3</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="vc10.asm">
+      <Filter>pcolorer3</Filter>
+    </MASM>
+  </ItemGroup>
+</Project>

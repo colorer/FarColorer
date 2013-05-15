@@ -1,0 +1,24 @@
+TARGET=pcolorer
+
+all: $(TARGET)
+	perl ../shared/_makefile.deps.pl
+	rm -f *.d *.o ".o"
+
+#generate dependencies:
+CPPFLAGS_CUSTOM=-MD -E -ID:/usr/local/cygwin/usr/include -ID:/usr/local/cygwin/usr/include/w32api
+
+shared_path=../shared/
+obj_output=.
+
+include ../shared/makefile.colorer.gcc
+
+LIBINC = -lc -lm
+LIBFLAGS = $(objs) $(FLAGS) -o $(TARGET) $(LIBINC)
+
+pcolorer::
+	$(CPP) $(CPPFLAGS) pcolorer.cpp
+	$(CPP) $(CPPFLAGS) FarEditorSet.cpp
+	$(CPP) $(CPPFLAGS) FarEditor.cpp
+
+clean:
+	$(RM) $(objs)

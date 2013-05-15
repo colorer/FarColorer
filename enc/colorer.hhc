@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="FarColorer Help">
+		<param name="Local" value="index.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="&Oacute;&ntilde;&ograve;&agrave;&iacute;&icirc;&acirc;&ecirc;&agrave; FarColorer">
+			<param name="Local" value="install.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="&Ntilde;&icirc;&ntilde;&ograve;&agrave;&acirc; FarColorer">
+			<param name="Local" value="structure.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="&Dstrok;&aring;&aelig;&egrave;&igrave;&ucirc; &eth;&agrave;&aacute;&icirc;&ograve;&ucirc;. TrueMod.">
+			<param name="Local" value="modes.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="&Iacute;&agrave;&ntilde;&ograve;&eth;&icirc;&eacute;&ecirc;&egrave; FarColorer">
+			<param name="Local" value="settings.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="&Iacute;&agrave;&ntilde;&ograve;&eth;&icirc;&eacute;&ecirc;&egrave; &ntilde;&otilde;&aring;&igrave;">
+				<param name="Local" value="shemes_settings.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="&Aacute;&egrave;&aacute;&euml;&egrave;&icirc;&ograve;&aring;&ecirc;&agrave; &ntilde;&otilde;&aring;&igrave;">
+			<param name="Local" value="base.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="&Iuml;&agrave;&eth;&agrave;&igrave;&aring;&ograve;&eth;&ucirc; &ntilde;&otilde;&aring;&igrave;">
+				<param name="Local" value="scheme_params.html">
+				</OBJECT>
+		</UL>
+	</UL>
+</UL>
+</BODY></HTML>

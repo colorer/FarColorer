@@ -1,0 +1,59 @@
+
+all: colorer.dll
+
+CPP     = gcc
+CXX     = g++
+DLLTOOL = dlltool
+MKDIR   = mkdir -p
+RM      = rm -f
+MV      = mv -f
+CP      = cp -f
+WINDRES = windres
+
+obj = o
+shared_path=../../colorer/src/shared/
+obj_output=objs
+obj_output_slash = $(obj_output)/
+
+DLLNAME = colorer.dll
+DLLDIR = ../bin
+DEF = pcolorer3.gcc.def
+RC_NAME = pcolorer3.rc
+RES = $(obj_output)/pcolorer3.res.o
+MAP_NAME = colorer.map
+
+CPPFLAGS_CUSTOM= -DUNICODE -D_UNICODE -DWINVER=0x0500 -DCOLORER_FEATURE_USE_DL_MALLOC=TRUE -DCOLORER_FEATURE_USE_CHUNK_ALLOC=TRUE
+CPPFLAGS_CUSTOM+= -DCOLORER_FEATURE_LOGLEVEL=COLORER_FEATURE_LOGLEVEL_QUIET -DUSE_DL_PREFIX
+CPPFLAGS_OPTIM= -O3 -Wall
+CPPFLAGS =-I../far3sdk -I$(shared_path) -I$(unzipdir) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_OPTIM) -mwin32 -c -o $*.$(obj)
+
+LNKFLAGS = -mdll -s -lwininet -lstdc++
+
+RCFLAGS = -D UNICODE -D _UNICODE
+
+include $(shared_path)makefile.zlib
+include $(shared_path)_dependencies.dep
+include $(shared_path)makefile.objs
+include $(shared_path)makefile.lines
+include _dependencies.dep
+include makefile.core
+
+objs += $(RES)
+
+$(RES): $(RC_NAME)
+	@$(WINDRES) $(RCFLAGS) -i $< -o $@
+
+colorer.dll: $(obj_output) $(objs) $(RES)
+	@$(MKDIR) -p $(DLLDIR)
+	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
+	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
+	@$(CXX) -mdll  -o $(DLLNAME) $(objs) $(DLLNAME).exp $(LNKFLAGS) -Xlinker --Map -Xlinker $(MAP_NAME)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+	@$(RM) $(DLLNAME).base
+	@$(RM) $(DLLNAME).exp
+	@$(MV) $(MAP_NAME) $(DLLDIR)
+	@$(CP) ../misc/*.* $(DLLDIR)
+
+clean:
+	$(RM) $(objs)
+	$(RM) $(DLLDIR)/*.*

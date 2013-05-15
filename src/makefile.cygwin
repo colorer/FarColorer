@@ -1,0 +1,35 @@
+
+all: colorer.dll
+
+# no cygwin/win cygwin dll
+CYGWIN=-mno-cygwin
+#CYGWIN=
+
+shared_path=../../colorer/src/shared/
+obj_output=objs
+CPPFLAGS_CUSTOM+=-I../far3sdk -DUNICODE -D_UNICODE -D__CYGWIN__ -DWINVER=0x0500 -DCOLORER_FEATURE_USE_DL_MALLOC=FALSE -DCOLORER_FEATURE_USE_CHUNK_ALLOC=FALSE
+#CPPFLAGS_CUSTOM += -DCOLORER_FEATURE_LOGLEVEL=COLORER_FEATURE_LOGLEVEL_FULL
+
+include $(shared_path)makefile.colorer.cygwin
+include _dependencies.dep
+include makefile.core
+
+DEF=pcolorer3.gcc.def
+DLLMAIN=_DllMain@12
+
+LIBINC = -lwininet -lstdc++
+LIBFLAGS = -mdll -Wl,-e,$(DLLMAIN),-Map=colorer.map $(FLAGS)
+
+colorer.dll: $(obj_output) $(objs)
+	$(LINK) $(LIBFLAGS) -o temp -Wl,--base-file,colorer.dll.base $(objs) $(LIBINC)
+	$(DLLTOOL) --dllname colorer.dll --base-file colorer.dll.base --output-exp colorer.dll.exp --def $(DEF)
+	$(LINK) $(LIBFLAGS) -o $@ $(objs) colorer.dll.exp $(LIBINC)
+	$(RM) colorer.dll.base
+	$(RM) colorer.dll.exp
+	$(RM) temp
+
+$(obj_output):
+	-mkdir $(obj_output)
+
+clean:
+	$(RM) $(objs)

@@ -1,0 +1,22 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=FarColorer.chm
+Contents file=colorer.hhc
+Default Font=,8,204
+Default Window=main
+Default topic=index.html
+Display compile progress=Yes
+Error log file=_errorlog.txt
+Full-text search=Yes
+Language=0x419 Русский (Россия)
+Title=FarColorer - Help
+
+[WINDOWS]
+main=,"colorer.hhc",,"index.html","index.html",,,,,0x73520,230,0x384e,[1,1,991,557],0xb0000,0x4400,,,,,0
+
+
+[FILES]
+index.html
+
+[INFOTYPES]
+

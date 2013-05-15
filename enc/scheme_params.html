@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<meta content="text/html; charset=UTF-8" http-equiv="content-type"><title>Параметры схем</title>
+
+<link rel="stylesheet" href="styles.css" type="text/css"></head><body style="width: 800px;">
+<h1 style="width: 800px;">Параметры схем<br>
+</h1>
+<a href="index.html">главная</a><span style="font-style: italic;"></span><br>
+<p>Параметры схем можно условно разделить на два типа - параметры
+библиотеки Сolorer и параметры FarColorer.</p>
+<h3>Параметры библиотеки Colorer
+</h3>
+<p>Это параметры, влияющие на парсинг файлов&nbsp;и подсветку
+синтаксиса библиотекой. Т.е. обрабатываются во всех программах,
+использующих бибилиотеку Colorer take5.<br>
+Существует два фиксированных параметра. Это<br>
+</p>
+<ul>
+<li><span style="font-weight: bold;">firstlines</span>
+- число строк
+файла, используемые для автоопределения типа файла по регулярному
+выражению в <span style="font-weight: bold;">firstline</span></li>
+<li><span style="font-weight: bold;"></span><span style="font-weight: bold;">firstlinebytes - </span>число
+символов, используемых для автоопределения типа файла по регулярному
+выражению в <span style="font-weight: bold;">firstline</span></li>
+</ul>
+<p>Так же авторы схем могут создать свои параметры. Эти параметры
+могут принимать два значения <span style="font-weight: bold;">true</span>
+и <span style="font-weight: bold;">false</span>.<span style="font-weight: bold;"> </span>Они используются
+для включения/выключения дополнительных возможностей при парсинге
+файла. Например, выделять или нет экранированные символы.</p>
+<h3>Параметры FarColorer</h3>
+Это параметры, влияющие на парсинг файлов и подсветку синтаксиса
+плагином FarColorer. <br>
+Существуют следующие параметры:<br>
+<ul>
+<li><span style="font-weight: bold;">show-cross</span>
+- выделять или нет&nbsp;строку/столбец, в котором находится курсор
+(далее упоминается как <span style="font-weight: bold; font-style: italic;">крест</span>).<br>
+Допустимые значения <span style="font-weight: bold; font-style: italic;"><br>
+</span>
+<ul>
+<li><span style="font-weight: bold; font-style: italic;">none
+-</span><span style="font-style: italic;"></span>
+нет креста</li>
+<li><span style="font-weight: bold; font-style: italic;">vertical</span><span style="font-weight: bold; font-style: italic;"> -</span><span style="font-style: italic;"></span> вертикальное выделение (столбец)<br>
+</li>
+<li><span style="font-weight: bold; font-style: italic;">horizontal</span><span style="font-weight: bold; font-style: italic;"> -</span><span style="font-style: italic;"></span> горизонтальное выделение (строка)<br>
+</li>
+<li><span style="font-weight: bold; font-style: italic;">both</span><span style="font-weight: bold; font-style: italic;"> -</span><span style="font-style: italic;"></span> в виде креста</li>
+</ul>
+</li>
+<li><span style="font-weight: bold;">cross-zorder</span>
+- положение креста<br>
+Допустимые значения</li>
+<ul>
+<li><span style="font-weight: bold; font-style: italic;">top
+-</span><span style="font-style: italic;"></span> поверх текста</li>
+<li><span style="font-style: italic; font-weight: bold;">bottom </span><span style="font-style: italic;">-</span> под текстом</li>
+</ul><li><span style="font-weight: bold;">maxlinelength</span> - максимальная длина строки для парсинга.
+При большом количестве символов в строке плагин может "упасть" из-за
+переполнения стека. Связано это с большим количеством элементов для
+разбора в строке. Данный параметр регулирует количество символов,
+подаваемоена парсинг. Текст дальше этого количества символов остается нераскрашенным. </li><li><span style="font-weight: bold;">backparse</span> - максимальное&nbsp;количество строк, которые обрабатывает анализатор за один вызов. Если 0 - то бесконечно.<br>На
+практике это означает, &nbsp;если
+(номер_строки_которую_хотим_нарисовать -
+номер_последней_проанализированной_строки) &gt; backparse, то анализ
+будет идти в "фоновом процессе". Иначе анализ будет произведен
+непосредственно при прорисовке текста. Проявляется, например, в виде
+задержки открытия файла, текущая строка в котором больше значения <span style="font-weight: bold;">backparse.</span></li><li><span style="font-weight: bold;">fullback - </span>изменять фон вложенных синтаксисов до конца строки. У региона должен быть тип <span style="font-family: 'Courier New'; color: rgb(0, 0, 0); background-color: transparent;">def:Insertion.</span><br>Допустимые значения&nbsp;<br><ul><li><span style="font-weight: bold;">true</span> - да</li><li><span style="font-weight: bold;">false</span> - нет</li></ul></li><li><span style="font-weight: bold;">default-fore</span> - цвет текста по умолчанию</li><li><span style="font-weight: bold;">default-back</span> - цвет фона по умолчанию</li>
+</ul><h3><a name="inherit"></a>Установка и наследование параметров</h3><br>Параметры могут быть установлены в трех местах.<br><ul><li>в библиотеке схем в файле proto.hrc
+(либо в других подобных файлах) в описании прототипа (prototype).
+Значения параметров устанавливаются разработчиками библиотеки.</li><li>в hrcsettings.xml. Рекомендуемые значения устанавливаются разработчиками FarColorer.</li>
+  <li>в окне "Настройка параметров схем". Значения параметров сохраняются в реестре, вместе с остальными настройками FarColorer.</li>
+</ul>Чтение параметров схемы идет из описания(prototype)/настроек этой
+схемы, либо если параметры не установлены берутся значения от схемы с
+именем default. Поиск параметра для схемы идет в следующем порядке:<br>
+<ul>
+  <li>в реестре<br>
+  </li>
+  <li>в hrcsettings.xml</li>
+  <li>в proto.hrc</li>
+  <li>в реестре для схемы default</li>
+  <li>в hrcsettings.xml для схемы default</li>
+  <li>в proto.hrc для схемы default</li>
+</ul>
+
+<ul>
+</ul>
+</body></html>
