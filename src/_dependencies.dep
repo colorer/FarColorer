@@ -34,11 +34,11 @@ $(obj_output_slash)FarEditor.$(obj): FarEditor.cpp  \
  $(shared_path)colorer/editor/PairMatch.h \
  $(shared_path)colorer/editor/Outliner.h \
  $(shared_path)colorer/editor/OutlineItem.h pcolorer.h \
- ../far3sdk/plugin.hpp $(shared_path)common/Logging.h
+ ../libs/far3sdk/plugin.hpp $(shared_path)common/Logging.h
 
 
 $(obj_output_slash)FarEditorSet.$(obj): FarEditorSet.cpp \
- ../far3sdk/farcolor.hpp SettingsControl.h \
+ ../libs/far3sdk/farcolor.hpp SettingsControl.h \
  $(shared_path)unicode/Encodings.h $(shared_path)unicode/String.h \
  $(shared_path)common/Exception.h $(shared_path)unicode/Character.h \
  $(shared_path)common/Common.h $(shared_path)common/Features.h \
@@ -73,13 +73,13 @@ $(obj_output_slash)FarEditorSet.$(obj): FarEditorSet.cpp \
  $(shared_path)colorer/handlers/LineRegionsCompactSupport.h \
  $(shared_path)colorer/editor/PairMatch.h \
  $(shared_path)colorer/viewer/TextLinesStore.h FarEditorSet.h pcolorer.h \
- ../far3sdk/plugin.hpp \
+ ../libs/far3sdk/plugin.hpp \
  FarEditor.h $(shared_path)colorer/editor/Outliner.h \
  $(shared_path)colorer/editor/OutlineItem.h
 
 
 $(obj_output_slash)pcolorer.$(obj): pcolorer.cpp \
- ../far3sdk/plugin.hpp pcolorer.h \
+ ../libs/far3sdk/plugin.hpp pcolorer.h \
  FarEditorSet.h \
  $(shared_path)colorer/handlers/FileErrorHandler.h \
  $(shared_path)common/io/StreamWriter.h $(shared_path)common/io/Writer.h \

@@ -63,10 +63,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\far3sdk\farcolor.hpp">
+    <ClInclude Include="..\libs\far3sdk\farcolor.hpp">
       <Filter>far3sdk</Filter>
     </ClInclude>
-    <ClInclude Include="..\far3sdk\plugin.hpp">
+    <ClInclude Include="..\libs\far3sdk\plugin.hpp">
       <Filter>far3sdk</Filter>
     </ClInclude>
     <ClInclude Include="FarEditor.h">

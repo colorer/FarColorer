@@ -33,6 +33,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -97,7 +98,7 @@
     <ClCompile>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\libs\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;COLORER_FEATURE_USE_DL_MALLOC=TRUE;COLORER_FEATURE_USE_CHUNK_ALLOC=FALSE;_CRT_SECURE_NO_DEPRECATE;COLORER_FEATURE_LOGLEVEL=COLORER_FEATURE_LOGLEVEL_QUIET;USE_DL_PREFIX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -134,7 +135,7 @@
     <ClCompile>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\libs\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN64;_DEBUG;_CONSOLE;COLORER_FEATURE_USE_DL_MALLOC=TRUE;COLORER_FEATURE_USE_CHUNK_ALLOC=FALSE;_CRT_SECURE_NO_DEPRECATE;USE_DL_PREFIX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -175,7 +176,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\libs\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_USRDLL;COLORER_FEATURE_USE_DL_MALLOC=TRUE;COLORER_FEATURE_USE_CHUNK_ALLOC=FALSE;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;COLORER_FEATURE_LOGLEVEL=COLORER_FEATURE_LOGLEVEL_QUIET;USE_DL_PREFIX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -223,7 +224,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\colorer\src\shared;..\libs\colorer\src\zlib;..\libs\far3sdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN64;NDEBUG;_USRDLL;COLORER_FEATURE_USE_DL_MALLOC=TRUE;COLORER_FEATURE_USE_CHUNK_ALLOC=FALSE;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;COLORER_FEATURE_LOGLEVEL=COLORER_FEATURE_LOGLEVEL_QUIET;USE_DL_PREFIX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -267,8 +268,8 @@
     <ResourceCompile Include="pcolorer3.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\far3sdk\farcolor.hpp" />
-    <ClInclude Include="..\far3sdk\plugin.hpp" />
+    <ClInclude Include="..\libs\far3sdk\farcolor.hpp" />
+    <ClInclude Include="..\libs\far3sdk\plugin.hpp" />
     <ClInclude Include="ChooseTypeMenu.h" />
     <ClInclude Include="FarEditor.h" />
     <ClInclude Include="FarEditorSet.h" />
