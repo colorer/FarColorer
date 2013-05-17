@@ -173,7 +173,7 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *pInfo)
 }
 
 // in order to not fall when it starts in far2 
-int WINAPI GetMinFarVersionW(void)
+extern "C" int WINAPI GetMinFarVersionW(void)
 {
   #define MAKEFARVERSION_OLD(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
   
