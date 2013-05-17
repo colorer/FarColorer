@@ -10,6 +10,9 @@ set(COLORER_FEATURE_HTTPINPUTSOURCE OFF CACHE BOOL "If defined, HTTP InputSource
 # init variables
 #====================================================
 
+STRING(REPLACE "\\" "/" PROJECT_ROOT ${PROJECT_ROOT})
+SET(SRC_ROOT ${PROJECT_ROOT}/src)
+
 IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
@@ -54,6 +57,29 @@ else()
   set(SRC_DEF pcolorer3.gcc.def)
 endif()
 
+if(MSVC)
+if(PLATFORM STREQUAL "Win32")
+  find_program (MASM_EXECUTABLE ml)
+  # message("masm: ${MASM_EXECUTABLE}")
+  set(ASM_OBJECTS)
+  foreach(src vc10)
+    set(ASM_SOURCE ${SRC_ROOT}/${src}.asm)
+    set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/${src}.obj)
+    set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
+    add_custom_command(
+      OUTPUT ${ASM_OBJECT}
+      COMMAND ${MASM_EXECUTABLE}
+      ARGS   /c /Fo ${ASM_OBJECT} ${ASM_SOURCE}
+      DEPENDS ${ASM_SOURCE}
+    )
+  endforeach(src)
+
+  set(SRC_CPP ${SRC_CPP}
+    vc10wrapper.cpp
+    ${ASM_OBJECTS}
+  )
+endif(PLATFORM STREQUAL "Win32")
+endif(MSVC)
 #====================================================
 # common flags
 #====================================================
