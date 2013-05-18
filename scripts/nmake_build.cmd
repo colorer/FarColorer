@@ -27,6 +27,7 @@ mkdir %PKGDIRBIN% > NUL
 
 copy %PROJECT_ROOT%\misc\*.* %PKGDIRBIN% > NUL
 copy %PROJECT_ROOT%\LICENSE %PKGDIRARCH% > NUL
+copy %PROJECT_ROOT%\README.MD %PKGDIRARCH% > NUL
 copy %PROJECT_ROOT%\docs\history.ru.txt %PKGDIRARCH% > NUL
 
 copy %SDIR%\*.dll %PKGDIRBIN% > NUL
