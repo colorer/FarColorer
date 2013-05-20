@@ -37,7 +37,8 @@ include_directories(../libs/colorer/src/)
 # far sdk
 #====================================================
 
-include_directories (../libs/far3sdk/)
+# add ./ to fix build on farmanager server
+include_directories (./ ../libs/far3sdk/) 
 
 set(SRC_CPP 
   pcolorer.cpp pcolorer.h
@@ -88,12 +89,6 @@ if (COLORER_FEATURE_HTTPINPUTSOURCE AND WIN32)
   set(WININETLIB wininet)
 endif()
 
-if(PLATFORM STREQUAL "Win32")
-  add_definitions(-DWIN32)
-else()
-  add_definitions(-DWIN64)
-endif()
-
 set(FLAGS_RELEASE "-U_DEBUG -DNDEBUG -D_UNICODE -DUNICODE")
 set(FLAGS_DEBUG "-D_DEBUG -DDEBUG -D_UNICODE -DUNICODE ")
 
@@ -101,7 +96,7 @@ if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
   add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
 
-  set(CMAKE_LINK_FLAGS "/MAP")
+  set(CMAKE_LINK_FLAGS "/MAP /MANIFEST:NO")
 
   set(COLORER_WARNING_FLAGS "")
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} /EHsc -D_WINDLL -D_USRDLL")
