@@ -925,7 +925,7 @@ void FarEditorSet::ReloadBase()
   Info.RestoreScreen(scr);
 }
 
-ErrorHandler *FarEditorSet::getErrorHandler()
+colorer::ErrorHandler *FarEditorSet::getErrorHandler()
 {
   if (parserFactory == NULL){
     return NULL;
@@ -1157,7 +1157,7 @@ void FarEditorSet::LoadUserHrd(const String *filename, ParserFactory *pf)
   if (filename && filename->length()){
     DocumentBuilder docbuilder;
     Document *xmlDocument;
-    InputSource *dfis = InputSource::newInstance(filename);
+    colorer::InputSource *dfis = colorer::InputSource::newInstance(filename);
     xmlDocument = docbuilder.parse(dfis);
     Node *types = xmlDocument->getDocumentElement();
 
@@ -1179,7 +1179,7 @@ void FarEditorSet::LoadUserHrc(const String *filename, ParserFactory *pf)
 {
   if (filename && filename->length()){
     HRCParser *hr = pf->getHRCParser();
-    InputSource *dfis = InputSource::newInstance(filename, NULL);
+    colorer::InputSource *dfis = colorer::InputSource::newInstance(filename, NULL);
     try{
       hr->loadSource(dfis);
       delete dfis;

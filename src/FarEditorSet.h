@@ -129,7 +129,7 @@ public:
   void showExceptionMessage(const wchar_t* message);
 private:
   /** Returns current global error handler. */
-  ErrorHandler *getErrorHandler();
+  colorer::ErrorHandler *getErrorHandler();
   /** add current active editor and return him. */
   FarEditor *addCurrentEditor();
   /** Returns currently active editor. */

@@ -12,7 +12,7 @@ void FarHrcSettings::readProfile()
 void FarHrcSettings::readXML(String *file, bool userValue)
 {
   DocumentBuilder docbuilder;
-  InputSource *dfis = InputSource::newInstance(file);
+  colorer::InputSource *dfis = colorer::InputSource::newInstance(file);
   Document *xmlDocument = docbuilder.parse(dfis);
   Element *types = xmlDocument->getDocumentElement();
 
