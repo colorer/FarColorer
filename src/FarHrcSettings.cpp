@@ -37,7 +37,7 @@ void FarHrcSettings::UpdatePrototype(Element *elem, bool userValue)
     return;
   }
   HRCParser *hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl *type = (FileTypeImpl *)hrcParser->getFileType(typeName);
+  FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(typeName));
   if (type== null){
     return;
   };
@@ -87,7 +87,7 @@ void FarHrcSettings::readProfileFromRegistry()
     for (size_t i=0; i<fse.Count; i++){
       if (fse.Items[i].Type == FST_SUBKEY){
         //check whether we have such a scheme
-        FileTypeImpl *type = (FileTypeImpl *)hrcParser->getFileType(&DString(fse.Items[i].Name));
+        FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(&DString(fse.Items[i].Name)));
         if (type){
           // enum all params in the section
           size_t type_subkey;
@@ -131,7 +131,7 @@ void FarHrcSettings::writeProfileToRegistry()
 
   // enum all FileTypes
   for (int idx = 0; ; idx++){
-    type =(FileTypeImpl *) hrcParser->enumerateFileTypes(idx);
+    type =static_cast<FileTypeImpl *>(hrcParser->enumerateFileTypes(idx));
 
     if (!type){
       break;
