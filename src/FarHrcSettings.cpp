@@ -37,7 +37,7 @@ void FarHrcSettings::UpdatePrototype(Element *elem, bool userValue)
     return;
   }
   HRCParser *hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl *type = (FileTypeImpl *)hrcParser->getFileType(typeName);
+  FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(typeName));
   if (type== null){
     return;
   };
@@ -87,7 +87,7 @@ void FarHrcSettings::readProfileFromRegistry()
     for (size_t i=0; i<fse.Count; i++){
       if (fse.Items[i].Type == FST_SUBKEY){
         //check whether we have such a scheme
-        FileTypeImpl *type = (FileTypeImpl *)hrcParser->getFileType(&DString(fse.Items[i].Name));
+        FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(&DString(fse.Items[i].Name)));
         if (type){
           // enum all params in the section
           size_t type_subkey;
@@ -131,22 +131,21 @@ void FarHrcSettings::writeProfileToRegistry()
 
   // enum all FileTypes
   for (int idx = 0; ; idx++){
-    type =(FileTypeImpl *) hrcParser->enumerateFileTypes(idx);
+    type =static_cast<FileTypeImpl *>(hrcParser->enumerateFileTypes(idx));
 
     if (!type){
       break;
     }
 
-    const String *p, *v;
     if (type->getParamCount() && type->getParamNotDefaultValueCount()){// params>0 and user values >0
       size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey,type->getName()->getWChars());
       // enum all params
       for (int i=0;;i++){
-        p=type->enumerateParameters(i);
+        const String *p=type->enumerateParameters(i);
         if (!p){
           break;
         }
-        v=type->getParamNotDefaultValue(*p);
+        const String *v=type->getParamNotDefaultValue(*p);
         if (v!=NULL){
           ColorerSettings.Set(type_subkey,p->getWChars(),v->getWChars());
         }
