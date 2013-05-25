@@ -58,7 +58,7 @@ else()
   set(SRC_DEF pcolorer3.gcc.def)
 endif()
 
-if(MSVC)
+if(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
 if(PLATFORM STREQUAL "Win32")
   find_program (MASM_EXECUTABLE ml)
   # message("masm: ${MASM_EXECUTABLE}")
@@ -80,7 +80,7 @@ if(PLATFORM STREQUAL "Win32")
     ${ASM_OBJECTS}
   )
 endif(PLATFORM STREQUAL "Win32")
-endif(MSVC)
+endif()
 #====================================================
 # common flags
 #====================================================
