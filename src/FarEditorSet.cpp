@@ -12,6 +12,8 @@ FarEditorSet::FarEditorSet()
   sCatalogPathExp = NULL;
   sTempHrdName = NULL;
   sTempHrdNameTm = NULL;
+  dialogFirstFocus = false;
+  menuid = 0;
   sUserHrdPath = NULL;
   sUserHrdPathExp = NULL;
   sUserHrcPath = NULL;
@@ -19,6 +21,7 @@ FarEditorSet::FarEditorSet()
 
   ReloadBase();
   viewFirst = 0;
+  CurrentMenuItem = 0;
 }
 
 FarEditorSet::~FarEditorSet()

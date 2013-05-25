@@ -34,6 +34,8 @@ FarEditor::FarEditor(PluginStartupInfo *info, ParserFactory *pf)
   structOutliner = new Outliner(baseEditor, def_Outlined);
   errorOutliner = new Outliner(baseEditor, def_Error);
   TrueMod=true;
+  WindowSizeX = 0;
+  WindowSizeY = 0;
 }
 
 FarEditor::~FarEditor()
