@@ -109,7 +109,7 @@ public:
   bool TestLoadBase(const wchar_t *catalogPath, const wchar_t *userHrdPath, const wchar_t *userHrcPath, const int full, const HRC_MODE hrc_mode);
   SString *GetCatalogPath() {return sCatalogPath;}
   SString *GetUserHrdPath() {return sUserHrdPath;}
-  bool GetPluginStatus() {return rEnabled;}
+  bool GetPluginStatus() const {return rEnabled;}
 
   bool SetBgEditor();
   void LoadUserHrd(const String *filename, ParserFactory *pf);
