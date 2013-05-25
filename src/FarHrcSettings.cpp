@@ -137,16 +137,15 @@ void FarHrcSettings::writeProfileToRegistry()
       break;
     }
 
-    const String *p, *v;
     if (type->getParamCount() && type->getParamNotDefaultValueCount()){// params>0 and user values >0
       size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey,type->getName()->getWChars());
       // enum all params
       for (int i=0;;i++){
-        p=type->enumerateParameters(i);
+        const String *p=type->enumerateParameters(i);
         if (!p){
           break;
         }
-        v=type->getParamNotDefaultValue(*p);
+        const String *v=type->getParamNotDefaultValue(*p);
         if (v!=NULL){
           ColorerSettings.Set(type_subkey,p->getWChars(),v->getWChars());
         }

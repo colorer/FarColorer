@@ -259,12 +259,11 @@ inline wchar_t* __cdecl Upper(wchar_t* Ch) { CharUpperBuff(Ch, 1); return Ch; }
 INT_PTR WINAPI KeyDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2) 
 {
   INPUT_RECORD* record=nullptr;
-  int key=0;
   wchar wkey[2];
 
   record=(INPUT_RECORD *)Param2;
   if (Msg == DN_CONTROLINPUT && record->EventType==KEY_EVENT){
-    key = record->Event.KeyEvent.wVirtualKeyCode;
+    int key = record->Event.KeyEvent.wVirtualKeyCode;
     if (key == VK_ESCAPE  || key == VK_RETURN )
     {
       return FALSE;
@@ -301,9 +300,9 @@ void FarEditorSet::chooseType()
   wchar_t bottom[20];
   _snwprintf(bottom, 20, GetMsg(mTotalTypes), hrcParser->getFileTypesCount());
   struct FarKey BreakKeys[3]={VK_INSERT,0,VK_DELETE,0,VK_F4,0};
-  intptr_t BreakCode,i;
+  intptr_t BreakCode;
   while (1) {
-    i = Info.Menu(&MainGuid, &FileChooseMenu, -1, -1, 0, FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT,
+    intptr_t i = Info.Menu(&MainGuid, &FileChooseMenu, -1, -1, 0, FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT,
       GetMsg(mSelectSyntax), bottom, L"filetypechoose", BreakKeys,&BreakCode, menu.getItems(), menu.getItemsCount());
 
     if (i>=0){

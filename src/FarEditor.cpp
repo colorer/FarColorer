@@ -660,12 +660,11 @@ int FarEditor::editorEvent(intptr_t event, void *param)
         FarColor col = convert(l1->styled());
         // remove the front in color whitespaces to display correctly in the far hidden characters (tab, space)
         int j=l1->start;
-        int start,end;
         bool whitespace=false;
         while (j<lend){
           FarColor col1=col;
-          start = j;
-          end = lend;
+          int start = j;
+          int end = lend;
           if (show_whitespase) {
             if (egs.StringText[j]==L' ' || egs.StringText[j]==L'\t'){
               while ((j<=llen)&&(j<lend)&&(egs.StringText[j]==L' ' || egs.StringText[j]==L'\t')) j++;
