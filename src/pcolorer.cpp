@@ -122,7 +122,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *oInfo)
       break;
     case OPEN_FROMMACRO:
       {
-        intptr_t i= Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, NULL);
+        Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, NULL);
         OpenMacroInfo* mi=(OpenMacroInfo*)oInfo->Data;
         int MenuCode=-1;
         if (mi->Count)

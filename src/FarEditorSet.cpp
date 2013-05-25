@@ -259,7 +259,6 @@ inline wchar_t* __cdecl Upper(wchar_t* Ch) { CharUpperBuff(Ch, 1); return Ch; }
 INT_PTR WINAPI KeyDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2) 
 {
   INPUT_RECORD* record=nullptr;
-  static int LastKey=0;
   int key=0;
   wchar wkey[2];
 
@@ -1665,7 +1664,7 @@ void FarEditorSet::configureHrc()
 
   dialogFirstFocus = true;
   HANDLE hDlg = Info.DialogInit(&MainGuid,&HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, ARRAY_SIZE(fdi), 0, 0, SettingHrcDialogProc, this);
-  intptr_t i = Info.DialogRun(hDlg);
+  Info.DialogRun(hDlg);
   
   for (size_t idx = 0; idx < l->ItemsNumber; idx++){
     if (l->Items[idx].Text){
