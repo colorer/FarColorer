@@ -65,6 +65,9 @@ $^#FarColorer's settings.#
   #Users file of color styles#
      Full file path sets the users file of color styles
 
+  #Log file#
+     Full path in this field specifies the file that will store diagnostic messages
+
   #--------------------------TrueMod Settings------------------------#
   #Enabled#
      Enable/Disable TrueMod in plugin.

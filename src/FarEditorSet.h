@@ -29,6 +29,7 @@ const wchar_t cRegTrueMod[]        = L"TrueMod";
 const wchar_t cRegChangeBgEditor[] = L"ChangeBgEditor";
 const wchar_t cRegUserHrdPath[]    = L"UserHrdPath";
 const wchar_t cRegUserHrcPath[]    = L"UserHrcPath";
+const wchar_t cRegLogPath[]        = L"LogPath";
 
 //values of registry keys by default
 const bool cEnabledDefault          = true;
@@ -44,6 +45,7 @@ const bool cTrueMod                 = false;
 const bool cChangeBgEditor          = false;
 const wchar_t cUserHrdPathDefault[] = L"";
 const wchar_t cUserHrcPathDefault[] = L"";
+const wchar_t cLogPathDefault[] = L"";
 
 const DString DConsole   = DString("console");
 const DString DRgb       = DString("rgb");
@@ -53,7 +55,7 @@ const DString DAutodetect= DString("autodetect");
 enum
 { IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE,IDX_CHANGE_BG,
 IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
-IDX_USERHRD, IDX_USERHRD_EDIT, IDX_TM_BOX, IDX_TRUEMOD,IDX_HRD_TM, 
+IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_LOG_EDIT, IDX_TM_BOX, IDX_TRUEMOD,IDX_HRD_TM, 
 IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL};
 
 enum
@@ -127,6 +129,7 @@ public:
   int menuid;
 
   void showExceptionMessage(const wchar_t* message);
+  void setLogPath(const wchar_t* log_path);
 private:
   /** Returns current global error handler. */
   colorer::ErrorHandler *getErrorHandler();
@@ -206,16 +209,19 @@ private:
   SString *sCatalogPath;
   SString *sUserHrdPath;
   SString *sUserHrcPath;
+  SString *sLogPath;
   
   /** UNC path */
   SString *sCatalogPathExp;
   SString *sUserHrdPathExp;
   SString *sUserHrcPathExp;
+  SString *sLogPathExp;
 
   int viewFirst; // 0 - init;  1 - first run view; 2 - first run editor
   int CurrentMenuItem;
 
   unsigned int err_status;
+  colorer::ErrorHandler *error_handler;
 };
 
 #endif

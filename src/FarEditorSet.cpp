@@ -1,4 +1,5 @@
 #include"FarEditorSet.h"
+#include<colorer/handlers/FileErrorHandler.h>
 
 FarEditorSet::FarEditorSet()
 {
@@ -18,7 +19,9 @@ FarEditorSet::FarEditorSet()
   sUserHrdPathExp = NULL;
   sUserHrcPath = NULL;
   sUserHrcPathExp = NULL;
-
+  error_handler = NULL;
+  sLogPath = NULL;
+  sLogPathExp = NULL;
   ReloadBase();
   viewFirst = 0;
   CurrentMenuItem = 0;
@@ -35,8 +38,11 @@ FarEditorSet::~FarEditorSet()
   delete sUserHrdPathExp;
   delete sUserHrcPath;
   delete sUserHrcPathExp;
+  delete sLogPath;
+  delete sLogPathExp;
   delete regionMapper;
   delete parserFactory;
+  delete error_handler;
 }
 
 void FarEditorSet::openMenu(int MenuId)
@@ -457,7 +463,7 @@ void FarEditorSet::configure(bool fromEditor)
   try{
     FarDialogItem fdi[] =
     {// type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
-      { DI_DOUBLEBOX,3,1,55,23,0,0,0,0,0,0,0},                //IDX_BOX,
+      { DI_DOUBLEBOX,3,1,55,25,0,0,0,0,0,0,0},                //IDX_BOX,
       { DI_CHECKBOX,5,2,0,0,0,0,0,0,0,0,0},                   //IDX_DISABLED,
       { DI_CHECKBOX,5,3,0,0,0,0,0,DIF_3STATE,0,0,0},          //IDX_CROSS,
       { DI_TEXT,7,4,0,4,0,0,0,0,0,0,0},                       //IDX_CROSS_TEXT,
@@ -474,15 +480,17 @@ void FarEditorSet::configure(bool fromEditor)
       { DI_EDIT,6,13,52,13,0,L"userhrc",0,DIF_HISTORY,0,0,0},  //IDX_USERHRC_EDIT
       { DI_TEXT,5,14,0,14,0,0,0,0,0,0,0},                     //IDX_USERHRD,
       { DI_EDIT,6,15,52,15,0,L"userhrd",0,DIF_HISTORY,0,0,0},  //IDX_USERHRD_EDIT
-      { DI_SINGLEBOX,4,17,54,17,0,0,0,0,0,0,0},               //IDX_TM_BOX,
-      { DI_CHECKBOX,5,18,0,0,0,0,0,0,0,0,0},                  //IDX_TRUEMOD,
-      { DI_TEXT,5,19,0,19,0,0,0,0,0,0,0},                     //IDX_HRD_TM,
-      { DI_BUTTON,20,19,0,0,0,0,0,0,0,0,0},                   //IDX_HRD_SELECT_TM,
-      { DI_SINGLEBOX,4,20,54,19,0,0,0,0,0,0,0},               //IDX_TM_BOX_OFF,
-      { DI_BUTTON,5,21,0,0,0,0,0,0,0,0,0},                    //IDX_RELOAD_ALL,
-      { DI_BUTTON,30,21,0,0,0,0,0,0,0,0,0},                   //IDX_HRC_SETTING,
-      { DI_BUTTON,35,22,0,0,0,0,0,DIF_DEFAULTBUTTON,0,0,0},   //IDX_OK,
-      { DI_BUTTON,45,22,0,0,0,0,0,0,0,0,0},                   //IDX_CANCEL,
+      { DI_TEXT,5,16,0,16,0,0,0,0,0,0,0},                     //IDX_LOG,
+      { DI_EDIT,6,17,52,17,0,L"log",0,DIF_HISTORY,0,0,0},     //IDX_LOG_EDIT
+      { DI_SINGLEBOX,4,18,54,18,0,0,0,0,0,0,0},               //IDX_TM_BOX,
+      { DI_CHECKBOX,5,19,0,0,0,0,0,0,0,0,0},                  //IDX_TRUEMOD,
+      { DI_TEXT,5,20,0,20,0,0,0,0,0,0,0},                     //IDX_HRD_TM,
+      { DI_BUTTON,20,20,0,0,0,0,0,0,0,0,0},                   //IDX_HRD_SELECT_TM,
+      { DI_SINGLEBOX,4,21,54,21,0,0,0,0,0,0,0},               //IDX_TM_BOX_OFF,
+      { DI_BUTTON,5,22,0,0,0,0,0,0,0,0,0},                    //IDX_RELOAD_ALL,
+      { DI_BUTTON,30,22,0,0,0,0,0,0,0,0,0},                   //IDX_HRC_SETTING,
+      { DI_BUTTON,35,23,0,0,0,0,0,DIF_DEFAULTBUTTON,0,0,0},   //IDX_OK,
+      { DI_BUTTON,45,23,0,0,0,0,0,0,0,0,0},                   //IDX_CANCEL,
     };//type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
 
     fdi[IDX_BOX].Data = GetMsg(mSetup);
@@ -526,7 +534,6 @@ void FarEditorSet::configure(bool fromEditor)
     descr=getHRDescription(*sTempHrdName,DConsole);
 
     fdi[IDX_HRD_SELECT].Data = descr->getWChars();
-
     const String *descr2 = NULL;
     sTempHrdNameTm =new SString(sHrdNameTm); 
     descr2=getHRDescription(*sTempHrdNameTm,DRgb);
@@ -541,6 +548,9 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_CANCEL].Data = GetMsg(mCancel);
     fdi[IDX_TM_BOX].Data = GetMsg(mTrueModSetting);
 
+    fdi[IDX_LOG].Data = GetMsg(mLog);
+    fdi[IDX_LOG_EDIT].Data = sLogPath->getWChars();
+
     /*
     * Dialog activation
     */
@@ -551,6 +561,7 @@ void FarEditorSet::configure(bool fromEditor)
       fdi[IDX_CATALOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,IDX_CATALOG_EDIT,0));
       fdi[IDX_USERHRD_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,IDX_USERHRD_EDIT,0));
       fdi[IDX_USERHRC_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,IDX_USERHRC_EDIT,0));
+      fdi[IDX_LOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,IDX_LOG_EDIT,0));
       //check whether or not to reload the base
       int k = false;
 
@@ -581,6 +592,7 @@ void FarEditorSet::configure(bool fromEditor)
       sCatalogPath = new SString(DString(fdi[IDX_CATALOG_EDIT].Data));
       sUserHrdPath = new SString(DString(fdi[IDX_USERHRD_EDIT].Data));
       sUserHrcPath = new SString(DString(fdi[IDX_USERHRC_EDIT].Data));
+      setLogPath(fdi[IDX_LOG_EDIT].Data);
 
       // if the plugin has been enable, and we will disable
       if (rEnabled && !fdi[IDX_ENABLED].Selected){
@@ -775,7 +787,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
   }
 
   try{
-    parserFactoryLocal = new ParserFactory(tpath);
+    parserFactoryLocal = new ParserFactory(error_handler);
+    parserFactoryLocal->loadCatalog(tpath);
     delete tpath;
     hrcParserLocal = parserFactoryLocal->getHRCParser();
     LoadUserHrd(userHrdPathS, parserFactoryLocal);
@@ -882,8 +895,8 @@ void FarEditorSet::ReloadBase()
       hrdName = sHrdName;
     }
 
-
-    parserFactory = new ParserFactory(sCatalogPathExp);
+    parserFactory = new ParserFactory(error_handler);
+    parserFactory->loadCatalog(sCatalogPathExp);
     hrcParser = parserFactory->getHRCParser();
     LoadUserHrd(sUserHrdPathExp, parserFactory);
     LoadUserHrc(sUserHrcPathExp, parserFactory);
@@ -1064,6 +1077,7 @@ void FarEditorSet::ReadSettings()
   const wchar_t *catalogPath = ColorerSettings.Get(0, cRegCatalog, cCatalogDefault);
   const wchar_t *userHrdPath = ColorerSettings.Get(0, cRegUserHrdPath, cUserHrdPathDefault);
   const wchar_t *userHrcPath = ColorerSettings.Get(0, cRegUserHrcPath, cUserHrcPathDefault);
+  const wchar_t *LogPath = ColorerSettings.Get(0, cRegLogPath, cLogPathDefault);
 
   delete sHrdName;
   delete sHrdNameTm;
@@ -1095,6 +1109,7 @@ void FarEditorSet::ReadSettings()
   sUserHrdPathExp = PathToFullS(userHrdPath,false);
   sUserHrcPath = new SString(DString(userHrcPath));
   sUserHrcPathExp = PathToFullS(userHrcPath,false);
+  setLogPath(LogPath);
 
   rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
   drawCross = ColorerSettings.Get(0, cRegCrossDraw, cCrossDrawDefault);
@@ -1106,6 +1121,26 @@ void FarEditorSet::ReadSettings()
   ChangeBgEditor = ColorerSettings.Get(0, cRegChangeBgEditor, cChangeBgEditor);
 }
 
+void FarEditorSet::setLogPath(const wchar_t* log_path)
+{
+  if (sLogPath && sLogPath->compareToIgnoreCase(DString(log_path))!=0){
+    delete error_handler;
+    error_handler = null;
+  }
+  delete sLogPath;
+  delete sLogPathExp;
+  sLogPath = new SString(DString(log_path));
+  sLogPathExp = PathToFullS(log_path,false);
+  if (error_handler == null && sLogPathExp!=null) {
+    try {
+      error_handler = new FileErrorHandler(sLogPathExp, Encodings::ENC_UTF8, false);
+    } catch (Exception &e){
+      error_handler = null;
+      showExceptionMessage(e.getMessage()->getWChars());
+    }
+  }
+
+}
 
 void FarEditorSet::SaveSettings()
 {
@@ -1123,6 +1158,7 @@ void FarEditorSet::SaveSettings()
   ColorerSettings.Set(0, cRegChangeBgEditor, ChangeBgEditor); 
   ColorerSettings.Set(0, cRegUserHrdPath, sUserHrdPath->getWChars());
   ColorerSettings.Set(0, cRegUserHrcPath, sUserHrcPath->getWChars());
+  ColorerSettings.Set(0, cRegLogPath, sLogPath->getWChars());
 }
 
 bool FarEditorSet::SetBgEditor()

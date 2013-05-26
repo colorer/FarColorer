@@ -61,7 +61,8 @@ enum
   mFatal, mSelectHRD, mChangeBackgroundEditor, mTrueModSetting,
   mUserHrdFile, mUserHrcFile, mUserHrcSetting,
   mUserHrcSettingDialog, mListSyntax, mParamList,mParamValue, mAutoDetect, mFavorites,
-  mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName, mCrossText, mCrossBoth, mCrossVert, mCrossHoriz
+  mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName, mCrossText, mCrossBoth, mCrossVert, mCrossHoriz,
+  mLog
 };
 
 #endif
