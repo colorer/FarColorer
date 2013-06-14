@@ -1,4 +1,5 @@
 #include"FarEditorSet.h"
+#include <xml/XmlParserErrorHandler.h>
 #include<colorer/handlers/FileErrorHandler.h>
 
 FarEditorSet::FarEditorSet()
@@ -22,6 +23,7 @@ FarEditorSet::FarEditorSet()
   error_handler = NULL;
   sLogPath = NULL;
   sLogPathExp = NULL;
+  xercesc::XMLPlatformUtils::Initialize();
   ReloadBase();
   viewFirst = 0;
   CurrentMenuItem = 0;
@@ -43,6 +45,7 @@ FarEditorSet::~FarEditorSet()
   delete regionMapper;
   delete parserFactory;
   delete error_handler;
+  xercesc::XMLPlatformUtils::Terminate();
 }
 
 void FarEditorSet::openMenu(int MenuId)
@@ -1192,31 +1195,40 @@ bool FarEditorSet::SetBgEditor()
 void FarEditorSet::LoadUserHrd(const String *filename, ParserFactory *pf)
 {
   if (filename && filename->length()){
-    DocumentBuilder docbuilder;
-    Document *xmlDocument;
-    colorer::InputSource *dfis = colorer::InputSource::newInstance(filename);
-    xmlDocument = docbuilder.parse(dfis);
-    Node *types = xmlDocument->getDocumentElement();
-
-    if (*types->getNodeName() != "hrd-sets"){
-      docbuilder.free(xmlDocument);
+    xercesc::XercesDOMParser xml_parser;
+    XmlParserErrorHandler error_handler(null);
+    xml_parser.setErrorHandler(&error_handler);
+    xml_parser.setLoadExternalDTD(false);
+    xml_parser.setSkipDTDValidation(true);
+    XmlInputSource* config = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)nullptr);
+    xml_parser.parse(*config->getInputSource());
+    if (error_handler.getSawErrors()) {
+      throw ParserFactoryException(StringBuffer("Error reading ")+DString(filename));
+    }
+    xercesc::DOMDocument *catalog = xml_parser.getDocument();
+    xercesc::DOMElement *elem = catalog->getDocumentElement();
+    const XMLCh *tagHrdSets = L"hrd-sets";
+    const XMLCh *tagHrd = L"hrd";
+    if (elem == null || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
       throw Exception(DString("main '<hrd-sets>' block not found"));
     }
-    for (Node *elem = types->getFirstChild(); elem; elem = elem->getNextSibling()){
-      if (elem->getNodeType() == Node::ELEMENT_NODE && *elem->getNodeName() == "hrd"){
-        pf->parseHRDSetsChild(elem);
+    for (xercesc::DOMNode *node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
+      if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
+        xercesc::DOMElement *subelem = static_cast<xercesc::DOMElement*>(node);
+        if (xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
+          pf->parseHRDSetsChild(elem);
+        }
       }
-    };
-    docbuilder.free(xmlDocument);
+    }
+    delete config;
   }
-
 }
 
 void FarEditorSet::LoadUserHrc(const String *filename, ParserFactory *pf)
 {
   if (filename && filename->length()){
     HRCParser *hr = pf->getHRCParser();
-    colorer::InputSource *dfis = colorer::InputSource::newInstance(filename, NULL);
+    XmlInputSource *dfis = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)NULL);
     try{
       hr->loadSource(dfis);
       delete dfis;
