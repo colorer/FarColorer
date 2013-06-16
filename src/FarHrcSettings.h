@@ -1,7 +1,6 @@
 #ifndef _FARHRCSETTINGS_H_
 #define _FARHRCSETTINGS_H_
 
-#include<xml/xmldom.h>
 #include<colorer/parsers/helpers/FileTypeImpl.h>
 #include<colorer/HRCParser.h>
 #include<colorer/ParserFactory.h>
@@ -36,7 +35,7 @@ public:
   void writeUserProfile();
 
 private:
-  void UpdatePrototype(Element *elem, bool userValue);
+  void UpdatePrototype(xercesc::DOMElement *elem, bool userValue);
   void readProfileFromRegistry();
   void writeProfileToRegistry();
 

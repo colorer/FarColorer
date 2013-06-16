@@ -32,7 +32,8 @@ endif()
 #====================================================
 add_subdirectory(../libs/colorer/src/ ./build)
 include_directories(../libs/colorer/src/)
-
+include_directories (../libs/colorer/libs/xercesc/src)
+set(CMAKE_CXX_FLAGS "-DXERCES_STATIC_LIBRARY")
 #====================================================
 # far sdk
 #====================================================
@@ -99,7 +100,7 @@ if(MSVC)
   set(CMAKE_LINK_FLAGS "/MAP /MANIFEST:NO")
 
   set(COLORER_WARNING_FLAGS "")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} /EHsc -D_WINDLL -D_USRDLL")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Zi -D_WINDLL -D_USRDLL")
 
   set(FLAGS_RELEASE "${FLAGS_RELEASE} /O2 /Oi /Ot /Oy /GL /GF /GS- /Gy /MT")
   set(FLAGS_DEBUG "${FLAGS_DEBUG} /Od /MTd /GS /RTC1")
@@ -108,14 +109,14 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(COLORER_WARNING_FLAGS )
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fpermissive -std=c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -std=c++11")
 
   set(FLAGS_RELEASE "${FLAGS_RELEASE} -s -O3")
   set(FLAGS_DEBUG "${FLAGS_DEBUG}")
   set(CMAKE_LINK_FLAGS "-Xlinker --Map -Xlinker libcolorer.map")
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COLORER_WARNING_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${COLORER_WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COLORER_WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${FLAGS_RELEASE}")
 set(CMAKE_C_FLAGS_RELEASE "${FLAGS_RELEASE}")
@@ -126,7 +127,7 @@ set(CMAKE_C_FLAGS_DEBUG "${FLAGS_DEBUG}")
 # build
 #====================================================
 
-set(LIBRARIES colorer_lib)
+set(LIBRARIES colorer_lib xerces-c_3_1)
 set(SRC_FILES ${SRC_CPP} ${SRC_DEF})
 add_library(colorer SHARED ${SRC_FILES} )
 target_link_libraries(colorer ${LIBRARIES} ${WININETLIB})

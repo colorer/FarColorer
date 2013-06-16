@@ -1,4 +1,5 @@
 #include"FarHrcSettings.h"
+#include <xml/XmlParserErrorHandler.h>
 
 void FarHrcSettings::readProfile()
 {
@@ -11,61 +12,84 @@ void FarHrcSettings::readProfile()
 
 void FarHrcSettings::readXML(String *file, bool userValue)
 {
-  DocumentBuilder docbuilder;
-  colorer::InputSource *dfis = colorer::InputSource::newInstance(file);
-  Document *xmlDocument = docbuilder.parse(dfis);
-  Element *types = xmlDocument->getDocumentElement();
+  xercesc::XercesDOMParser xml_parser;
+  XmlParserErrorHandler error_handler(null);
+  xml_parser.setErrorHandler(&error_handler);
+  xml_parser.setLoadExternalDTD(false);
+  xml_parser.setSkipDTDValidation(true);
+  XmlInputSource* config = XmlInputSource::newInstance(file->getWChars(), (XMLCh*)nullptr);
+  xml_parser.parse(*config->getInputSource());
+  if (error_handler.getSawErrors()) {
+    delete config;
+    throw ParserFactoryException(DString("Error reading hrcsettings.xml."));
+  }
+  xercesc::DOMDocument *catalog = xml_parser.getDocument();
+  xercesc::DOMElement *elem = catalog->getDocumentElement();
 
-  if (*types->getNodeName() != "hrc-settings"){
-    docbuilder.free(xmlDocument);
+  const XMLCh *tagPrototype = L"prototype";
+  const XMLCh *tagHrcSettings = L"hrc-settings";
+
+  if (elem == null || !xercesc::XMLString::equals(elem->getNodeName(), tagHrcSettings)) {
+    delete config;
     throw FarHrcSettingsException(DString("main '<hrc-settings>' block not found"));
   }
-  for (Node *elem = types->getFirstChild(); elem; elem = elem->getNextSibling()){
-    if (*elem->getNodeName() == "prototype"){
-      UpdatePrototype((Element*)elem, userValue);
-      continue;
-    }
-  };
-  docbuilder.free(xmlDocument);
-  delete dfis;
+  for (xercesc::DOMNode *node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
+    if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
+      xercesc::DOMElement *subelem = static_cast<xercesc::DOMElement*>(node);
+      if (xercesc::XMLString::equals(subelem->getNodeName(), tagPrototype)) {
+        UpdatePrototype(subelem, userValue);
+      }
+    };
+  }
+  delete config;
 }
 
-void FarHrcSettings::UpdatePrototype(Element *elem, bool userValue)
+void FarHrcSettings::UpdatePrototype(xercesc::DOMElement *elem, bool userValue)
 {
-  const String *typeName = elem->getAttribute(DString("name"));
+  const XMLCh *tagProtoAttrParamName = L"name";
+  const XMLCh *tagParam = L"param";
+  const XMLCh *tagParamAttrParamName = L"name";
+  const XMLCh *tagParamAttrParamValue = L"value";
+  const XMLCh *tagParamAttrParamDescription = L"description";
+  const XMLCh *typeName = elem->getAttribute(tagProtoAttrParamName);
   if (typeName == null){
     return;
   }
   HRCParser *hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(typeName));
+  FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(&DString(typeName)));
   if (type== null){
     return;
   };
-  for(Node *content = elem->getFirstChild(); content != null; content = content->getNextSibling()){
-    if (*content->getNodeName() == "param"){
-      const String *name = ((Element*)content)->getAttribute(DString("name"));
-      const String *value = ((Element*)content)->getAttribute(DString("value"));
-      const String *descr = ((Element*)content)->getAttribute(DString("description"));
-      if (name == null || value == null){
-        continue;
-      };
 
-      if (type->getParamValue(SString(name))==null){
-        type->addParam(name);
+  for (xercesc::DOMNode *node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
+    if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
+      xercesc::DOMElement *subelem = static_cast<xercesc::DOMElement*>(node);
+      if (xercesc::XMLString::equals(subelem->getNodeName(), tagParam)) {
+        const XMLCh *name = subelem->getAttribute(tagParamAttrParamName);
+        const XMLCh *value = subelem->getAttribute(tagParamAttrParamValue);
+        const XMLCh *descr = subelem->getAttribute(tagParamAttrParamDescription);
+
+        if (*name == '\0' || *value == '\0'){
+          continue;
+        }
+
+        if (type->getParamValue(DString(name))==null){
+          type->addParam(new SString(DString(name)));
+        }
+        if (descr != null){
+          type->setParamDescription(DString(name), new SString(DString(descr)));
+        }
+        if (userValue){
+          delete type->getParamNotDefaultValue(DString(name));
+          type->setParamValue(DString(name), new SString(DString(value)));
+        }
+        else{
+          delete type->getParamDefaultValue(DString(name));
+          type->setParamDefaultValue(DString(name), new SString(DString(value)));
+        }
       }
-      if (descr != null){
-        type->setParamDescription(SString(name), descr);
-      }
-      if (userValue){
-        delete type->getParamNotDefaultValue(DString(name));
-        type->setParamValue(SString(name), value);
-      }
-      else{
-        delete type->getParamDefaultValue(DString(name));
-        type->setParamDefaultValue(SString(name), value);
-      }
-    };
-  };
+    }
+  }
 }
 
 void FarHrcSettings::readUserProfile()
