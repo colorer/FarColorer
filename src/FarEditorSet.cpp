@@ -1196,7 +1196,7 @@ void FarEditorSet::LoadUserHrd(const String *filename, ParserFactory *pf)
 {
   if (filename && filename->length()){
     xercesc::XercesDOMParser xml_parser;
-    XmlParserErrorHandler error_handler(null);
+    XmlParserErrorHandler error_handler(error_handler);
     xml_parser.setErrorHandler(&error_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
