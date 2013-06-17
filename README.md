@@ -18,7 +18,7 @@ Download the source from git repository:
 or update git repository:
 
     git pull
-    git submodule update
+    git submodule update --recursive
     
 From src/FarColorer/scripts call
     
