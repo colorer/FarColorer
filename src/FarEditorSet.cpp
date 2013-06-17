@@ -1196,13 +1196,13 @@ void FarEditorSet::LoadUserHrd(const String *filename, ParserFactory *pf)
 {
   if (filename && filename->length()){
     xercesc::XercesDOMParser xml_parser;
-    XmlParserErrorHandler error_handler(error_handler);
-    xml_parser.setErrorHandler(&error_handler);
+    XmlParserErrorHandler err_handler(error_handler);
+    xml_parser.setErrorHandler(&err_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
     XmlInputSource* config = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)nullptr);
     xml_parser.parse(*config->getInputSource());
-    if (error_handler.getSawErrors()) {
+    if (err_handler.getSawErrors()) {
       throw ParserFactoryException(StringBuffer("Error reading ")+DString(filename));
     }
     xercesc::DOMDocument *catalog = xml_parser.getDocument();
@@ -1216,7 +1216,7 @@ void FarEditorSet::LoadUserHrd(const String *filename, ParserFactory *pf)
       if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
         xercesc::DOMElement *subelem = static_cast<xercesc::DOMElement*>(node);
         if (xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
-          pf->parseHRDSetsChild(elem);
+          pf->parseHRDSetsChild(subelem);
         }
       }
     }
