@@ -405,6 +405,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
       fes->sTempHrdName=tempSS;
       const String *descr=fes->getHRDescription(*fes->sTempHrdName,DConsole);
       Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,IDX_HRD_SELECT,(void*)descr->getWChars());
+      Info.SendDlgMessage(hDlg,DM_REDRAW,0,0);
       return true;
     }
     break;
@@ -415,6 +416,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
       fes->sTempHrdNameTm=tempSS;
       const String *descr=fes->getHRDescription(*fes->sTempHrdNameTm,DRgb);
       Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,IDX_HRD_SELECT_TM,(void*)descr->getWChars());
+      Info.SendDlgMessage(hDlg,DM_REDRAW,0,0);
       return true;
     }
     break;
