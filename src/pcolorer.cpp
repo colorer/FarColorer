@@ -135,12 +135,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *oInfo)
         }
 
         if (MenuCode < 0)
-          return INVALID_HANDLE_VALUE;
+          return 0;
         editorSet->openMenu(MenuCode);
       }
       break;
   }
-  return INVALID_HANDLE_VALUE;
+  return 0;
 };
 
 /**
