@@ -4,6 +4,7 @@
 #include "version.h"
 
 FarEditorSet *editorSet = NULL;
+bool inCreateEditorSet = false;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
 StringBuffer *PluginPath;
@@ -161,10 +162,24 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo *cInfo)
 */
 intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo *pInfo)
 {
-  if (!editorSet){
-    editorSet = new FarEditorSet();
+  if (!inCreateEditorSet) {
+    if (!editorSet) {
+      inCreateEditorSet = true;
+      editorSet = new FarEditorSet();
+      inCreateEditorSet = false;
+
+      struct ProcessEditorEventInfo pInfo2;
+      pInfo2.EditorID = pInfo->EditorID;
+      pInfo2.Event = EE_GOTFOCUS;
+      pInfo2.StructSize = sizeof(ProcessEditorEventInfo);
+      pInfo2.Param = pInfo->Param;
+      return editorSet->editorEvent(&pInfo2);
+    } else {
+      return editorSet->editorEvent(pInfo);
+    }
+  } else {
+    return 0;
   }
-  return editorSet->editorEvent(pInfo);
 };
 
 intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *pInfo)
