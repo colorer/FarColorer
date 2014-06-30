@@ -3,61 +3,62 @@
 #include"FarEditorSet.h"
 #include "version.h"
 
-FarEditorSet* editorSet = NULL;
-bool inCreateEditorSet = false;
+FarEditorSet *editorSet = NULL;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
-StringBuffer* PluginPath;
+StringBuffer *PluginPath;
 
-extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved )  
 {
-  switch (fdwReason) {
-    case DLL_PROCESS_ATTACH: {
+  switch( fdwReason ) 
+  { 
+  case DLL_PROCESS_ATTACH:
+    {
       // obtain the path to the folder plugin, without being attached to the file name
       wchar_t path[MAX_PATH];
-      if (!GetModuleFileName(hinstDLL, path, MAX_PATH)) {
+      if (!GetModuleFileName(hinstDLL, path, MAX_PATH)){
         return false;
       }
       DString module(path, 0);
       int pos = module.lastIndexOf('\\');
-      pos = module.lastIndexOf('\\', pos);
+      pos = module.lastIndexOf('\\',pos);
       PluginPath = new StringBuffer(DString(module, 0, pos));
     }
     break;
 
-    case DLL_PROCESS_DETACH:
-      delete PluginPath;
-      break;
+  case DLL_PROCESS_DETACH:
+    delete PluginPath;
+    break;
   }
 
-  return true;
+  return true;  
 }
 /**
   Returns message from FAR current language.
 */
-const wchar_t* GetMsg(int msg)
+const wchar_t *GetMsg(int msg)
 {
-  return (Info.GetMsg(&MainGuid, msg));
+  return(Info.GetMsg(&MainGuid, msg));
 };
 
 /**
   Global information about the plugin
 */
-void WINAPI GetGlobalInfoW(struct GlobalInfo* gInfo)
+void WINAPI GetGlobalInfoW(struct GlobalInfo *gInfo)
 {
   gInfo->StructSize = sizeof(GlobalInfo);
-  gInfo->MinFarVersion = MAKEFARVERSION(3, 0, 0, 3371, VS_RELEASE);
-  gInfo->Version = MAKEFARVERSION(VER_FILEVERSION, VS_RELEASE);
+  gInfo->MinFarVersion = MAKEFARVERSION(3,0,0,3371,VS_RELEASE);
+  gInfo->Version = MAKEFARVERSION(VER_FILEVERSION,VS_RELEASE);
   gInfo->Guid = MainGuid;
   gInfo->Title = L"FarColorer";
-  gInfo->Description = L"Syntax highlighting in Far editor";
+  gInfo->Description =L"Syntax highlighting in Far editor";
   gInfo->Author = L"Igor Ruskih, Dobrunov Aleksey, Eugene Efremov";
 }
 
 /**
   Plugin initialization and creation of editor set support class.
 */
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo* fei)
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *fei)
 {
   Info = *fei;
   FSF = *fei->FSF;
@@ -67,7 +68,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo* fei)
 /**
   Plugin strings in FAR interface.
 */
-void WINAPI GetPluginInfoW(struct PluginInfo* pInfo)
+void WINAPI GetPluginInfoW(struct PluginInfo *pInfo)
 {
   static wchar_t* PluginMenuStrings;
   memset(pInfo, 0, sizeof(*pInfo));
@@ -86,9 +87,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo* pInfo)
 /**
   On FAR exit. Destroys all internal structures.
 */
-void WINAPI ExitFARW(const struct ExitInfo* eInfo)
+void WINAPI ExitFARW(const struct ExitInfo *eInfo)
 {
-  if (editorSet) {
+  if (editorSet){
     delete editorSet;
   }
 };
@@ -96,51 +97,48 @@ void WINAPI ExitFARW(const struct ExitInfo* eInfo)
 /**
   Open plugin configuration of actions dialog.
 */
-HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
+HANDLE WINAPI OpenW(const struct OpenInfo *oInfo)
 {
   switch (oInfo->OpenFrom) {
     case OPEN_EDITOR:
       editorSet->openMenu();
       break;
-    case OPEN_COMMANDLINE: {
-      OpenCommandLineInfo* ocli = (OpenCommandLineInfo*)oInfo->Data;
-      //file name, which we received
-      const wchar_t* file = ocli->CommandLine;
+    case OPEN_COMMANDLINE:
+      {
+		OpenCommandLineInfo *ocli =(OpenCommandLineInfo*)oInfo->Data;
+        //file name, which we received
+        const wchar_t *file = ocli->CommandLine;
 
-      wchar_t* nfile = PathToFull(file, true);
-      if (nfile) {
-        if (!editorSet) {
-          editorSet = new FarEditorSet();
+        wchar_t *nfile = PathToFull(file,true);
+        if (nfile){
+          if (!editorSet){
+            editorSet = new FarEditorSet();
+          }
+          editorSet->viewFile(DString(nfile));
         }
-        editorSet->viewFile(DString(nfile));
-      }
 
-      delete[] nfile;
-    }
-    break;
-    case OPEN_FROMMACRO: {
-      Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, NULL);
-      OpenMacroInfo* mi = (OpenMacroInfo*)oInfo->Data;
-      int MenuCode = -1;
-      if (mi->Count) {
-        switch (mi->Values[0].Type) {
-          case FMVT_INTEGER:
-            MenuCode = (int)mi->Values[0].Integer;
-            break;
-          case FMVT_DOUBLE:
-            MenuCode = (int)mi->Values[0].Double;
-            break;
-          default:
-            MenuCode = -1;
+        delete[] nfile;
+      }
+      break;
+    case OPEN_FROMMACRO:
+      {
+        Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, NULL);
+        OpenMacroInfo* mi=(OpenMacroInfo*)oInfo->Data;
+        int MenuCode=-1;
+        if (mi->Count)
+        {
+          switch (mi->Values[0].Type) {
+          case FMVT_INTEGER: MenuCode=(int)mi->Values[0].Integer; break;
+          case FMVT_DOUBLE: MenuCode=(int)mi->Values[0].Double; break;
+          default: MenuCode = -1;
+          }
         }
-      }
 
-      if (MenuCode < 0) {
-        return 0;
+        if (MenuCode < 0)
+          return 0;
+        editorSet->openMenu(MenuCode);
       }
-      editorSet->openMenu(MenuCode);
-    }
-    break;
+      break;
   }
   return 0;
 };
@@ -148,9 +146,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
 /**
   Configures plugin.
 */
-intptr_t WINAPI ConfigureW(const struct ConfigureInfo* cInfo)
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo *cInfo)
 {
-  if (!editorSet) {
+  if (!editorSet){
     editorSet = new FarEditorSet();
   }
   editorSet->configure(false);
@@ -161,39 +159,25 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* cInfo)
   Processes FAR editor events and
   makes text colorizing here.
 */
-intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
+intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo *pInfo)
 {
-  if (!inCreateEditorSet) {
-    if (!editorSet) {
-      inCreateEditorSet = true;
-      editorSet = new FarEditorSet();
-      inCreateEditorSet = false;
-
-      struct ProcessEditorEventInfo pInfo2;
-      pInfo2.EditorID = pInfo->EditorID;
-      pInfo2.Event = EE_GOTFOCUS;
-      pInfo2.StructSize = sizeof(ProcessEditorEventInfo);
-      pInfo2.Param = pInfo->Param;
-      return editorSet->editorEvent(&pInfo2);
-    } else {
-      return editorSet->editorEvent(pInfo);
-    }
-  } else {
-    return 0;
+  if (!editorSet){
+    editorSet = new FarEditorSet();
   }
+  return editorSet->editorEvent(pInfo);
 };
 
-intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
+intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *pInfo)
 {
   return editorSet->editorInput(pInfo->Rec);
 }
 
-// in order to not fall when it starts in far2
+// in order to not fall when it starts in far2 
 extern "C" int WINAPI GetMinFarVersionW(void)
 {
-#define MAKEFARVERSION_OLD(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
-
-  return MAKEFARVERSION_OLD(FARMANAGERVERSION_MAJOR, FARMANAGERVERSION_MINOR, FARMANAGERVERSION_BUILD);
+  #define MAKEFARVERSION_OLD(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
+  
+  return MAKEFARVERSION_OLD(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD);
 }
 
 
