@@ -4,6 +4,7 @@
 
 FarEditorSet::FarEditorSet()
 {
+  in_construct = true;
   err_status = ERR_NO_ERROR;
   parserFactory = NULL;
   regionMapper = NULL;
@@ -27,6 +28,7 @@ FarEditorSet::FarEditorSet()
   ReloadBase();
   viewFirst = 0;
   CurrentMenuItem = 0;
+  in_construct = false;
 }
 
 FarEditorSet::~FarEditorSet()
@@ -712,7 +714,10 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo *pInfo)
         if (!editor){
           editor = addCurrentEditor();
         }
-        return editor->editorEvent(pInfo->Event, pInfo->Param);
+        if (editor){
+            return editor->editorEvent(pInfo->Event, pInfo->Param);
+        }
+        return 0;
       }
       break;
     case EE_CHANGE:
@@ -725,15 +730,6 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo *pInfo)
         else{
           return 0;
         }
-      }
-      break;
-    case EE_GOTFOCUS:
-      {
-        if (!getCurrentEditor()){
-          editor = addCurrentEditor();
-         return editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
-        }
-        return 0;
       }
       break;
     case EE_READ:
@@ -921,6 +917,13 @@ void FarEditorSet::ReloadBase()
     };
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
+    if (!in_construct){
+      //в случае изменения настроек в диалоге, надо перерисовать текущий редактор
+      FarEditor* editor = addCurrentEditor();
+      if (editor){
+        editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
+      }
+    }
   }
   catch (SettingsControlException &e){
 
@@ -962,7 +965,9 @@ FarEditor *FarEditorSet::addCurrentEditor()
 
   EditorInfo ei;
   ei.StructSize = sizeof (EditorInfo);
-  Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+  if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei)){
+    return nullptr;
+  }
 
   FarEditor *editor = new FarEditor(&Info, parserFactory);
   farEditorInstances.put(&SString(ei.EditorID), editor);

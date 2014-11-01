@@ -222,6 +222,8 @@ private:
 
   unsigned int err_status;
   colorer::ErrorHandler *error_handler;
+
+  bool in_construct;
 };
 
 #endif
