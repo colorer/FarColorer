@@ -2,6 +2,14 @@ FarColorer
 ==========
   FarColorer is a syntax highlighting plugin for FAR Manager.
   
+FarColorer is included in FAR Manager since about build 3200, so just update FAR Manager to get latest releases.
+  
+Check F9 - Options - Plugins configuration - FarColorer
+
+It only works for (F4)Edit, (F3)View is not supported, as there is no API. 
+but you can type in the console `clr:name_of_file` 
+This launches the built-in viewer colorer.
+  
 How to build from source
 ==========
 To build plugin from source, you will need:
