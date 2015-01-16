@@ -2,6 +2,10 @@ FarColorer
 ==========
   FarColorer is a syntax highlighting plugin for FAR Manager.
   
+  To get the latest Colorer, install the latest [FarManager](http://www.farmanager.com/download.php?l=en).
+  Nightly builds of FarManager have night build of FarColorer.
+
+  
 How to build from source
 ==========
 To build plugin from source, you will need:
