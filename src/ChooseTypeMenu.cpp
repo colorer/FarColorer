@@ -117,7 +117,6 @@ void ChooseTypeMenu::MoveToFavorites(size_t index)
   if (f->getParamValue(DFavorite)==null){
     f->addParam(&DFavorite);
   }
-  delete f->getParamNotDefaultValue(DFavorite);
   f->setParamValue(DFavorite,&DTrue);
 }
 
@@ -144,7 +143,6 @@ void ChooseTypeMenu::DelFromFavorites(size_t index)
   AddItemInGroup(f);
   if (Item[index].Flags&MIF_SEPARATOR)  SetSelected(GetNext(index));
   else  SetSelected(index);
-  delete f->getParamNotDefaultValue(DFavorite);
   f->setParamValue(DFavorite,&DFalse);
 }
 

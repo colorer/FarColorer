@@ -352,7 +352,6 @@ void FarEditorSet::chooseType()
             if (menu.GetFileType(i)->getParamValue(DHotkey)==null){
               ((FileTypeImpl*)menu.GetFileType(i))->addParam(&DHotkey);
             }
-            delete ((FileTypeImpl*)menu.GetFileType(i))->getParamNotDefaultValue(DHotkey);
             menu.GetFileType(i)->setParamValue(DHotkey,&DString(KeyAssignDlgData[2].Data));
             menu.RefreshItemCaption(i);
           }
@@ -1309,20 +1308,14 @@ FarList *FarEditorSet::buildParamsList(FileTypeImpl *type)
 
   size_t count=0;
   const String *paramname;
-  for(int idx=0;;idx++){
-    paramname=defaultType->enumerateParameters(idx);
-    if (paramname==NULL){
-      break;
-    }
-    fparam[count++].Text=paramname->getWChars();
+  std::vector<SString> default_params = defaultType->enumParams();
+  for (SString paramname : default_params){
+    fparam[count++].Text = wcsdup(paramname.getWChars());
   }
-  for(int idx=0;;idx++){
-    paramname=type->enumerateParameters(idx);
-    if (paramname==NULL){
-      break;
-    }
-    if (defaultType->getParamValue(*paramname)==null){
-      fparam[count++].Text=paramname->getWChars();
+  std::vector<SString> type_params = type->enumParams();
+  for (SString paramname : type_params){
+    if (defaultType->getParamValue(paramname) == null){
+      fparam[count++].Text = wcsdup(paramname.getWChars());
     }
   }
 
@@ -1356,7 +1349,7 @@ void FarEditorSet::ChangeParamValueListType(HANDLE hDlg, bool dropdownlist)
 
 void FarEditorSet::setCrossValueListToCombobox(FileTypeImpl *type, HANDLE hDlg)
 {
-  const String *value=((FileTypeImpl*)type)->getParamNotDefaultValue(DShowCross);
+  const String *value = ((FileTypeImpl*)type)->getParamUserValue(DShowCross);
   const String *def_value=getParamDefValue(type,DShowCross);
 
   size_t count = 5;
@@ -1399,7 +1392,7 @@ void FarEditorSet::setCrossValueListToCombobox(FileTypeImpl *type, HANDLE hDlg)
 
 void FarEditorSet::setCrossPosValueListToCombobox(FileTypeImpl *type, HANDLE hDlg)
 {
-  const String *value=type->getParamNotDefaultValue(DCrossZorder);
+  const String *value = type->getParamUserValue(DCrossZorder);
   const String *def_value=getParamDefValue(type,DCrossZorder);
 
   size_t count = 3;
@@ -1434,7 +1427,7 @@ void FarEditorSet::setCrossPosValueListToCombobox(FileTypeImpl *type, HANDLE hDl
 
 void FarEditorSet::setYNListValueToCombobox(FileTypeImpl *type, HANDLE hDlg, DString param)
 {
-  const String *value=type->getParamNotDefaultValue(param);
+  const String *value = type->getParamUserValue(param);
   const String *def_value=getParamDefValue(type,param);
 
   size_t count = 3;
@@ -1469,7 +1462,7 @@ void FarEditorSet::setYNListValueToCombobox(FileTypeImpl *type, HANDLE hDlg, DSt
 
 void FarEditorSet::setTFListValueToCombobox(FileTypeImpl *type, HANDLE hDlg, DString param)
 {
-  const String *value=type->getParamNotDefaultValue(param);
+  const String *value = type->getParamUserValue(param);
   const String *def_value=getParamDefValue(type,param);
 
   size_t count = 3;
@@ -1504,7 +1497,7 @@ void FarEditorSet::setTFListValueToCombobox(FileTypeImpl *type, HANDLE hDlg, DSt
 
 void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl *type,HANDLE hDlg, DString param)
 {
-  const String *value=type->getParamNotDefaultValue(param);
+  const String *value = type->getParamUserValue(param);
   const String *def_value=getParamDefValue(type,param);
 
   size_t count = 1;
@@ -1560,7 +1553,7 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   //param value 
   DString v=DString(trim((wchar_t*)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,IDX_CH_PARAM_VALUE_LIST,0)));
   FileTypeImpl *type = getCurrentTypeInDialog(hDlg);
-  const String *value=((FileTypeImpl*)type)->getParamNotDefaultValue(p);
+  const String *value = ((FileTypeImpl*)type)->getParamUserValue(p);
   const String *def_value=getParamDefValue(type,p);
   if (value==NULL || !value->length()){//было default значение
     //если его изменили  
@@ -1572,17 +1565,10 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
     }
   }else{//было пользовательское значение
     if (!v.equals(value)){//changed
-      if (v.equals(def_value)){
-         //delete value
-         delete type->getParamNotDefaultValue(p);
-        ((FileTypeImpl*)type)->removeParamValue(&p);
-      }else{
-        delete type->getParamNotDefaultValue(p);
         type->setParamValue(p,&v);
       }
-    }
-
   }
+
   delete def_value;
 }
 
@@ -1601,9 +1587,9 @@ void  FarEditorSet::OnChangeParam(HANDLE hDlg, int idx)
   DString p=DString(List.Item.Text);
 
   const String *value;
-  value=type->getParameterDescription(p);
+  value = type->getParamDescription(p);
   if (value==NULL){
-    value=defaultType->getParameterDescription(p);
+    value = defaultType->getParamDescription(p);
   }
   if (value!=NULL){
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR ,IDX_CH_DESCRIPTION,(void*)value->getWChars());

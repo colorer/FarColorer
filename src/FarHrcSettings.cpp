@@ -80,7 +80,6 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement *elem, bool userValue)
           type->setParamDescription(DString(name), new SString(DString(descr)));
         }
         if (userValue){
-          delete type->getParamNotDefaultValue(DString(name));
           type->setParamValue(DString(name), new SString(DString(value)));
         }
         else{
@@ -126,7 +125,6 @@ void FarHrcSettings::readProfileFromRegistry()
                 }
 				const wchar_t *p = ColorerSettings.Get(type_subkey,type_fse.Items[j].Name,(wchar_t*)NULL);
 				if (p) {
-					delete type->getParamNotDefaultValue(DString(type_fse.Items[j].Name));
 					type->setParamValue(DString(type_fse.Items[j].Name), &DString(p));
 				}
               }
@@ -161,17 +159,14 @@ void FarHrcSettings::writeProfileToRegistry()
       break;
     }
 
-    if (type->getParamCount() && type->getParamNotDefaultValueCount()){// params>0 and user values >0
+    if (type->getParamCount() && type->getParamUserValueCount()){// params>0 and user values >0
       size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey,type->getName()->getWChars());
       // enum all params
-      for (int i=0;;i++){
-        const String *p=type->enumerateParameters(i);
-        if (!p){
-          break;
-        }
-        const String *v=type->getParamNotDefaultValue(*p);
-        if (v!=NULL){
-          ColorerSettings.Set(type_subkey,p->getWChars(),v->getWChars());
+      std::vector<SString> type_params = type->enumParams();
+      for (SString paramname : type_params){
+        const String *v = type->getParamUserValue(paramname);
+        if (v != NULL){
+          ColorerSettings.Set(type_subkey, paramname.getWChars(), v->getWChars());
         }
       }
     }
