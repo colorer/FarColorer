@@ -53,21 +53,19 @@ FarEditorSet::~FarEditorSet()
 void FarEditorSet::openMenu(int MenuId)
 {
   if (MenuId <= 0) {
-    int iMenuItems[] =
+    const size_t menu_size = 13;
+    int iMenuItems[menu_size] =
     {
-      mConfigure, mListTypes, mMatchPair, mSelectBlock, mSelectPair,
+      mListTypes, mMatchPair, mSelectBlock, mSelectPair,
       mListFunctions, mFindErrors, mSelectRegion, mCurrentRegionName, mLocateFunction, -1,
       mUpdateHighlight, mReloadBase, mConfigure
     };
-    FarMenuItem menuElements[sizeof(iMenuItems) / sizeof(iMenuItems[0])];
+    FarMenuItem menuElements[menu_size];
     memset(menuElements, 0, sizeof(menuElements));
     if (rEnabled) {
-      menuElements[0].Flags = MIF_HIDDEN;
-      menuElements[1].Flags = MIF_SELECTED;
-    }else {
       menuElements[0].Flags = MIF_SELECTED;
     }
-    for (int i = sizeof(iMenuItems) / sizeof(iMenuItems[0]) - 1; i >= 0; i--){
+    for (int i = menu_size - 1; i >= 0; i--){
       if (iMenuItems[i] == -1){
         menuElements[i].Flags |= MIF_SEPARATOR;;
       }
@@ -77,9 +75,9 @@ void FarEditorSet::openMenu(int MenuId)
     };
 
     intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), 0, L"menu", NULL, NULL,
-      menuElements, rEnabled? (sizeof(iMenuItems) / sizeof(iMenuItems[0])) : 1 );
-    if (menu_id == 0 ) {
-      MenuId = 13;
+      rEnabled ? menuElements : menuElements + 12, rEnabled ? menu_size : 1);
+    if (!rEnabled && menu_id == 0) {
+      MenuId = 12;
     } else {
       MenuId = menu_id;
     };
@@ -88,46 +86,46 @@ void FarEditorSet::openMenu(int MenuId)
   if (MenuId>=0) {
     try{
       FarEditor *editor = getCurrentEditor();
-      if (!editor && (rEnabled || MenuId!=13)){
+      if (!editor && (rEnabled || MenuId!=12)){
         throw Exception(DString("Can't find current editor in array."));
       }
 
       switch (MenuId)
       {
-      case 1:
+      case 0:
         chooseType();
         break;
-      case 2:
+      case 1:
         editor->matchPair();
         break;
-      case 3:
+      case 2:
         editor->selectBlock();
         break;
-      case 4:
+      case 3:
         editor->selectPair();
         break;
-      case 5:
+      case 4:
         editor->listFunctions();
         break;
-      case 6:
+      case 5:
         editor->listErrors();
         break;
-      case 7:
+      case 6:
         editor->selectRegion();
         break;
-      case 8:
+      case 7:
         editor->getNameCurrentScheme();
         break;
-      case 9:
+      case 8:
         editor->locateFunction();
         break;
-      case 11:
+      case 10:
         editor->updateHighlighting();
         break;
-      case 12:
+      case 11:
         ReloadBase();
         break;
-      case 13:
+      case 12:
         configure(true);
         break;
       };
