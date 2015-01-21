@@ -1307,15 +1307,14 @@ FarList *FarEditorSet::buildParamsList(FileTypeImpl *type)
   memset(fparam, 0, sizeof(FarListItem)*(size));
 
   size_t count=0;
-  const String *paramname;
   std::vector<SString> default_params = defaultType->enumParams();
-  for (SString paramname : default_params){
-    fparam[count++].Text = wcsdup(paramname.getWChars());
+  for (auto paramname=default_params.begin(); paramname!=default_params.end(); ++paramname){
+    fparam[count++].Text = wcsdup(paramname->getWChars());
   }
   std::vector<SString> type_params = type->enumParams();
-  for (SString paramname : type_params){
-    if (defaultType->getParamValue(paramname) == null){
-      fparam[count++].Text = wcsdup(paramname.getWChars());
+  for (auto paramname=type_params.begin(); paramname!=type_params.end(); ++paramname){
+    if (defaultType->getParamValue(*paramname) == null){
+      fparam[count++].Text = wcsdup(paramname->getWChars());
     }
   }
 

@@ -163,10 +163,10 @@ void FarHrcSettings::writeProfileToRegistry()
       size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey,type->getName()->getWChars());
       // enum all params
       std::vector<SString> type_params = type->enumParams();
-      for (SString paramname : type_params){
-        const String *v = type->getParamUserValue(paramname);
+      for (auto paramname=type_params.begin(); paramname!=type_params.end(); ++paramname){      
+        const String *v = type->getParamUserValue(*paramname);
         if (v != NULL){
-          ColorerSettings.Set(type_subkey, paramname.getWChars(), v->getWChars());
+          ColorerSettings.Set(type_subkey, paramname->getWChars(), v->getWChars());
         }
       }
     }
