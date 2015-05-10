@@ -1,6 +1,7 @@
 #include"FarEditorSet.h"
 #include <xml/XmlParserErrorHandler.h>
 #include<colorer/handlers/FileErrorHandler.h>
+#include <colorer/ParserFactoryException.h>
 
 FarEditorSet::FarEditorSet()
 {
@@ -643,27 +644,28 @@ void FarEditorSet::configure(bool fromEditor)
   };
 }
 
-const String *FarEditorSet::chooseHRDName(const String *current, DString _hrdClass )
+const SString FarEditorSet::chooseHRDName(const String *current, DString _hrdClass )
 { 
   if (parserFactory == NULL){
     return current;
   }
 
-  int count = parserFactory->countHRD(_hrdClass);
+  std::vector<SString> hrd_instances =parserFactory->enumHRDInstances(_hrdClass);
+  int count = hrd_instances.size();
   FarMenuItem *menuElements = new FarMenuItem[count];
   memset(menuElements, 0, sizeof(FarMenuItem)*count);
 
   for (int i = 0; i < count; i++){
-    const String *name = parserFactory->enumerateHRDInstances(_hrdClass, i);
-    const String *descr = parserFactory->getHRDescription(_hrdClass, *name);
+    const SString name = hrd_instances.at(i);
+    const String *descr = parserFactory->getHRDescription(_hrdClass, name);
 
     if (descr == NULL){
-      descr = name;
+      descr = &name;
     }
 
     menuElements[i].Text = descr->getWChars();
 
-    if (current->equals(name)){
+    if (current->equals(&name)){
       menuElements[i].Flags = MIF_SELECTED;
     }
   };
@@ -676,7 +678,7 @@ const String *FarEditorSet::chooseHRDName(const String *current, DString _hrdCla
     return current;
   }
 
-  return parserFactory->enumerateHRDInstances(_hrdClass, result);
+  return hrd_instances.at(result);
 }
 
 int FarEditorSet::editorInput(const INPUT_RECORD &Rec)
@@ -720,9 +722,9 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo *pInfo)
     case EE_CHANGE:
       {
         //запрещено вызывать EditorControl (getCurrentEditor)
-        editor = farEditorInstances.get(&SString(pInfo->EditorID));
-        if (editor){
-          return editor->editorEvent(pInfo->Event, pInfo->Param);
+        auto it_editor = farEditorInstances.find(&SString(pInfo->EditorID));
+        if (it_editor != farEditorInstances.end()){
+          return it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
         }
         else{
           return 0;
@@ -737,9 +739,9 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo *pInfo)
       break;
     case EE_CLOSE:
       {
-        editor = farEditorInstances.get(&SString(pInfo->EditorID));
-        farEditorInstances.remove(&SString(pInfo->EditorID));
-        delete editor;
+        auto it_editor = farEditorInstances.find(&SString(pInfo->EditorID));
+        delete it_editor->second;
+        farEditorInstances.erase(&SString(pInfo->EditorID));
         return 0;
       }
       break;
@@ -967,7 +969,8 @@ FarEditor *FarEditorSet::addCurrentEditor()
   }
 
   FarEditor *editor = new FarEditor(&Info, parserFactory);
-  farEditorInstances.put(&SString(ei.EditorID), editor);
+  std::pair<SString, FarEditor*> pair_editor(&SString(ei.EditorID), editor);
+  farEditorInstances.emplace(pair_editor);
   String *s=getCurrentFileName();
   editor->chooseFileType(s);
   delete s;
@@ -1008,11 +1011,17 @@ String* FarEditorSet::getCurrentFileName()
 FarEditor *FarEditorSet::getCurrentEditor()
 {
   EditorInfo ei;
-    ei.StructSize = sizeof (EditorInfo);
+  ei.StructSize = sizeof (EditorInfo);
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
-  FarEditor *editor = farEditorInstances.get(&SString(ei.EditorID));
-
-  return editor;
+  auto if_editor= farEditorInstances.find(&SString(ei.EditorID));
+  if (if_editor !=farEditorInstances.end())
+  {
+    return if_editor->second;
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 const wchar_t *FarEditorSet::GetMsg(int msg)
@@ -1038,12 +1047,12 @@ void FarEditorSet::disableColorer()
 
 void FarEditorSet::ApplySettingsToEditors()
 {
-  for (FarEditor *fe = farEditorInstances.enumerate(); fe != NULL; fe = farEditorInstances.next()){
-    fe->setTrueMod(TrueModOn);
-    fe->setDrawCross(drawCross, CrossStyle);
-    fe->setDrawPairs(drawPairs);
-    fe->setDrawSyntax(drawSyntax);
-    fe->setOutlineStyle(oldOutline);
+  for (auto fe = farEditorInstances.begin(); fe != farEditorInstances.end(); ++fe){
+    fe->second->setTrueMod(TrueModOn);
+    fe->second->setDrawCross(drawCross, CrossStyle);
+    fe->second->setDrawPairs(drawPairs);
+    fe->second->setDrawSyntax(drawSyntax);
+    fe->second->setOutlineStyle(oldOutline);
   }
 }
 
@@ -1052,13 +1061,13 @@ void FarEditorSet::dropCurrentEditor(bool clean)
   EditorInfo ei;
   ei.StructSize = sizeof (EditorInfo);
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
-  FarEditor *editor = farEditorInstances.get(&SString(ei.EditorID));
-  if (editor){
+  auto it_editor = farEditorInstances.find(&SString(ei.EditorID));
+  if (it_editor != farEditorInstances.end()){
     if (clean){
-      editor->cleanEditor();
+      it_editor->second->cleanEditor();
     }
-    farEditorInstances.remove(&SString(ei.EditorID));
-    delete editor;
+    delete it_editor->second;
+    farEditorInstances.erase(&SString(ei.EditorID));
     Info.EditorControl(CurrentEditor, ECTL_REDRAW, NULL, NULL);
   }
 }
@@ -1069,10 +1078,6 @@ void FarEditorSet::dropAllEditors(bool clean)
     //мы не имеем доступа к другим редакторам, кроме текущего
     dropCurrentEditor(clean);
   }
-  for (FarEditor *fe = farEditorInstances.enumerate(); fe != NULL; fe = farEditorInstances.next()){
-    delete fe;
-  };
-
   farEditorInstances.clear();
 }
 

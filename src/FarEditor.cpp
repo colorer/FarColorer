@@ -55,7 +55,7 @@ void FarEditor::endJob(int lno)
   ret_str = NULL;
 }
 
-String *FarEditor::getLine(int lno)
+String *FarEditor::getLine(size_t lno)
 {
   if (ret_strNumber == lno && ret_str != NULL){
     return ret_str;
@@ -822,7 +822,7 @@ void FarEditor::showOutliner(Outliner *outliner)
     // items in FAR's menu;
     int menu_size = 0;
     int selectedItem = 0;
-    Vector<int> treeStack;
+    std::vector<int> treeStack;
 
     enterHandler();
     for (i = 0; i < items_num; i++){

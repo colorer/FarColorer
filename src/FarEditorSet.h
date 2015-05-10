@@ -100,7 +100,7 @@ public:
   /** Get the description of HRD, or parameter name if description=null */
   const String *getHRDescription(const String &name, DString _hrdClass);
   /** Shows dialog with HRD scheme selection */
-  const String *chooseHRDName(const String *current, DString _hrdClass );
+  const SString chooseHRDName(const String *current, DString _hrdClass );
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -186,7 +186,7 @@ private:
 
   void SaveChangedValueParam(HANDLE hDlg);
 
-  Hashtable<FarEditor*> farEditorInstances;
+  std::unordered_map<SString, FarEditor*> farEditorInstances;
   ParserFactory *parserFactory;
   RegionMapper *regionMapper;
   HRCParser *hrcParser;

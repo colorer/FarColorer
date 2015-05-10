@@ -51,7 +51,7 @@ public:
   Returns line number "lno" from FAR interface. Line is only valid until next call of this function,
   it also should not be disposed, this function takes care of this.
   */
-  String *getLine(int lno);
+  String *getLine(size_t lno);
 
   /** Changes current assigned file type.
   */

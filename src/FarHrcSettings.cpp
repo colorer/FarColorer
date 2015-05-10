@@ -1,5 +1,6 @@
 #include"FarHrcSettings.h"
 #include <xml/XmlParserErrorHandler.h>
+#include <colorer/ParserFactoryException.h>
 
 void FarHrcSettings::readProfile()
 {
