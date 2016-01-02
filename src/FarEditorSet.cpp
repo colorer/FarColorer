@@ -344,13 +344,13 @@ void FarEditorSet::chooseType()
           if (v && v->length())
             KeyAssignDlgData[2].Data=v->getWChars();
 
-          HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData, ARRAY_SIZE(KeyAssignDlgData), 0, 0, KeyDialogProc, null);
+          HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData, ARRAY_SIZE(KeyAssignDlgData), 0, 0, KeyDialogProc, nullptr);
           intptr_t res = Info.DialogRun(hDlg);
 
           if (res!=-1) 
           {
             KeyAssignDlgData[2].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,2,0));
-            if (menu.GetFileType(i)->getParamValue(DHotkey)==null){
+            if (menu.GetFileType(i)->getParamValue(DHotkey)==nullptr){
               ((FileTypeImpl*)menu.GetFileType(i))->addParam(&DHotkey);
             }
             menu.GetFileType(i)->setParamValue(DHotkey,&DString(KeyAssignDlgData[2].Data));
@@ -1137,17 +1137,17 @@ void FarEditorSet::setLogPath(const wchar_t* log_path)
 {
   if (sLogPath && sLogPath->compareToIgnoreCase(DString(log_path))!=0){
     delete error_handler;
-    error_handler = null;
+    error_handler = nullptr;
   }
   delete sLogPath;
   delete sLogPathExp;
   sLogPath = new SString(DString(log_path));
   sLogPathExp = PathToFullS(log_path,false);
-  if (error_handler == null && sLogPathExp!=null) {
+  if (error_handler == nullptr && sLogPathExp!=nullptr) {
     try {
       error_handler = new FileErrorHandler(sLogPathExp, Encodings::ENC_UTF8, false);
     } catch (Exception &e){
-      error_handler = null;
+      error_handler = nullptr;
       showExceptionMessage(e.getMessage()->getWChars());
     }
   }
@@ -1194,7 +1194,7 @@ bool FarEditorSet::SetBgEditor()
       fc.BackgroundColor = def_text->back;
 		  fc.ForegroundColor = def_text->fore;
     }
-    fc.Reserved = null;
+    fc.Reserved = nullptr;
 		fsc.Colors = &fc;
 		return !!Info.AdvControl(&MainGuid,ACTL_SETARRAYCOLOR,0,&fsc);
   }
@@ -1218,7 +1218,7 @@ void FarEditorSet::LoadUserHrd(const String *filename, ParserFactory *pf)
     xercesc::DOMElement *elem = catalog->getDocumentElement();
     const XMLCh *tagHrdSets = L"hrd-sets";
     const XMLCh *tagHrd = L"hrd";
-    if (elem == null || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
+    if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
       throw Exception(DString("main '<hrd-sets>' block not found"));
     }
     for (xercesc::DOMNode *node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
@@ -1318,7 +1318,7 @@ FarList *FarEditorSet::buildParamsList(FileTypeImpl *type)
   }
   std::vector<SString> type_params = type->enumParams();
   for (auto paramname=type_params.begin(); paramname!=type_params.end(); ++paramname){
-    if (defaultType->getParamValue(*paramname) == null){
+    if (defaultType->getParamValue(*paramname) == nullptr){
       fparam[count++].Text = wcsdup(paramname->getWChars());
     }
   }
@@ -1562,7 +1562,7 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   if (value==NULL || !value->length()){//было default значение
     //если его изменили  
     if (!v.equals(def_value)){
-      if (type->getParamValue(p)==null){
+      if (type->getParamValue(p)==nullptr){
         ((FileTypeImpl*)type)->addParam(&p);
       }
       type->setParamValue(p,&v);

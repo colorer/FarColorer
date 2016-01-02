@@ -14,7 +14,7 @@ void FarHrcSettings::readProfile()
 void FarHrcSettings::readXML(String *file, bool userValue)
 {
   xercesc::XercesDOMParser xml_parser;
-  XmlParserErrorHandler error_handler(null);
+  XmlParserErrorHandler error_handler(nullptr);
   xml_parser.setErrorHandler(&error_handler);
   xml_parser.setLoadExternalDTD(false);
   xml_parser.setSkipDTDValidation(true);
@@ -30,7 +30,7 @@ void FarHrcSettings::readXML(String *file, bool userValue)
   const XMLCh *tagPrototype = L"prototype";
   const XMLCh *tagHrcSettings = L"hrc-settings";
 
-  if (elem == null || !xercesc::XMLString::equals(elem->getNodeName(), tagHrcSettings)) {
+  if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrcSettings)) {
     delete config;
     throw FarHrcSettingsException(DString("main '<hrc-settings>' block not found"));
   }
@@ -53,12 +53,12 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement *elem, bool userValue)
   const XMLCh *tagParamAttrParamValue = L"value";
   const XMLCh *tagParamAttrParamDescription = L"description";
   const XMLCh *typeName = elem->getAttribute(tagProtoAttrParamName);
-  if (typeName == null){
+  if (typeName == nullptr){
     return;
   }
   HRCParser *hrcParser = parserFactory->getHRCParser();
   FileTypeImpl *type = static_cast<FileTypeImpl *>(hrcParser->getFileType(&DString(typeName)));
-  if (type== null){
+  if (type== nullptr){
     return;
   };
 
@@ -74,10 +74,10 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement *elem, bool userValue)
           continue;
         }
 
-        if (type->getParamValue(DString(name))==null){
+        if (type->getParamValue(DString(name))==nullptr){
           type->addParam(new SString(DString(name)));
         }
-        if (descr != null){
+        if (descr != nullptr){
           type->setParamDescription(DString(name), new SString(DString(descr)));
         }
         if (userValue){
@@ -121,7 +121,7 @@ void FarHrcSettings::readProfileFromRegistry()
           if (ColorerSettings.rEnum(type_subkey,&type_fse)){
             for (size_t j=0; j<type_fse.Count; j++){
               if (type_fse.Items[j].Type == FST_STRING){
-                if (type->getParamValue(DString(type_fse.Items[j].Name))==null){
+                if (type->getParamValue(DString(type_fse.Items[j].Name))==nullptr){
                   type->addParam(&DString(type_fse.Items[j].Name));
                 }
 				const wchar_t *p = ColorerSettings.Get(type_subkey,type_fse.Items[j].Name,(wchar_t*)NULL);

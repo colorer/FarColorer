@@ -114,7 +114,7 @@ void ChooseTypeMenu::MoveToFavorites(size_t index)
   size_t k=AddFavorite(f);
   SetSelected(k);
   HideEmptyGroup();
-  if (f->getParamValue(DFavorite)==null){
+  if (f->getParamValue(DFavorite)==nullptr){
     f->addParam(&DFavorite);
   }
   f->setParamValue(DFavorite,&DTrue);
