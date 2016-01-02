@@ -2,10 +2,7 @@
 #define _PCOLORER_H_
 
 #include <plugin.hpp>
-#include <farcolor.hpp>
 
-#include <wctype.h>
-#include <wchar.h>
 #include <windows.h>
 #include <unicode/StringBuffer.h>
 

@@ -2,19 +2,17 @@
 #define _CHOOSE_TYPE_MENU_H_
 
 #include "pcolorer.h"
-#include "FarEditor.h"
-#include <colorer/parsers/helpers/FileTypeImpl.h>
 
 class ChooseTypeMenu
 {
 public:
   ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites);
   ~ChooseTypeMenu();
-  FarMenuItem* getItems();
-  size_t getItemsCount()
+  FarMenuItem* getItems() const;
+  size_t getItemsCount() const
   {
     return ItemCount;
-  };
+  }
 
   size_t AddItem(const FileType* fType, size_t PosAdd = 0x7FFFFFFF);
   size_t AddItemInGroup(FileType* fType);
@@ -38,7 +36,7 @@ private:
 
   size_t ItemSelected; // Index of selected item
 
-  size_t AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, const FileType* UserData = NULL, size_t PosAdd = 0x7FFFFFFF);
+  size_t AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, const FileType* UserData = nullptr, size_t PosAdd = 0x7FFFFFFF);
 
   static const size_t favorite_idx = 2;
 };

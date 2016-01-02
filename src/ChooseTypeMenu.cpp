@@ -1,3 +1,5 @@
+#include <colorer/parsers/helpers/FileTypeImpl.h>
+#include "FarEditor.h"
 #include "ChooseTypeMenu.h"
 
 ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites)
@@ -8,8 +10,8 @@ ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorit
 
   StringBuffer s;
   s.append(DString("&A ")).append(DString(AutoDetect));
-  AddItem(s.getWChars(), 0, NULL, 0);
-  AddItem(Favorites, MIF_SEPARATOR, NULL, 1);
+  AddItem(s.getWChars(), 0, nullptr, 0);
+  AddItem(Favorites, MIF_SEPARATOR, nullptr, 1);
 }
 
 ChooseTypeMenu::~ChooseTypeMenu()
@@ -34,7 +36,7 @@ void ChooseTypeMenu::DeleteItem(size_t index)
   }
 }
 
-FarMenuItem* ChooseTypeMenu::getItems()
+FarMenuItem* ChooseTypeMenu::getItems() const
 {
   return Item;
 }
@@ -46,8 +48,8 @@ size_t ChooseTypeMenu::AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, c
   }
 
   if (!(ItemCount & 255)) {
-    FarMenuItem* NewPtr;
-    if (!(NewPtr = (FarMenuItem*)realloc(Item, sizeof(FarMenuItem) * (ItemCount + 256 + 1)))) {
+    FarMenuItem* NewPtr = static_cast<FarMenuItem*>(realloc(Item, sizeof(FarMenuItem) * (ItemCount + 256 + 1)));
+    if (!NewPtr) {
       throw Exception(DString("ChooseTypeMenu: not enough available memory."));
     }
 
@@ -72,7 +74,7 @@ size_t ChooseTypeMenu::AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, c
 
 size_t ChooseTypeMenu::AddGroup(const wchar_t* Text)
 {
-  return AddItem(Text, MIF_SEPARATOR, NULL);
+  return AddItem(Text, MIF_SEPARATOR, nullptr);
 }
 
 size_t ChooseTypeMenu::AddItem(const FileType* fType, size_t PosAdd)

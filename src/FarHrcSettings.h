@@ -5,9 +5,6 @@
 #include <colorer/HRCParser.h>
 #include <colorer/ParserFactory.h>
 
-#include"pcolorer.h"
-#include "SettingsControl.h"
-
 #define MAX_KEY_LENGTH 255
 #define MAX_VALUE_NAME 50 // in msdn 16383 , but we have enough 50
 

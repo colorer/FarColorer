@@ -1,4 +1,5 @@
 #include "FarHrcSettings.h"
+#include "SettingsControl.h"
 #include <xml/XmlParserErrorHandler.h>
 #include <colorer/ParserFactoryException.h>
 

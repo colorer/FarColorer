@@ -4,9 +4,7 @@
 #include <colorer/editor/BaseEditor.h>
 #include <colorer/handlers/StyledRegion.h>
 #include <colorer/editor/Outliner.h>
-#include <common/Logging.h>
-
-#include"pcolorer.h"
+#include "pcolorer.h"
 
 const intptr_t CurrentEditor = -1;
 const DString DDefaultScheme = DString("default");

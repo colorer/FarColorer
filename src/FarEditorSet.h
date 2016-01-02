@@ -3,16 +3,11 @@
 
 #include <colorer/handlers/FileErrorHandler.h>
 #include <colorer/handlers/LineRegionsSupport.h>
-#include <colorer/handlers/StyledHRDMapper.h>
 #include <colorer/viewer/TextConsoleViewer.h>
-#include <common/Logging.h>
-#include <unicode/Encodings.h>
 
 #include "pcolorer.h"
-#include "tools.h"
 #include "FarEditor.h"
 #include "FarHrcSettings.h"
-#include "SettingsControl.h"
 #include "ChooseTypeMenu.h"
 
 //registry keys
@@ -110,11 +105,11 @@ public:
   */
   enum HRC_MODE {HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH};
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
-  SString* GetCatalogPath()
+  SString* GetCatalogPath() const
   {
     return sCatalogPath;
   }
-  SString* GetUserHrdPath()
+  SString* GetUserHrdPath() const
   {
     return sUserHrdPath;
   }

@@ -1,4 +1,7 @@
+#include <farcolor.hpp>
 #include "FarEditorSet.h"
+#include "tools.h"
+#include "SettingsControl.h"
 #include <xml/XmlParserErrorHandler.h>
 #include <colorer/handlers/FileErrorHandler.h>
 #include <colorer/ParserFactoryException.h>
