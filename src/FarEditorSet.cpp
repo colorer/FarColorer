@@ -7,24 +7,24 @@ FarEditorSet::FarEditorSet()
 {
   in_construct = true;
   err_status = ERR_NO_ERROR;
-  parserFactory = NULL;
-  regionMapper = NULL;
-  hrcParser = NULL;
-  sHrdName = NULL;
-  sHrdNameTm = NULL;
-  sCatalogPath = NULL;
-  sCatalogPathExp = NULL;
-  sTempHrdName = NULL;
-  sTempHrdNameTm = NULL;
+  parserFactory = nullptr;
+  regionMapper = nullptr;
+  hrcParser = nullptr;
+  sHrdName = nullptr;
+  sHrdNameTm = nullptr;
+  sCatalogPath = nullptr;
+  sCatalogPathExp = nullptr;
+  sTempHrdName = nullptr;
+  sTempHrdNameTm = nullptr;
   dialogFirstFocus = false;
   menuid = 0;
-  sUserHrdPath = NULL;
-  sUserHrdPathExp = NULL;
-  sUserHrcPath = NULL;
-  sUserHrcPathExp = NULL;
-  error_handler = NULL;
-  sLogPath = NULL;
-  sLogPathExp = NULL;
+  sUserHrdPath = nullptr;
+  sUserHrdPathExp = nullptr;
+  sUserHrcPath = nullptr;
+  sUserHrcPathExp = nullptr;
+  error_handler = nullptr;
+  sLogPath = nullptr;
+  sLogPathExp = nullptr;
   xercesc::XMLPlatformUtils::Initialize();
   ReloadBase();
   viewFirst = 0;
@@ -75,7 +75,7 @@ void FarEditorSet::openMenu(int MenuId)
       }
     };
 
-    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), 0, L"menu", NULL, NULL,
+    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), 0, L"menu", nullptr, nullptr,
       rEnabled ? menuElements : menuElements + 12, rEnabled ? menu_size : 1);
     if (!rEnabled && menu_id == 0) {
       MenuId = 12;
@@ -155,7 +155,7 @@ void FarEditorSet::viewFile(const String &path)
 
     // Creates store of text lines
     TextLinesStore textLinesStore;
-    textLinesStore.loadFile(&path, NULL, true);
+    textLinesStore.loadFile(&path, nullptr, true);
     // Base editor to make primary parse
     BaseEditor baseEditor(parserFactory, &textLinesStore);
     RegionMapper *regionMap;
@@ -163,10 +163,10 @@ void FarEditorSet::viewFile(const String &path)
       regionMap=parserFactory->createStyledMapper(&DConsole, sHrdName);
     }
     catch (ParserFactoryException &e){
-      if (getErrorHandler() != NULL){
+      if (getErrorHandler() != nullptr){
         getErrorHandler()->error(*e.getMessage());
       }
-      regionMap = parserFactory->createStyledMapper(&DConsole, NULL);
+      regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
     };
     baseEditor.setRegionMapper(regionMap);
     baseEditor.chooseFileType(&path);
@@ -176,7 +176,7 @@ void FarEditorSet::viewFile(const String &path)
     int background = 0x1F;
     const StyledRegion *rd = StyledRegion::cast(regionMap->getRegionDefine(DString("def:Text")));
 
-    if (rd != NULL && rd->bfore && rd->bback){
+    if (rd != nullptr && rd->bfore && rd->bback){
       background = rd->fore + (rd->back<<4);
     }
 
@@ -193,17 +193,17 @@ void FarEditorSet::viewFile(const String &path)
 size_t FarEditorSet::getCountFileTypeAndGroup()
 {
   size_t num = 0;
-  const String *group = NULL;
-  FileType *type = NULL;
+  const String *group = nullptr;
+  FileType *type = nullptr;
 
   for (int idx = 0;; idx++, num++){
     type = hrcParser->enumerateFileTypes(idx);
 
-    if (type == NULL){
+    if (type == nullptr){
       break;
     }
 
-    if (group != NULL && !group->equals(type->getGroup())){
+    if (group != nullptr && !group->equals(type->getGroup())){
       num++;
     }
 
@@ -214,8 +214,8 @@ size_t FarEditorSet::getCountFileTypeAndGroup()
 
 FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx)
 {
-  FileType *type = NULL;
-  const String *group = NULL;
+  FileType *type = nullptr;
+  const String *group = nullptr;
 
   for (int i = 0; idx>=0; idx--, i++){
     type = hrcParser->enumerateFileTypes(i);
@@ -224,7 +224,7 @@ FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx)
       break;
     }
 
-    if (group != NULL && !group->equals(type->getGroup())){
+    if (group != nullptr && !group->equals(type->getGroup())){
       idx--;
     }
     group = type->getGroup();
@@ -235,19 +235,19 @@ FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx)
 
 void FarEditorSet::FillTypeMenu(ChooseTypeMenu *Menu, FileType *CurFileType)
 {
-  const String *group = NULL;
-  FileType *type = NULL;
+  const String *group = nullptr;
+  FileType *type = nullptr;
 
   group = &DAutodetect;
 
   for (int idx = 0;; idx++){
     type = hrcParser->enumerateFileTypes(idx);
 
-    if (type == NULL){
+    if (type == nullptr){
       break;
     }
 
-    if (group != NULL && !group->equals(type->getGroup())){
+    if (group != nullptr && !group->equals(type->getGroup())){
       Menu->AddGroup(type->getGroup()->getWChars());
       group = type->getGroup();
     };
@@ -379,12 +379,12 @@ void FarEditorSet::chooseType()
 
 const String *FarEditorSet::getHRDescription(const String &name, DString _hrdClass )
 {
-  const String *descr = NULL;
-  if (parserFactory != NULL){
+  const String *descr = nullptr;
+  if (parserFactory != nullptr){
     descr = parserFactory->getHRDescription(_hrdClass, name);
   }
 
-  if (descr == NULL){
+  if (descr == nullptr){
     descr = &name;
   }
 
@@ -534,12 +534,12 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_USERHRD_EDIT].Data = sUserHrdPath->getWChars();
     fdi[IDX_HRD].Data = GetMsg(mHRDName);
 
-    const String *descr = NULL;
+    const String *descr = nullptr;
     sTempHrdName =new SString(sHrdName); 
     descr=getHRDescription(*sTempHrdName,DConsole);
 
     fdi[IDX_HRD_SELECT].Data = descr->getWChars();
-    const String *descr2 = NULL;
+    const String *descr2 = nullptr;
     sTempHrdNameTm =new SString(sHrdNameTm); 
     descr2=getHRDescription(*sTempHrdNameTm,DRgb);
 
@@ -633,7 +633,7 @@ void FarEditorSet::configure(bool fromEditor)
 
   }
   catch (Exception &e){
-    if (getErrorHandler() != NULL){
+    if (getErrorHandler() != nullptr){
       getErrorHandler()->error(*e.getMessage());
     }
 
@@ -646,7 +646,7 @@ void FarEditorSet::configure(bool fromEditor)
 
 const SString FarEditorSet::chooseHRDName(const String *current, DString _hrdClass )
 { 
-  if (parserFactory == NULL){
+  if (parserFactory == nullptr){
     return current;
   }
 
@@ -659,7 +659,7 @@ const SString FarEditorSet::chooseHRDName(const String *current, DString _hrdCla
     const SString name = hrd_instances.at(i);
     const String *descr = parserFactory->getHRDescription(_hrdClass, name);
 
-    if (descr == NULL){
+    if (descr == nullptr){
       descr = &name;
     }
 
@@ -671,7 +671,7 @@ const SString FarEditorSet::chooseHRDName(const String *current, DString _hrdCla
   };
 
   intptr_t result = Info.Menu(&MainGuid, &HrdMenu, -1, -1, 0, FMENU_WRAPMODE|FMENU_AUTOHIGHLIGHT,
-    GetMsg(mSelectHRD), 0, L"hrd", NULL, NULL, menuElements, count);
+    GetMsg(mSelectHRD), 0, L"hrd", nullptr, nullptr, menuElements, count);
   delete[] menuElements;
 
   if (result == -1){
@@ -705,7 +705,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo *pInfo)
   }
 
   try{
-    FarEditor *editor = NULL;
+    FarEditor *editor = nullptr;
     switch (pInfo->Event){
     case EE_REDRAW:
       {
@@ -766,11 +766,11 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
   bool res = true;
   const wchar_t *marr[2] = { GetMsg(mName), GetMsg(mReloading) };
   HANDLE scr = Info.SaveScreen(0, 0, -1, -1);
-  Info.Message(&MainGuid, &ReloadBaseMessage, 0, NULL, &marr[0], 2, 0);
+  Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
 
-  ParserFactory *parserFactoryLocal = NULL;
-  RegionMapper *regionMapperLocal = NULL;
-  HRCParser *hrcParserLocal = NULL;
+  ParserFactory *parserFactoryLocal = nullptr;
+  RegionMapper *regionMapperLocal = nullptr;
+  HRCParser *hrcParserLocal = nullptr;
 
   SString *catalogPathS = PathToFullS(catalogPath,false);
   SString *userHrdPathS = PathToFullS(userHrdPath,false);
@@ -803,13 +803,13 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
       }
       catch (ParserFactoryException &e)
       {
-        if ((parserFactoryLocal != NULL)&&(parserFactoryLocal->getErrorHandler()!=NULL)){
+        if ((parserFactoryLocal != nullptr)&&(parserFactoryLocal->getErrorHandler()!=nullptr)){
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
         }
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, NULL);
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, nullptr);
       };
       delete regionMapperLocal;
-      regionMapperLocal=NULL;
+      regionMapperLocal=nullptr;
     }
 
     if (hrc_mode == HRCM_RGB || hrc_mode == HRCM_BOTH) {
@@ -818,10 +818,10 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
       }
       catch (ParserFactoryException &e)
       {
-        if ((parserFactoryLocal != NULL)&&(parserFactoryLocal->getErrorHandler()!=NULL)){
+        if ((parserFactoryLocal != nullptr)&&(parserFactoryLocal->getErrorHandler()!=nullptr)){
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
         }
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, NULL);
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, nullptr);
       };
     }
 
@@ -830,13 +830,13 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
       for (int idx = 0;; idx++){
         FileType *type = hrcParserLocal->enumerateFileTypes(idx);
 
-        if (type == NULL){
+        if (type == nullptr){
           break;
         }
 
         StringBuffer tname;
 
-        if (type->getGroup() != NULL){
+        if (type->getGroup() != nullptr){
           tname.append(type->getGroup());
           tname.append(DString(": "));
         }
@@ -844,7 +844,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
         tname.append(type->getDescription());
         marr[1] = tname.getWChars();
         scr = Info.SaveScreen(0, 0, -1, -1);
-        Info.Message(&MainGuid, &ReloadBaseMessage, 0, NULL, &marr[0], 2, 0);
+        Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
         type->getBaseScheme();
         Info.RestoreScreen(scr);
       }
@@ -852,7 +852,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t *catalogPath, const wchar_t *userH
   }
   catch (Exception &e){
 
-    if ((parserFactoryLocal != NULL)&&(parserFactoryLocal->getErrorHandler()!=NULL)){
+    if ((parserFactoryLocal != nullptr)&&(parserFactoryLocal->getErrorHandler()!=nullptr)){
       parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
     }
 
@@ -879,12 +879,12 @@ void FarEditorSet::ReloadBase()
     }
 
     const wchar_t *marr[2] = { GetMsg(mName), GetMsg(mReloading) };
-    Info.Message(&MainGuid, &ReloadBaseMessage, 0, NULL, &marr[0], 2, 0);
+    Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
     dropAllEditors(true);
     delete regionMapper;
     delete parserFactory;
-    parserFactory = NULL;
-    regionMapper = NULL;
+    parserFactory = nullptr;
+    regionMapper = nullptr;
 
     if (TrueModOn){
       hrdClass = DRgb;
@@ -909,10 +909,10 @@ void FarEditorSet::ReloadBase()
       regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
     }
     catch (ParserFactoryException &e){
-      if (getErrorHandler() != NULL){
+      if (getErrorHandler() != nullptr){
         getErrorHandler()->error(*e.getMessage());
       }
-      regionMapper = parserFactory->createStyledMapper(&hrdClass, NULL);
+      regionMapper = parserFactory->createStyledMapper(&hrdClass, nullptr);
     };
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
@@ -926,7 +926,7 @@ void FarEditorSet::ReloadBase()
   }
   catch (SettingsControlException &e){
 
-    if (getErrorHandler() != NULL){
+    if (getErrorHandler() != nullptr){
       getErrorHandler()->error(*e.getMessage());
     }
     showExceptionMessage( e.getMessage()->getWChars());
@@ -935,7 +935,7 @@ void FarEditorSet::ReloadBase()
   }
   catch (Exception &e){
 
-    if (getErrorHandler() != NULL){
+    if (getErrorHandler() != nullptr){
       getErrorHandler()->error(*e.getMessage());
     }
     showExceptionMessage( e.getMessage()->getWChars());
@@ -948,8 +948,8 @@ void FarEditorSet::ReloadBase()
 
 colorer::ErrorHandler *FarEditorSet::getErrorHandler()
 {
-  if (parserFactory == NULL){
-    return NULL;
+  if (parserFactory == nullptr){
+    return nullptr;
   }
 
   return parserFactory->getErrorHandler();
@@ -986,8 +986,8 @@ FarEditor *FarEditorSet::addCurrentEditor()
 
 String* FarEditorSet::getCurrentFileName()
 {
-  LPWSTR FileName=NULL;
-  size_t FileNameSize=Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, NULL, NULL);
+  LPWSTR FileName=nullptr;
+  size_t FileNameSize=Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, NULL, nullptr);
 
   if (FileNameSize){
     FileName=new wchar_t[FileNameSize];
@@ -1041,8 +1041,8 @@ void FarEditorSet::disableColorer()
 
   delete regionMapper;
   delete parserFactory;
-  parserFactory = NULL;
-  regionMapper = NULL;
+  parserFactory = nullptr;
+  regionMapper = nullptr;
 }
 
 void FarEditorSet::ApplySettingsToEditors()
@@ -1068,7 +1068,7 @@ void FarEditorSet::dropCurrentEditor(bool clean)
     }
     delete it_editor->second;
     farEditorInstances.erase(&SString(ei.EditorID));
-    Info.EditorControl(CurrentEditor, ECTL_REDRAW, NULL, NULL);
+    Info.EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
   }
 }
 
@@ -1099,13 +1099,13 @@ void FarEditorSet::ReadSettings()
   delete sUserHrdPathExp;
   delete sUserHrcPath;
   delete sUserHrcPathExp;
-  sHrdName = NULL;
-  sCatalogPath = NULL;
-  sCatalogPathExp = NULL;
-  sUserHrdPath = NULL;
-  sUserHrdPathExp = NULL;
-  sUserHrcPath = NULL;
-  sUserHrcPathExp = NULL;
+  sHrdName = nullptr;
+  sCatalogPath = nullptr;
+  sCatalogPathExp = nullptr;
+  sUserHrdPath = nullptr;
+  sUserHrdPathExp = nullptr;
+  sUserHrcPath = nullptr;
+  sUserHrcPathExp = nullptr;
 
   sHrdName = new SString(DString(hrdName));
   sHrdNameTm = new SString(DString(hrdNameTm));
@@ -1237,7 +1237,7 @@ void FarEditorSet::LoadUserHrc(const String *filename, ParserFactory *pf)
 {
   if (filename && filename->length()){
     HRCParser *hr = pf->getHRCParser();
-    XmlInputSource *dfis = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)NULL);
+    XmlInputSource *dfis = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)nullptr);
     try{
       hr->loadSource(dfis);
       delete dfis;
@@ -1252,7 +1252,7 @@ const String *FarEditorSet::getParamDefValue(FileTypeImpl *type, SString param)
 {
   const String *value;
   value = type->getParamDefaultValue(param);
-  if (value == NULL) value = defaultType->getParamValue(param);
+  if (value == nullptr) value = defaultType->getParamValue(param);
   StringBuffer *p=new StringBuffer("<default-");
   p->append(DString(value));
   p->append(DString(">"));
@@ -1262,30 +1262,30 @@ const String *FarEditorSet::getParamDefValue(FileTypeImpl *type, SString param)
 FarList *FarEditorSet::buildHrcList()
 {
   size_t num = getCountFileTypeAndGroup();;
-  const String *group = NULL;
-  FileType *type = NULL;
+  const String *group = nullptr;
+  FileType *type = nullptr;
 
   FarListItem *hrcList = new FarListItem[num];
   memset(hrcList, 0, sizeof(FarListItem)*(num));
-  group = NULL;
+  group = nullptr;
 
   for (int idx = 0, i = 0;; idx++, i++){
     type = hrcParser->enumerateFileTypes(idx);
 
-    if (type == NULL){
+    if (type == nullptr){
       break;
     }
 
-    if (group != NULL && !group->equals(type->getGroup())){
+    if (group != nullptr && !group->equals(type->getGroup())){
       hrcList[i].Flags= LIF_SEPARATOR;
       i++;
     };
 
     group = type->getGroup();
 
-    const wchar_t *groupChars = NULL;
+    const wchar_t *groupChars = nullptr;
 
-    if (group != NULL){
+    if (group != nullptr){
       groupChars = group->getWChars();
     }
     else{
@@ -1334,7 +1334,7 @@ FarList *FarEditorSet::buildParamsList(FileTypeImpl *type)
 
 void FarEditorSet::ChangeParamValueListType(HANDLE hDlg, bool dropdownlist)
 {
-  size_t s = Info.SendDlgMessage(hDlg,DM_GETDLGITEM,IDX_CH_PARAM_VALUE_LIST,NULL);
+  size_t s = Info.SendDlgMessage(hDlg,DM_GETDLGITEM,IDX_CH_PARAM_VALUE_LIST,nullptr);
   struct FarDialogItem *DialogItem = (FarDialogItem *) calloc(1,s);
   FarGetDialogItem fgdi;
   fgdi.Item = DialogItem;
@@ -1370,7 +1370,7 @@ void FarEditorSet::setCrossValueListToCombobox(FileTypeImpl *type, HANDLE hDlg)
   lcross->StructSize=sizeof(FarList);
 
   size_t ret=2;
-  if (value==NULL || !value->length()){
+  if (value==nullptr || !value->length()){
     ret=4;
   }else{
     if (value->equals(&DNone)){
@@ -1411,7 +1411,7 @@ void FarEditorSet::setCrossPosValueListToCombobox(FileTypeImpl *type, HANDLE hDl
   lcross->StructSize=sizeof(FarList);
 
   size_t ret=2;
-  if (value==NULL || !value->length()){
+  if (value==nullptr || !value->length()){
     ret=2;
   }else{
     if (value->equals(&DBottom)){
@@ -1446,7 +1446,7 @@ void FarEditorSet::setYNListValueToCombobox(FileTypeImpl *type, HANDLE hDlg, DSt
   lcross->StructSize=sizeof(FarList);
 
   size_t ret=2;
-  if (value==NULL || !value->length()){
+  if (value==nullptr || !value->length()){
     ret=2;
   }else{
     if (value->equals(&DNo)){
@@ -1481,7 +1481,7 @@ void FarEditorSet::setTFListValueToCombobox(FileTypeImpl *type, HANDLE hDlg, DSt
   lcross->StructSize=sizeof(FarList);
 
   size_t ret=2;
-  if (value==NULL || !value->length()){
+  if (value==nullptr || !value->length()){
     ret=2;
   }else{
     if (value->equals(&DFalse)){
@@ -1517,7 +1517,7 @@ void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl *type,HANDLE hDlg, 
   ChangeParamValueListType(hDlg,false);
   Info.SendDlgMessage(hDlg,DM_LISTSET,IDX_CH_PARAM_VALUE_LIST,lcross);
 
-  if (value!=NULL){
+  if (value!=nullptr){
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR ,IDX_CH_PARAM_VALUE_LIST,(void*)value->getWChars());
   }
   delete def_value;
@@ -1559,7 +1559,7 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   FileTypeImpl *type = getCurrentTypeInDialog(hDlg);
   const String *value = ((FileTypeImpl*)type)->getParamUserValue(p);
   const String *def_value=getParamDefValue(type,p);
-  if (value==NULL || !value->length()){//было default значение
+  if (value==nullptr || !value->length()){//было default значение
     //если его изменили  
     if (!v.equals(def_value)){
       if (type->getParamValue(p)==nullptr){
@@ -1592,10 +1592,10 @@ void  FarEditorSet::OnChangeParam(HANDLE hDlg, int idx)
 
   const String *value;
   value = type->getParamDescription(p);
-  if (value==NULL){
+  if (value==nullptr){
     value = defaultType->getParamDescription(p);
   }
-  if (value!=NULL){
+  if (value!=nullptr){
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR ,IDX_CH_DESCRIPTION,(void*)value->getWChars());
   }
 

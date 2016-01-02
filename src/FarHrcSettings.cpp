@@ -124,7 +124,7 @@ void FarHrcSettings::readProfileFromRegistry()
                 if (type->getParamValue(DString(type_fse.Items[j].Name))==nullptr){
                   type->addParam(&DString(type_fse.Items[j].Name));
                 }
-				const wchar_t *p = ColorerSettings.Get(type_subkey,type_fse.Items[j].Name,(wchar_t*)NULL);
+				const wchar_t *p = ColorerSettings.Get(type_subkey,type_fse.Items[j].Name,(wchar_t*)nullptr);
 				if (p) {
 					type->setParamValue(DString(type_fse.Items[j].Name), &DString(p));
 				}
@@ -145,7 +145,7 @@ void FarHrcSettings::writeUserProfile()
 void FarHrcSettings::writeProfileToRegistry()
 {
   HRCParser *hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl *type = NULL;
+  FileTypeImpl *type = nullptr;
 
   SettingsControl ColorerSettings;
   ColorerSettings.rDeleteSubKey(0,HrcSettings);
@@ -166,7 +166,7 @@ void FarHrcSettings::writeProfileToRegistry()
       std::vector<SString> type_params = type->enumParams();
       for (auto paramname=type_params.begin(); paramname!=type_params.end(); ++paramname){      
         const String *v = type->getParamUserValue(*paramname);
-        if (v != NULL){
+        if (v != nullptr){
           ColorerSettings.Set(type_subkey, paramname->getWChars(), v->getWChars());
         }
       }

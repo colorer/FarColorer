@@ -16,7 +16,7 @@ SettingsControl::SettingsControl()
 
 SettingsControl::~SettingsControl()
 {
-  Info.SettingsControl(farSettingHandle, SCTL_FREE, NULL, NULL);
+  Info.SettingsControl(farSettingHandle, SCTL_FREE, NULL, nullptr);
 }
 
 const wchar_t *SettingsControl::Get(size_t Root, const wchar_t *Name, const wchar_t *Default)

@@ -3,7 +3,7 @@
 #include"FarEditorSet.h"
 #include "version.h"
 
-FarEditorSet *editorSet = NULL;
+FarEditorSet *editorSet = nullptr;
 bool inCreateEditorSet = false;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
@@ -123,7 +123,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *oInfo)
       break;
     case OPEN_FROMMACRO:
       {
-        Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, NULL);
+        Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
         OpenMacroInfo* mi=(OpenMacroInfo*)oInfo->Data;
         int MenuCode=-1;
         if (mi->Count)
