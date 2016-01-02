@@ -1,34 +1,34 @@
 #ifndef _FAREDITOR_H_
 #define _FAREDITOR_H_
 
-#include<colorer/editor/BaseEditor.h>
-#include<colorer/handlers/StyledRegion.h>
-#include<colorer/editor/Outliner.h>
-#include<common/Logging.h>
+#include <colorer/editor/BaseEditor.h>
+#include <colorer/handlers/StyledRegion.h>
+#include <colorer/editor/Outliner.h>
+#include <common/Logging.h>
 
 #include"pcolorer.h"
 
 const intptr_t CurrentEditor = -1;
-const DString DDefaultScheme=DString("default");
-const DString DShowCross    =DString("show-cross");
-const DString DNone         =DString("none");
-const DString DVertical     =DString("vertical");
-const DString DHorizontal   =DString("horizontal");
-const DString DBoth         =DString("both");
-const DString DCrossZorder  =DString("cross-zorder");
-const DString DBottom       =DString("bottom");
-const DString DTop          =DString("top");
-const DString DYes          =DString("yes");
-const DString DNo           =DString("no");
-const DString DTrue         =DString("true");
-const DString DFalse        =DString("false");
-const DString DBackparse    =DString("backparse");
-const DString DMaxLen       =DString("maxlinelength");
-const DString DDefFore      =DString("default-fore");
-const DString DDefBack      =DString("default-back");
-const DString DFullback     =DString("fullback");
-const DString DHotkey       =DString("hotkey");
-const DString DFavorite     =DString("favorite");
+const DString DDefaultScheme = DString("default");
+const DString DShowCross    = DString("show-cross");
+const DString DNone         = DString("none");
+const DString DVertical     = DString("vertical");
+const DString DHorizontal   = DString("horizontal");
+const DString DBoth         = DString("both");
+const DString DCrossZorder  = DString("cross-zorder");
+const DString DBottom       = DString("bottom");
+const DString DTop          = DString("top");
+const DString DYes          = DString("yes");
+const DString DNo           = DString("no");
+const DString DTrue         = DString("true");
+const DString DFalse        = DString("false");
+const DString DBackparse    = DString("backparse");
+const DString DMaxLen       = DString("maxlinelength");
+const DString DDefFore      = DString("default-fore");
+const DString DDefBack      = DString("default-back");
+const DString DFullback     = DString("fullback");
+const DString DHotkey       = DString("hotkey");
+const DString DFavorite     = DString("favorite");
 
 #define revertRGB(x) (BYTE)(x>>16 & 0xff)|((BYTE)(x>>8 & 0xff)<<8)|((BYTE)(x & 0xff)<<16)
 
@@ -42,7 +42,7 @@ class FarEditor : public LineSource
 public:
   /** Creates FAR editor instance.
   */
-  FarEditor(PluginStartupInfo *info, ParserFactory *pf);
+  FarEditor(PluginStartupInfo* info, ParserFactory* pf);
   /** Drops this editor */
   ~FarEditor();
 
@@ -51,25 +51,25 @@ public:
   Returns line number "lno" from FAR interface. Line is only valid until next call of this function,
   it also should not be disposed, this function takes care of this.
   */
-  String *getLine(size_t lno);
+  String* getLine(size_t lno);
 
   /** Changes current assigned file type.
   */
-  void setFileType(FileType *ftype);
+  void setFileType(FileType* ftype);
   /** Returns currently selected file type.
   */
-  FileType *getFileType();
+  FileType* getFileType();
 
   /** Selects file type with it's extension and first lines
   */
-  void chooseFileType(String *fname);
+  void chooseFileType(String* fname);
 
 
   /** Installs specified RegionMapper implementation.
   This class serves to request mapping of regions into
   real colors.
   */
-  void setRegionMapper(RegionMapper *rs);
+  void setRegionMapper(RegionMapper* rs);
 
   /**
   * Change editor properties. These overwrites default HRC settings
@@ -108,7 +108,7 @@ public:
   void updateHighlighting();
 
   /** Handle passed FAR editor event */
-  int editorEvent(intptr_t event, void *param);
+  int editorEvent(intptr_t event, void* param);
   /** Dispatch editor input event */
   int editorInput(const INPUT_RECORD &Rec);
 
@@ -117,10 +117,10 @@ public:
   void getNameCurrentScheme();
 private:
   EditorInfo ei;
-  PluginStartupInfo *info;
+  PluginStartupInfo* info;
 
-  ParserFactory *parserFactory;
-  BaseEditor *baseEditor;
+  ParserFactory* parserFactory;
+  BaseEditor* baseEditor;
 
   int  maxLineLength;
   bool fullBackground;
@@ -142,26 +142,26 @@ private:
 
   int prevLinePosition, blockTopPosition;
 
-  String *ret_str;
+  String* ret_str;
   int ret_strNumber;
 
   int newfore, newback;
-  const StyledRegion *rdBackground;
-  LineRegion *cursorRegion;
+  const StyledRegion* rdBackground;
+  LineRegion* cursorRegion;
 
   int visibleLevel;
-  Outliner *structOutliner;
-  Outliner *errorOutliner;
+  Outliner* structOutliner;
+  Outliner* errorOutliner;
 
   void reloadTypeSettings();
   void enterHandler();
-  FarColor convert(const StyledRegion *rd);
+  FarColor convert(const StyledRegion* rd);
   bool foreDefault(FarColor col);
   bool backDefault(FarColor col);
-  void showOutliner(Outliner *outliner);
-  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle=0);
+  void showOutliner(Outliner* outliner);
+  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle = 0);
   void deleteFarColor(intptr_t lno, intptr_t s);
-  const wchar_t *GetMsg(int msg);
+  const wchar_t* GetMsg(int msg);
   COLORREF getSuitableColor(const COLORREF base_color, const COLORREF blend_color);
 };
 #endif

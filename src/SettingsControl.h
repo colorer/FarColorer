@@ -1,7 +1,7 @@
 #ifndef _SETTINGSCONTROL_H_
 #define _SETTINGSCONTROL_H_
 
-#include"pcolorer.h"
+#include "pcolorer.h"
 
 class SettingsControl
 {

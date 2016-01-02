@@ -1,12 +1,12 @@
 #ifndef _FAREDITORSET_H_
 #define _FAREDITORSET_H_
 
-#include<colorer/handlers/FileErrorHandler.h>
-#include<colorer/handlers/LineRegionsSupport.h>
-#include<colorer/handlers/StyledHRDMapper.h>
-#include<colorer/viewer/TextConsoleViewer.h>
-#include<common/Logging.h>
-#include<unicode/Encodings.h>
+#include <colorer/handlers/FileErrorHandler.h>
+#include <colorer/handlers/LineRegionsSupport.h>
+#include <colorer/handlers/StyledHRDMapper.h>
+#include <colorer/viewer/TextConsoleViewer.h>
+#include <common/Logging.h>
+#include <unicode/Encodings.h>
 
 #include "pcolorer.h"
 #include "tools.h"
@@ -50,20 +50,21 @@ const wchar_t cLogPathDefault[] = L"";
 const DString DConsole   = DString("console");
 const DString DRgb       = DString("rgb");
 const DString Ddefault   = DString("<default>");
-const DString DAutodetect= DString("autodetect");
+const DString DAutodetect = DString("autodetect");
 
-enum
-{ IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE,IDX_CHANGE_BG,
-IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
-IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_LOG_EDIT, IDX_TM_BOX, IDX_TRUEMOD,IDX_HRD_TM, 
-IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL};
+enum {
+  IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
+  IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
+  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_LOG_EDIT, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
+  IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL
+};
 
-enum
-{ IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS, 
-IDX_CH_PARAM_LIST,IDX_CH_PARAM_VALUE_CAPTION,IDX_CH_PARAM_VALUE_LIST, IDX_CH_DESCRIPTION, IDX_CH_OK, IDX_CH_CANCEL};
+enum {
+  IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS,
+  IDX_CH_PARAM_LIST, IDX_CH_PARAM_VALUE_CAPTION, IDX_CH_PARAM_VALUE_LIST, IDX_CH_DESCRIPTION, IDX_CH_OK, IDX_CH_CANCEL
+};
 
-enum ERROR_TYPE
-{ 
+enum ERROR_TYPE {
   ERR_NO_ERROR = 0,
   ERR_BASE_LOAD = 1,
   ERR_FARSETTINGS_ERROR = 2
@@ -93,14 +94,14 @@ public:
   void viewFile(const String &path);
 
   /** Dispatch editor event in the opened editor */
-  int  editorEvent(const struct ProcessEditorEventInfo *pInfo);
+  int  editorEvent(const struct ProcessEditorEventInfo* pInfo);
   /** Dispatch editor input event in the opened editor */
   int  editorInput(const INPUT_RECORD &Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String *getHRDescription(const String &name, DString _hrdClass);
+  const String* getHRDescription(const String &name, DString _hrdClass);
   /** Shows dialog with HRD scheme selection */
-  const SString chooseHRDName(const String *current, DString _hrdClass );
+  const SString chooseHRDName(const String* current, DString _hrdClass);
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -108,17 +109,26 @@ public:
   * trying to load the database on the specified path
   */
   enum HRC_MODE {HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH};
-  bool TestLoadBase(const wchar_t *catalogPath, const wchar_t *userHrdPath, const wchar_t *userHrcPath, const int full, const HRC_MODE hrc_mode);
-  SString *GetCatalogPath() {return sCatalogPath;}
-  SString *GetUserHrdPath() {return sUserHrdPath;}
-  bool GetPluginStatus() const {return rEnabled;}
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
+  SString* GetCatalogPath()
+  {
+    return sCatalogPath;
+  }
+  SString* GetUserHrdPath()
+  {
+    return sUserHrdPath;
+  }
+  bool GetPluginStatus() const
+  {
+    return rEnabled;
+  }
 
   bool SetBgEditor();
-  void LoadUserHrd(const String *filename, ParserFactory *pf);
-  void LoadUserHrc(const String *filename, ParserFactory *pf);
+  void LoadUserHrd(const String* filename, ParserFactory* pf);
+  void LoadUserHrc(const String* filename, ParserFactory* pf);
 
-  SString *sTempHrdName;
-  SString *sTempHrdNameTm;
+  SString* sTempHrdName;
+  SString* sTempHrdNameTm;
 
   /** Shows hrc configuration dialog */
   void configureHrc();
@@ -132,11 +142,11 @@ public:
   void setLogPath(const wchar_t* log_path);
 private:
   /** Returns current global error handler. */
-  colorer::ErrorHandler *getErrorHandler();
+  colorer::ErrorHandler* getErrorHandler();
   /** add current active editor and return him. */
-  FarEditor *addCurrentEditor();
+  FarEditor* addCurrentEditor();
   /** Returns currently active editor. */
-  FarEditor *getCurrentEditor();
+  FarEditor* getCurrentEditor();
   /**
   * Reloads HRC database.
   * Drops all currently opened editors and their
@@ -148,7 +158,7 @@ private:
   /** Shows dialog of file type selection */
   void chooseType();
   /** FAR localized messages */
-  const wchar_t *GetMsg(int msg);
+  const wchar_t* GetMsg(int msg);
   /** Applies the current settings for editors*/
   void ApplySettingsToEditors();
   /** writes settings in the registry*/
@@ -163,33 +173,33 @@ private:
 
   size_t getCountFileTypeAndGroup();
   FileTypeImpl* getFileTypeByIndex(int idx);
-  void FillTypeMenu(ChooseTypeMenu *Menu, FileType *CurFileType);
-  String *getCurrentFileName();
+  void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType);
+  String* getCurrentFileName();
 
   // FarList for dialog objects
-  FarList *buildHrcList();
-  FarList *buildParamsList(FileTypeImpl *type);
+  FarList* buildHrcList();
+  FarList* buildParamsList(FileTypeImpl* type);
   // filetype "default"
-  FileTypeImpl *defaultType;
+  FileTypeImpl* defaultType;
   //change combobox type
   void ChangeParamValueListType(HANDLE hDlg, bool dropdownlist);
   //set list of values to combobox
-  void setCrossValueListToCombobox(FileTypeImpl *type,HANDLE hDlg);
-  void setCrossPosValueListToCombobox(FileTypeImpl *type,HANDLE hDlg);
-  void setYNListValueToCombobox(FileTypeImpl *type,HANDLE hDlg, DString param);
-  void setTFListValueToCombobox(FileTypeImpl *type,HANDLE hDlg, DString param);
-  void setCustomListValueToCombobox(FileTypeImpl *type,HANDLE hDlg, DString param);
+  void setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
+  void setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
+  void setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
+  void setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
+  void setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
 
-  FileTypeImpl *getCurrentTypeInDialog(HANDLE hDlg);
+  FileTypeImpl* getCurrentTypeInDialog(HANDLE hDlg);
 
-  const String *getParamDefValue(FileTypeImpl *type, SString param);
+  const String* getParamDefValue(FileTypeImpl* type, SString param);
 
   void SaveChangedValueParam(HANDLE hDlg);
 
   std::unordered_map<SString, FarEditor*> farEditorInstances;
-  ParserFactory *parserFactory;
-  RegionMapper *regionMapper;
-  HRCParser *hrcParser;
+  ParserFactory* parserFactory;
+  RegionMapper* regionMapper;
+  HRCParser* hrcParser;
 
   /**current value*/
   DString hrdClass;
@@ -199,29 +209,29 @@ private:
   bool rEnabled; // status plugin
   int drawCross;
   int CrossStyle; // 0 - both; 1 - vertical; 2 - horizontal
-  bool drawPairs; 
+  bool drawPairs;
   bool drawSyntax;
   bool oldOutline;
   bool TrueModOn;
   bool ChangeBgEditor;
-  SString *sHrdName;
-  SString *sHrdNameTm;
-  SString *sCatalogPath;
-  SString *sUserHrdPath;
-  SString *sUserHrcPath;
-  SString *sLogPath;
-  
+  SString* sHrdName;
+  SString* sHrdNameTm;
+  SString* sCatalogPath;
+  SString* sUserHrdPath;
+  SString* sUserHrcPath;
+  SString* sLogPath;
+
   /** UNC path */
-  SString *sCatalogPathExp;
-  SString *sUserHrdPathExp;
-  SString *sUserHrcPathExp;
-  SString *sLogPathExp;
+  SString* sCatalogPathExp;
+  SString* sUserHrdPathExp;
+  SString* sUserHrcPathExp;
+  SString* sLogPathExp;
 
   int viewFirst; // 0 - init;  1 - first run view; 2 - first run editor
   int CurrentMenuItem;
 
   unsigned int err_status;
-  colorer::ErrorHandler *error_handler;
+  colorer::ErrorHandler* error_handler;
 
   bool in_construct;
 };
