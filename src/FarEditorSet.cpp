@@ -70,13 +70,13 @@ void FarEditorSet::openMenu(int MenuId)
     }
     for (int i = menu_size - 1; i >= 0; i--) {
       if (iMenuItems[i] == -1) {
-        menuElements[i].Flags |= MIF_SEPARATOR;;
+        menuElements[i].Flags |= MIF_SEPARATOR;
       } else {
         menuElements[i].Text = GetMsg(iMenuItems[i]);
       }
     }
 
-    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), 0, L"menu", nullptr, nullptr,
+    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr,
                                  rEnabled ? menuElements : menuElements + 12, rEnabled ? menu_size : 1);
     if (!rEnabled && menu_id == 0) {
       MenuId = 12;
@@ -354,7 +354,7 @@ void FarEditorSet::chooseType()
         intptr_t res = Info.DialogRun(hDlg);
 
         if (res != -1) {
-          KeyAssignDlgData[2].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, 0));
+          KeyAssignDlgData[2].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr));
           if (menu.GetFileType(i)->getParamValue(DHotkey) == nullptr) {
             ((FileTypeImpl*)menu.GetFileType(i))->addParam(&DHotkey);
           }
@@ -398,7 +398,7 @@ const String* FarEditorSet::getHRDescription(const String &name, DString _hrdCla
 
 INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-  FarEditorSet* fes = (FarEditorSet*)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);;
+  FarEditorSet* fes = (FarEditorSet*)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr);
 
   switch (Msg) {
     case DN_BTNCLICK:
@@ -409,7 +409,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           fes->sTempHrdName = tempSS;
           const String* descr = fes->getHRDescription(*fes->sTempHrdName, DConsole);
           Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_HRD_SELECT, (void*)descr->getWChars());
-          Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
+          Info.SendDlgMessage(hDlg, DM_REDRAW, 0, nullptr);
           return true;
         }
         break;
@@ -419,18 +419,18 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           fes->sTempHrdNameTm = tempSS;
           const String* descr = fes->getHRDescription(*fes->sTempHrdNameTm, DRgb);
           Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_HRD_SELECT_TM, (void*)descr->getWChars());
-          Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
+          Info.SendDlgMessage(hDlg, DM_REDRAW, 0, nullptr);
           return true;
         }
         break;
         case IDX_RELOAD_ALL: {
-          Info.SendDlgMessage(hDlg, DM_SHOWDIALOG , false, 0);
-          wchar_t* catalog = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, 0));
-          wchar_t* userhrd = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, 0));
-          wchar_t* userhrc = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, 0));
-          bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, 0);
+          Info.SendDlgMessage(hDlg, DM_SHOWDIALOG , false, nullptr);
+          wchar_t* catalog = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr));
+          wchar_t* userhrd = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr));
+          wchar_t* userhrc = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr));
+          bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
           fes->TestLoadBase(catalog, userhrd, userhrc, true, trumod ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
-          Info.SendDlgMessage(hDlg, DM_SHOWDIALOG , true, 0);
+          Info.SendDlgMessage(hDlg, DM_SHOWDIALOG , true, nullptr);
           return true;
         }
         break;
@@ -440,11 +440,11 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
         }
         break;
         case IDX_OK:
-          const wchar_t* temp = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, 0));
-          const wchar_t* userhrd = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, 0));
-          const wchar_t* userhrc = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, 0));
-          bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, 0);
-          int k = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, 0);
+          const wchar_t* temp = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr));
+          const wchar_t* userhrd = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr));
+          const wchar_t* userhrc = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr));
+          bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
+          int k = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
 
           if (fes->GetCatalogPath()->compareTo(DString(temp)) || fes->GetUserHrdPath()->compareTo(DString(userhrd))
               || (!fes->GetPluginStatus() && k) || (trumod == true)) {
@@ -468,34 +468,34 @@ void FarEditorSet::configure(bool fromEditor)
   try {
     FarDialogItem fdi[] = {
       // type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
-      { DI_DOUBLEBOX, 3, 1, 55, 25, 0, 0, 0, 0, 0, 0, 0},     //IDX_BOX,
-      { DI_CHECKBOX, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_DISABLED,
-      { DI_CHECKBOX, 5, 3, 0, 0, 0, 0, 0, DIF_3STATE, 0, 0, 0}, //IDX_CROSS,
-      { DI_TEXT, 7, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0},            //IDX_CROSS_TEXT,
-      { DI_COMBOBOX, 20, 4, 40, 4, 0, 0, 0, 0, 0, 0, 0},      //IDX_CROSS_STYLE,
-      { DI_CHECKBOX, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_PAIRS,
-      { DI_CHECKBOX, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_SYNTAX,
-      { DI_CHECKBOX, 5, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_OLDOUTLINE,
-      { DI_CHECKBOX, 5, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_CHANGE_BG,
-      { DI_TEXT, 5, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0},            //IDX_HRD,
-      { DI_BUTTON, 20, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0},         //IDX_HRD_SELECT,
-      { DI_TEXT, 5, 10, 0, 10, 0, 0, 0, 0, 0, 0, 0},            //IDX_CATALOG,
-      { DI_EDIT, 6, 11, 52, 11, 0, L"catalog", 0, DIF_HISTORY, 0, 0, 0}, //IDX_CATALOG_EDIT
-      { DI_TEXT, 5, 12, 0, 12, 0, 0, 0, 0, 0, 0, 0},          //IDX_USERHRC,
-      { DI_EDIT, 6, 13, 52, 13, 0, L"userhrc", 0, DIF_HISTORY, 0, 0, 0}, //IDX_USERHRC_EDIT
-      { DI_TEXT, 5, 14, 0, 14, 0, 0, 0, 0, 0, 0, 0},          //IDX_USERHRD,
-      { DI_EDIT, 6, 15, 52, 15, 0, L"userhrd", 0, DIF_HISTORY, 0, 0, 0}, //IDX_USERHRD_EDIT
-      { DI_TEXT, 5, 16, 0, 16, 0, 0, 0, 0, 0, 0, 0},          //IDX_LOG,
-      { DI_EDIT, 6, 17, 52, 17, 0, L"log", 0, DIF_HISTORY, 0, 0, 0}, //IDX_LOG_EDIT
-      { DI_SINGLEBOX, 4, 18, 54, 18, 0, 0, 0, 0, 0, 0, 0},    //IDX_TM_BOX,
-      { DI_CHECKBOX, 5, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0},       //IDX_TRUEMOD,
-      { DI_TEXT, 5, 20, 0, 20, 0, 0, 0, 0, 0, 0, 0},          //IDX_HRD_TM,
-      { DI_BUTTON, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_HRD_SELECT_TM,
-      { DI_SINGLEBOX, 4, 21, 54, 21, 0, 0, 0, 0, 0, 0, 0},    //IDX_TM_BOX_OFF,
-      { DI_BUTTON, 5, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0},         //IDX_RELOAD_ALL,
-      { DI_BUTTON, 30, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_HRC_SETTING,
-      { DI_BUTTON, 35, 23, 0, 0, 0, 0, 0, DIF_DEFAULTBUTTON, 0, 0, 0}, //IDX_OK,
-      { DI_BUTTON, 45, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0},        //IDX_CANCEL,
+      { DI_DOUBLEBOX, 3, 1, 55, 25, 0, nullptr, nullptr, 0, nullptr, 0, 0},     //IDX_BOX,
+      { DI_CHECKBOX, 5, 2, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_DISABLED,
+      { DI_CHECKBOX, 5, 3, 0, 0, 0, nullptr, nullptr, DIF_3STATE, nullptr, 0, 0}, //IDX_CROSS,
+      { DI_TEXT, 7, 4, 0, 4, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_CROSS_TEXT,
+      { DI_COMBOBOX, 20, 4, 40, 4, 0, nullptr, nullptr, 0, nullptr, 0, 0},      //IDX_CROSS_STYLE,
+      { DI_CHECKBOX, 5, 5, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_PAIRS,
+      { DI_CHECKBOX, 5, 6, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_SYNTAX,
+      { DI_CHECKBOX, 5, 7, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_OLDOUTLINE,
+      { DI_CHECKBOX, 5, 8, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CHANGE_BG,
+      { DI_TEXT, 5, 9, 0, 9, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_HRD,
+      { DI_BUTTON, 20, 9, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_HRD_SELECT,
+      { DI_TEXT, 5, 10, 0, 10, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_CATALOG,
+      { DI_EDIT, 6, 11, 52, 11, 0, L"catalog", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_CATALOG_EDIT
+      { DI_TEXT, 5, 12, 0, 12, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRC,
+      { DI_EDIT, 6, 13, 52, 13, 0, L"userhrc", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRC_EDIT
+      { DI_TEXT, 5, 14, 0, 14, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRD,
+      { DI_EDIT, 6, 15, 52, 15, 0, L"userhrd", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRD_EDIT
+      { DI_TEXT, 5, 16, 0, 16, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_LOG,
+      { DI_EDIT, 6, 17, 52, 17, 0, L"log", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_LOG_EDIT
+      { DI_SINGLEBOX, 4, 18, 54, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX,
+      { DI_CHECKBOX, 5, 19, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},       //IDX_TRUEMOD,
+      { DI_TEXT, 5, 20, 0, 20, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_HRD_TM,
+      { DI_BUTTON, 20, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRD_SELECT_TM,
+      { DI_SINGLEBOX, 4, 21, 54, 21, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX_OFF,
+      { DI_BUTTON, 5, 22, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_RELOAD_ALL,
+      { DI_BUTTON, 30, 22, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRC_SETTING,
+      { DI_BUTTON, 35, 23, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0}, //IDX_OK,
+      { DI_BUTTON, 45, 23, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CANCEL,
     };//type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
 
     fdi[IDX_BOX].Data = GetMsg(mSetup);
@@ -534,14 +534,12 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_USERHRD_EDIT].Data = sUserHrdPath->getWChars();
     fdi[IDX_HRD].Data = GetMsg(mHRDName);
 
-    const String* descr = nullptr;
     sTempHrdName = new SString(sHrdName);
-    descr = getHRDescription(*sTempHrdName, DConsole);
+    const String* descr = getHRDescription(*sTempHrdName, DConsole);
 
     fdi[IDX_HRD_SELECT].Data = descr->getWChars();
-    const String* descr2 = nullptr;
     sTempHrdNameTm = new SString(sHrdNameTm);
-    descr2 = getHRDescription(*sTempHrdNameTm, DRgb);
+    const String* descr2 = getHRDescription(*sTempHrdNameTm, DRgb);
 
     fdi[IDX_HRD_TM].Data = GetMsg(mHRDNameTrueMod);
     fdi[IDX_HRD_SELECT_TM].Data = descr2->getWChars();
@@ -563,10 +561,10 @@ void FarEditorSet::configure(bool fromEditor)
     intptr_t i = Info.DialogRun(hDlg);
 
     if (i == IDX_OK) {
-      fdi[IDX_CATALOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, 0));
-      fdi[IDX_USERHRD_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, 0));
-      fdi[IDX_USERHRC_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, 0));
-      fdi[IDX_LOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOG_EDIT, 0));
+      fdi[IDX_CATALOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr));
+      fdi[IDX_USERHRD_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr));
+      fdi[IDX_USERHRC_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr));
+      fdi[IDX_LOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOG_EDIT, nullptr));
       //check whether or not to reload the base
       int k = false;
 
@@ -578,14 +576,14 @@ void FarEditorSet::configure(bool fromEditor)
         k = true;
       }
 
-      fdi[IDX_ENABLED].Selected = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, 0);
-      drawCross = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CROSS, 0);
-      CrossStyle = (int)Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CROSS_STYLE, 0);
-      drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, 0);
-      drawSyntax = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_SYNTAX, 0);
-      oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, 0);
-      ChangeBgEditor = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CHANGE_BG, 0);
-      fdi[IDX_TRUEMOD].Selected = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, 0);
+      fdi[IDX_ENABLED].Selected = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
+      drawCross = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CROSS, nullptr);
+      CrossStyle = (int)Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CROSS_STYLE, nullptr);
+      drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, nullptr);
+      drawSyntax = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_SYNTAX, nullptr);
+      oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, nullptr);
+      ChangeBgEditor = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CHANGE_BG, nullptr);
+      fdi[IDX_TRUEMOD].Selected = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
       delete sHrdName;
       delete sHrdNameTm;
       delete sCatalogPath;
@@ -666,7 +664,7 @@ const SString FarEditorSet::chooseHRDName(const String* current, DString _hrdCla
   }
 
   intptr_t result = Info.Menu(&MainGuid, &HrdMenu, -1, -1, 0, FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT,
-                              GetMsg(mSelectHRD), 0, L"hrd", nullptr, nullptr, menuElements, count);
+                              GetMsg(mSelectHRD), nullptr, L"hrd", nullptr, nullptr, menuElements, count);
   delete[] menuElements;
 
   if (result == -1) {
@@ -885,7 +883,7 @@ void FarEditorSet::ReloadBase()
     FarHrcSettings p(parserFactory);
     p.readProfile();
     p.readUserProfile();
-    defaultType = (FileTypeImpl*)hrcParser->getFileType(&DDefaultScheme);
+    defaultType = static_cast<FileTypeImpl*>(hrcParser->getFileType(&DDefaultScheme));
 
     try {
       regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
@@ -1185,7 +1183,7 @@ void FarEditorSet::LoadUserHrd(const String* filename, ParserFactory* pf)
     xml_parser.setErrorHandler(&err_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
-    XmlInputSource* config = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)nullptr);
+    XmlInputSource* config = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
     xml_parser.parse(*config->getInputSource());
     if (err_handler.getSawErrors()) {
       throw ParserFactoryException(StringBuffer("Error reading ") + DString(filename));
@@ -1498,7 +1496,7 @@ void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg,
 
 FileTypeImpl* FarEditorSet::getCurrentTypeInDialog(HANDLE hDlg)
 {
-  int k = (int)Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CH_SCHEMAS, 0);
+  int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CH_SCHEMAS, nullptr));
   return getFileTypeByIndex(k);
 }
 
@@ -1526,7 +1524,7 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   //param name
   DString p = DString(List.Item.Text);
   //param value
-  DString v = DString(trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, 0)));
+  DString v = DString(trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr)));
   FileTypeImpl* type = getCurrentTypeInDialog(hDlg);
   const String* value = ((FileTypeImpl*)type)->getParamUserValue(p);
   const String* def_value = getParamDefValue(type, p);
@@ -1599,7 +1597,7 @@ void FarEditorSet::OnSaveHrcParams(HANDLE hDlg)
 
 INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-  FarEditorSet* fes = (FarEditorSet*)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);;
+  FarEditorSet* fes = reinterpret_cast<FarEditorSet*>(Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr));
 
   switch (Msg) {
     case DN_GOTFOCUS: {
@@ -1649,15 +1647,15 @@ void FarEditorSet::configureHrc()
 
   FarDialogItem fdi[] = {
     // type, x1, y1, x2, y2, param, history, mask, flags, userdata, ptrdata, maxlen
-    { DI_DOUBLEBOX, 2, 1, 56, 21, 0, 0, 0, 0, 0, 0, 0},                 //IDX_CH_BOX,
-    { DI_TEXT, 3, 3, 0, 3, 0, 0, 0, 0, 0, 0, 0},                        //IDX_CH_CAPTIONLIST,
-    { DI_COMBOBOX, 10, 3, 54, 2, 0, 0, 0, 0, 0, 0, 0},                  //IDX_CH_SCHEMAS,
-    { DI_LISTBOX, 3, 4, 30, 17, 0, 0, 0, 0, 0, 0, 0},                   //IDX_CH_PARAM_LIST,
-    { DI_TEXT, 32, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0},                       //IDX_CH_PARAM_VALUE_CAPTION
-    { DI_COMBOBOX, 32, 6, 54, 6, 0, 0, 0, 0, 0, 0, 0},                  //IDX_CH_PARAM_VALUE_LIST
-    { DI_EDIT, 4, 18, 54, 18, 0, 0, 0, 0, 0, 0, 0},                     //IDX_CH_DESCRIPTION,
-    { DI_BUTTON, 37, 20, 0, 0, 0, 0, 0, DIF_DEFAULTBUTTON, 0, 0, 0},    //IDX_OK,
-    { DI_BUTTON, 45, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0},                    //IDX_CANCEL,
+    { DI_DOUBLEBOX, 2, 1, 56, 21, 0, nullptr, nullptr, 0, nullptr, 0, 0},                 //IDX_CH_BOX,
+    { DI_TEXT, 3, 3, 0, 3, 0, nullptr, nullptr, 0, nullptr, 0, 0},                        //IDX_CH_CAPTIONLIST,
+    { DI_COMBOBOX, 10, 3, 54, 2, 0, nullptr, nullptr, 0, nullptr, 0, 0},                  //IDX_CH_SCHEMAS,
+    { DI_LISTBOX, 3, 4, 30, 17, 0, nullptr, nullptr, 0, nullptr, 0, 0},                   //IDX_CH_PARAM_LIST,
+    { DI_TEXT, 32, 5, 0, 5, 0, nullptr, nullptr, 0, nullptr, 0, 0},                       //IDX_CH_PARAM_VALUE_CAPTION
+    { DI_COMBOBOX, 32, 6, 54, 6, 0, nullptr, nullptr, 0, nullptr, 0, 0},                  //IDX_CH_PARAM_VALUE_LIST
+    { DI_EDIT, 4, 18, 54, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},                     //IDX_CH_DESCRIPTION,
+    { DI_BUTTON, 37, 20, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0},    //IDX_OK,
+    { DI_BUTTON, 45, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},                    //IDX_CANCEL,
   };
 
   fdi[IDX_CH_BOX].Data = GetMsg(mUserHrcSettingDialog);

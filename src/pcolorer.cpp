@@ -136,13 +136,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
       }
 
       if (MenuCode < 0) {
-        return 0;
+        return nullptr;
       }
       editorSet->openMenu(MenuCode - 1);
     }
     break;
   }
-  return 0;
+  return nullptr;
 }
 
 /**

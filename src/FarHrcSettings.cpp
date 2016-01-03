@@ -19,7 +19,7 @@ void FarHrcSettings::readXML(String* file, bool userValue)
   xml_parser.setErrorHandler(&error_handler);
   xml_parser.setLoadExternalDTD(false);
   xml_parser.setSkipDTDValidation(true);
-  XmlInputSource* config = XmlInputSource::newInstance(file->getWChars(), (XMLCh*)nullptr);
+  XmlInputSource* config = XmlInputSource::newInstance(file->getWChars(), static_cast<XMLCh*>(nullptr));
   xml_parser.parse(*config->getInputSource());
   if (error_handler.getSawErrors()) {
     delete config;
@@ -58,7 +58,8 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
     return;
   }
   HRCParser* hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&DString(typeName)));
+  DString typenamed = DString(typeName);
+  FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&typenamed));
   if (type == nullptr) {
     return;
   }
@@ -111,7 +112,8 @@ void FarHrcSettings::readProfileFromRegistry()
     for (size_t i = 0; i < fse.Count; i++) {
       if (fse.Items[i].Type == FST_SUBKEY) {
         //check whether we have such a scheme
-        FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&DString(fse.Items[i].Name)));
+        DString named = DString(fse.Items[i].Name);
+        FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&named));
         if (type) {
           // enum all params in the section
           size_t type_subkey;
@@ -121,10 +123,11 @@ void FarHrcSettings::readProfileFromRegistry()
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
-                if (type->getParamValue(DString(type_fse.Items[j].Name)) == nullptr) {
-                  type->addParam(&DString(type_fse.Items[j].Name));
+                DString name_fse= DString(type_fse.Items[j].Name);
+                if (type->getParamValue(name_fse) == nullptr) {
+                  type->addParam(&name_fse);
                 }
-                const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, (wchar_t*)nullptr);
+                const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
                 if (p) {
                   type->setParamValue(DString(type_fse.Items[j].Name), &DString(p));
                 }

@@ -203,7 +203,7 @@ StringBuffer* ChooseTypeMenu::GenerateName(const FileType* fType)
   const String* v;
   v = ((FileTypeImpl*)fType)->getParamValue(DHotkey);
   StringBuffer* s = new StringBuffer;
-  if (v != NULL && v->length()) {
+  if (v != nullptr && v->length()) {
     s->append(DString("&")).append(v);
   } else {
     s->append(DString(" "));

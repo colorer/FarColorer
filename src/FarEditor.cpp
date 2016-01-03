@@ -490,7 +490,7 @@ void FarEditor::locateFunction()
   }
 
   const wchar_t* msg[2] = { GetMsg(mNothingFound), GetMsg(mGotcha) };
-  info->Message(&MainGuid, &NothingFoundMesage, 0, 0, msg, 2, 1);
+  info->Message(&MainGuid, &NothingFoundMesage, 0, nullptr, msg, 2, 1);
 }
 
 void FarEditor::updateHighlighting()
@@ -1167,7 +1167,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
   if (items_num == 0) {
     const wchar_t* msg[2] = { GetMsg(mNothingFound), GetMsg(mGotcha) };
-    info->Message(&MainGuid, &NothingFoundMesage, 0, 0, msg, 2, 1);
+    info->Message(&MainGuid, &NothingFoundMesage, 0, nullptr, msg, 2, 1);
   }
 }
 
