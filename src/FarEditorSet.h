@@ -191,7 +191,7 @@ private:
 
   void SaveChangedValueParam(HANDLE hDlg);
 
-  std::unordered_map<SString, FarEditor*> farEditorInstances;
+  std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   ParserFactory* parserFactory;
   RegionMapper* regionMapper;
   HRCParser* hrcParser;

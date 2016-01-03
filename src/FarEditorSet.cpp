@@ -81,7 +81,7 @@ void FarEditorSet::openMenu(int MenuId)
     if (!rEnabled && menu_id == 0) {
       MenuId = 12;
     } else {
-      MenuId = menu_id;
+      MenuId = static_cast<int>(menu_id);
     }
 
   }
@@ -644,7 +644,7 @@ const SString FarEditorSet::chooseHRDName(const String* current, DString _hrdCla
   }
 
   std::vector<SString> hrd_instances = parserFactory->enumHRDInstances(_hrdClass);
-  int count = hrd_instances.size();
+  size_t count = hrd_instances.size();
   FarMenuItem* menuElements = new FarMenuItem[count];
   memset(menuElements, 0, sizeof(FarMenuItem)*count);
 
@@ -713,7 +713,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
       break;
       case EE_CHANGE: {
         //запрещено вызывать EditorControl (getCurrentEditor)
-        auto it_editor = farEditorInstances.find(&SString(pInfo->EditorID));
+        auto it_editor = farEditorInstances.find(pInfo->EditorID);
         if (it_editor != farEditorInstances.end()) {
           return it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
         } else {
@@ -727,9 +727,9 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
       }
       break;
       case EE_CLOSE: {
-        auto it_editor = farEditorInstances.find(&SString(pInfo->EditorID));
+        auto it_editor = farEditorInstances.find(pInfo->EditorID);
         delete it_editor->second;
-        farEditorInstances.erase(&SString(pInfo->EditorID));
+        farEditorInstances.erase(pInfo->EditorID);
         return 0;
       }
       break;
@@ -946,7 +946,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
   }
 
   FarEditor* editor = new FarEditor(&Info, parserFactory);
-  std::pair<SString, FarEditor*> pair_editor(&SString(ei.EditorID), editor);
+  std::pair<intptr_t, FarEditor*> pair_editor(ei.EditorID, editor);
   farEditorInstances.emplace(pair_editor);
   String* s = getCurrentFileName();
   editor->chooseFileType(s);
@@ -990,7 +990,7 @@ FarEditor* FarEditorSet::getCurrentEditor()
   EditorInfo ei;
   ei.StructSize = sizeof(EditorInfo);
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
-  auto if_editor = farEditorInstances.find(&SString(ei.EditorID));
+  auto if_editor = farEditorInstances.find(ei.EditorID);
   if (if_editor != farEditorInstances.end()) {
     return if_editor->second;
   } else {
@@ -1035,13 +1035,13 @@ void FarEditorSet::dropCurrentEditor(bool clean)
   EditorInfo ei;
   ei.StructSize = sizeof(EditorInfo);
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
-  auto it_editor = farEditorInstances.find(&SString(ei.EditorID));
+  auto it_editor = farEditorInstances.find(ei.EditorID);
   if (it_editor != farEditorInstances.end()) {
     if (clean) {
       it_editor->second->cleanEditor();
     }
     delete it_editor->second;
-    farEditorInstances.erase(&SString(ei.EditorID));
+    farEditorInstances.erase(ei.EditorID);
     Info.EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
   }
 }
