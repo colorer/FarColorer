@@ -139,7 +139,7 @@ void FarEditor::reloadTypeSettings()
   }
 }
 
-FileType* FarEditor::getFileType()
+FileType* FarEditor::getFileType() const
 {
   return baseEditor->getFileType();
 }
@@ -1177,7 +1177,7 @@ void FarEditor::enterHandler()
   ret_strNumber = -1;
 }
 
-FarColor FarEditor::convert(const StyledRegion* rd)
+FarColor FarEditor::convert(const StyledRegion* rd) const
 {
   FarColor col = FarColor();
 
@@ -1220,17 +1220,17 @@ FarColor FarEditor::convert(const StyledRegion* rd)
   return col;
 }
 
-bool FarEditor::foreDefault(FarColor col)
+bool FarEditor::foreDefault(FarColor col) const
 {
   return col.ForegroundColor == rdBackground->fore;
 }
 
-bool FarEditor::backDefault(FarColor col)
+bool FarEditor::backDefault(FarColor col) const
 {
   return col.BackgroundColor == rdBackground->back;
 }
 
-void FarEditor::deleteFarColor(intptr_t lno, intptr_t s)
+void FarEditor::deleteFarColor(intptr_t lno, intptr_t s) const
 {
   EditorDeleteColor edc;
   edc.Owner = MainGuid;
@@ -1240,7 +1240,7 @@ void FarEditor::deleteFarColor(intptr_t lno, intptr_t s)
   info->EditorControl(CurrentEditor, ECTL_DELCOLOR, NULL, &edc);
 }
 
-void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle)
+void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle) const
 {
   EditorColor ec;
   ec.StructSize = sizeof(EditorColor);
@@ -1256,9 +1256,9 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, 
   CLR_TRACE("FarEditor", "line %d: %d-%d: color bg:%d fg:%d flag:%d", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
 }
 
-const wchar_t* FarEditor::GetMsg(int msg)
+const wchar_t* FarEditor::GetMsg(int msg) const
 {
-  return (info->GetMsg(&MainGuid, msg));
+  return info->GetMsg(&MainGuid, msg);
 }
 
 void FarEditor::cleanEditor()

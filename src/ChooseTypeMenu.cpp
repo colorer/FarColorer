@@ -94,7 +94,7 @@ void ChooseTypeMenu::SetSelected(size_t index)
   }
 }
 
-size_t ChooseTypeMenu::GetNext(size_t index)
+size_t ChooseTypeMenu::GetNext(size_t index) const
 {
   size_t p;
   for (p = index + 1; p < ItemCount; p++) {
@@ -110,7 +110,7 @@ size_t ChooseTypeMenu::GetNext(size_t index)
   }
 }
 
-FileType* ChooseTypeMenu::GetFileType(size_t index)
+FileType* ChooseTypeMenu::GetFileType(size_t index) const
 {
   return (FileType*)Item[index].UserData;
 }
@@ -139,7 +139,7 @@ size_t ChooseTypeMenu::AddFavorite(const FileType* fType)
   return p;
 }
 
-void ChooseTypeMenu::HideEmptyGroup()
+void ChooseTypeMenu::HideEmptyGroup() const
 {
   for (size_t i = favorite_idx; i < ItemCount - 1; i++) {
     if ((Item[i].Flags & MIF_SEPARATOR) && (Item[i + 1].Flags & MIF_SEPARATOR)) {
@@ -176,7 +176,7 @@ size_t ChooseTypeMenu::AddItemInGroup(FileType* fType)
   return k;
 }
 
-bool ChooseTypeMenu::IsFavorite(size_t index)
+bool ChooseTypeMenu::IsFavorite(size_t index) const
 {
   size_t i;
   for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++);

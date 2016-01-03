@@ -189,7 +189,7 @@ void FarEditorSet::viewFile(const String &path)
   }
 }
 
-size_t FarEditorSet::getCountFileTypeAndGroup()
+size_t FarEditorSet::getCountFileTypeAndGroup() const
 {
   size_t num = 0;
   const String* group = nullptr;
@@ -211,7 +211,7 @@ size_t FarEditorSet::getCountFileTypeAndGroup()
   return num;
 }
 
-FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx)
+FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx) const
 {
   FileType* type = nullptr;
   const String* group = nullptr;
@@ -232,7 +232,7 @@ FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx)
   return (FileTypeImpl*)type;
 }
 
-void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType)
+void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const
 {
   const String* group = nullptr;
   FileType* type = nullptr;
@@ -382,7 +382,7 @@ void FarEditorSet::chooseType()
   p.writeUserProfile();
 }
 
-const String* FarEditorSet::getHRDescription(const String &name, DString _hrdClass)
+const String* FarEditorSet::getHRDescription(const String &name, DString _hrdClass) const
 {
   const String* descr = nullptr;
   if (parserFactory != nullptr) {
@@ -923,7 +923,7 @@ void FarEditorSet::ReloadBase()
   Info.RestoreScreen(scr);
 }
 
-colorer::ErrorHandler* FarEditorSet::getErrorHandler()
+colorer::ErrorHandler* FarEditorSet::getErrorHandler() const
 {
   if (parserFactory == nullptr) {
     return nullptr;
@@ -1128,7 +1128,7 @@ void FarEditorSet::setLogPath(const wchar_t* log_path)
 
 }
 
-void FarEditorSet::SaveSettings()
+void FarEditorSet::SaveSettings() const
 {
   SettingsControl ColorerSettings;
   ColorerSettings.Set(0, cRegEnabled, rEnabled);
@@ -1147,7 +1147,7 @@ void FarEditorSet::SaveSettings()
   ColorerSettings.Set(0, cRegLogPath, sLogPath->getWChars());
 }
 
-bool FarEditorSet::SetBgEditor()
+bool FarEditorSet::SetBgEditor() const
 {
   if (rEnabled && ChangeBgEditor) {
 
@@ -1222,7 +1222,7 @@ void FarEditorSet::LoadUserHrc(const String* filename, ParserFactory* pf)
   }
 }
 
-const String* FarEditorSet::getParamDefValue(FileTypeImpl* type, SString param)
+const String* FarEditorSet::getParamDefValue(FileTypeImpl* type, SString param) const
 {
   const String* value;
   value = type->getParamDefaultValue(param);
@@ -1235,7 +1235,7 @@ const String* FarEditorSet::getParamDefValue(FileTypeImpl* type, SString param)
   return p;
 }
 
-FarList* FarEditorSet::buildHrcList()
+FarList* FarEditorSet::buildHrcList() const
 {
   size_t num = getCountFileTypeAndGroup();;
   const String* group = nullptr;
@@ -1279,7 +1279,7 @@ FarList* FarEditorSet::buildHrcList()
   return ListItems;
 }
 
-FarList* FarEditorSet::buildParamsList(FileTypeImpl* type)
+FarList* FarEditorSet::buildParamsList(FileTypeImpl* type) const
 {
   //max count params
   size_t size = type->getParamCount() + defaultType->getParamCount();
@@ -1494,7 +1494,7 @@ void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg,
   delete lcross;
 }
 
-FileTypeImpl* FarEditorSet::getCurrentTypeInDialog(HANDLE hDlg)
+FileTypeImpl* FarEditorSet::getCurrentTypeInDialog(HANDLE hDlg) const
 {
   int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CH_SCHEMAS, nullptr));
   return getFileTypeByIndex(k);

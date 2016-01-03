@@ -56,7 +56,7 @@ public:
   void setFileType(FileType* ftype);
   /** Returns currently selected file type.
   */
-  FileType* getFileType();
+  FileType* getFileType() const;
 
   /** Selects file type with it's extension and first lines
   */
@@ -153,13 +153,13 @@ private:
 
   void reloadTypeSettings();
   void enterHandler();
-  FarColor convert(const StyledRegion* rd);
-  bool foreDefault(FarColor col);
-  bool backDefault(FarColor col);
+  FarColor convert(const StyledRegion* rd) const;
+  bool foreDefault(FarColor col) const;
+  bool backDefault(FarColor col) const;
   void showOutliner(Outliner* outliner);
-  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle = 0);
-  void deleteFarColor(intptr_t lno, intptr_t s);
-  const wchar_t* GetMsg(int msg);
+  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
+  void deleteFarColor(intptr_t lno, intptr_t s) const;
+  const wchar_t* GetMsg(int msg) const;
   COLORREF getSuitableColor(const COLORREF base_color, const COLORREF blend_color);
 };
 #endif

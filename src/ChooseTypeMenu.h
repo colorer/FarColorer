@@ -18,15 +18,15 @@ public:
   size_t AddItemInGroup(FileType* fType);
   size_t AddGroup(const wchar_t* Text);
   void SetSelected(size_t index);
-  size_t GetNext(size_t index);
-  FileType* GetFileType(size_t index);
+  size_t GetNext(size_t index) const;
+  FileType* GetFileType(size_t index) const;
   void MoveToFavorites(size_t index);
   size_t AddFavorite(const FileType* fType);
   void DeleteItem(size_t index);
 
-  void HideEmptyGroup();
+  void HideEmptyGroup() const;
   void DelFromFavorites(size_t index);
-  bool IsFavorite(size_t index);
+  bool IsFavorite(size_t index) const;
   void RefreshItemCaption(size_t index);
   StringBuffer* GenerateName(const FileType* fType);
 

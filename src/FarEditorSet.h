@@ -94,7 +94,7 @@ public:
   int  editorInput(const INPUT_RECORD &Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String* getHRDescription(const String &name, DString _hrdClass);
+  const String* getHRDescription(const String &name, DString _hrdClass) const;
   /** Shows dialog with HRD scheme selection */
   const SString chooseHRDName(const String* current, DString _hrdClass);
 
@@ -118,7 +118,7 @@ public:
     return rEnabled;
   }
 
-  bool SetBgEditor();
+  bool SetBgEditor() const;
   void LoadUserHrd(const String* filename, ParserFactory* pf);
   void LoadUserHrc(const String* filename, ParserFactory* pf);
 
@@ -137,7 +137,7 @@ public:
   void setLogPath(const wchar_t* log_path);
 private:
   /** Returns current global error handler. */
-  colorer::ErrorHandler* getErrorHandler();
+  colorer::ErrorHandler* getErrorHandler() const;
   /** add current active editor and return him. */
   FarEditor* addCurrentEditor();
   /** Returns currently active editor. */
@@ -157,7 +157,7 @@ private:
   /** Applies the current settings for editors*/
   void ApplySettingsToEditors();
   /** writes settings in the registry*/
-  void SaveSettings();
+  void SaveSettings() const;
 
   /** Kills all currently opened editors*/
   void dropAllEditors(bool clean);
@@ -166,14 +166,14 @@ private:
   /** Disables all plugin processing*/
   void disableColorer();
 
-  size_t getCountFileTypeAndGroup();
-  FileTypeImpl* getFileTypeByIndex(int idx);
-  void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType);
+  size_t getCountFileTypeAndGroup() const;
+  FileTypeImpl* getFileTypeByIndex(int idx) const;
+  void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   String* getCurrentFileName();
 
   // FarList for dialog objects
-  FarList* buildHrcList();
-  FarList* buildParamsList(FileTypeImpl* type);
+  FarList* buildHrcList() const;
+  FarList* buildParamsList(FileTypeImpl* type) const;
   // filetype "default"
   FileTypeImpl* defaultType;
   //change combobox type
@@ -185,9 +185,9 @@ private:
   void setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
   void setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
 
-  FileTypeImpl* getCurrentTypeInDialog(HANDLE hDlg);
+  FileTypeImpl* getCurrentTypeInDialog(HANDLE hDlg) const;
 
-  const String* getParamDefValue(FileTypeImpl* type, SString param);
+  const String* getParamDefValue(FileTypeImpl* type, SString param) const;
 
   void SaveChangedValueParam(HANDLE hDlg);
 
