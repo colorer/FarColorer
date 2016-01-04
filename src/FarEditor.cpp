@@ -569,7 +569,7 @@ COLORREF FarEditor::getSuitableColor(const COLORREF base_color, const COLORREF b
 int FarEditor::editorEvent(intptr_t event, void* param)
 {
   if (event == EE_CHANGE) {
-    EditorChange* editor_change = (EditorChange*)param;
+    EditorChange* editor_change = static_cast<EditorChange*>(param);
 
     int ml = (prevLinePosition < editor_change->StringNumber ? prevLinePosition : editor_change->StringNumber) - 1;
 
@@ -894,7 +894,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
         // set position on nearest top function
         menu[menu_size].Text = menuItem;
-        menu[menu_size].UserData = (intptr_t)item;
+        menu[menu_size].UserData = reinterpret_cast<intptr_t>(item);
 
         if (ei.CurLine >= item->lno) {
           selectedItem = menu_size;
@@ -984,7 +984,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         }
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-        OutlineItem* item = (OutlineItem*) menu[sel].UserData;
+        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         esp.CurLine = item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
@@ -1032,7 +1032,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         }
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-        OutlineItem* item = (OutlineItem*) menu[sel].UserData;
+        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         esp.CurLine = item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
@@ -1058,7 +1058,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         }
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-        OutlineItem* item = (OutlineItem*) menu[sel].UserData;
+        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         esp.CurLine = item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
@@ -1095,7 +1095,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         //read current position
         info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
         //insert text
-        OutlineItem* item = (OutlineItem*) menu[sel].UserData;
+        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         SString str = SString(item->token);
         //!! warning , after call next line  object 'item' changes
         info->EditorControl(CurrentEditor, ECTL_INSERTTEXT, NULL, (void*)str.getWChars());
@@ -1142,7 +1142,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         if (flen == FILTER_SIZE || code > keys_size) {
           break;
         }
-        filter[flen] = (wchar_t)Character::toLowerCase(breakKeys[code].VirtualKeyCode);
+        filter[flen] = static_cast<wchar_t>(Character::toLowerCase(breakKeys[code].VirtualKeyCode));
         filter[++flen] = 0;
         break;
     }

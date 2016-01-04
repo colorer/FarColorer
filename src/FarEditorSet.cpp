@@ -229,7 +229,7 @@ FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx) const
     group = type->getGroup();
   }
 
-  return (FileTypeImpl*)type;
+  return static_cast<FileTypeImpl*>(type);
 }
 
 void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const
@@ -253,7 +253,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
 
     size_t i;
     const String* v;
-    v = ((FileTypeImpl*)type)->getParamValue(DFavorite);
+    v = static_cast<FileTypeImpl*>(type)->getParamValue(DFavorite);
     if (v && v->equals(&DTrue)) {
       i = Menu->AddFavorite(type);
     } else {
@@ -277,14 +277,14 @@ INT_PTR WINAPI KeyDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* P
   INPUT_RECORD* record = nullptr;
   wchar wkey[2];
 
-  record = (INPUT_RECORD*)Param2;
+  record = static_cast<INPUT_RECORD*>(Param2);
   if (Msg == DN_CONTROLINPUT && record->EventType == KEY_EVENT) {
     int key = record->Event.KeyEvent.wVirtualKeyCode;
     if (key == VK_ESCAPE  || key == VK_RETURN) {
       return FALSE;
     }
     if (key > 31  && key != VK_F1) {
-      FSF.FarInputRecordToName((const INPUT_RECORD*)Param2, wkey, 2);
+      FSF.FarInputRecordToName(static_cast<const INPUT_RECORD*>(Param2), wkey, 2);
       if (key > 255) {
         wchar_t* c = FSF.XLat(wkey, 0, 1, 0);
         wkey[0] = *c;
@@ -345,7 +345,7 @@ void FarEditorSet::chooseType()
         };
 
         const String* v;
-        v = ((FileTypeImpl*)menu.GetFileType(i))->getParamValue(DHotkey);
+        v = static_cast<FileTypeImpl*>(menu.GetFileType(i))->getParamValue(DHotkey);
         if (v && v->length()) {
           KeyAssignDlgData[2].Data = v->getWChars();
         }
@@ -354,9 +354,9 @@ void FarEditorSet::chooseType()
         intptr_t res = Info.DialogRun(hDlg);
 
         if (res != -1) {
-          KeyAssignDlgData[2].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr));
+          KeyAssignDlgData[2].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr))));
           if (menu.GetFileType(i)->getParamValue(DHotkey) == nullptr) {
-            ((FileTypeImpl*)menu.GetFileType(i))->addParam(&DHotkey);
+            static_cast<FileTypeImpl*>(menu.GetFileType(i))->addParam(&DHotkey);
           }
           menu.GetFileType(i)->setParamValue(DHotkey, &DString(KeyAssignDlgData[2].Data));
           menu.RefreshItemCaption(i);
@@ -398,7 +398,7 @@ const String* FarEditorSet::getHRDescription(const String &name, DString _hrdCla
 
 INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-  FarEditorSet* fes = (FarEditorSet*)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr);
+  FarEditorSet* fes = reinterpret_cast<FarEditorSet*>(Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr));
 
   switch (Msg) {
     case DN_BTNCLICK:
@@ -425,9 +425,9 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
         break;
         case IDX_RELOAD_ALL: {
           Info.SendDlgMessage(hDlg, DM_SHOWDIALOG , false, nullptr);
-          wchar_t* catalog = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr));
-          wchar_t* userhrd = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr));
-          wchar_t* userhrc = trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr));
+          wchar_t* catalog = trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr)));
+          wchar_t* userhrd = trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr)));
+          wchar_t* userhrc = trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr)));
           bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
           fes->TestLoadBase(catalog, userhrd, userhrc, true, trumod ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
           Info.SendDlgMessage(hDlg, DM_SHOWDIALOG , true, nullptr);
@@ -440,11 +440,11 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
         }
         break;
         case IDX_OK:
-          const wchar_t* temp = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr));
-          const wchar_t* userhrd = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr));
-          const wchar_t* userhrc = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr));
+          const wchar_t* temp = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr))));
+          const wchar_t* userhrd = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr))));
+          const wchar_t* userhrc = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr))));
           bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
-          int k = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
+          int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr));
 
           if (fes->GetCatalogPath()->compareTo(DString(temp)) || fes->GetUserHrdPath()->compareTo(DString(userhrd))
               || (!fes->GetPluginStatus() && k) || (trumod == true)) {
@@ -561,10 +561,10 @@ void FarEditorSet::configure(bool fromEditor)
     intptr_t i = Info.DialogRun(hDlg);
 
     if (i == IDX_OK) {
-      fdi[IDX_CATALOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr));
-      fdi[IDX_USERHRD_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr));
-      fdi[IDX_USERHRC_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr));
-      fdi[IDX_LOG_EDIT].Data = (const wchar_t*)trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOG_EDIT, nullptr));
+      fdi[IDX_CATALOG_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr))));
+      fdi[IDX_USERHRD_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr))));
+      fdi[IDX_USERHRC_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr))));
+      fdi[IDX_LOG_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOG_EDIT, nullptr))));
       //check whether or not to reload the base
       int k = false;
 
@@ -576,9 +576,9 @@ void FarEditorSet::configure(bool fromEditor)
         k = true;
       }
 
-      fdi[IDX_ENABLED].Selected = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
-      drawCross = (int)Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CROSS, nullptr);
-      CrossStyle = (int)Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CROSS_STYLE, nullptr);
+      fdi[IDX_ENABLED].Selected = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr));
+      drawCross = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CROSS, nullptr));
+      CrossStyle = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CROSS_STYLE, nullptr));
       drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, nullptr);
       drawSyntax = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_SYNTAX, nullptr);
       oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, nullptr);
@@ -1211,7 +1211,7 @@ void FarEditorSet::LoadUserHrc(const String* filename, ParserFactory* pf)
 {
   if (filename && filename->length()) {
     HRCParser* hr = pf->getHRCParser();
-    XmlInputSource* dfis = XmlInputSource::newInstance(filename->getWChars(), (XMLCh*)nullptr);
+    XmlInputSource* dfis = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
     try {
       hr->loadSource(dfis);
       delete dfis;
@@ -1268,7 +1268,7 @@ FarList* FarEditorSet::buildHrcList() const
     }
 
     hrcList[i].Text = new wchar_t[255];
-    _snwprintf((wchar_t*)hrcList[i].Text, 255, L"%s: %s", groupChars, type->getDescription()->getWChars());
+    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars, type->getDescription()->getWChars());
   }
 
   hrcList[0].Flags = LIF_SELECTED;
@@ -1310,7 +1310,7 @@ FarList* FarEditorSet::buildParamsList(FileTypeImpl* type) const
 void FarEditorSet::ChangeParamValueListType(HANDLE hDlg, bool dropdownlist)
 {
   size_t s = Info.SendDlgMessage(hDlg, DM_GETDLGITEM, IDX_CH_PARAM_VALUE_LIST, nullptr);
-  struct FarDialogItem* DialogItem = (FarDialogItem*) calloc(1, s);
+  struct FarDialogItem* DialogItem = static_cast<FarDialogItem*>(calloc(1, s));
   FarGetDialogItem fgdi;
   fgdi.Item = DialogItem;
   fgdi.StructSize = sizeof(FarGetDialogItem);
@@ -1328,7 +1328,7 @@ void FarEditorSet::ChangeParamValueListType(HANDLE hDlg, bool dropdownlist)
 
 void FarEditorSet::setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg)
 {
-  const String* value = ((FileTypeImpl*)type)->getParamUserValue(DShowCross);
+  const String* value = static_cast<FileTypeImpl*>(type)->getParamUserValue(DShowCross);
   const String* def_value = getParamDefValue(type, DShowCross);
 
   size_t count = 5;
@@ -1524,15 +1524,15 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   //param name
   DString p = DString(List.Item.Text);
   //param value
-  DString v = DString(trim((wchar_t*)Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr)));
+  DString v = DString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
   FileTypeImpl* type = getCurrentTypeInDialog(hDlg);
-  const String* value = ((FileTypeImpl*)type)->getParamUserValue(p);
+  const String* value = static_cast<FileTypeImpl*>(type)->getParamUserValue(p);
   const String* def_value = getParamDefValue(type, p);
   if (value == nullptr || !value->length()) { //было default значение
     //если его изменили
     if (!v.equals(def_value)) {
       if (type->getParamValue(p) == nullptr) {
-        ((FileTypeImpl*)type)->addParam(&p);
+        static_cast<FileTypeImpl*>(type)->addParam(&p);
       }
       type->setParamValue(p, &v);
     }
@@ -1629,7 +1629,7 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
     case DN_LISTCHANGE:
       switch (Param1) {
         case IDX_CH_PARAM_LIST:
-          fes->OnChangeParam(hDlg, (int)Param2);
+          fes->OnChangeParam(hDlg, reinterpret_cast<int>(Param2));
           return true;
           break;
       }
