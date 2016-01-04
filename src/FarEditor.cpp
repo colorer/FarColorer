@@ -1,48 +1,40 @@
 #include <common/Logging.h>
 #include "FarEditor.h"
 
-FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf)
+FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) :
+  info(info_), parserFactory(pf), maxLineLength(0), fullBackground(true), drawCross(0), CrossStyle(0), showVerticalCross(false),
+    showHorizontalCross(false), crossZOrder(0), drawPairs(true), drawSyntax(true), oldOutline(false), TrueMod(true),
+    WindowSizeX(0), WindowSizeY(0), inRedraw(false), idleCount(0), prevLinePosition(0), blockTopPosition(-1),
+    ret_str(nullptr), ret_strNumber(-1), newfore(-1), newback(-1), rdBackground(nullptr), cursorRegion(nullptr),
+    visibleLevel(100), editor_id(-1)
 {
-  parserFactory = pf;
+  DString def_out = DString("def:Outlined");
+  DString def_err = DString("def:Error");
   baseEditor = new BaseEditor(parserFactory, this);
-  this->info = info;
-  ei.StructSize = sizeof(EditorInfo);
-  info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
-  EditorSubscribeChangeEvent esce = { sizeof(EditorSubscribeChangeEvent), MainGuid };
-  info->EditorControl(CurrentEditor, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
-  cursorRegion = nullptr;
-  prevLinePosition = 0;
-  blockTopPosition = -1;
-  inRedraw = false;
-  idleCount = 0;
-  ret_str = nullptr;
-  ret_strNumber = -1;
-  maxLineLength = 0;
-  fullBackground = true;
-  drawCross = 0;
-  CrossStyle = 0;
-  showHorizontalCross = showVerticalCross = false;
-  crossZOrder    = 0;
-  horzCrossColor = FarColor();
-  vertCrossColor = FarColor();
-  drawPairs = drawSyntax = true;
-  oldOutline = false;
-  newback = newfore = -1;
-  rdBackground = nullptr;
-  visibleLevel = 100;
-  const Region* def_Outlined = pf->getHRCParser()->getRegion(&DString("def:Outlined"));
-  const Region* def_Error = pf->getHRCParser()->getRegion(&DString("def:Error"));
+  const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
+  const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
   structOutliner = new Outliner(baseEditor, def_Outlined);
   errorOutliner = new Outliner(baseEditor, def_Error);
-  TrueMod = true;
-  WindowSizeX = 0;
-  WindowSizeY = 0;
+
+  EditorInfo ei = {0};
+  ei.StructSize = sizeof(EditorInfo);
+  info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+  editor_id = ei.EditorID;
+
+  // subscribe for event change text
+  EditorSubscribeChangeEvent esce = { sizeof(EditorSubscribeChangeEvent), MainGuid };
+  info->EditorControl(editor_id, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
+
+  horzCrossColor = FarColor();
+  vertCrossColor = FarColor();
 }
 
 FarEditor::~FarEditor()
 {
+  // destroy subscribe
   EditorSubscribeChangeEvent esce = { sizeof(EditorSubscribeChangeEvent), MainGuid };
-  info->EditorControl(ei.EditorID, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce); //detroyed class might not be related to CurrentEditor
+  info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
+
   delete cursorRegion;
   delete structOutliner;
   delete errorOutliner;
@@ -62,14 +54,14 @@ String* FarEditor::getLine(size_t lno)
     return ret_str;
   }
 
-  EditorGetString es;
-  intptr_t len = 0;
-  ret_strNumber = lno;
+  EditorGetString es = {0};
   es.StructSize = sizeof(EditorGetString);
   es.StringNumber = lno;
   es.StringText = nullptr;
 
-  if (info->EditorControl(CurrentEditor, ECTL_GETSTRING, NULL, &es)) {
+  intptr_t len = 0;
+  ret_strNumber = lno;
+  if (info->EditorControl(editor_id, ECTL_GETSTRING, NULL, &es)) {
     len = es.StringLength;
   }
 
@@ -244,7 +236,7 @@ void FarEditor::matchPair()
 {
   EditorSetPosition esp;
   esp.StructSize = sizeof(EditorSetPosition);
-  enterHandler();
+  EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair(ei.CurLine, ei.CurPos);
 
   if ((pm == nullptr) || (pm->eline == -1)) {
@@ -272,7 +264,7 @@ void FarEditor::matchPair()
     }
   }
 
-  info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
+  info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
   baseEditor->releasePairMatch(pm);
 }
 
@@ -281,7 +273,7 @@ void FarEditor::selectPair()
   EditorSelect es;
   es.StructSize = sizeof(EditorSelect);
   int X1, X2, Y1, Y2;
-  enterHandler();
+  EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair(ei.CurLine, ei.CurPos);
 
   if ((pm == nullptr) || (pm->eline == -1)) {
@@ -307,7 +299,7 @@ void FarEditor::selectPair()
   es.BlockHeight = Y2 - Y1 + 1;
   es.BlockWidth = X2 - X1 + 1;
 
-  info->EditorControl(CurrentEditor, ECTL_SELECT, NULL, &es);
+  info->EditorControl(editor_id, ECTL_SELECT, NULL, &es);
 
   baseEditor->releasePairMatch(pm);
 }
@@ -317,7 +309,7 @@ void FarEditor::selectBlock()
   EditorSelect es;
   es.StructSize = sizeof(EditorSelect);
   int X1, X2, Y1, Y2;
-  enterHandler();
+  EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair(ei.CurLine, ei.CurPos);
 
   if ((pm == nullptr) || (pm->eline == -1)) {
@@ -343,7 +335,7 @@ void FarEditor::selectBlock()
   es.BlockHeight = Y2 - Y1 + 1;
   es.BlockWidth = X2 - X1 + 1;
 
-  info->EditorControl(CurrentEditor, ECTL_SELECT, NULL, &es);
+  info->EditorControl(editor_id, ECTL_SELECT, NULL, &es);
 
   baseEditor->releasePairMatch(pm);
 }
@@ -354,9 +346,9 @@ void FarEditor::selectRegion()
   es.StructSize = sizeof(EditorSelect);
   EditorGetString egs;
   egs.StructSize = sizeof(EditorGetString);
-  enterHandler();
+  EditorInfo ei = enterHandler();
   egs.StringNumber = ei.CurLine;
-  info->EditorControl(CurrentEditor, ECTL_GETSTRING, NULL, &egs);
+  info->EditorControl(editor_id, ECTL_GETSTRING, NULL, &egs);
   if (cursorRegion != nullptr) {
     intptr_t end = cursorRegion->end;
 
@@ -370,7 +362,7 @@ void FarEditor::selectRegion()
       es.BlockStartPos = cursorRegion->start;
       es.BlockHeight = 1;
       es.BlockWidth = end - cursorRegion->start;
-      info->EditorControl(CurrentEditor, ECTL_SELECT, NULL, &es);
+      info->EditorControl(editor_id, ECTL_SELECT, NULL, &es);
     }
   }
 }
@@ -379,9 +371,9 @@ void FarEditor::getNameCurrentScheme()
 {
   EditorGetString egs;
   egs.StructSize = sizeof(EditorGetString);
-  enterHandler();
+  EditorInfo ei = enterHandler();
   egs.StringNumber = ei.CurLine;
-  info->EditorControl(CurrentEditor, ECTL_GETSTRING, NULL, &egs);
+  info->EditorControl(editor_id, ECTL_GETSTRING, NULL, &egs);
   if (cursorRegion != nullptr) {
     StringBuffer region, scheme;
     region.append(DString(L"Region: "));
@@ -416,7 +408,7 @@ void FarEditor::listErrors()
 void FarEditor::locateFunction()
 {
   // extract word
-  enterHandler();
+  EditorInfo ei = enterHandler();
   String &curLine = *getLine(ei.CurLine);
   int cpos = ei.CurPos;
   int sword = cpos;
@@ -483,9 +475,9 @@ void FarEditor::locateFunction()
       esp.TopScreenLine = 0;
     }
 
-    info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
-    info->EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
-    info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+    info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
+    info->EditorControl(editor_id, ECTL_REDRAW, NULL, nullptr);
+    info->EditorControl(editor_id, ECTL_GETINFO, NULL, &ei);
     return;
   }
 
@@ -495,7 +487,7 @@ void FarEditor::locateFunction()
 
 void FarEditor::updateHighlighting()
 {
-  enterHandler();
+  EditorInfo ei = enterHandler();
   baseEditor->validate(ei.TopScreenLine, true);
 }
 
@@ -510,7 +502,7 @@ int FarEditor::editorInput(const INPUT_RECORD &Rec)
         idleCount = 10;
       }
       baseEditor->idleJob(idleCount * 10);
-      info->EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
+      info->EditorControl(editor_id, ECTL_REDRAW, NULL, nullptr);
     }
   } else if (Rec.EventType == KEY_EVENT) {
     idleCount = 0;
@@ -592,7 +584,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     throw Exception(DString("HRD Background region 'def:Text' not found"));
   }
 
-  enterHandler();
+  EditorInfo ei = enterHandler();
   WindowSizeX = ei.WindowSizeX;
   WindowSizeY = ei.WindowSizeY;
 
@@ -615,7 +607,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   ecp.StructSize = sizeof(EditorConvertPos);
   ecp.StringNumber = -1;
   ecp.SrcPos = ei.CurPos;
-  info->EditorControl(CurrentEditor, ECTL_REALTOTAB, NULL, &ecp);
+  info->EditorControl(editor_id, ECTL_REALTOTAB, NULL, &ecp);
 
   bool show_whitespase = !!(ei.Options & EOPT_SHOWWHITESPACE);
   bool show_eol = !!(ei.Options & EOPT_SHOWLINEBREAK);
@@ -632,14 +624,14 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     EditorGetString egs;
     egs.StructSize = sizeof(EditorGetString);
     egs.StringNumber = lno;
-    info->EditorControl(CurrentEditor, ECTL_GETSTRING, NULL, &egs);
+    info->EditorControl(editor_id, ECTL_GETSTRING, NULL, &egs);
     int llen = egs.StringLength;
     DString s = DString(egs.StringText);
     //position previously found a column in the current row
     ecp_cl.StructSize = sizeof(EditorConvertPos);
     ecp_cl.StringNumber = lno;
     ecp_cl.SrcPos = ecp.DestPos;
-    info->EditorControl(CurrentEditor, ECTL_TABTOREAL, NULL, &ecp_cl);
+    info->EditorControl(editor_id, ECTL_TABTOREAL, NULL, &ecp_cl);
 
     if (drawSyntax) {
       LineRegion* l1 = nullptr;
@@ -773,7 +765,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
         ecp.StringNumber = pm->eline;
         ecp.SrcPos = ecp.DestPos;
-        info->EditorControl(CurrentEditor, ECTL_TABTOREAL, NULL, &ecp);
+        info->EditorControl(editor_id, ECTL_TABTOREAL, NULL, &ecp);
 
         // vertical cross
         if (showVerticalCross && pm->end->start <= ecp.DestPos && ecp.DestPos < pm->end->end) {
@@ -788,7 +780,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
   if (param != EEREDRAW_ALL) {
     inRedraw = true;
-    info->EditorControl(CurrentEditor, ECTL_REDRAW, NULL, (INT_PTR)nullptr);
+    info->EditorControl(editor_id, ECTL_REDRAW, NULL, (INT_PTR)nullptr);
     inRedraw = false;
   }
 
@@ -832,6 +824,7 @@ void FarEditor::showOutliner(Outliner* outliner)
   }
 
   menu = new FarMenuItem[items_num];
+  EditorInfo ei_curr = enterHandler();
 
   while (!stopMenu) {
     int i;
@@ -841,7 +834,7 @@ void FarEditor::showOutliner(Outliner* outliner)
     int selectedItem = 0;
     std::vector<int> treeStack;
 
-    enterHandler();
+    EditorInfo ei = enterHandler();
     for (i = 0; i < items_num; i++) {
       OutlineItem* item = outliner->getItem(i);
 
@@ -993,7 +986,7 @@ void FarEditor::showOutliner(Outliner* outliner)
           esp.TopScreenLine = 0;
         }
 
-        info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
+        info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
         stopMenu = true;
         moved = true;
         break;
@@ -1041,9 +1034,9 @@ void FarEditor::showOutliner(Outliner* outliner)
           esp.TopScreenLine = 0;
         }
 
-        info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
-        info->EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
-        info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+        info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
+        info->EditorControl(editor_id, ECTL_REDRAW, NULL, nullptr);
+        info->EditorControl(editor_id, ECTL_GETINFO, NULL, &ei);
         break;
       }
       case 6: { // ctrl-down
@@ -1067,9 +1060,9 @@ void FarEditor::showOutliner(Outliner* outliner)
           esp.TopScreenLine = 0;
         }
 
-        info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
-        info->EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
-        info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+        info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
+        info->EditorControl(editor_id, ECTL_REDRAW, NULL, nullptr);
+        info->EditorControl(editor_id, ECTL_GETINFO, NULL, &ei);
         break;
       }
       case 7: { // ctrl-left
@@ -1093,18 +1086,18 @@ void FarEditor::showOutliner(Outliner* outliner)
       }
       case 9: { // ctrl-return
         //read current position
-        info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+        info->EditorControl(editor_id, ECTL_GETINFO, NULL, &ei);
         //insert text
         OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         SString str = SString(item->token);
         //!! warning , after call next line  object 'item' changes
-        info->EditorControl(CurrentEditor, ECTL_INSERTTEXT, NULL, (void*)str.getWChars());
+        info->EditorControl(editor_id, ECTL_INSERTTEXT, NULL, (void*)str.getWChars());
 
         //move the cursor to the end of the inserted string
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
         esp.CurLine = -1;
         esp.CurPos = ei.CurPos + str.length();
-        info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
+        info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
 
         stopMenu = true;
         moved = true;
@@ -1156,13 +1149,13 @@ void FarEditor::showOutliner(Outliner* outliner)
 
   if (!moved) {
     // restoring position
-    esp.CurLine = ei.CurLine;
-    esp.CurPos = ei.CurPos;
-    esp.CurTabPos = ei.CurTabPos;
-    esp.TopScreenLine = ei.TopScreenLine;
-    esp.LeftPos = ei.LeftPos;
-    esp.Overtype = ei.Overtype;
-    info->EditorControl(CurrentEditor, ECTL_SETPOSITION, NULL, &esp);
+    esp.CurLine = ei_curr.CurLine;
+    esp.CurPos = ei_curr.CurPos;
+    esp.CurTabPos = ei_curr.CurTabPos;
+    esp.TopScreenLine = ei_curr.TopScreenLine;
+    esp.LeftPos = ei_curr.LeftPos;
+    esp.Overtype = ei_curr.Overtype;
+    info->EditorControl(editor_id, ECTL_SETPOSITION, NULL, &esp);
   }
 
   if (items_num == 0) {
@@ -1171,10 +1164,16 @@ void FarEditor::showOutliner(Outliner* outliner)
   }
 }
 
-void FarEditor::enterHandler()
+EditorInfo FarEditor::enterHandler()
 {
-  info->EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+  EditorInfo ei = {0};
+  ei.StructSize = sizeof(EditorInfo);
+  info->EditorControl(editor_id, ECTL_GETINFO, NULL, &ei);
+
   ret_strNumber = -1;
+  delete ret_str;
+  ret_str = nullptr;
+  return ei;
 }
 
 FarColor FarEditor::convert(const StyledRegion* rd) const
@@ -1237,7 +1236,7 @@ void FarEditor::deleteFarColor(intptr_t lno, intptr_t s) const
   edc.StartPos = s;
   edc.StringNumber = lno;
   edc.StructSize = sizeof(EditorDeleteColor);
-  info->EditorControl(CurrentEditor, ECTL_DELCOLOR, NULL, &edc);
+  info->EditorControl(editor_id, ECTL_DELCOLOR, NULL, &edc);
 }
 
 void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle) const
@@ -1252,7 +1251,7 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, 
   ec.Priority = 0;
   ec.Color = col;
   CLR_TRACE("FarEditor", "line:%d, %d-%d, color bg:%d fg:%d flag:%d", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
-  info->EditorControl(CurrentEditor, ECTL_ADDCOLOR, NULL, &ec);
+  info->EditorControl(editor_id, ECTL_ADDCOLOR, NULL, &ec);
   CLR_TRACE("FarEditor", "line %d: %d-%d: color bg:%d fg:%d flag:%d", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
 }
 
@@ -1263,7 +1262,7 @@ const wchar_t* FarEditor::GetMsg(int msg) const
 
 void FarEditor::cleanEditor()
 {
-  enterHandler();
+  EditorInfo ei = enterHandler();
   for (int i = 0; i < ei.TotalLines; i++) {
     deleteFarColor(i, -1);
   }

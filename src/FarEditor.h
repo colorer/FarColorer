@@ -114,7 +114,6 @@ public:
 
   void getNameCurrentScheme();
 private:
-  EditorInfo ei;
   PluginStartupInfo* info;
 
   ParserFactory* parserFactory;
@@ -125,11 +124,14 @@ private:
 
   int drawCross;//0 - off,  1 - always, 2 - if included in the scheme
   int CrossStyle; // 0 - both; 1 - vertical; 2 - horizontal
-  bool showVerticalCross, showHorizontalCross;
+  bool showVerticalCross;
+  bool showHorizontalCross;
   int crossZOrder;
-  FarColor horzCrossColor, vertCrossColor;
+  FarColor horzCrossColor;
+  FarColor vertCrossColor;
 
-  bool drawPairs, drawSyntax;
+  bool drawPairs;
+  bool drawSyntax;
   bool oldOutline;
   bool TrueMod;
 
@@ -138,21 +140,24 @@ private:
   bool inRedraw;
   int idleCount;
 
-  int prevLinePosition, blockTopPosition;
+  int prevLinePosition;
+  int blockTopPosition;
 
   String* ret_str;
   int ret_strNumber;
 
-  int newfore, newback;
+  int newfore;
+  int newback;
   const StyledRegion* rdBackground;
   LineRegion* cursorRegion;
 
   int visibleLevel;
   Outliner* structOutliner;
   Outliner* errorOutliner;
+  intptr_t editor_id;
 
   void reloadTypeSettings();
-  void enterHandler();
+  EditorInfo enterHandler();
   FarColor convert(const StyledRegion* rd) const;
   bool foreDefault(FarColor col) const;
   bool backDefault(FarColor col) const;
