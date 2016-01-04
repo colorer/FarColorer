@@ -144,7 +144,7 @@ private:
   int blockTopPosition;
 
   String* ret_str;
-  int ret_strNumber;
+  size_t ret_strNumber;
 
   int newfore;
   int newback;
@@ -159,13 +159,13 @@ private:
   void reloadTypeSettings();
   EditorInfo enterHandler();
   FarColor convert(const StyledRegion* rd) const;
-  bool foreDefault(FarColor col) const;
-  bool backDefault(FarColor col) const;
+  bool foreDefault(const FarColor &col) const;
+  bool backDefault(const FarColor &col) const;
   void showOutliner(Outliner* outliner);
-  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
+  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor &col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
   void deleteFarColor(intptr_t lno, intptr_t s) const;
   const wchar_t* GetMsg(int msg) const;
-  COLORREF getSuitableColor(const COLORREF base_color, const COLORREF blend_color);
+  static COLORREF getSuitableColor(const COLORREF base_color, const COLORREF blend_color);
 };
 #endif
 /* ***** BEGIN LICENSE BLOCK *****

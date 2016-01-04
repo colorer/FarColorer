@@ -5,7 +5,7 @@ FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) :
   info(info_), parserFactory(pf), maxLineLength(0), fullBackground(true), drawCross(0), CrossStyle(0), showVerticalCross(false),
     showHorizontalCross(false), crossZOrder(0), drawPairs(true), drawSyntax(true), oldOutline(false), TrueMod(true),
     WindowSizeX(0), WindowSizeY(0), inRedraw(false), idleCount(0), prevLinePosition(0), blockTopPosition(-1),
-    ret_str(nullptr), ret_strNumber(-1), newfore(-1), newback(-1), rdBackground(nullptr), cursorRegion(nullptr),
+    ret_str(nullptr), ret_strNumber(SIZE_MAX), newfore(-1), newback(-1), rdBackground(nullptr), cursorRegion(nullptr),
     visibleLevel(100), editor_id(-1)
 {
   DString def_out = DString("def:Outlined");
@@ -414,8 +414,7 @@ void FarEditor::locateFunction()
   int sword = cpos;
   int eword = cpos;
 
-  while (cpos < curLine.length() &&
-         (Character::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
+  while (cpos < curLine.length() && (Character::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
     while (Character::isLetterOrDigit(curLine[eword]) || curLine[eword] == '_') {
       if (eword == curLine.length() - 1) {
         break;
@@ -439,7 +438,7 @@ void FarEditor::locateFunction()
     esp.StructSize = sizeof(EditorSetPosition);
     OutlineItem* item_found = nullptr;
     OutlineItem* item_last = nullptr;
-    int items_num = structOutliner->itemCount();
+    size_t items_num = structOutliner->itemCount();
 
     if (items_num == 0) {
       break;
@@ -634,8 +633,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     info->EditorControl(editor_id, ECTL_TABTOREAL, NULL, &ecp_cl);
 
     if (drawSyntax) {
-      LineRegion* l1 = nullptr;
-      l1 = baseEditor->getLineRegions(lno);
+      LineRegion* l1 = baseEditor->getLineRegions(lno);
 
       for (; l1; l1 = l1->next) {
         if (l1->special) {
@@ -735,8 +733,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
   // pair brackets
   if (drawPairs) {
-    PairMatch* pm = nullptr;
-    pm = baseEditor->searchLocalPair(ei.CurLine, ei.CurPos);
+    PairMatch* pm = baseEditor->searchLocalPair(ei.CurLine, ei.CurPos);
     if (pm != nullptr) {
       // start bracket
       FarColor col = convert(pm->start->styled());
@@ -780,7 +777,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
   if (param != EEREDRAW_ALL) {
     inRedraw = true;
-    info->EditorControl(editor_id, ECTL_REDRAW, NULL, (INT_PTR)nullptr);
+    info->EditorControl(editor_id, ECTL_REDRAW, NULL, nullptr);
     inRedraw = false;
   }
 
@@ -817,7 +814,7 @@ void FarEditor::showOutliner(Outliner* outliner)
   *filter = 0;
   int maxLevel = -1;
   bool stopMenu = false;
-  int items_num = outliner->itemCount();
+  size_t items_num = outliner->itemCount();
 
   if (items_num == 0) {
     stopMenu = true;
@@ -950,8 +947,8 @@ void FarEditor::showOutliner(Outliner* outliner)
     }
 
     _snwprintf(top, 128, topline, captionfilter);
-    intptr_t sel = 0;
-    sel = info->Menu(&MainGuid, &OutlinerMenu, -1, -1, 0, FMENU_SHOWAMPERSAND | FMENU_WRAPMODE,
+
+    intptr_t sel = info->Menu(&MainGuid, &OutlinerMenu, -1, -1, 0, FMENU_SHOWAMPERSAND | FMENU_WRAPMODE,
                      top, GetMsg(mChoose), L"add", breakKeys, &code, menu, menu_size);
 
     // handle mouse selection
@@ -1170,7 +1167,7 @@ EditorInfo FarEditor::enterHandler()
   ei.StructSize = sizeof(EditorInfo);
   info->EditorControl(editor_id, ECTL_GETINFO, NULL, &ei);
 
-  ret_strNumber = -1;
+  ret_strNumber = SIZE_MAX;
   delete ret_str;
   ret_str = nullptr;
   return ei;
@@ -1219,12 +1216,12 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
   return col;
 }
 
-bool FarEditor::foreDefault(FarColor col) const
+bool FarEditor::foreDefault(const FarColor &col) const
 {
   return col.ForegroundColor == rdBackground->fore;
 }
 
-bool FarEditor::backDefault(FarColor col) const
+bool FarEditor::backDefault(const FarColor &col) const
 {
   return col.BackgroundColor == rdBackground->back;
 }
@@ -1239,7 +1236,7 @@ void FarEditor::deleteFarColor(intptr_t lno, intptr_t s) const
   info->EditorControl(editor_id, ECTL_DELCOLOR, NULL, &edc);
 }
 
-void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, FarColor col, EDITORCOLORFLAGS TabMarkStyle) const
+void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor &col, EDITORCOLORFLAGS TabMarkStyle) const
 {
   EditorColor ec;
   ec.StructSize = sizeof(EditorColor);

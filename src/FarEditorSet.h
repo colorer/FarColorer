@@ -94,9 +94,9 @@ public:
   int  editorInput(const INPUT_RECORD &Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String* getHRDescription(const String &name, DString _hrdClass) const;
+  const String* getHRDescription(const String &name, const DString &_hrdClass) const;
   /** Shows dialog with HRD scheme selection */
-  const SString chooseHRDName(const String* current, DString _hrdClass);
+  const SString chooseHRDName(const String* current, const DString &_hrdClass);
 
   /** Reads all registry settings into variables */
   void ReadSettings();

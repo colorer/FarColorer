@@ -382,7 +382,7 @@ void FarEditorSet::chooseType()
   p.writeUserProfile();
 }
 
-const String* FarEditorSet::getHRDescription(const String &name, DString _hrdClass) const
+const String* FarEditorSet::getHRDescription(const String &name, const DString &_hrdClass) const
 {
   const String* descr = nullptr;
   if (parserFactory != nullptr) {
@@ -576,7 +576,7 @@ void FarEditorSet::configure(bool fromEditor)
         k = true;
       }
 
-      fdi[IDX_ENABLED].Selected = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr));
+      fdi[IDX_ENABLED].Selected = Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
       drawCross = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CROSS, nullptr));
       CrossStyle = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CROSS_STYLE, nullptr));
       drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, nullptr);
@@ -637,7 +637,7 @@ void FarEditorSet::configure(bool fromEditor)
   }
 }
 
-const SString FarEditorSet::chooseHRDName(const String* current, DString _hrdClass)
+const SString FarEditorSet::chooseHRDName(const String* current, const DString &_hrdClass)
 {
   if (parserFactory == nullptr) {
     return current;
@@ -787,7 +787,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       try {
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName);
       } catch (ParserFactoryException &e) {
-        if ((parserFactoryLocal != nullptr) && (parserFactoryLocal->getErrorHandler() != nullptr)) {
+        if (parserFactoryLocal->getErrorHandler() != nullptr) {
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
         }
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, nullptr);
@@ -800,7 +800,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       try {
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm);
       } catch (ParserFactoryException &e) {
-        if ((parserFactoryLocal != nullptr) && (parserFactoryLocal->getErrorHandler() != nullptr)) {
+        if (parserFactoryLocal->getErrorHandler() != nullptr) {
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
         }
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, nullptr);
@@ -968,10 +968,7 @@ String* FarEditorSet::getCurrentFileName()
 
   if (FileNameSize) {
     FileName = new wchar_t[FileNameSize];
-
-    if (FileName) {
-      Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, FileNameSize, FileName);
-    }
+    Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, FileNameSize, FileName);
   }
 
   DString fnpath(FileName);
@@ -1243,7 +1240,6 @@ FarList* FarEditorSet::buildHrcList() const
 
   FarListItem* hrcList = new FarListItem[num];
   memset(hrcList, 0, sizeof(FarListItem) * (num));
-  group = nullptr;
 
   for (int idx = 0, i = 0;; idx++, i++) {
     type = hrcParser->enumerateFileTypes(idx);
@@ -1677,9 +1673,7 @@ void FarEditorSet::configureHrc()
   Info.DialogRun(hDlg);
 
   for (size_t idx = 0; idx < l->ItemsNumber; idx++) {
-    if (l->Items[idx].Text) {
-      delete[] l->Items[idx].Text;
-    }
+    delete[] l->Items[idx].Text;
   }
   delete[] l->Items;
   delete l;

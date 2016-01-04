@@ -88,9 +88,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo* pInfo)
 */
 void WINAPI ExitFARW(const struct ExitInfo* eInfo)
 {
-  if (editorSet) {
-    delete editorSet;
-  }
+  delete editorSet;
 }
 
 /**
