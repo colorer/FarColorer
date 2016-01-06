@@ -105,14 +105,17 @@ public:
   */
   enum HRC_MODE {HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH};
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
+  
   SString* GetCatalogPath() const
   {
-    return sCatalogPath;
+    return sCatalogPath.get();
   }
+
   SString* GetUserHrdPath() const
   {
-    return sUserHrdPath;
+    return sUserHrdPath.get();
   }
+
   bool GetPluginStatus() const
   {
     return rEnabled;
@@ -122,8 +125,8 @@ public:
   void LoadUserHrd(const String* filename, ParserFactory* pf);
   void LoadUserHrc(const String* filename, ParserFactory* pf);
 
-  SString* sTempHrdName;
-  SString* sTempHrdNameTm;
+  std::unique_ptr<SString> sTempHrdName;
+  std::unique_ptr<SString> sTempHrdNameTm;
 
   /** Shows hrc configuration dialog */
   void configureHrc();
@@ -209,18 +212,18 @@ private:
   bool oldOutline;
   bool TrueModOn;
   bool ChangeBgEditor;
-  SString* sHrdName;
-  SString* sHrdNameTm;
-  SString* sCatalogPath;
-  SString* sUserHrdPath;
-  SString* sUserHrcPath;
-  SString* sLogPath;
+  std::unique_ptr<SString> sHrdName;
+  std::unique_ptr<SString> sHrdNameTm;
+  std::unique_ptr<SString> sCatalogPath;
+  std::unique_ptr<SString> sUserHrdPath;
+  std::unique_ptr<SString> sUserHrcPath;
+  std::unique_ptr<SString> sLogPath;
 
   /** UNC path */
-  SString* sCatalogPathExp;
-  SString* sUserHrdPathExp;
-  SString* sUserHrcPathExp;
-  SString* sLogPathExp;
+  std::unique_ptr<SString> sCatalogPathExp;
+  std::unique_ptr<SString> sUserHrdPathExp;
+  std::unique_ptr<SString> sUserHrcPathExp;
+  std::unique_ptr<SString> sLogPathExp;
 
   int viewFirst; // 0 - init;  1 - first run view; 2 - first run editor
   int CurrentMenuItem;

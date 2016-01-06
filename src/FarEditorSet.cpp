@@ -13,21 +13,11 @@ FarEditorSet::FarEditorSet()
   parserFactory = nullptr;
   regionMapper = nullptr;
   hrcParser = nullptr;
-  sHrdName = nullptr;
-  sHrdNameTm = nullptr;
-  sCatalogPath = nullptr;
-  sCatalogPathExp = nullptr;
   sTempHrdName = nullptr;
   sTempHrdNameTm = nullptr;
   dialogFirstFocus = false;
   menuid = 0;
-  sUserHrdPath = nullptr;
-  sUserHrdPathExp = nullptr;
-  sUserHrcPath = nullptr;
-  sUserHrcPathExp = nullptr;
   error_handler = nullptr;
-  sLogPath = nullptr;
-  sLogPathExp = nullptr;
   xercesc::XMLPlatformUtils::Initialize();
   ReloadBase();
   viewFirst = 0;
@@ -38,16 +28,6 @@ FarEditorSet::FarEditorSet()
 FarEditorSet::~FarEditorSet()
 {
   dropAllEditors(false);
-  delete sHrdName;
-  delete sHrdNameTm;
-  delete sCatalogPath;
-  delete sCatalogPathExp;
-  delete sUserHrdPath;
-  delete sUserHrdPathExp;
-  delete sUserHrcPath;
-  delete sUserHrcPathExp;
-  delete sLogPath;
-  delete sLogPathExp;
   delete regionMapper;
   delete parserFactory;
   delete error_handler;
@@ -161,7 +141,7 @@ void FarEditorSet::viewFile(const String &path)
     BaseEditor baseEditor(parserFactory, &textLinesStore);
     RegionMapper* regionMap;
     try {
-      regionMap = parserFactory->createStyledMapper(&DConsole, sHrdName);
+      regionMap = parserFactory->createStyledMapper(&DConsole, sHrdName.get());
     } catch (ParserFactoryException &e) {
       if (getErrorHandler() != nullptr) {
         getErrorHandler()->error(*e.getMessage());
@@ -404,9 +384,8 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
     case DN_BTNCLICK:
       switch (Param1) {
         case IDX_HRD_SELECT: {
-          SString* tempSS = new SString(fes->chooseHRDName(fes->sTempHrdName, DConsole));
-          delete fes->sTempHrdName;
-          fes->sTempHrdName = tempSS;
+          SString* tempSS = new SString(fes->chooseHRDName(fes->sTempHrdName.get(), DConsole));
+          fes->sTempHrdName.reset(tempSS);
           const String* descr = fes->getHRDescription(*fes->sTempHrdName, DConsole);
           Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_HRD_SELECT, (void*)descr->getWChars());
           Info.SendDlgMessage(hDlg, DM_REDRAW, 0, nullptr);
@@ -414,9 +393,8 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
         }
         break;
         case IDX_HRD_SELECT_TM: {
-          SString* tempSS = new SString(fes->chooseHRDName(fes->sTempHrdNameTm, DRgb));
-          delete fes->sTempHrdNameTm;
-          fes->sTempHrdNameTm = tempSS;
+          SString* tempSS = new SString(fes->chooseHRDName(fes->sTempHrdNameTm.get(), DRgb));
+          fes->sTempHrdNameTm.reset(tempSS);
           const String* descr = fes->getHRDescription(*fes->sTempHrdNameTm, DRgb);
           Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_HRD_SELECT_TM, (void*)descr->getWChars());
           Info.SendDlgMessage(hDlg, DM_REDRAW, 0, nullptr);
@@ -534,11 +512,11 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_USERHRD_EDIT].Data = sUserHrdPath->getWChars();
     fdi[IDX_HRD].Data = GetMsg(mHRDName);
 
-    sTempHrdName = new SString(sHrdName);
+    sTempHrdName.reset(new SString(sHrdName.get()));
     const String* descr = getHRDescription(*sTempHrdName, DConsole);
 
     fdi[IDX_HRD_SELECT].Data = descr->getWChars();
-    sTempHrdNameTm = new SString(sHrdNameTm);
+    sTempHrdNameTm.reset(new SString(sHrdNameTm.get()));
     const String* descr2 = getHRDescription(*sTempHrdNameTm, DRgb);
 
     fdi[IDX_HRD_TM].Data = GetMsg(mHRDNameTrueMod);
@@ -584,16 +562,11 @@ void FarEditorSet::configure(bool fromEditor)
       oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, nullptr);
       ChangeBgEditor = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CHANGE_BG, nullptr);
       fdi[IDX_TRUEMOD].Selected = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
-      delete sHrdName;
-      delete sHrdNameTm;
-      delete sCatalogPath;
-      delete sUserHrdPath;
-      delete sUserHrcPath;
-      sHrdName = sTempHrdName;
-      sHrdNameTm = sTempHrdNameTm;
-      sCatalogPath = new SString(DString(fdi[IDX_CATALOG_EDIT].Data));
-      sUserHrdPath = new SString(DString(fdi[IDX_USERHRD_EDIT].Data));
-      sUserHrcPath = new SString(DString(fdi[IDX_USERHRC_EDIT].Data));
+      sHrdName = std::move(sTempHrdName);
+      sHrdNameTm = std::move(sTempHrdNameTm);
+      sCatalogPath.reset(new SString(DString(fdi[IDX_CATALOG_EDIT].Data)));
+      sUserHrdPath.reset(new SString(DString(fdi[IDX_USERHRD_EDIT].Data)));
+      sUserHrcPath.reset(new SString(DString(fdi[IDX_USERHRC_EDIT].Data)));
       setLogPath(fdi[IDX_LOG_EDIT].Data);
 
       // if the plugin has been enable, and we will disable
@@ -785,7 +758,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
     if (hrc_mode == HRCM_CONSOLE || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName);
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName.get());
       } catch (ParserFactoryException &e) {
         if (parserFactoryLocal->getErrorHandler() != nullptr) {
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
@@ -798,7 +771,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
     if (hrc_mode == HRCM_RGB || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm);
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm.get());
       } catch (ParserFactoryException &e) {
         if (parserFactoryLocal->getErrorHandler() != nullptr) {
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
@@ -869,17 +842,17 @@ void FarEditorSet::ReloadBase()
 
     if (TrueModOn) {
       hrdClass = DRgb;
-      hrdName = sHrdNameTm;
+      hrdName = sHrdNameTm.get();
     } else {
       hrdClass = DConsole;
-      hrdName = sHrdName;
+      hrdName = sHrdName.get();
     }
 
     parserFactory = new ParserFactory(error_handler);
-    parserFactory->loadCatalog(sCatalogPathExp);
+    parserFactory->loadCatalog(sCatalogPathExp.get());
     hrcParser = parserFactory->getHRCParser();
-    LoadUserHrd(sUserHrdPathExp, parserFactory);
-    LoadUserHrc(sUserHrcPathExp, parserFactory);
+    LoadUserHrd(sUserHrdPathExp.get(), parserFactory);
+    LoadUserHrc(sUserHrcPathExp.get(), parserFactory);
     FarHrcSettings p(parserFactory);
     p.readProfile();
     p.readUserProfile();
@@ -1062,36 +1035,19 @@ void FarEditorSet::ReadSettings()
   const wchar_t* userHrcPath = ColorerSettings.Get(0, cRegUserHrcPath, cUserHrcPathDefault);
   const wchar_t* LogPath = ColorerSettings.Get(0, cRegLogPath, cLogPathDefault);
 
-  delete sHrdName;
-  delete sHrdNameTm;
-  delete sCatalogPath;
-  delete sCatalogPathExp;
-  delete sUserHrdPath;
-  delete sUserHrdPathExp;
-  delete sUserHrcPath;
-  delete sUserHrcPathExp;
-  sHrdName = nullptr;
-  sCatalogPath = nullptr;
-  sCatalogPathExp = nullptr;
-  sUserHrdPath = nullptr;
-  sUserHrdPathExp = nullptr;
-  sUserHrcPath = nullptr;
-  sUserHrcPathExp = nullptr;
-
-  sHrdName = new SString(DString(hrdName));
-  sHrdNameTm = new SString(DString(hrdNameTm));
-  sCatalogPath = new SString(DString(catalogPath));
-  sCatalogPathExp = PathToFullS(catalogPath, false);
+  sHrdName.reset(new SString(DString(hrdName)));
+  sHrdNameTm.reset(new SString(DString(hrdNameTm)));
+  sCatalogPath.reset(new SString(DString(catalogPath)));
+  sCatalogPathExp.reset(PathToFullS(catalogPath, false));
   if (!sCatalogPathExp || !sCatalogPathExp->length()) {
-    delete sCatalogPathExp;
     StringBuffer* path = new StringBuffer(PluginPath);
     path->append(DString(FarCatalogXml));
-    sCatalogPathExp = path;
+    sCatalogPathExp.reset(path);
   }
-  sUserHrdPath = new SString(DString(userHrdPath));
-  sUserHrdPathExp = PathToFullS(userHrdPath, false);
-  sUserHrcPath = new SString(DString(userHrcPath));
-  sUserHrcPathExp = PathToFullS(userHrcPath, false);
+  sUserHrdPath.reset(new SString(DString(userHrdPath)));
+  sUserHrdPathExp.reset(PathToFullS(userHrdPath, false));
+  sUserHrcPath.reset(new SString(DString(userHrcPath)));
+  sUserHrcPathExp.reset(PathToFullS(userHrcPath, false));
   setLogPath(LogPath);
 
   rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
@@ -1110,13 +1066,11 @@ void FarEditorSet::setLogPath(const wchar_t* log_path)
     delete error_handler;
     error_handler = nullptr;
   }
-  delete sLogPath;
-  delete sLogPathExp;
-  sLogPath = new SString(DString(log_path));
-  sLogPathExp = PathToFullS(log_path, false);
+  sLogPath.reset(new SString(DString(log_path)));
+  sLogPathExp.reset(PathToFullS(log_path, false));
   if (error_handler == nullptr && sLogPathExp != nullptr) {
     try {
-      error_handler = new FileErrorHandler(sLogPathExp, Encodings::ENC_UTF8, false);
+      error_handler = new FileErrorHandler(sLogPathExp.get(), Encodings::ENC_UTF8, false);
     } catch (Exception &e) {
       error_handler = nullptr;
       showExceptionMessage(e.getMessage()->getWChars());
