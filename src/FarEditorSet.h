@@ -125,19 +125,20 @@ public:
   void LoadUserHrd(const String* filename, ParserFactory* pf);
   void LoadUserHrc(const String* filename, ParserFactory* pf);
 
-  std::unique_ptr<SString> sTempHrdName;
-  std::unique_ptr<SString> sTempHrdNameTm;
-
   /** Shows hrc configuration dialog */
   void configureHrc();
   void OnChangeHrc(HANDLE hDlg);
   void OnChangeParam(HANDLE hDlg, int idx);
   void OnSaveHrcParams(HANDLE hDlg);
-  bool dialogFirstFocus;
-  int menuid;
 
   void showExceptionMessage(const wchar_t* message);
   void setLogPath(const wchar_t* log_path);
+
+  bool dialogFirstFocus;
+  int menuid;
+  std::unique_ptr<SString> sTempHrdName;
+  std::unique_ptr<SString> sTempHrdNameTm;
+
 private:
   /** Returns current global error handler. */
   colorer::ErrorHandler* getErrorHandler() const;
@@ -195,8 +196,8 @@ private:
   void SaveChangedValueParam(HANDLE hDlg);
 
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
-  ParserFactory* parserFactory;
-  RegionMapper* regionMapper;
+  std::unique_ptr<ParserFactory> parserFactory;
+  std::unique_ptr<RegionMapper> regionMapper;
   HRCParser* hrcParser;
 
   /**current value*/
@@ -229,7 +230,7 @@ private:
   int CurrentMenuItem;
 
   unsigned int err_status;
-  colorer::ErrorHandler* error_handler;
+  std::unique_ptr<colorer::ErrorHandler> error_handler;
 
   bool in_construct;
 };

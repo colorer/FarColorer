@@ -6,31 +6,21 @@
 #include <colorer/handlers/FileErrorHandler.h>
 #include <colorer/ParserFactoryException.h>
 
-FarEditorSet::FarEditorSet()
+FarEditorSet::FarEditorSet() :
+  parserFactory(nullptr), regionMapper(nullptr), hrcParser(nullptr), dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), 
+  sTempHrdNameTm(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
+  sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), viewFirst(0), 
+  CurrentMenuItem(0), err_status(ERR_NO_ERROR), error_handler(nullptr)
 {
   in_construct = true;
-  err_status = ERR_NO_ERROR;
-  parserFactory = nullptr;
-  regionMapper = nullptr;
-  hrcParser = nullptr;
-  sTempHrdName = nullptr;
-  sTempHrdNameTm = nullptr;
-  dialogFirstFocus = false;
-  menuid = 0;
-  error_handler = nullptr;
   xercesc::XMLPlatformUtils::Initialize();
   ReloadBase();
-  viewFirst = 0;
-  CurrentMenuItem = 0;
   in_construct = false;
 }
 
 FarEditorSet::~FarEditorSet()
 {
   dropAllEditors(false);
-  delete regionMapper;
-  delete parserFactory;
-  delete error_handler;
   xercesc::XMLPlatformUtils::Terminate();
 }
 
@@ -138,7 +128,7 @@ void FarEditorSet::viewFile(const String &path)
     TextLinesStore textLinesStore;
     textLinesStore.loadFile(&path, nullptr, true);
     // Base editor to make primary parse
-    BaseEditor baseEditor(parserFactory, &textLinesStore);
+    BaseEditor baseEditor(parserFactory.get(), &textLinesStore);
     RegionMapper* regionMap;
     try {
       regionMap = parserFactory->createStyledMapper(&DConsole, sHrdName.get());
@@ -358,7 +348,7 @@ void FarEditorSet::chooseType()
     }
   }
 
-  FarHrcSettings p(parserFactory);
+  FarHrcSettings p(parserFactory.get());
   p.writeUserProfile();
 }
 
@@ -746,7 +736,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
   }
 
   try {
-    parserFactoryLocal = new ParserFactory(error_handler);
+    parserFactoryLocal = new ParserFactory(error_handler.get());
     parserFactoryLocal->loadCatalog(tpath);
     delete tpath;
     hrcParserLocal = parserFactoryLocal->getHRCParser();
@@ -835,10 +825,8 @@ void FarEditorSet::ReloadBase()
     const wchar_t* marr[2] = { GetMsg(mName), GetMsg(mReloading) };
     Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
     dropAllEditors(true);
-    delete regionMapper;
-    delete parserFactory;
-    parserFactory = nullptr;
-    regionMapper = nullptr;
+    regionMapper.release();
+    parserFactory.release();
 
     if (TrueModOn) {
       hrdClass = DRgb;
@@ -848,23 +836,23 @@ void FarEditorSet::ReloadBase()
       hrdName = sHrdName.get();
     }
 
-    parserFactory = new ParserFactory(error_handler);
+    parserFactory.reset(new ParserFactory(error_handler.get()));
     parserFactory->loadCatalog(sCatalogPathExp.get());
     hrcParser = parserFactory->getHRCParser();
-    LoadUserHrd(sUserHrdPathExp.get(), parserFactory);
-    LoadUserHrc(sUserHrcPathExp.get(), parserFactory);
-    FarHrcSettings p(parserFactory);
+    LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
+    LoadUserHrc(sUserHrcPathExp.get(), parserFactory.get());
+    FarHrcSettings p(parserFactory.get());
     p.readProfile();
     p.readUserProfile();
     defaultType = static_cast<FileTypeImpl*>(hrcParser->getFileType(&DDefaultScheme));
 
     try {
-      regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
+      regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, &hrdName));
     } catch (ParserFactoryException &e) {
       if (getErrorHandler() != nullptr) {
         getErrorHandler()->error(*e.getMessage());
       }
-      regionMapper = parserFactory->createStyledMapper(&hrdClass, nullptr);
+      regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, nullptr));
     }
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
@@ -918,14 +906,14 @@ FarEditor* FarEditorSet::addCurrentEditor()
     return nullptr;
   }
 
-  FarEditor* editor = new FarEditor(&Info, parserFactory);
+  FarEditor* editor = new FarEditor(&Info, parserFactory.get());
   std::pair<intptr_t, FarEditor*> pair_editor(ei.EditorID, editor);
   farEditorInstances.emplace(pair_editor);
   String* s = getCurrentFileName();
   editor->chooseFileType(s);
   delete s;
   editor->setTrueMod(TrueModOn);
-  editor->setRegionMapper(regionMapper);
+  editor->setRegionMapper(regionMapper.get());
   editor->setDrawCross(drawCross, CrossStyle);
   editor->setDrawPairs(drawPairs);
   editor->setDrawSyntax(drawSyntax);
@@ -983,10 +971,8 @@ void FarEditorSet::disableColorer()
 
   dropCurrentEditor(true);
 
-  delete regionMapper;
-  delete parserFactory;
-  parserFactory = nullptr;
-  regionMapper = nullptr;
+  regionMapper.release();
+  parserFactory.release();
 }
 
 void FarEditorSet::ApplySettingsToEditors()
@@ -1063,16 +1049,14 @@ void FarEditorSet::ReadSettings()
 void FarEditorSet::setLogPath(const wchar_t* log_path)
 {
   if (sLogPath && sLogPath->compareToIgnoreCase(DString(log_path)) != 0) {
-    delete error_handler;
-    error_handler = nullptr;
+    error_handler.release();
   }
   sLogPath.reset(new SString(DString(log_path)));
   sLogPathExp.reset(PathToFullS(log_path, false));
   if (error_handler == nullptr && sLogPathExp != nullptr) {
     try {
-      error_handler = new FileErrorHandler(sLogPathExp.get(), Encodings::ENC_UTF8, false);
+      error_handler.reset(new FileErrorHandler(sLogPathExp.get(), Encodings::ENC_UTF8, false));
     } catch (Exception &e) {
-      error_handler = nullptr;
       showExceptionMessage(e.getMessage()->getWChars());
     }
   }
@@ -1130,7 +1114,7 @@ void FarEditorSet::LoadUserHrd(const String* filename, ParserFactory* pf)
 {
   if (filename && filename->length()) {
     xercesc::XercesDOMParser xml_parser;
-    XmlParserErrorHandler err_handler(error_handler);
+    XmlParserErrorHandler err_handler(error_handler.get());
     xml_parser.setErrorHandler(&err_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
@@ -1541,7 +1525,7 @@ void  FarEditorSet::OnChangeParam(HANDLE hDlg, int idx)
 void FarEditorSet::OnSaveHrcParams(HANDLE hDlg)
 {
   SaveChangedValueParam(hDlg);
-  FarHrcSettings p(parserFactory);
+  FarHrcSettings p(parserFactory.get());
   p.writeUserProfile();
 }
 
