@@ -6,9 +6,9 @@
 #include <colorer/handlers/FileErrorHandler.h>
 #include <colorer/ParserFactoryException.h>
 
-FarEditorSet::FarEditorSet() :
-  parserFactory(nullptr), regionMapper(nullptr), hrcParser(nullptr), dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), 
-  sTempHrdNameTm(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
+FarEditorSet::FarEditorSet():
+  dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
+  hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
   sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), viewFirst(0), 
   CurrentMenuItem(0), err_status(ERR_NO_ERROR), error_handler(nullptr)
 {
@@ -1172,7 +1172,7 @@ const String* FarEditorSet::getParamDefValue(FileTypeImpl* type, SString param) 
 
 FarList* FarEditorSet::buildHrcList() const
 {
-  size_t num = getCountFileTypeAndGroup();;
+  size_t num = getCountFileTypeAndGroup();
   const String* group = nullptr;
   FileType* type = nullptr;
 
