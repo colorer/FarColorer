@@ -244,10 +244,9 @@ inline wchar_t* __cdecl Upper(wchar_t* Ch)
 
 INT_PTR WINAPI KeyDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-  INPUT_RECORD* record = nullptr;
   wchar wkey[2];
 
-  record = static_cast<INPUT_RECORD*>(Param2);
+  INPUT_RECORD* record = static_cast<INPUT_RECORD*>(Param2);
   if (Msg == DN_CONTROLINPUT && record->EventType == KEY_EVENT) {
     int key = record->Event.KeyEvent.wVirtualKeyCode;
     if (key == VK_ESCAPE  || key == VK_RETURN) {
@@ -718,55 +717,51 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
   HANDLE scr = Info.SaveScreen(0, 0, -1, -1);
   Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
 
-  ParserFactory* parserFactoryLocal = nullptr;
-  RegionMapper* regionMapperLocal = nullptr;
-  HRCParser* hrcParserLocal = nullptr;
+  std::unique_ptr<ParserFactory> parserFactoryLocal = nullptr;
+  std::unique_ptr<RegionMapper> regionMapperLocal = nullptr;
 
-  SString* catalogPathS = PathToFullS(catalogPath, false);
-  SString* userHrdPathS = PathToFullS(userHrdPath, false);
-  SString* userHrcPathS = PathToFullS(userHrcPath, false);
+  std::unique_ptr<SString> catalogPathS(PathToFullS(catalogPath, false));
+  std::unique_ptr<SString> userHrdPathS(PathToFullS(userHrdPath, false));
+  std::unique_ptr<SString> userHrcPathS(PathToFullS(userHrcPath, false));
 
-  SString* tpath;
+  std::unique_ptr<SString> tpath;
   if (!catalogPathS || !catalogPathS->length()) {
     StringBuffer* path = new StringBuffer(PluginPath);
     path->append(DString(FarCatalogXml));
-    tpath = path;
+    tpath.reset(path);
   } else {
-    tpath = catalogPathS;
+    tpath = std::move(catalogPathS);
   }
 
   try {
-    parserFactoryLocal = new ParserFactory(error_handler.get());
-    parserFactoryLocal->loadCatalog(tpath);
-    delete tpath;
-    hrcParserLocal = parserFactoryLocal->getHRCParser();
-    LoadUserHrd(userHrdPathS, parserFactoryLocal);
-    LoadUserHrc(userHrcPathS, parserFactoryLocal);
-    FarHrcSettings p(parserFactoryLocal);
+    parserFactoryLocal.reset(new ParserFactory(error_handler.get()));
+    parserFactoryLocal->loadCatalog(tpath.get());
+    HRCParser* hrcParserLocal = parserFactoryLocal->getHRCParser();
+    LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
+    LoadUserHrc(userHrcPathS.get(), parserFactoryLocal.get());
+    FarHrcSettings p(parserFactoryLocal.get());
     p.readProfile();
     p.readUserProfile();
 
     if (hrc_mode == HRCM_CONSOLE || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName.get());
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName.get()));
       } catch (ParserFactoryException &e) {
         if (parserFactoryLocal->getErrorHandler() != nullptr) {
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
         }
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, nullptr);
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, nullptr));
       }
-      delete regionMapperLocal;
-      regionMapperLocal = nullptr;
     }
 
     if (hrc_mode == HRCM_RGB || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm.get());
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm.get()));
       } catch (ParserFactoryException &e) {
         if (parserFactoryLocal->getErrorHandler() != nullptr) {
           parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
         }
-        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, nullptr);
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, nullptr));
       }
     }
 
@@ -804,9 +799,6 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     Info.RestoreScreen(scr);
     res = false;
   }
-
-  delete regionMapperLocal;
-  delete parserFactoryLocal;
 
   return res;
 }
