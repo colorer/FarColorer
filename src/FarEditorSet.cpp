@@ -9,7 +9,7 @@
 FarEditorSet::FarEditorSet():
   dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
   hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
-  sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), viewFirst(0), 
+  sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), 
   CurrentMenuItem(0), err_status(ERR_NO_ERROR), error_handler(nullptr)
 {
   in_construct = true;
@@ -116,9 +116,6 @@ void FarEditorSet::openMenu(int MenuId)
 
 void FarEditorSet::viewFile(const String &path)
 {
-  if (viewFirst == 0) {
-    viewFirst = 1;
-  }
   try {
     if (!rEnabled) {
       throw Exception(DString("FarColorer is disabled"));
@@ -887,11 +884,6 @@ colorer::ErrorHandler* FarEditorSet::getErrorHandler() const
 
 FarEditor* FarEditorSet::addCurrentEditor()
 {
-  if (viewFirst == 1) {
-    viewFirst = 2;
-    ReloadBase();
-  }
-
   EditorInfo ei;
   ei.StructSize = sizeof(EditorInfo);
   if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei)) {

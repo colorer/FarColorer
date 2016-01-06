@@ -226,7 +226,6 @@ private:
   std::unique_ptr<SString> sUserHrcPathExp;
   std::unique_ptr<SString> sLogPathExp;
 
-  int viewFirst; // 0 - init;  1 - first run view; 2 - first run editor
   int CurrentMenuItem;
 
   unsigned int err_status;
