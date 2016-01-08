@@ -129,7 +129,8 @@ void FarHrcSettings::readProfileFromRegistry()
                 }
                 const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
                 if (p) {
-                  type->setParamValue(DString(type_fse.Items[j].Name), &DString(p));
+                  DString dp = DString(p);
+                  type->setParamValue(DString(type_fse.Items[j].Name), &dp);
                 }
               }
             }

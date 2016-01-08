@@ -42,4 +42,4 @@ private:
 };
 
 
-#endif _CHOOSE_TYPE_MENU_H_
+#endif //_CHOOSE_TYPE_MENU_H_

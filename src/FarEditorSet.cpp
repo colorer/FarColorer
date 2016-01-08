@@ -324,7 +324,8 @@ void FarEditorSet::chooseType()
           if (menu.GetFileType(i)->getParamValue(DHotkey) == nullptr) {
             static_cast<FileTypeImpl*>(menu.GetFileType(i))->addParam(&DHotkey);
           }
-          menu.GetFileType(i)->setParamValue(DHotkey, &DString(KeyAssignDlgData[2].Data));
+          DString hotkey = DString(KeyAssignDlgData[2].Data);
+          menu.GetFileType(i)->setParamValue(DHotkey, &hotkey);
           menu.RefreshItemCaption(i);
         }
         menu.SetSelected(i);
@@ -886,7 +887,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
 {
   EditorInfo ei;
   ei.StructSize = sizeof(EditorInfo);
-  if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei)) {
+  if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
     return nullptr;
   }
 
@@ -909,7 +910,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
 String* FarEditorSet::getCurrentFileName()
 {
   LPWSTR FileName = nullptr;
-  size_t FileNameSize = Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, NULL, nullptr);
+  size_t FileNameSize = Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, 0, nullptr);
 
   if (FileNameSize) {
     FileName = new wchar_t[FileNameSize];
@@ -931,7 +932,7 @@ FarEditor* FarEditorSet::getCurrentEditor()
 {
   EditorInfo ei;
   ei.StructSize = sizeof(EditorInfo);
-  Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+  Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
   auto if_editor = farEditorInstances.find(ei.EditorID);
   if (if_editor != farEditorInstances.end()) {
     return if_editor->second;
@@ -974,7 +975,7 @@ void FarEditorSet::dropCurrentEditor(bool clean)
 {
   EditorInfo ei;
   ei.StructSize = sizeof(EditorInfo);
-  Info.EditorControl(CurrentEditor, ECTL_GETINFO, NULL, &ei);
+  Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
   auto it_editor = farEditorInstances.find(ei.EditorID);
   if (it_editor != farEditorInstances.end()) {
     if (clean) {
@@ -982,7 +983,7 @@ void FarEditorSet::dropCurrentEditor(bool clean)
     }
     delete it_editor->second;
     farEditorInstances.erase(ei.EditorID);
-    Info.EditorControl(CurrentEditor, ECTL_REDRAW, NULL, nullptr);
+    Info.EditorControl(CurrentEditor, ECTL_REDRAW, 0, nullptr);
   }
 }
 
@@ -1463,7 +1464,7 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   delete def_value;
 }
 
-void  FarEditorSet::OnChangeParam(HANDLE hDlg, int idx)
+void  FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
 {
   if (menuid != idx && menuid != -1) {
     SaveChangedValueParam(hDlg);
@@ -1547,7 +1548,7 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
     case DN_LISTCHANGE:
       switch (Param1) {
         case IDX_CH_PARAM_LIST:
-          fes->OnChangeParam(hDlg, reinterpret_cast<int>(Param2));
+          fes->OnChangeParam(hDlg, reinterpret_cast<intptr_t>(Param2));
           return true;
           break;
       }

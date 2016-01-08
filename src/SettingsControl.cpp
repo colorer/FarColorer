@@ -15,7 +15,7 @@ SettingsControl::SettingsControl()
 
 SettingsControl::~SettingsControl()
 {
-  Info.SettingsControl(farSettingHandle, SCTL_FREE, NULL, nullptr);
+  Info.SettingsControl(farSettingHandle, SCTL_FREE, 0, nullptr);
 }
 
 const wchar_t* SettingsControl::Get(size_t Root, const wchar_t* Name, const wchar_t* Default)
@@ -53,17 +53,17 @@ bool SettingsControl::Set(size_t Root, const wchar_t* Name, unsigned __int64 Val
 size_t SettingsControl::rGetSubKey(size_t Root, const wchar_t* Name)
 {
   FarSettingsValue fsv = {sizeof(FarSettingsValue), Root, Name};
-  return (size_t)Info.SettingsControl(farSettingHandle, SCTL_CREATESUBKEY, NULL, &fsv);
+  return (size_t)Info.SettingsControl(farSettingHandle, SCTL_CREATESUBKEY, 0, &fsv);
 }
 
 bool SettingsControl::rEnum(size_t Root, FarSettingsEnum* fse)
 {
   fse->Root = Root;
-  return !!Info.SettingsControl(farSettingHandle, SCTL_ENUM, NULL, fse);
+  return !!Info.SettingsControl(farSettingHandle, SCTL_ENUM, 0, fse);
 }
 
 bool SettingsControl::rDeleteSubKey(size_t Root, const wchar_t* Name)
 {
   FarSettingsValue fsv = {sizeof(FarSettingsValue), Root, Name};
-  return !!Info.SettingsControl(farSettingHandle, SCTL_DELETE, NULL, &fsv);
+  return !!Info.SettingsControl(farSettingHandle, SCTL_DELETE, 0, &fsv);
 }

@@ -128,14 +128,14 @@ public:
   /** Shows hrc configuration dialog */
   void configureHrc();
   void OnChangeHrc(HANDLE hDlg);
-  void OnChangeParam(HANDLE hDlg, int idx);
+  void OnChangeParam(HANDLE hDlg, intptr_t idx);
   void OnSaveHrcParams(HANDLE hDlg);
 
   void showExceptionMessage(const wchar_t* message);
   void setLogPath(const wchar_t* log_path);
 
   bool dialogFirstFocus;
-  int menuid;
+  intptr_t menuid;
   std::unique_ptr<SString> sTempHrdName;
   std::unique_ptr<SString> sTempHrdNameTm;
 
