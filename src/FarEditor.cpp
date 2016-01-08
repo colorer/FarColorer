@@ -70,7 +70,7 @@ String* FarEditor::getLine(size_t lno)
   }
 
   delete ret_str;
-  ret_str = new DString(es.StringText, 0, len);
+  ret_str = new DString(es.StringText, 0, (int)len);
   return ret_str;
 }
 
@@ -237,7 +237,7 @@ void FarEditor::matchPair()
   EditorSetPosition esp;
   esp.StructSize = sizeof(EditorSetPosition);
   EditorInfo ei = enterHandler();
-  PairMatch* pm = baseEditor->searchGlobalPair(ei.CurLine, ei.CurPos);
+  PairMatch* pm = baseEditor->searchGlobalPair((int)ei.CurLine, (int)ei.CurPos);
 
   if ((pm == nullptr) || (pm->eline == -1)) {
     baseEditor->releasePairMatch(pm);
@@ -274,7 +274,7 @@ void FarEditor::selectPair()
   es.StructSize = sizeof(EditorSelect);
   int X1, X2, Y1, Y2;
   EditorInfo ei = enterHandler();
-  PairMatch* pm = baseEditor->searchGlobalPair(ei.CurLine, ei.CurPos);
+  PairMatch* pm = baseEditor->searchGlobalPair((int)ei.CurLine, (int)ei.CurPos);
 
   if ((pm == nullptr) || (pm->eline == -1)) {
     baseEditor->releasePairMatch(pm);
@@ -310,7 +310,7 @@ void FarEditor::selectBlock()
   es.StructSize = sizeof(EditorSelect);
   int X1, X2, Y1, Y2;
   EditorInfo ei = enterHandler();
-  PairMatch* pm = baseEditor->searchGlobalPair(ei.CurLine, ei.CurPos);
+  PairMatch* pm = baseEditor->searchGlobalPair((int)ei.CurLine, (int)ei.CurPos);
 
   if ((pm == nullptr) || (pm->eline == -1)) {
     baseEditor->releasePairMatch(pm);
@@ -410,7 +410,7 @@ void FarEditor::locateFunction()
   // extract word
   EditorInfo ei = enterHandler();
   String &curLine = *getLine(ei.CurLine);
-  int cpos = ei.CurPos;
+  int cpos = (int)ei.CurPos;
   int sword = cpos;
   int eword = cpos;
 
@@ -487,7 +487,7 @@ void FarEditor::locateFunction()
 void FarEditor::updateHighlighting()
 {
   EditorInfo ei = enterHandler();
-  baseEditor->validate(ei.TopScreenLine, true);
+  baseEditor->validate((int)ei.TopScreenLine, true);
 }
 
 int FarEditor::editorInput(const INPUT_RECORD &Rec)
@@ -562,7 +562,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   if (event == EE_CHANGE) {
     EditorChange* editor_change = static_cast<EditorChange*>(param);
 
-    int ml = (prevLinePosition < editor_change->StringNumber ? prevLinePosition : editor_change->StringNumber) - 1;
+    int ml = (int)(prevLinePosition < editor_change->StringNumber ? prevLinePosition : editor_change->StringNumber) - 1;
 
     if (ml < 0) {
       ml = 0;
@@ -584,18 +584,18 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   }
 
   EditorInfo ei = enterHandler();
-  WindowSizeX = ei.WindowSizeX;
-  WindowSizeY = ei.WindowSizeY;
+  WindowSizeX = (int)ei.WindowSizeX;
+  WindowSizeY = (int)ei.WindowSizeY;
 
-  baseEditor->visibleTextEvent(ei.TopScreenLine, WindowSizeY);
+  baseEditor->visibleTextEvent((int)ei.TopScreenLine, WindowSizeY);
 
-  baseEditor->lineCountEvent(ei.TotalLines);
+  baseEditor->lineCountEvent((int)ei.TotalLines);
 
-  prevLinePosition = ei.CurLine;
+  prevLinePosition = (int)ei.CurLine;
   blockTopPosition = -1;
 
   if (ei.BlockType != BTYPE_NONE) {
-    blockTopPosition = ei.BlockStartLine;
+    blockTopPosition = (int)ei.BlockStartLine;
   }
 
   delete cursorRegion;
@@ -624,7 +624,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     egs.StructSize = sizeof(EditorGetString);
     egs.StringNumber = lno;
     info->EditorControl(editor_id, ECTL_GETSTRING, NULL, &egs);
-    int llen = egs.StringLength;
+    int llen = (int)egs.StringLength;
     DString s = DString(egs.StringText);
     //position previously found a column in the current row
     ecp_cl.StructSize = sizeof(EditorConvertPos);
@@ -633,7 +633,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     info->EditorControl(editor_id, ECTL_TABTOREAL, NULL, &ecp_cl);
 
     if (drawSyntax) {
-      LineRegion* l1 = baseEditor->getLineRegions(lno);
+      LineRegion* l1 = baseEditor->getLineRegions((int)lno);
 
       for (; l1; l1 = l1->next) {
         if (l1->special) {
@@ -651,7 +651,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
         int lend = l1->end;
         if (lend == -1) {
-          lend = fullBackground ? ei.LeftPos + ei.WindowSizeX : llen;
+          lend = fullBackground ? (int)(ei.LeftPos + ei.WindowSizeX) : llen;
         }
         if (lno == ei.CurLine && (l1->start <= ei.CurPos) && (ei.CurPos <= lend)) {
           delete cursorRegion;
@@ -733,7 +733,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
   // pair brackets
   if (drawPairs) {
-    PairMatch* pm = baseEditor->searchLocalPair(ei.CurLine, ei.CurPos);
+    PairMatch* pm = baseEditor->searchLocalPair((int)ei.CurLine, (int)ei.CurPos);
     if (pm != nullptr) {
       // start bracket
       FarColor col = convert(pm->start->styled());
@@ -886,7 +886,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         menu[menu_size].Text = menuItem;
         menu[menu_size].UserData = reinterpret_cast<intptr_t>(item);
 
-        if (ei.CurLine >= item->lno) {
+        if (ei.CurLine >= (int)item->lno) {
           selectedItem = menu_size;
         }
 

@@ -138,7 +138,7 @@ void FarEditorSet::viewFile(const String &path)
     baseEditor.setRegionMapper(regionMap);
     baseEditor.chooseFileType(&path);
     // initial event
-    baseEditor.lineCountEvent(textLinesStore.getLineCount());
+    baseEditor.lineCountEvent((int)textLinesStore.getLineCount());
     // computing background color
     int background = 0x1F;
     const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(DString("def:Text")));
