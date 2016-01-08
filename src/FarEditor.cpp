@@ -477,7 +477,7 @@ void FarEditor::locateFunction()
     info->EditorControl(editor_id, ECTL_SETPOSITION, 0, &esp);
     info->EditorControl(editor_id, ECTL_REDRAW, 0, nullptr);
     info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
-    return;
+    return; //-V612
   }
 
   const wchar_t* msg[2] = { GetMsg(mNothingFound), GetMsg(mGotcha) };
@@ -1086,7 +1086,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
         //insert text
         OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
-        SString str = SString(item->token);
+        SString str = SString(item->token.get());
         //!! warning , after call next line  object 'item' changes
         info->EditorControl(editor_id, ECTL_INSERTTEXT, 0, (void*)str.getWChars());
 

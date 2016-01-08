@@ -165,7 +165,7 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
     if (!editorSet) {
       inCreateEditorSet = true;
       editorSet = new FarEditorSet();
-      inCreateEditorSet = false;
+      inCreateEditorSet = false; //-V519
 
       // при создании FarEditorSet мы теряем сообщение EE_REDRAW, из-за SetBgEditor. компенсируем это
       struct ProcessEditorEventInfo pInfo2;

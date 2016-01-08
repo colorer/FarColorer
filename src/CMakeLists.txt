@@ -18,16 +18,6 @@ IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
-if(NOT DEFINED CONF)
-  set(CONF "x86")
-endif()
-        
-if(CONF STREQUAL "x86")
-  set(PLATFORM "Win32")
-else()
-  set(PLATFORM "x64")
-endif()
-
 #====================================================
 # colorer_lib
 #====================================================
@@ -61,7 +51,7 @@ else()
 endif()
 
 if(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
-  if(PLATFORM STREQUAL "Win32")
+  if(${CMAKE_CL_64}="0")
     find_program (MASM_EXECUTABLE ml)
 
     set(ASM_OBJECTS)
@@ -81,7 +71,7 @@ if(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
       vc10wrapper.cpp
       ${ASM_OBJECTS}
     )
-  endif(PLATFORM STREQUAL "Win32")
+  endif()
 endif()
 #====================================================
 # common flags
@@ -93,8 +83,8 @@ endif()
 
 add_definitions(-D_UNICODE -DUNICODE)
 
-set(FLAGS_RELEASE "-U_DEBUG -DNDEBUG")
-set(FLAGS_DEBUG "-D_DEBUG -DDEBUG")
+set(FLAGS_RELEASE "-U_DEBUG")
+set(FLAGS_DEBUG "-D_DEBUG")
 
 if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -110,11 +100,6 @@ if(MSVC)
   set(FLAGS_RELEASE "${FLAGS_RELEASE} /O2 /Oi /Ot /Oy /GL /GF /GS- /Gy /MT")
   set(FLAGS_DEBUG "${FLAGS_DEBUG} /Od /MTd /GS /RTC1 /W3")
 
-  if(CONF STREQUAL "x64")
-    set(CMAKE_EXE_LINKER_FLAGS "/MACHINE:X64")
-  else()
-    set(CMAKE_EXE_LINKER_FLAGS "/MACHINE:X86")
-  endif()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
