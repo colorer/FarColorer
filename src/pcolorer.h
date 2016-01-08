@@ -3,6 +3,7 @@
 
 #include <plugin.hpp>
 
+#include <memory>
 #include <windows.h>
 #include <unicode/StringBuffer.h>
 
