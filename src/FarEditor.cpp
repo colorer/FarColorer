@@ -70,7 +70,7 @@ String* FarEditor::getLine(size_t lno)
   }
 
   delete ret_str;
-  ret_str = new DString(es.StringText, 0, (int)len);
+  ret_str = new SString(DString(es.StringText, 0, (int)len));
   return ret_str;
 }
 
