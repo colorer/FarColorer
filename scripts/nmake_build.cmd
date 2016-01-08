@@ -10,7 +10,7 @@ if not exist %PROJECT_BUIILDDIR% ( mkdir %PROJECT_BUIILDDIR% > NUL )
 pushd %PROJECT_BUIILDDIR%
 
 @call "%VS100COMNTOOLS%..\..\VC\vcvarsall.bat" %PROJECT_CONF%
-cmake.exe -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%\src
+cmake.exe -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% %PROJECT_ROOT%\src
 nmake
 
 :: Create temp directory
