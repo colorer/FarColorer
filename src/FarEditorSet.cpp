@@ -682,7 +682,10 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
       }
       break;
       case EE_READ: {
-        addCurrentEditor();
+        editor = getCurrentEditor();
+        if (!editor) {
+          editor = addCurrentEditor();
+        }
         return 0;
       }
       break;

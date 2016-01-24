@@ -77,16 +77,16 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
         }
 
         if (type->getParamValue(DString(name)) == nullptr) {
-          type->addParam(new SString(DString(name)));
+          type->addParam(&DString(name));
         }
         if (descr != nullptr) {
-          type->setParamDescription(DString(name), new SString(DString(descr)));
+          type->setParamDescription(DString(name), &DString(descr));
         }
         if (userValue) {
-          type->setParamValue(DString(name), new SString(DString(value)));
+          type->setParamValue(DString(name), &DString(value));
         } else {
           delete type->getParamDefaultValue(DString(name));
-          type->setParamDefaultValue(DString(name), new SString(DString(value)));
+          type->setParamDefaultValue(DString(name), &DString(value));
         }
       }
     }
