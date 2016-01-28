@@ -26,7 +26,7 @@ FarEditorSet::~FarEditorSet()
 
 void FarEditorSet::openMenu(int MenuId)
 {
-  if (MenuId <= 0) {
+  if (MenuId < 0) {
     const size_t menu_size = 13;
     int iMenuItems[menu_size] = {
       mListTypes, mMatchPair, mSelectBlock, mSelectPair,
