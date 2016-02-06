@@ -50,12 +50,12 @@ else()
   set(SRC_DEF pcolorer3.gcc.def)
 endif()
 
-if(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
-  if(${CMAKE_CL_64}="0")
+if(${CMAKE_GENERATOR} STREQUAL "NMake Makefiles")
+  if(${CMAKE_CL_64} STREQUAL "0")
     find_program (MASM_EXECUTABLE ml)
 
     set(ASM_OBJECTS)
-    foreach(src vc10)
+    foreach(src vc_crt_fix)
       set(ASM_SOURCE ${SRC_ROOT}/${src}.asm)
       set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/${src}.obj)
       set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
@@ -68,7 +68,7 @@ if(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
     endforeach(src)
 
     set(SRC_CPP ${SRC_CPP}
-      vc10wrapper.cpp
+      vc_crt_fix_impl.cpp
       ${ASM_OBJECTS}
     )
   endif()
@@ -94,12 +94,15 @@ if(MSVC)
   set(LINK_FLAGS_RELEASE "/LTCG")
 
   set(COLORER_WARNING_FLAGS "")
-  set(FLAGS_CXX_DEFAULT "${CMAKE_CXX_FLAGS} /EHsc /Zi -D_WINDLL -D_USRDLL")
+  set(FLAGS_CXX_DEFAULT "${CMAKE_CXX_FLAGS} /EHsc /Zi -D_WINDLL -D_USRDLL /Zc:threadSafeInit-")
   set(FLAGS_C_DEFAULT "${FLAGS_C_DEFAULT}")
 
   set(FLAGS_RELEASE "${FLAGS_RELEASE} /O2 /Oi /Ot /Oy /GL /GF /GS- /Gy /MT")
   set(FLAGS_DEBUG "${FLAGS_DEBUG} /Od /MTd /GS /RTC1 /W3")
 
+  if(${CMAKE_CL_64} STREQUAL "0")
+    set(FLAGS_CXX_DEFAULT "${FLAGS_CXX_DEFAULT} /arch:IA32")
+  endif()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
