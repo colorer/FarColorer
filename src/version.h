@@ -1,5 +1,5 @@
-#define VER_FILEVERSION             1,2,6,0
-#define VER_FILEVERSION_STR         "1.2.6.0"
+#define VER_FILEVERSION             1,2,7,0
+#define VER_FILEVERSION_STR         "1.2.7.0"
 
 #define VER_PRODUCTVERSION          VER_FILEVERSION
 #define VER_PRODUCTVERSION_STR      VER_FILEVERSION_STR
