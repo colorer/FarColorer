@@ -102,6 +102,7 @@ if(MSVC)
 
   if(${CMAKE_CL_64} STREQUAL "0")
     set(FLAGS_CXX_DEFAULT "${FLAGS_CXX_DEFAULT} /arch:IA32")
+    set(FLAGS_C_DEFAULT "${FLAGS_C_DEFAULT} /arch:IA32")
   endif()
 endif()
 
