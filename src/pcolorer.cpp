@@ -149,16 +149,32 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
           }
 
           if (command->equals("status")){
-            return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-          }else
-          if (command->equals("enable")) {
-            editorSet->enableColorer();
-            return INVALID_HANDLE_VALUE;
+            if (mi->Count == 1) {
+              return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+            }
+            else {
+              bool new_status = 0;
+              switch (mi->Values[1].Type) {
+              case FMVT_BOOLEAN:
+                new_status = mi->Values[1].Boolean;
+                break;
+              case FMVT_INTEGER:
+                new_status = mi->Values[1].Integer;
+                break;
+              default:
+                new_status = -1;
+              }
+
+              if (new_status) {
+                editorSet->enableColorer();
+                return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+              } else {
+                editorSet->disableColorer();
+                return !editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+              }
+            }
           }
-          if (command->equals("disable")) {
-            editorSet->disableColorer();
-            return INVALID_HANDLE_VALUE;
-          }
+
         }
     }
     break;
