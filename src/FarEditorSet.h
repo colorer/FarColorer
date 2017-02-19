@@ -121,6 +121,15 @@ public:
     return rEnabled;
   }
 
+  bool isEnable() const
+  {
+    return rEnabled;
+  }
+
+  /** Disables all plugin processing*/
+  void disableColorer();
+  void enableColorer();
+
   bool SetBgEditor() const;
   void LoadUserHrd(const String* filename, ParserFactory* pf);
   void LoadUserHrc(const String* filename, ParserFactory* pf);
@@ -167,8 +176,6 @@ private:
   void dropAllEditors(bool clean);
   /** kill the current editor*/
   void dropCurrentEditor(bool clean);
-  /** Disables all plugin processing*/
-  void disableColorer();
 
   size_t getCountFileTypeAndGroup() const;
   FileTypeImpl* getFileTypeByIndex(int idx) const;

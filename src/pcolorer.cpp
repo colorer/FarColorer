@@ -117,26 +117,49 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     }
     break;
     case OPEN_FROMMACRO: {
-      Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
+      FARMACROAREA area = (FARMACROAREA)Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
       OpenMacroInfo* mi = (OpenMacroInfo*)oInfo->Data;
       int MenuCode = -1;
+      std::unique_ptr<SString> command = nullptr;
       if (mi->Count) {
         switch (mi->Values[0].Type) {
-          case FMVT_INTEGER:
-            MenuCode = (int)mi->Values[0].Integer;
-            break;
-          case FMVT_DOUBLE:
-            MenuCode = (int)mi->Values[0].Double;
-            break;
-          default:
-            MenuCode = -1;
+        case FMVT_INTEGER:
+          MenuCode = (int)mi->Values[0].Integer;
+          break;
+        case FMVT_DOUBLE:
+          MenuCode = (int)mi->Values[0].Double;
+          break;
+        case FMVT_STRING:
+          command.reset(new SString(DString(mi->Values[0].String)));
+          break;
+        default:
+          MenuCode = -1;
         }
       }
 
-      if (MenuCode < 0) {
-        return nullptr;
+      if (MenuCode >= 0 && area == MACROAREA_EDITOR && editorSet) {
+        editorSet->openMenu(MenuCode - 1);
+        return INVALID_HANDLE_VALUE;
       }
-      editorSet->openMenu(MenuCode - 1);
+      else
+        if (command)
+        {
+          if (!editorSet) {
+            editorSet = new FarEditorSet();
+          }
+
+          if (command->equals("status")){
+            return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+          }else
+          if (command->equals("enable")) {
+            editorSet->enableColorer();
+            return INVALID_HANDLE_VALUE;
+          }
+          if (command->equals("disable")) {
+            editorSet->disableColorer();
+            return INVALID_HANDLE_VALUE;
+          }
+        }
     }
     break;
   }

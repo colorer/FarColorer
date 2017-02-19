@@ -560,7 +560,7 @@ void FarEditorSet::configure(bool fromEditor)
       if (rEnabled && !fdi[IDX_ENABLED].Selected) {
         rEnabled = false;
         TrueModOn = !!(fdi[IDX_TRUEMOD].Selected);
-        SaveSettings();
+        //SaveSettings();
         disableColorer();
       } else {
         if ((!rEnabled && fdi[IDX_ENABLED].Selected) || k) {
@@ -961,6 +961,14 @@ void FarEditorSet::disableColorer()
 
   regionMapper.release();
   parserFactory.release();
+  SaveSettings();
+}
+
+void FarEditorSet::enableColorer()
+{
+  rEnabled = true;
+  SaveSettings();
+  ReloadBase();
 }
 
 void FarEditorSet::ApplySettingsToEditors()
