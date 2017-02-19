@@ -117,11 +117,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     }
     break;
     case OPEN_FROMMACRO: {
-      Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
+      FARMACROAREA area = (FARMACROAREA)Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
       OpenMacroInfo* mi = (OpenMacroInfo*)oInfo->Data;
-      int MenuCode = -1;
-      if (mi->Count) {
-        switch (mi->Values[0].Type) {
+      if (area == MACROAREA_EDITOR && editorSet) {
+        int MenuCode = -1;
+        if (mi->Count) {
+          switch (mi->Values[0].Type) {
           case FMVT_INTEGER:
             MenuCode = (int)mi->Values[0].Integer;
             break;
@@ -130,13 +131,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
             break;
           default:
             MenuCode = -1;
+          }
         }
-      }
 
-      if (MenuCode < 0) {
-        return nullptr;
+        if (MenuCode < 0) {
+          return nullptr;
+        }
+        editorSet->openMenu(MenuCode - 1);
       }
-      editorSet->openMenu(MenuCode - 1);
     }
     break;
   }
