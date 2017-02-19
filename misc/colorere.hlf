@@ -226,9 +226,10 @@ $# Using a plugin in macros
           12 - Reload schema library
           13 - Configuration
 
-          If the <Param> not a number - plugin exits.
-          If the <Param> outside the above range - the plugin exits.
-          If the <Param> is not specified, will see action menu.
+          Either line and corresponds to the action:
+          "Status" - on or off the plugin
+          "Enable" - enable the plugin
+          "Disbale" - disable the plugin
 
     For example, list the types available:
 
