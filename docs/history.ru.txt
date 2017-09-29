@@ -3,17 +3,17 @@
 
 Версия 1.2.9.1 . 19.02.2017
 	1. уточнение plugin.call:
-	    - Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE","status"). Возвращаемое значение: true - плагин включен, false - выключен
-	    - Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE","status", new_status). Перевод плагина в статус new_status.
+	    - Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5","status"). Возвращаемое значение: true - плагин включен, false - выключен
+	    - Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5","status", new_status). Перевод плагина в статус new_status.
             new_status - true/false, либо соответсвующее им целое значение.
             Возвращаемое значение true/false показывает успешность выполнения команды.
 
 Версия 1.2.9.0 . 19.02.2017
 	1. ошибка вызова plugin.call при не инициализированном плагине
 	2. новые команды для plugin.call:
-	    - Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE","status")  true - плагин включен, false - выключен
-	    - Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE","enable")  включение плагина
-	    - Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE","disable")  выключение плагина
+	    - Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5","status")  true - плагин включен, false - выключен
+	    - Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5","enable")  включение плагина
+	    - Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5","disable")  выключение плагина
 
 Версия 1.2.8.1 . 12.06.2016
 	1. очередная попытка поддержки winXp AMD. проверено на эмуляторе.

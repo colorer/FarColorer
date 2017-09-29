@@ -201,10 +201,10 @@ $# Plugin Guids
 
 @MacroCallPlugin
 $# Using a plugin in macros
-    The plugin can be called from a macro using the macro function callplugin.
+    The plugin can be called from a macro using the macro function Plugin.Call().
     Call format:
 
-       #callplugin("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<Params>)#
+       #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<Params>)#
 
     Here:
        #D2F36B62-A470-418d-83A3-ED7A3710E5B5#
@@ -227,16 +227,16 @@ $# Using a plugin in macros
             13 - Configuration
 
            For example, list the types available:
-           callplugin("0E92FC81-4888-4297-A85D-31C79E0E0CEE",0)
+           Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",0)
 
          Or a string value:
-           "status" - work with the plug-in status.
-             plugin.call (Guid, "status")
-             If the second parameter is missing, it returns the status of the plugin activity.
-            
-             plugin.call (Guid, "status", new_status)
-             If the second parameter is true/false, or it corresponds to an integer value, the plugin will be transferred to the specified status.
-             Return Value true/false indicates success of the command.
+           "status" - work with the plug-in status.
+             Plugin.Call (Guid, "status")
+             If the second parameter is missing, it returns the status of the plugin activity.
+
+             Plugin.Call (Guid, "status", new_status)
+             If the second parameter is true/false, or it corresponds to an integer value, the plugin will be transferred to the specified status.
+             Return Value true/false indicates success of the command.
 
 @hrd
 $# Color style selection
