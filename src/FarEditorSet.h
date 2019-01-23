@@ -142,6 +142,7 @@ public:
 
   void showExceptionMessage(const wchar_t* message);
   void setLogPath(const wchar_t* log_path);
+  size_t getEditorCount() const;
 
   bool dialogFirstFocus;
   intptr_t menuid;

@@ -72,7 +72,7 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
         const XMLCh* value = subelem->getAttribute(tagParamAttrParamValue);
         const XMLCh* descr = subelem->getAttribute(tagParamAttrParamDescription);
 
-        if (*name == '\0' || *value == '\0') {
+        if (*name == '\0') {
           continue;
         }
 

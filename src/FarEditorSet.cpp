@@ -886,6 +886,11 @@ colorer::ErrorHandler* FarEditorSet::getErrorHandler() const
   return parserFactory->getErrorHandler();
 }
 
+size_t FarEditorSet::getEditorCount() const
+{
+  return farEditorInstances.size();
+}
+
 FarEditor* FarEditorSet::addCurrentEditor()
 {
   EditorInfo ei;
@@ -1478,7 +1483,7 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
 void  FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
 {
   if (menuid != idx && menuid != -1) {
-    SaveChangedValueParam(hDlg);
+    //SaveChangedValueParam(hDlg);
   }
   FileTypeImpl* type = getCurrentTypeInDialog(hDlg);
   FarListGetItem List = {0};
@@ -1487,6 +1492,7 @@ void  FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
   Info.SendDlgMessage(hDlg, DM_LISTGETITEM, IDX_CH_PARAM_LIST, &List);
 
   menuid = idx;
+  if (!List.Item.Text) return;
   DString p = DString(List.Item.Text);
 
   const String* value;

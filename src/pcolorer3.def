@@ -9,3 +9,4 @@ EXPORTS
    ProcessEditorEventW
    ExitFARW
    GetMinFarVersionW
+   ProcessSynchroEventW
