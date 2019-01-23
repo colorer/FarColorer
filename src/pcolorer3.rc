@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription", FILE_DESCRIPTION
             VALUE "FileVersion", VER_FILEVERSION_STR
             VALUE "InternalName", "FarColorer"
-            VALUE "LegalCopyright", "© 1999-2009 Igor Russkih, © Aleksey Dobrunov 2009-2016"
+            VALUE "LegalCopyright", "© 1999-2009 Igor Russkih, © Aleksey Dobrunov 2009-2019"
             VALUE "OriginalFilename", "colorer.dll"
             VALUE "ProductName", "FarColorer library"
             VALUE "ProductVersion", VER_PRODUCTVERSION_STR
