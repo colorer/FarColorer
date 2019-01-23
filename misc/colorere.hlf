@@ -26,7 +26,7 @@ $^#FarColorer's settings.#
 
   #Cross#
      [ ] Do not show ever
-     [?] Show if included in the scheme. 
+     [?] Show if included in the scheme.
      [x] Always Show.
 
   #Cross style#
@@ -40,18 +40,18 @@ $^#FarColorer's settings.#
 
   #Classic outline style#
      In classic style displays only the name of the function. Otherwise show
-     the beginning of the line number, then the first letter in the function 
+     the beginning of the line number, then the first letter in the function
      and the function name itself.
 
   #Change background editor#
-     In the set condition, FarColorer set in System Preferences color of 
-     "Plain Text" color group "editor" such as and the default color for 
+     In the set condition, FarColorer set in System Preferences color of
+     "Plain Text" color group "editor" such as and the default color for
      the color scheme FarColorer.
      The effect is visible on the files, the number of rows in less than window height
      editor.
 
   #Color style:#
-     Choose a color style, which will be used for coloring text. 
+     Choose a color style, which will be used for coloring text.
      The choice does not work if the plugin is disabled.
 
   #catalog.xml file:#
@@ -73,7 +73,7 @@ $^#FarColorer's settings.#
      Enable/Disable TrueMod in plugin.
 
   #Color style:#
-     Choose a color style, which will be used for coloring text in TrueMod. 
+     Choose a color style, which will be used for coloring text in TrueMod.
      The choice does not work if the plugin is disabled.
   #------------------------------------------------------------------#
 
@@ -108,7 +108,7 @@ features, but doesn't load HRC database each time, so it works faster.
 $# Outliner
     Here you can see a list of all functions or syntax errors found.
 Choose any item to go to corresponding line in text.
-    
+
     You can use keyboard filter to quickly search for required items:
 
     #Ctrl-Left/Right#
@@ -119,7 +119,7 @@ Choose any item to go to corresponding line in text.
 
     #Ctrl-Enter#
       Close the outliner and insert current item into the cursor position
-    
+
     #Enter#
       Close the outliner and jump to the selected item
 
@@ -201,10 +201,10 @@ $# Plugin Guids
 
 @MacroCallPlugin
 $# Using a plugin in macros
-    The plugin can be called from a macro using the macro function callplugin.
+    The plugin can be called from a macro using the macro function Plugin.Call(GUID,[param]).
     Call format:
 
-       #callplugin("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<Params>)#
+       #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<Params>)#
 
     Here:
        #D2F36B62-A470-418d-83A3-ED7A3710E5B5#
@@ -227,7 +227,7 @@ $# Using a plugin in macros
             13 - Configuration
 
            For example, list the types available:
-           callplugin("0E92FC81-4888-4297-A85D-31C79E0E0CEE",0)
+           Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5",1)
 
          Or a string value:
            "status" - work with the plug-in status.
@@ -252,19 +252,19 @@ file (colorer.log by default)
 
 @filetypechoose
 $# List types
-    The list contains all of the supported file types. By choosing any, you force 
+    The list contains all of the supported file types. By choosing any, you force
 the type of coloring the current file.
-   
+
     #Automatic detection# - select the type of file produced plugin built rules.
-    #Favorites# - The list of chosen types. Add to "Favorites" is produced by 
+    #Favorites# - The list of chosen types. Add to "Favorites" is produced by
 pressing the Ins, delete - Delete.
-    #Hot keys# - to assign a hot key to the file type you need to press F4, and 
+    #Hot keys# - to assign a hot key to the file type you need to press F4, and
 in the dialog box to specify the key.
 
     Hot keys and being in the group "Favorites" can also be customized through the
-~Schemes settings.~@confighrc@ These are the parameters 'hotkey' and 'favorite' for 
+~Schemes settings.~@confighrc@ These are the parameters 'hotkey' and 'favorite' for
 any of the schemes.
- 
+
 @keyassign
 $# Define key
     Keys 0-9, A-Z
