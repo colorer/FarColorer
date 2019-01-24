@@ -240,6 +240,9 @@ private:
   std::unique_ptr<colorer::ErrorHandler> error_handler;
 
   bool in_construct;
+
+  HANDLE hTimer = NULL;
+  HANDLE hTimerQueue = NULL;
 };
 
 #endif

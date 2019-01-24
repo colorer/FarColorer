@@ -16,12 +16,16 @@ FarEditorSet::FarEditorSet():
   xercesc::XMLPlatformUtils::Initialize();
   ReloadBase();
   in_construct = false;
+
+  hTimerQueue = CreateTimerQueue();
+  CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK)ColorThread, nullptr, 500, 500, 0);
 }
 
 FarEditorSet::~FarEditorSet()
 {
   dropAllEditors(false);
   xercesc::XMLPlatformUtils::Terminate();
+  DeleteTimerQueue(hTimerQueue);
 }
 
 void FarEditorSet::openMenu(int MenuId)

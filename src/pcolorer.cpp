@@ -9,8 +9,6 @@ PluginStartupInfo Info;
 FarStandardFunctions FSF;
 StringBuffer* PluginPath;
 
-static DWORD _stdcall Thread(LPVOID pci);
-
 extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
   switch (fdwReason) {
@@ -206,8 +204,6 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
     if (!editorSet) {
       inCreateEditorSet = true;
       editorSet = new FarEditorSet();
-      DWORD Dummy;
-      CreateThread(NULL, 0, Thread, 0, 0, &Dummy);
       inCreateEditorSet = false; //-V519
 
       // при создании FarEditorSet мы теряем сообщение EE_REDRAW, из-за SetBgEditor. компенсируем это
@@ -238,14 +234,11 @@ extern "C" int WINAPI GetMinFarVersionW(void)
   return MAKEFARVERSION_OLD(FARMANAGERVERSION_MAJOR, FARMANAGERVERSION_MINOR, FARMANAGERVERSION_BUILD);
 }
 
-static DWORD _stdcall Thread(LPVOID pci)
+extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
-  while(true){
-    if (editorSet && editorSet->getEditorCount() > 0)
-      Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
-    Sleep(500);
-  }
-  return true;
+  if (editorSet->getEditorCount() > 0)
+    Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
+  return;
 }
 
 extern "C" intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo *pInfo)
