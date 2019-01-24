@@ -1458,8 +1458,10 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   FarListGetItem List = {0};
   List.StructSize = sizeof(FarListGetItem);
   List.ItemIndex = menuid;
-  Info.SendDlgMessage(hDlg, DM_LISTGETITEM, IDX_CH_PARAM_LIST, &List);
-
+  bool res = Info.SendDlgMessage(hDlg, DM_LISTGETITEM, IDX_CH_PARAM_LIST, &List);
+  
+  if (!res) return;
+  
   //param name
   DString p = DString(List.Item.Text);
   //param value
@@ -1487,16 +1489,16 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
 void  FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
 {
   if (menuid != idx && menuid != -1) {
-    //SaveChangedValueParam(hDlg);
+    SaveChangedValueParam(hDlg);
   }
   FileTypeImpl* type = getCurrentTypeInDialog(hDlg);
   FarListGetItem List = {0};
   List.StructSize = sizeof(FarListGetItem);
   List.ItemIndex = idx;
-  Info.SendDlgMessage(hDlg, DM_LISTGETITEM, IDX_CH_PARAM_LIST, &List);
+  bool res = Info.SendDlgMessage(hDlg, DM_LISTGETITEM, IDX_CH_PARAM_LIST, &List);
+  if (!res) return;
 
   menuid = idx;
-  if (!List.Item.Text) return;
   DString p = DString(List.Item.Text);
 
   const String* value;
