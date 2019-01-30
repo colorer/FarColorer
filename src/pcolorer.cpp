@@ -7,7 +7,7 @@ FarEditorSet* editorSet = nullptr;
 bool inCreateEditorSet = false;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
-StringBuffer* PluginPath;
+SString* PluginPath;
 
 extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -15,13 +15,13 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpRes
     case DLL_PROCESS_ATTACH: {
       // obtain the path to the folder plugin, without being attached to the file name
       wchar_t path[MAX_PATH];
-      if (!GetModuleFileName(hinstDLL, path, MAX_PATH)) {
+      if (!GetModuleFileNameW(hinstDLL, path, MAX_PATH)) {
         return false;
       }
-      DString module(path, 0);
+      CString module(path, 0);
       int pos = module.lastIndexOf('\\');
       pos = module.lastIndexOf('\\', pos);
-      PluginPath = new StringBuffer(DString(module, 0, pos));
+      PluginPath = new SString(CString(module, 0, pos));
     }
     break;
 
@@ -110,7 +110,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
         if (!editorSet) {
           editorSet = new FarEditorSet();
         }
-        editorSet->viewFile(DString(nfile));
+        editorSet->viewFile(CString(nfile));
       }
 
       delete[] nfile;
@@ -130,7 +130,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
           MenuCode = (int)mi->Values[0].Double;
           break;
         case FMVT_STRING:
-          command.reset(new SString(DString(mi->Values[0].String)));
+          command.reset(new SString(CString(mi->Values[0].String)));
           break;
         default:
           MenuCode = -1;
@@ -148,7 +148,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
             editorSet = new FarEditorSet();
           }
 
-          if (command->equals("status")){
+          if (command->equals(&CString("status"))){
             if (mi->Count == 1) {
               return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
             }

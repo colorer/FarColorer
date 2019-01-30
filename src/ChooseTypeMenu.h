@@ -28,7 +28,7 @@ public:
   void DelFromFavorites(size_t index);
   bool IsFavorite(size_t index) const;
   void RefreshItemCaption(size_t index);
-  StringBuffer* GenerateName(const FileType* fType);
+  SString* GenerateName(const FileType* fType);
 
 private:
   size_t ItemCount;

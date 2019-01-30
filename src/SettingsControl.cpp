@@ -1,4 +1,5 @@
 #include "SettingsControl.h"
+#include <colorer/unicode/CString.h>
 
 SettingsControl::SettingsControl()
 {
@@ -9,7 +10,7 @@ SettingsControl::SettingsControl()
     farSettingHandle = fsc.Handle;
   } else {
     farSettingHandle = INVALID_HANDLE_VALUE;
-    throw SettingsControlException(DString("Access error to the FarSettings."));
+    throw SettingsControlException(CString("Access error to the FarSettings."));
   }
 }
 

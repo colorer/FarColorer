@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <windows.h>
-#include <unicode/StringBuffer.h>
+#include <colorer/unicode/SString.h>
 
 #include <initguid.h>
 // Dialog Guid
@@ -41,7 +41,7 @@ DEFINE_GUID(RegionName, 0x70656884, 0xb7bd, 0x4440, 0xa8, 0xff, 0x6c, 0xe7, 0x81
 
 extern PluginStartupInfo Info;
 extern FarStandardFunctions FSF;
-extern StringBuffer* PluginPath;
+extern SString* PluginPath;
 extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 /** FAR .lng file identifiers. */

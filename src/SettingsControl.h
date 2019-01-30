@@ -2,6 +2,7 @@
 #define _SETTINGSCONTROL_H_
 
 #include "pcolorer.h"
+#include <colorer/Exception.h>
 
 class SettingsControl
 {
@@ -35,9 +36,9 @@ private:
 
 class SettingsControlException : public Exception{
 public:
-  SettingsControlException(){};
-  SettingsControlException(const String& msg){
-    message->append(DString("SettingsControl: ")).append(msg);
+  SettingsControlException() noexcept : Exception("[SettingsControl] ") {};
+  SettingsControlException(const String &msg) noexcept : SettingsControlException(){
+    what_str.append(msg);
   };
 };
 

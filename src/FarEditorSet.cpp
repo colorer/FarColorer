@@ -1,19 +1,28 @@
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <farcolor.hpp>
 #include "FarEditorSet.h"
 #include "tools.h"
 #include "SettingsControl.h"
-#include <xml/XmlParserErrorHandler.h>
-#include <colorer/handlers/FileErrorHandler.h>
-#include <colorer/ParserFactoryException.h>
+#include <colorer/xml/XmlParserErrorHandler.h>
+#include <colorer/parsers/ParserFactoryException.h>
+
+/// macro - number of elements in array
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
 
 FarEditorSet::FarEditorSet():
   dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
   hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
   sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), 
-  CurrentMenuItem(0), err_status(ERR_NO_ERROR), error_handler(nullptr)
+  CurrentMenuItem(0), err_status(ERR_NO_ERROR)
 {
+  auto logger = spdlog::basic_logger_mt("main", "temp.log");
+  spdlog::set_default_logger(logger);
+  logger->set_level(spdlog::level::info);
+
   in_construct = true;
-  xercesc::XMLPlatformUtils::Initialize();
+  colorer_lib = std::unique_ptr<Colorer>(new Colorer);
   ReloadBase();
   in_construct = false;
 
@@ -24,7 +33,8 @@ FarEditorSet::FarEditorSet():
 FarEditorSet::~FarEditorSet()
 {
   dropAllEditors(false);
-  xercesc::XMLPlatformUtils::Terminate();
+  regionMapper.reset();
+  parserFactory.reset();
   DeleteTimerQueue(hTimerQueue);
 }
 
@@ -63,7 +73,7 @@ void FarEditorSet::openMenu(int MenuId)
     try {
       FarEditor* editor = getCurrentEditor();
       if (!editor && (rEnabled || MenuId != 12)) {
-        throw Exception(DString("Can't find current editor in array."));
+        throw Exception(CString("Can't find current editor in array."));
       }
 
       switch (MenuId) {
@@ -105,12 +115,9 @@ void FarEditorSet::openMenu(int MenuId)
           break;
       }
     } catch (Exception &e) {
-      if (getErrorHandler()) {
-        getErrorHandler()->error(*e.getMessage());
-      }
-
-      StringBuffer msg("openMenu: ");
-      msg.append(e.getMessage());
+      spdlog::error("{0}", e.what());
+      SString msg("openMenu: ");
+      msg.append(CString(e.what()));
       showExceptionMessage(msg.getWChars());
       disableColorer();
     }
@@ -122,7 +129,7 @@ void FarEditorSet::viewFile(const String &path)
 {
   try {
     if (!rEnabled) {
-      throw Exception(DString("FarColorer is disabled"));
+      throw Exception(CString("FarColorer is disabled"));
     }
 
     // Creates store of text lines
@@ -134,9 +141,7 @@ void FarEditorSet::viewFile(const String &path)
     try {
       regionMap = parserFactory->createStyledMapper(&DConsole, sHrdName.get());
     } catch (ParserFactoryException &e) {
-      if (getErrorHandler() != nullptr) {
-        getErrorHandler()->error(*e.getMessage());
-      }
+      spdlog::error("{0}", e.what());
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
     }
     baseEditor.setRegionMapper(regionMap);
@@ -145,7 +150,7 @@ void FarEditorSet::viewFile(const String &path)
     baseEditor.lineCountEvent((int)textLinesStore.getLineCount());
     // computing background color
     int background = 0x1F;
-    const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(DString("def:Text")));
+    const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(CString("def:Text")));
 
     if (rd != nullptr && rd->bfore && rd->bback) {
       background = rd->fore + (rd->back << 4);
@@ -156,7 +161,7 @@ void FarEditorSet::viewFile(const String &path)
     viewer.view();
     delete regionMap;
   } catch (Exception &e) {
-    showExceptionMessage(e.getMessage()->getWChars());
+    showExceptionMessage(CString(e.what()).getWChars());
   }
 }
 
@@ -239,7 +244,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
 
 inline wchar_t* __cdecl Upper(wchar_t* Ch)
 {
-  CharUpperBuff(Ch, 1);
+  CharUpperBuffW(Ch, 1);
   return Ch;
 }
 
@@ -328,7 +333,7 @@ void FarEditorSet::chooseType()
           if (menu.GetFileType(i)->getParamValue(DHotkey) == nullptr) {
             static_cast<FileTypeImpl*>(menu.GetFileType(i))->addParam(&DHotkey);
           }
-          DString hotkey = DString(KeyAssignDlgData[2].Data);
+          CString hotkey = CString(KeyAssignDlgData[2].Data);
           menu.GetFileType(i)->setParamValue(DHotkey, &hotkey);
           menu.RefreshItemCaption(i);
         }
@@ -353,11 +358,11 @@ void FarEditorSet::chooseType()
   p.writeUserProfile();
 }
 
-const String* FarEditorSet::getHRDescription(const String &name, const DString &_hrdClass) const
+const String* FarEditorSet::getHRDescription(const String &name, const CString &_hrdClass) const
 {
   const String* descr = nullptr;
   if (parserFactory != nullptr) {
-    descr = parserFactory->getHRDescription(_hrdClass, name);
+    descr = &parserFactory->getHRDNode(_hrdClass, name)->hrd_description;
   }
 
   if (descr == nullptr) {
@@ -415,7 +420,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
           int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr));
 
-          if (fes->GetCatalogPath()->compareTo(DString(temp)) || fes->GetUserHrdPath()->compareTo(DString(userhrd))
+          if (fes->GetCatalogPath()->compareTo(CString(temp)) || fes->GetUserHrdPath()->compareTo(CString(userhrd))
               || (!fes->GetPluginStatus() && k) || (trumod == true)) {
             if (fes->TestLoadBase(temp, userhrd, userhrc, false, trumod ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE)) {
               return false;
@@ -521,7 +526,7 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_TM_BOX].Data = GetMsg(mTrueModSetting);
 
     fdi[IDX_LOG].Data = GetMsg(mLog);
-    fdi[IDX_LOG_EDIT].Data = sLogPath->getWChars();
+    //fdi[IDX_LOG_EDIT].Data = sLogPath->getWChars();
 
     /*
     * Dialog activation
@@ -537,9 +542,9 @@ void FarEditorSet::configure(bool fromEditor)
       //check whether or not to reload the base
       int k = false;
 
-      if (sCatalogPath->compareTo(DString(fdi[IDX_CATALOG_EDIT].Data)) ||
-          sUserHrdPath->compareTo(DString(fdi[IDX_USERHRD_EDIT].Data)) ||
-          sUserHrcPath->compareTo(DString(fdi[IDX_USERHRC_EDIT].Data)) ||
+      if (sCatalogPath->compareTo(CString(fdi[IDX_CATALOG_EDIT].Data)) ||
+          sUserHrdPath->compareTo(CString(fdi[IDX_USERHRD_EDIT].Data)) ||
+          sUserHrcPath->compareTo(CString(fdi[IDX_USERHRC_EDIT].Data)) ||
           sHrdName->compareTo(*sTempHrdName) ||
           sHrdNameTm->compareTo(*sTempHrdNameTm)) {
         k = true;
@@ -555,9 +560,9 @@ void FarEditorSet::configure(bool fromEditor)
       fdi[IDX_TRUEMOD].Selected = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
       sHrdName = std::move(sTempHrdName);
       sHrdNameTm = std::move(sTempHrdNameTm);
-      sCatalogPath.reset(new SString(DString(fdi[IDX_CATALOG_EDIT].Data)));
-      sUserHrdPath.reset(new SString(DString(fdi[IDX_USERHRD_EDIT].Data)));
-      sUserHrcPath.reset(new SString(DString(fdi[IDX_USERHRC_EDIT].Data)));
+      sCatalogPath.reset(new SString(CString(fdi[IDX_CATALOG_EDIT].Data)));
+      sUserHrdPath.reset(new SString(CString(fdi[IDX_USERHRD_EDIT].Data)));
+      sUserHrcPath.reset(new SString(CString(fdi[IDX_USERHRC_EDIT].Data)));
       setLogPath(fdi[IDX_LOG_EDIT].Data);
 
       // if the plugin has been enable, and we will disable
@@ -590,39 +595,36 @@ void FarEditorSet::configure(bool fromEditor)
     delete[] style_list;
 
   } catch (Exception &e) {
-    if (getErrorHandler() != nullptr) {
-      getErrorHandler()->error(*e.getMessage());
-    }
+    spdlog::error("{0}", e.what());
 
-    StringBuffer msg("configure: ");
-    msg.append(e.getMessage());
+    SString msg("configure: ");
+    msg.append(CString(e.what()));
     showExceptionMessage(msg.getWChars());
     disableColorer();
   }
 }
 
-const SString FarEditorSet::chooseHRDName(const String* current, const DString &_hrdClass)
+const SString FarEditorSet::chooseHRDName(const String* current, const CString &_hrdClass)
 {
   if (parserFactory == nullptr) {
     return current;
   }
 
-  std::vector<SString> hrd_instances = parserFactory->enumHRDInstances(_hrdClass);
+  std::vector<const HRDNode*> hrd_instances = parserFactory->enumHRDInstances(_hrdClass);
   size_t count = hrd_instances.size();
   FarMenuItem* menuElements = new FarMenuItem[count];
   memset(menuElements, 0, sizeof(FarMenuItem)*count);
 
-  for (int i = 0; i < count; i++) {
-    const SString name = hrd_instances.at(i);
-    const String* descr = parserFactory->getHRDescription(_hrdClass, name);
+  for (size_t i = 0; i < count; i++) {
+    const HRDNode* hrd_node = hrd_instances.at(i);
 
-    if (descr == nullptr) {
-      descr = &name;
+    if (hrd_node->hrd_description.length() != 0) {
+      menuElements[i].Text = hrd_node->hrd_description.getWChars();
+    }else{
+      menuElements[i].Text = hrd_node->hrd_name.getWChars();
     }
 
-    menuElements[i].Text = descr->getWChars();
-
-    if (current->equals(&name)) {
+    if (current->equals(&hrd_node->hrd_name)) {
       menuElements[i].Flags = MIF_SELECTED;
     }
   }
@@ -635,7 +637,7 @@ const SString FarEditorSet::chooseHRDName(const String* current, const DString &
     return current;
   }
 
-  return hrd_instances.at(result);
+  return hrd_instances.at(result)->hrd_name;
 }
 
 int FarEditorSet::editorInput(const INPUT_RECORD &Rec)
@@ -676,7 +678,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
       }
       break;
       case EE_CHANGE: {
-        //çàïðåùåíî âûçûâàòü EditorControl (getCurrentEditor)
+        //Ð·Ð°Ð¿Ñ€ÐµÑ‰ÐµÐ½Ð¾ Ð²Ñ‹Ð·Ñ‹Ð²Ð°Ñ‚ÑŒ EditorControl (getCurrentEditor)
         auto it_editor = farEditorInstances.find(pInfo->EditorID);
         if (it_editor != farEditorInstances.end()) {
           return it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
@@ -702,12 +704,10 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
       break;
     }
   } catch (Exception &e) {
-    if (getErrorHandler()) {
-      getErrorHandler()->error(*e.getMessage());
-    }
+    spdlog::error("{0}", e.what());
 
-    StringBuffer msg("editorEvent: ");
-    msg.append(e.getMessage());
+    SString msg("editorEvent: ");
+    msg.append(CString(e.what()));
     showExceptionMessage(msg.getWChars());
     disableColorer();
   }
@@ -731,15 +731,15 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
   std::unique_ptr<SString> tpath;
   if (!catalogPathS || !catalogPathS->length()) {
-    StringBuffer* path = new StringBuffer(PluginPath);
-    path->append(DString(FarCatalogXml));
+    SString* path = new SString(PluginPath);
+    path->append(CString(FarCatalogXml));
     tpath.reset(path);
   } else {
     tpath = std::move(catalogPathS);
   }
 
   try {
-    parserFactoryLocal.reset(new ParserFactory(error_handler.get()));
+    parserFactoryLocal.reset(new ParserFactory);
     parserFactoryLocal->loadCatalog(tpath.get());
     HRCParser* hrcParserLocal = parserFactoryLocal->getHRCParser();
     LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
@@ -752,9 +752,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       try {
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName.get()));
       } catch (ParserFactoryException &e) {
-        if (parserFactoryLocal->getErrorHandler() != nullptr) {
-          parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
-        }
+        spdlog::error("{0}", e.what());
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, nullptr));
       }
     }
@@ -763,9 +761,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       try {
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm.get()));
       } catch (ParserFactoryException &e) {
-        if (parserFactoryLocal->getErrorHandler() != nullptr) {
-          parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
-        }
+        spdlog::error("{0}", e.what());
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, nullptr));
       }
     }
@@ -779,11 +775,11 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
           break;
         }
 
-        StringBuffer tname;
+        SString tname;
 
         if (type->getGroup() != nullptr) {
           tname.append(type->getGroup());
-          tname.append(DString(": "));
+          tname.append(CString(": "));
         }
 
         tname.append(type->getDescription());
@@ -795,12 +791,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       }
     }
   } catch (Exception &e) {
-
-    if ((parserFactoryLocal != nullptr) && (parserFactoryLocal->getErrorHandler() != nullptr)) {
-      parserFactoryLocal->getErrorHandler()->error(*e.getMessage());
-    }
-
-    showExceptionMessage(e.getMessage()->getWChars());
+    spdlog::error("{0}", e.what());
+    showExceptionMessage(CString(e.what()).getWChars());
     Info.RestoreScreen(scr);
     res = false;
   }
@@ -822,8 +814,8 @@ void FarEditorSet::ReloadBase()
     const wchar_t* marr[2] = { GetMsg(mName), GetMsg(mReloading) };
     Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
     dropAllEditors(true);
-    regionMapper.release();
-    parserFactory.release();
+    regionMapper.reset();
+    parserFactory.reset();
 
     if (TrueModOn) {
       hrdClass = DRgb;
@@ -833,7 +825,7 @@ void FarEditorSet::ReloadBase()
       hrdName = sHrdName.get();
     }
 
-    parserFactory.reset(new ParserFactory(error_handler.get()));
+    parserFactory.reset(new ParserFactory());
     parserFactory->loadCatalog(sCatalogPathExp.get());
     hrcParser = parserFactory->getHRCParser();
     LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
@@ -846,15 +838,13 @@ void FarEditorSet::ReloadBase()
     try {
       regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, &hrdName));
     } catch (ParserFactoryException &e) {
-      if (getErrorHandler() != nullptr) {
-        getErrorHandler()->error(*e.getMessage());
-      }
+      spdlog::error("{0}", e.what());
       regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, nullptr));
     }
-    //óñòàíàâëèâàåì ôîí ðåäàêòîðà ïðè êàæäîé ïåðåçàãðóçêå ñõåì.
+    //ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ñ„Ð¾Ð½ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€Ð° Ð¿Ñ€Ð¸ ÐºÐ°Ð¶Ð´Ð¾Ð¹ Ð¿ÐµÑ€ÐµÐ·Ð°Ð³Ñ€ÑƒÐ·ÐºÐµ ÑÑ…ÐµÐ¼.
     SetBgEditor();
     if (!in_construct) {
-      //â ñëó÷àå èçìåíåíèÿ íàñòðîåê â äèàëîãå, íàäî ïåðåðèñîâàòü òåêóùèé ðåäàêòîð
+      //Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ð½Ð°ÑÑ‚Ñ€Ð¾ÐµÐº Ð² Ð´Ð¸Ð°Ð»Ð¾Ð³Ðµ, Ð½Ð°Ð´Ð¾ Ð¿ÐµÑ€ÐµÑ€Ð¸ÑÐ¾Ð²Ð°Ñ‚ÑŒ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¹ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€
       FarEditor* editor = addCurrentEditor();
       if (editor) {
         editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
@@ -862,32 +852,19 @@ void FarEditorSet::ReloadBase()
     }
   } catch (SettingsControlException &e) {
 
-    if (getErrorHandler() != nullptr) {
-      getErrorHandler()->error(*e.getMessage());
-    }
-    showExceptionMessage(e.getMessage()->getWChars());
+    spdlog::error("{0}", e.what());
+    showExceptionMessage(CString(e.what()).getWChars());
     err_status = ERR_FARSETTINGS_ERROR;
     disableColorer();
   } catch (Exception &e) {
 
-    if (getErrorHandler() != nullptr) {
-      getErrorHandler()->error(*e.getMessage());
-    }
-    showExceptionMessage(e.getMessage()->getWChars());
+    spdlog::error("{0}", e.what());
+    showExceptionMessage(CString(e.what()).getWChars());
     err_status = ERR_BASE_LOAD;
     disableColorer();
   }
 
   Info.RestoreScreen(scr);
-}
-
-colorer::ErrorHandler* FarEditorSet::getErrorHandler() const
-{
-  if (parserFactory == nullptr) {
-    return nullptr;
-  }
-
-  return parserFactory->getErrorHandler();
 }
 
 size_t FarEditorSet::getEditorCount() const
@@ -929,7 +906,7 @@ String* FarEditorSet::getCurrentFileName()
     Info.EditorControl(CurrentEditor, ECTL_GETFILENAME, FileNameSize, FileName);
   }
 
-  DString fnpath(FileName);
+  CString fnpath(FileName);
   int slash_idx = fnpath.lastIndexOf('\\');
 
   if (slash_idx == -1) {
@@ -968,8 +945,8 @@ void FarEditorSet::disableColorer()
 
   dropCurrentEditor(true);
 
-  regionMapper.release();
-  parserFactory.release();
+  regionMapper.reset();
+  parserFactory.reset();
   SaveSettings();
 }
 
@@ -1010,7 +987,7 @@ void FarEditorSet::dropCurrentEditor(bool clean)
 void FarEditorSet::dropAllEditors(bool clean)
 {
   if (clean) {
-    //ìû íå èìååì äîñòóïà ê äðóãèì ðåäàêòîðàì, êðîìå òåêóùåãî
+    //Ð¼Ñ‹ Ð½Ðµ Ð¸Ð¼ÐµÐµÐ¼ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº Ð´Ñ€ÑƒÐ³Ð¸Ð¼ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¾Ñ€Ð°Ð¼, ÐºÑ€Ð¾Ð¼Ðµ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾
     dropCurrentEditor(clean);
   }
   farEditorInstances.clear();
@@ -1026,18 +1003,18 @@ void FarEditorSet::ReadSettings()
   const wchar_t* userHrcPath = ColorerSettings.Get(0, cRegUserHrcPath, cUserHrcPathDefault);
   const wchar_t* LogPath = ColorerSettings.Get(0, cRegLogPath, cLogPathDefault);
 
-  sHrdName.reset(new SString(DString(hrdName)));
-  sHrdNameTm.reset(new SString(DString(hrdNameTm)));
-  sCatalogPath.reset(new SString(DString(catalogPath)));
+  sHrdName.reset(new SString(CString(hrdName)));
+  sHrdNameTm.reset(new SString(CString(hrdNameTm)));
+  sCatalogPath.reset(new SString(CString(catalogPath)));
   sCatalogPathExp.reset(PathToFullS(catalogPath, false));
   if (!sCatalogPathExp || !sCatalogPathExp->length()) {
-    StringBuffer* path = new StringBuffer(PluginPath);
-    path->append(DString(FarCatalogXml));
+    SString* path = new SString(PluginPath);
+    path->append(CString(FarCatalogXml));
     sCatalogPathExp.reset(path);
   }
-  sUserHrdPath.reset(new SString(DString(userHrdPath)));
+  sUserHrdPath.reset(new SString(CString(userHrdPath)));
   sUserHrdPathExp.reset(PathToFullS(userHrdPath, false));
-  sUserHrcPath.reset(new SString(DString(userHrcPath)));
+  sUserHrcPath.reset(new SString(CString(userHrcPath)));
   sUserHrcPathExp.reset(PathToFullS(userHrcPath, false));
   setLogPath(LogPath);
 
@@ -1053,10 +1030,10 @@ void FarEditorSet::ReadSettings()
 
 void FarEditorSet::setLogPath(const wchar_t* log_path)
 {
-  if (sLogPath && sLogPath->compareToIgnoreCase(DString(log_path)) != 0) {
+ /* if (sLogPath && sLogPath->compareToIgnoreCase(DString(log_path)) != 0) {
     error_handler.release();
   }
-  sLogPath.reset(new SString(DString(log_path)));
+  sLogPath.reset(new SString(CString(log_path)));
   sLogPathExp.reset(PathToFullS(log_path, false));
   if (error_handler == nullptr && sLogPathExp != nullptr) {
     try {
@@ -1064,7 +1041,7 @@ void FarEditorSet::setLogPath(const wchar_t* log_path)
     } catch (Exception &e) {
       showExceptionMessage(e.getMessage()->getWChars());
     }
-  }
+  }*/
 
 }
 
@@ -1091,7 +1068,7 @@ bool FarEditorSet::SetBgEditor() const
 {
   if (rEnabled && ChangeBgEditor) {
 
-    const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(DString("def:Text")));
+    const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(CString("def:Text")));
 
     FarSetColors fsc;
     FarColor fc;
@@ -1119,31 +1096,30 @@ void FarEditorSet::LoadUserHrd(const String* filename, ParserFactory* pf)
 {
   if (filename && filename->length()) {
     xercesc::XercesDOMParser xml_parser;
-    XmlParserErrorHandler err_handler(error_handler.get());
+    XmlParserErrorHandler err_handler;
     xml_parser.setErrorHandler(&err_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
-    XmlInputSource* config = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
+    uXmlInputSource config = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
     xml_parser.parse(*config->getInputSource());
     if (err_handler.getSawErrors()) {
-      throw ParserFactoryException(StringBuffer("Error reading ") + DString(filename));
+      throw ParserFactoryException(SString("Error reading ") + CString(filename));
     }
     xercesc::DOMDocument* catalog = xml_parser.getDocument();
     xercesc::DOMElement* elem = catalog->getDocumentElement();
     const XMLCh* tagHrdSets = L"hrd-sets";
     const XMLCh* tagHrd = L"hrd";
     if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
-      throw Exception(DString("main '<hrd-sets>' block not found"));
+      throw Exception(CString("main '<hrd-sets>' block not found"));
     }
     for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
       if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
         xercesc::DOMElement* subelem = static_cast<xercesc::DOMElement*>(node);
         if (xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
-          pf->parseHRDSetsChild(subelem);
+          //pf->parseHRDSetsChild(subelem);
         }
       }
     }
-    delete config;
   }
 }
 
@@ -1151,12 +1127,10 @@ void FarEditorSet::LoadUserHrc(const String* filename, ParserFactory* pf)
 {
   if (filename && filename->length()) {
     HRCParser* hr = pf->getHRCParser();
-    XmlInputSource* dfis = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
+    uXmlInputSource dfis = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
     try {
-      hr->loadSource(dfis);
-      delete dfis;
+      hr->loadSource(dfis.get());
     } catch (Exception &e) {
-      delete dfis;
       throw Exception(e);
     }
   }
@@ -1169,9 +1143,9 @@ const String* FarEditorSet::getParamDefValue(FileTypeImpl* type, SString param) 
   if (value == nullptr) {
     value = defaultType->getParamValue(param);
   }
-  StringBuffer* p = new StringBuffer("<default-");
-  p->append(DString(value));
-  p->append(DString(">"));
+  SString* p = new SString("<default-");
+  p->append(CString(value));
+  p->append(CString(">"));
   return p;
 }
 
@@ -1339,7 +1313,7 @@ void FarEditorSet::setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDl
   delete lcross;
 }
 
-void FarEditorSet::setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param)
+void FarEditorSet::setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param)
 {
   const String* value = type->getParamUserValue(param);
   const String* def_value = getParamDefValue(type, param);
@@ -1373,7 +1347,7 @@ void FarEditorSet::setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DSt
   delete lcross;
 }
 
-void FarEditorSet::setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param)
+void FarEditorSet::setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param)
 {
   const String* value = type->getParamUserValue(param);
   const String* def_value = getParamDefValue(type, param);
@@ -1407,7 +1381,7 @@ void FarEditorSet::setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DSt
   delete lcross;
 }
 
-void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param)
+void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param)
 {
   const String* value = type->getParamUserValue(param);
   const String* def_value = getParamDefValue(type, param);
@@ -1463,21 +1437,21 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   if (!res) return;
   
   //param name
-  DString p = DString(List.Item.Text);
+  CString p = CString(List.Item.Text);
   //param value
-  DString v = DString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
+  CString v = CString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
   FileTypeImpl* type = getCurrentTypeInDialog(hDlg);
   const String* value = static_cast<FileTypeImpl*>(type)->getParamUserValue(p);
   const String* def_value = getParamDefValue(type, p);
-  if (value == nullptr || !value->length()) { //áûëî default çíà÷åíèå
-    //åñëè åãî èçìåíèëè
+  if (value == nullptr || !value->length()) { ////Ð±Ñ‹Ð»Ð¾ default Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ
+    //ÐµÑÐ»Ð¸ ÐµÐ³Ð¾ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð»Ð¸
     if (!v.equals(def_value)) {
       if (type->getParamValue(p) == nullptr) {
         static_cast<FileTypeImpl*>(type)->addParam(&p);
       }
       type->setParamValue(p, &v);
     }
-  } else { //áûëî ïîëüçîâàòåëüñêîå çíà÷åíèå
+  } else { //Ð±Ñ‹Ð»Ð¾ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒÑÐºÐ¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ
     if (!v.equals(value)) { //changed
       type->setParamValue(p, &v);
     }
@@ -1499,7 +1473,7 @@ void  FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
   if (!res) return;
 
   menuid = idx;
-  DString p = DString(List.Item.Text);
+  CString p = CString(List.Item.Text);
 
   const String* value;
   value = type->getParamDescription(p);
@@ -1519,12 +1493,12 @@ void  FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
     if (p.equals(&DCrossZorder)) {
       setCrossPosValueListToCombobox(type, hDlg);
     } else if (p.equals(&DMaxLen) || p.equals(&DBackparse) || p.equals(&DDefFore) || p.equals(&DDefBack)
-               || p.equals("firstlines") || p.equals("firstlinebytes") || p.equals(&DHotkey)) {
-      setCustomListValueToCombobox(type, hDlg, DString(List.Item.Text));
+        || p.equals(&CString("firstlines")) || p.equals(&CString("firstlinebytes")) || p.equals(&DHotkey)) {
+      setCustomListValueToCombobox(type, hDlg, CString(List.Item.Text));
     } else if (p.equals(&DFullback)) {
-      setYNListValueToCombobox(type, hDlg, DString(List.Item.Text));
+      setYNListValueToCombobox(type, hDlg, CString(List.Item.Text));
     } else {
-      setTFListValueToCombobox(type, hDlg, DString(List.Item.Text));
+      setTFListValueToCombobox(type, hDlg, CString(List.Item.Text));
     }
   }
 
