@@ -52,12 +52,12 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
   }
 
   // replace the environment variables to their values
-  size_t i = ExpandEnvironmentStrings(new_path, nullptr, 0);
+  size_t i = ExpandEnvironmentStringsW(new_path, nullptr, 0);
   if (i > len) {
     len = i;
   }
   wchar_t* temp = new wchar_t[len];
-  ExpandEnvironmentStrings(new_path, temp, static_cast<DWORD>(i));
+  ExpandEnvironmentStringsW(new_path, temp, static_cast<DWORD>(i));
   delete[] new_path;
   new_path = temp;
 

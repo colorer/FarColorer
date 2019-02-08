@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <windows.h>
-#include <unicode/StringBuffer.h>
+#include <colorer/unicode/SString.h>
 
 #include <initguid.h>
 // Dialog Guid
@@ -17,6 +17,8 @@ DEFINE_GUID(PluginConfig, 0x87c92249, 0x430d, 0x4334, 0xac, 0x33, 0x5, 0xe7, 0x4
 DEFINE_GUID(HrcPluginConfig, 0x497f43a, 0xa8b9, 0x4af1, 0xa3, 0xa4, 0xfa, 0x56, 0x8f, 0x45, 0x57, 0x7);
 // {C6BE56D8-A80A-4f7d-A331-A711435F2665}
 DEFINE_GUID(AssignKeyDlg, 0xc6be56d8, 0xa80a, 0x4f7d, 0xa3, 0x31, 0xa7, 0x11, 0x43, 0x5f, 0x26, 0x65);
+// {3D1031EA-B67A-451C-9FC6-081320D3A139}
+DEFINE_GUID(LoggingConfig, 0x3d1031ea, 0xb67a, 0x451c, 0x9f, 0xc6, 0x8, 0x13, 0x20, 0xd3, 0xa1, 0x39);
 
 // Menu Guid
 // {45453CAC-499D-4b37-82B8-0A77F7BD087C}
@@ -41,7 +43,7 @@ DEFINE_GUID(RegionName, 0x70656884, 0xb7bd, 0x4440, 0xa8, 0xff, 0x6c, 0xe7, 0x81
 
 extern PluginStartupInfo Info;
 extern FarStandardFunctions FSF;
-extern StringBuffer* PluginPath;
+extern SString* PluginPath;
 extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 /** FAR .lng file identifiers. */
@@ -60,7 +62,7 @@ enum {
   mUserHrdFile, mUserHrcFile, mUserHrcSetting,
   mUserHrcSettingDialog, mListSyntax, mParamList, mParamValue, mAutoDetect, mFavorites,
   mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName, mCrossText, mCrossBoth, mCrossVert, mCrossHoriz,
-  mLog
+  mLog, mLogging, mLogTurnOff, mLogLevel, mLogPath
 };
 
 #endif
