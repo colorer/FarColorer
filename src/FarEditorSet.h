@@ -1,6 +1,7 @@
 #ifndef _FAREDITORSET_H_
 #define _FAREDITORSET_H_
 
+#include <spdlog/logger.h>
 #include <colorer/common/Colorer.h>
 #include <colorer/handlers/LineRegionsSupport.h>
 #include <colorer/viewer/TextConsoleViewer.h>
@@ -16,7 +17,7 @@ const wchar_t cRegHrdName[]        = L"HrdName";
 const wchar_t cRegHrdNameTm[]      = L"HrdNameTm";
 const wchar_t cRegCatalog[]        = L"Catalog";
 const wchar_t cRegCrossDraw[]      = L"CrossDraw";
-const wchar_t cRegCrossStyle[]      = L"CrossStyle";
+const wchar_t cRegCrossStyle[]     = L"CrossStyle";
 const wchar_t cRegPairsDraw[]      = L"PairsDraw";
 const wchar_t cRegSyntaxDraw[]     = L"SyntaxDraw";
 const wchar_t cRegOldOutLine[]     = L"OldOutlineView";
@@ -25,6 +26,8 @@ const wchar_t cRegChangeBgEditor[] = L"ChangeBgEditor";
 const wchar_t cRegUserHrdPath[]    = L"UserHrdPath";
 const wchar_t cRegUserHrcPath[]    = L"UserHrcPath";
 const wchar_t cRegLogPath[]        = L"LogPath";
+const wchar_t cRegLogLevel[]       = L"LogLevel";
+const wchar_t cRegLogEnabled[]     = L"LogEnabled";
 
 //values of registry keys by default
 const bool cEnabledDefault          = true;
@@ -40,7 +43,9 @@ const bool cTrueMod                 = false;
 const bool cChangeBgEditor          = false;
 const wchar_t cUserHrdPathDefault[] = L"";
 const wchar_t cUserHrcPathDefault[] = L"";
-const wchar_t cLogPathDefault[] = L"";
+const wchar_t cLogPathDefault[]     = L"";
+const wchar_t cLogLevelDefault[]    = L"INFO";
+const bool cLogEnabledDefault       = false;
 
 const CString DConsole   = CString("console");
 const CString DRgb       = CString("rgb");
@@ -50,13 +55,17 @@ const CString DAutodetect = CString("autodetect");
 enum {
   IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
   IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
-  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_LOG_EDIT, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
+  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
   IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL
 };
 
 enum {
   IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS,
   IDX_CH_PARAM_LIST, IDX_CH_PARAM_VALUE_CAPTION, IDX_CH_PARAM_VALUE_LIST, IDX_CH_DESCRIPTION, IDX_CH_OK, IDX_CH_CANCEL
+};
+
+enum {
+  IDX_LOG_BOX, IDX_LOG_ENABLED, IDX_LOG_LEVEL_CAPTION, IDX_LOG_LEVEL, IDX_LOGPATH_CAPTION, IDX_LOGPATH, IDX_LOG_OK, IDX_LOG_CANCEL
 };
 
 enum ERROR_TYPE {
@@ -140,8 +149,11 @@ public:
   void OnChangeParam(HANDLE hDlg, intptr_t idx);
   void OnSaveHrcParams(HANDLE hDlg);
 
+  /** Show logging configuration dialog*/
+  void configureLogging();
+
   void showExceptionMessage(const wchar_t* message);
-  void setLogPath(const wchar_t* log_path);
+  void applyLogSetting();
   size_t getEditorCount() const;
 
   bool dialogFirstFocus;
@@ -170,6 +182,7 @@ private:
   void ApplySettingsToEditors();
   /** writes settings in the registry*/
   void SaveSettings() const;
+  void SaveLogSettings() const;
 
   /** Kills all currently opened editors*/
   void dropAllEditors(bool clean);
@@ -225,6 +238,7 @@ private:
   std::unique_ptr<SString> sUserHrdPath;
   std::unique_ptr<SString> sUserHrcPath;
   std::unique_ptr<SString> sLogPath;
+  std::unique_ptr<SString> slogLevel;
 
   /** UNC path */
   std::unique_ptr<SString> sCatalogPathExp;
@@ -238,6 +252,8 @@ private:
 
   bool in_construct;
   std::unique_ptr<Colorer> colorer_lib;
+  bool LogEnabled;
+  std::shared_ptr<spdlog::logger> log;
 
   HANDLE hTimer = NULL;
   HANDLE hTimerQueue = NULL;

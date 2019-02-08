@@ -1,6 +1,7 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/null_sink.h>
 #include <farcolor.hpp>
 #include "FarEditorSet.h"
 #include "tools.h"
@@ -17,9 +18,8 @@ FarEditorSet::FarEditorSet():
   sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), 
   CurrentMenuItem(0), err_status(ERR_NO_ERROR)
 {
-  auto logger = spdlog::basic_logger_mt("main", "temp.log");
-  spdlog::set_default_logger(logger);
-  logger->set_level(spdlog::level::info);
+  log = spdlog::null_logger_mt("main");
+  spdlog::set_default_logger(log);
 
   in_construct = true;
   colorer_lib = std::unique_ptr<Colorer>(new Colorer);
@@ -413,6 +413,11 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           return true;
         }
         break;
+        case IDX_LOG: {
+          fes->configureLogging();
+          return true;
+        }
+        break;
         case IDX_OK:
           const wchar_t* temp = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr))));
           const wchar_t* userhrd = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr))));
@@ -459,8 +464,7 @@ void FarEditorSet::configure(bool fromEditor)
       { DI_EDIT, 6, 13, 52, 13, 0, L"userhrc", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRC_EDIT
       { DI_TEXT, 5, 14, 0, 14, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRD,
       { DI_EDIT, 6, 15, 52, 15, 0, L"userhrd", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRD_EDIT
-      { DI_TEXT, 5, 16, 0, 16, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_LOG,
-      { DI_EDIT, 6, 17, 52, 17, 0, L"log", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_LOG_EDIT
+      { DI_BUTTON, 5, 17, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0 },         //IDX_LOG,
       { DI_SINGLEBOX, 4, 18, 54, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX,
       { DI_CHECKBOX, 5, 19, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},       //IDX_TRUEMOD,
       { DI_TEXT, 5, 20, 0, 20, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_HRD_TM,
@@ -526,7 +530,6 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_TM_BOX].Data = GetMsg(mTrueModSetting);
 
     fdi[IDX_LOG].Data = GetMsg(mLog);
-    //fdi[IDX_LOG_EDIT].Data = sLogPath->getWChars();
 
     /*
     * Dialog activation
@@ -538,7 +541,6 @@ void FarEditorSet::configure(bool fromEditor)
       fdi[IDX_CATALOG_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr))));
       fdi[IDX_USERHRD_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr))));
       fdi[IDX_USERHRC_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRC_EDIT, nullptr))));
-      fdi[IDX_LOG_EDIT].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOG_EDIT, nullptr))));
       //check whether or not to reload the base
       int k = false;
 
@@ -563,7 +565,6 @@ void FarEditorSet::configure(bool fromEditor)
       sCatalogPath.reset(new SString(CString(fdi[IDX_CATALOG_EDIT].Data)));
       sUserHrdPath.reset(new SString(CString(fdi[IDX_USERHRD_EDIT].Data)));
       sUserHrcPath.reset(new SString(CString(fdi[IDX_USERHRC_EDIT].Data)));
-      setLogPath(fdi[IDX_LOG_EDIT].Data);
 
       // if the plugin has been enable, and we will disable
       if (rEnabled && !fdi[IDX_ENABLED].Selected) {
@@ -806,6 +807,7 @@ void FarEditorSet::ReloadBase()
 
   try {
     ReadSettings();
+    applyLogSetting();
     if (!rEnabled) {
       Info.RestoreScreen(scr);
       return;
@@ -1001,7 +1003,8 @@ void FarEditorSet::ReadSettings()
   const wchar_t* catalogPath = ColorerSettings.Get(0, cRegCatalog, cCatalogDefault);
   const wchar_t* userHrdPath = ColorerSettings.Get(0, cRegUserHrdPath, cUserHrdPathDefault);
   const wchar_t* userHrcPath = ColorerSettings.Get(0, cRegUserHrcPath, cUserHrcPathDefault);
-  const wchar_t* LogPath = ColorerSettings.Get(0, cRegLogPath, cLogPathDefault);
+  const wchar_t* logPath = ColorerSettings.Get(0, cRegLogPath, cLogPathDefault);
+  const wchar_t* logLevel = ColorerSettings.Get(0, cRegLogLevel, cLogLevelDefault);
 
   sHrdName.reset(new SString(CString(hrdName)));
   sHrdNameTm.reset(new SString(CString(hrdNameTm)));
@@ -1016,7 +1019,8 @@ void FarEditorSet::ReadSettings()
   sUserHrdPathExp.reset(PathToFullS(userHrdPath, false));
   sUserHrcPath.reset(new SString(CString(userHrcPath)));
   sUserHrcPathExp.reset(PathToFullS(userHrcPath, false));
-  setLogPath(LogPath);
+  sLogPath.reset(new SString(CString(logPath)));
+  slogLevel.reset(new SString(CString(logLevel)));
 
   rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
   drawCross = ColorerSettings.Get(0, cRegCrossDraw, cCrossDrawDefault);
@@ -1026,23 +1030,34 @@ void FarEditorSet::ReadSettings()
   oldOutline = ColorerSettings.Get(0, cRegOldOutLine, cOldOutLineDefault);
   TrueModOn = ColorerSettings.Get(0, cRegTrueMod, cTrueMod);
   ChangeBgEditor = ColorerSettings.Get(0, cRegChangeBgEditor, cChangeBgEditor);
+  LogEnabled = ColorerSettings.Get(0, cRegLogEnabled, cLogEnabledDefault);
 }
 
-void FarEditorSet::setLogPath(const wchar_t* log_path)
+void FarEditorSet::applyLogSetting()
 {
- /* if (sLogPath && sLogPath->compareToIgnoreCase(DString(log_path)) != 0) {
-    error_handler.release();
-  }
-  sLogPath.reset(new SString(CString(log_path)));
-  sLogPathExp.reset(PathToFullS(log_path, false));
-  if (error_handler == nullptr && sLogPathExp != nullptr) {
-    try {
-      error_handler.reset(new FileErrorHandler(sLogPathExp.get(), Encodings::ENC_UTF8, false));
-    } catch (Exception &e) {
-      showExceptionMessage(e.getMessage()->getWChars());
+  if (LogEnabled) {
+    auto level = spdlog::level::from_str(slogLevel->getChars());
+    if (level != spdlog::level::off) {
+      try {
+        std::string file_name = "farcolorer.log";
+        if (sLogPath->length() > 0)
+          file_name = std::string(sLogPath->getChars()).append("\\").append(file_name);
+        spdlog::drop_all();
+        log = spdlog::basic_logger_mt("main", file_name);
+        spdlog::set_default_logger(log);
+        log->set_level(level);
+        
+      }
+      catch (std::exception &e) {
+        showExceptionMessage(CString(e.what()).getWChars());
+      }
     }
-  }*/
-
+  }
+  else {
+    spdlog::drop_all();
+    log = spdlog::null_logger_mt("main");
+    spdlog::set_default_logger(log);
+  }
 }
 
 void FarEditorSet::SaveSettings() const
@@ -1061,7 +1076,14 @@ void FarEditorSet::SaveSettings() const
   ColorerSettings.Set(0, cRegChangeBgEditor, ChangeBgEditor);
   ColorerSettings.Set(0, cRegUserHrdPath, sUserHrdPath->getWChars());
   ColorerSettings.Set(0, cRegUserHrcPath, sUserHrcPath->getWChars());
+}
+
+void FarEditorSet::SaveLogSettings() const
+{
+  SettingsControl ColorerSettings;
   ColorerSettings.Set(0, cRegLogPath, sLogPath->getWChars());
+  ColorerSettings.Set(0, cRegLogLevel, slogLevel->getWChars());
+  ColorerSettings.Set(0, cRegLogEnabled, LogEnabled);
 }
 
 bool FarEditorSet::SetBgEditor() const
@@ -1607,6 +1629,69 @@ void FarEditorSet::showExceptionMessage(const wchar_t* message)
   Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], sizeof(exceptionMessage) / sizeof(exceptionMessage[0]), 1);
 }
 
+void FarEditorSet::configureLogging()
+{
+  FarDialogItem fdi[] = {
+    // type, x1, y1, x2, y2, param, history, mask, flags, userdata, ptrdata, maxlen
+    { DI_DOUBLEBOX, 2, 1, 35, 10, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                 //IDX_LOG_BOX,
+    { DI_CHECKBOX, 4, 3, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                    //IDX_LOG_ENABLED,
+    { DI_TEXT, 4, 4, 0, 3, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                        //IDX_LOG_LEVEL_CAPTION,
+    { DI_COMBOBOX, 5, 5, 25, 5, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                   //IDX_LOG_LEVEL,
+    { DI_TEXT, 4, 6, 0, 6, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                        //IDX_LOGPATH_CAPTION,
+    { DI_EDIT, 5, 7, 33, 7, 0, L"logpath", nullptr, DIF_HISTORY, nullptr, 0, 0 },          //IDX_LOGPATH,
+    { DI_BUTTON, 11, 9, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0 },    //IDX_LOG_OK,
+    { DI_BUTTON, 19, 9, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                    //IDX_LOG_CANCEL,
+    // type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
+  };
+
+  fdi[IDX_LOG_BOX].Data = GetMsg(mLogging);
+  fdi[IDX_LOG_OK].Data = GetMsg(mOk);
+  fdi[IDX_LOG_CANCEL].Data = GetMsg(mCancel);
+  fdi[IDX_LOG_ENABLED].Data = GetMsg(mLogTurnOff);
+  fdi[IDX_LOG_ENABLED].Selected = LogEnabled;
+  fdi[IDX_LOG_LEVEL_CAPTION].Data = GetMsg(mLogLevel);
+
+  const auto level_count = 4;
+  FarListItem levelList[level_count];
+  memset(&levelList, 0, sizeof(FarListItem) * (level_count));
+  levelList[0].Text = L"error";
+  levelList[1].Text = L"warning";
+  levelList[2].Text = L"info";
+  levelList[3].Text = L"debug";
+  for (size_t i = 0; i < level_count; ++i) {
+    if (slogLevel->equals(&CString(levelList[i].Text))) {
+      levelList[i].Flags = LIF_SELECTED;
+      break;
+    }
+  }
+  FarList ListItems;
+  ListItems.Items = levelList;
+  ListItems.ItemsNumber = level_count;
+  ListItems.StructSize = sizeof(FarList);
+
+  fdi[IDX_LOGPATH].Data = sLogPath->getWChars();
+  fdi[IDX_LOG_LEVEL].ListItems = &ListItems;
+  fdi[IDX_LOG_LEVEL].Flags = DIF_LISTWRAPMODE | DIF_DROPDOWNLIST;
+
+  fdi[IDX_LOGPATH_CAPTION].Data = GetMsg(mLogPath);
+
+  HANDLE hDlg = Info.DialogInit(&MainGuid, &LoggingConfig, -1, -1, 38, 11, L"configlog", fdi, ARRAY_SIZE(fdi), 0, 0, nullptr, this);
+  intptr_t i = Info.DialogRun(hDlg);
+
+  if (i == IDX_LOG_OK) {
+    fdi[IDX_LOG_ENABLED].Selected = Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_LOG_ENABLED, nullptr);
+    fdi[IDX_LOGPATH].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOGPATH, nullptr))));
+
+    int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_LOG_LEVEL, nullptr));
+    slogLevel.reset(new SString(levelList[k].Text));
+    sLogPath.reset(new SString(fdi[IDX_LOGPATH].Data));
+    LogEnabled = fdi[IDX_LOG_ENABLED].Selected;
+    SaveLogSettings();
+    applyLogSetting();
+  }
+
+  Info.DialogFree(hDlg);
+}
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
