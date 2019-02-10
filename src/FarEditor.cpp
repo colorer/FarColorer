@@ -849,7 +849,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         wchar_t* menuItem = new wchar_t[255];
 
         if (!oldOutline) {
-          int si = _snwprintf(menuItem, 255, L"%4d ", item->lno + 1);
+          int si = _snwprintf(menuItem, 255, L"%4zd ", item->lno + 1);
 
           for (int lIdx = 0; lIdx < treeLevel; lIdx++) {
             menuItem[si++] = ' ';
@@ -862,7 +862,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
           si += _snwprintf(menuItem + si, 255 - si, L"%c ", cls);
 
-          int labelLength = item->token->length();
+          size_t labelLength = item->token->length();
 
           if (labelLength + si > 110) {
             labelLength = 110;
@@ -872,7 +872,7 @@ void FarEditor::showOutliner(Outliner* outliner)
           menuItem[si + labelLength] = 0;
         } else {
           String* line = getLine(item->lno);
-          int labelLength = line->length();
+          size_t labelLength = line->length();
 
           if (labelLength > 110) {
             labelLength = 110;

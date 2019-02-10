@@ -909,7 +909,7 @@ String* FarEditorSet::getCurrentFileName()
   }
 
   CString fnpath(FileName);
-  int slash_idx = fnpath.lastIndexOf('\\');
+  size_t slash_idx = fnpath.lastIndexOf('\\');
 
   if (slash_idx == -1) {
     slash_idx = fnpath.lastIndexOf('/');

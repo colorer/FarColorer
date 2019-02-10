@@ -19,7 +19,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpRes
         return false;
       }
       CString module(path, 0);
-      int pos = module.lastIndexOf('\\');
+      size_t pos = module.lastIndexOf('\\');
       pos = module.lastIndexOf('\\', pos);
       PluginPath = new SString(CString(module, 0, pos));
     }
