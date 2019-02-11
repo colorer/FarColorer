@@ -96,6 +96,8 @@ public:
   void configure(bool fromEditor);
   /** Views current file with internal viewer */
   void viewFile(const String &path);
+  HANDLE openFromMacro(const struct OpenInfo* oInfo);
+  HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
 
   /** Dispatch editor event in the opened editor */
   int  editorEvent(const struct ProcessEditorEventInfo* pInfo);

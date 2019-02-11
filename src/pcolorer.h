@@ -2,9 +2,6 @@
 #define _PCOLORER_H_
 
 #include <plugin.hpp>
-
-#include <memory>
-#include <windows.h>
 #include <colorer/unicode/SString.h>
 
 #include <initguid.h>

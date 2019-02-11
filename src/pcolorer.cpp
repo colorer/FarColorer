@@ -23,15 +23,18 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpRes
       pos = module.lastIndexOf('\\', pos);
       PluginPath = new SString(CString(module, 0, pos));
     }
-    break;
+      break;
 
     case DLL_PROCESS_DETACH:
       delete PluginPath;
+      break;
+    default:
       break;
   }
 
   return true;
 }
+
 /**
   Returns message from FAR current language.
 */
@@ -75,7 +78,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo* pInfo)
   pInfo->StructSize = sizeof(*pInfo);
   pInfo->PluginConfig.Count = 1;
   pInfo->PluginMenu.Count = 1;
-  PluginMenuStrings = (wchar_t*)GetMsg(mName);
+  PluginMenuStrings = (wchar_t*) GetMsg(mName);
   pInfo->PluginConfig.Strings = &PluginMenuStrings;
   pInfo->PluginMenu.Strings = &PluginMenuStrings;
   pInfo->PluginConfig.Guids = &PluginConfig;
@@ -96,88 +99,20 @@ void WINAPI ExitFARW(const struct ExitInfo* eInfo)
 */
 HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
 {
+  if (!editorSet) {
+    editorSet = new FarEditorSet();
+  }
+
   switch (oInfo->OpenFrom) {
     case OPEN_EDITOR:
       editorSet->openMenu();
       break;
-    case OPEN_COMMANDLINE: {
-      OpenCommandLineInfo* ocli = (OpenCommandLineInfo*)oInfo->Data;
-      //file name, which we received
-      const wchar_t* file = ocli->CommandLine;
-
-      wchar_t* nfile = PathToFull(file, true);
-      if (nfile) {
-        if (!editorSet) {
-          editorSet = new FarEditorSet();
-        }
-        editorSet->viewFile(CString(nfile));
-      }
-
-      delete[] nfile;
-    }
-    break;
-    case OPEN_FROMMACRO: {
-      FARMACROAREA area = (FARMACROAREA)Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
-      OpenMacroInfo* mi = (OpenMacroInfo*)oInfo->Data;
-      int MenuCode = -1;
-      std::unique_ptr<SString> command = nullptr;
-      if (mi->Count) {
-        switch (mi->Values[0].Type) {
-        case FMVT_INTEGER:
-          MenuCode = (int)mi->Values[0].Integer;
-          break;
-        case FMVT_DOUBLE:
-          MenuCode = (int)mi->Values[0].Double;
-          break;
-        case FMVT_STRING:
-          command.reset(new SString(CString(mi->Values[0].String)));
-          break;
-        default:
-          MenuCode = -1;
-        }
-      }
-
-      if (MenuCode >= 0 && area == MACROAREA_EDITOR && editorSet) {
-        editorSet->openMenu(MenuCode - 1);
-        return INVALID_HANDLE_VALUE;
-      }
-      else
-        if (command)
-        {
-          if (!editorSet) {
-            editorSet = new FarEditorSet();
-          }
-
-          if (command->equals(&CString("status"))){
-            if (mi->Count == 1) {
-              return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-            }
-            else {
-              bool new_status = 0;
-              switch (mi->Values[1].Type) {
-              case FMVT_BOOLEAN:
-                new_status = mi->Values[1].Boolean;
-                break;
-              case FMVT_INTEGER:
-                new_status = mi->Values[1].Integer;
-                break;
-              default:
-                new_status = -1;
-              }
-
-              if (new_status) {
-                editorSet->enableColorer();
-                return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-              } else {
-                editorSet->disableColorer();
-                return !editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-              }
-            }
-          }
-
-        }
-    }
-    break;
+    case OPEN_COMMANDLINE:
+      editorSet->openFromCommandLine(oInfo);
+      break;
+    case OPEN_FROMMACRO:
+      editorSet->openFromMacro(oInfo);
+      break;
   }
   return nullptr;
 }
@@ -241,10 +176,9 @@ extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
   return;
 }
 
-extern "C" intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo *pInfo)
+extern "C" intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
 {
-  try
-  {
+  try {
     if (editorSet) {
       INPUT_RECORD ir;
       ir.EventType = KEY_EVENT;
@@ -252,8 +186,7 @@ extern "C" intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo *p
       return editorSet->editorInput(ir);
     }
   }
-  catch (...)
-  {
+  catch (...) {
   }
   return 0;
 }

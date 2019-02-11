@@ -1692,6 +1692,75 @@ void FarEditorSet::configureLogging()
 
   Info.DialogFree(hDlg);
 }
+
+HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
+{
+  FARMACROAREA area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
+  OpenMacroInfo* mi = (OpenMacroInfo*) oInfo->Data;
+  int MenuCode = -1;
+  std::unique_ptr<SString> command = nullptr;
+  if (mi->Count) {
+    switch (mi->Values[0].Type) {
+      case FMVT_INTEGER:
+        MenuCode = (int) mi->Values[0].Integer;
+        break;
+      case FMVT_DOUBLE:
+        MenuCode = (int) mi->Values[0].Double;
+        break;
+      case FMVT_STRING:
+        command.reset(new SString(CString(mi->Values[0].String)));
+        break;
+      default:
+        MenuCode = -1;
+    }
+  }
+
+  if (MenuCode >= 0 && area == MACROAREA_EDITOR) {
+    openMenu(MenuCode - 1);
+    return INVALID_HANDLE_VALUE;
+  } else if (command) {
+    if (command->equals(&CString("status"))) {
+      if (mi->Count == 1) {
+        return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+      } else {
+        bool new_status = 0;
+        switch (mi->Values[1].Type) {
+          case FMVT_BOOLEAN:
+            new_status = mi->Values[1].Boolean;
+            break;
+          case FMVT_INTEGER:
+            new_status = mi->Values[1].Integer;
+            break;
+          default:
+            new_status = -1;
+        }
+
+        if (new_status) {
+          enableColorer();
+          return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+        } else {
+          disableColorer();
+          return !isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+        }
+      }
+    }
+  }
+}
+
+HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
+{
+  OpenCommandLineInfo* ocli = (OpenCommandLineInfo*)oInfo->Data;
+  //file name, which we received
+  const wchar_t* file = ocli->CommandLine;
+
+  wchar_t* nfile = PathToFull(file, true);
+  if (nfile) {
+    viewFile(CString(nfile));
+  }
+
+  delete[] nfile;
+  return nullptr;
+}
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
