@@ -161,14 +161,6 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   return editorSet->editorInput(pInfo->Rec);
 }
 
-// in order to not fall when it starts in far2
-extern "C" int WINAPI GetMinFarVersionW(void)
-{
-#define MAKEFARVERSION_OLD(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
-
-  return MAKEFARVERSION_OLD(FARMANAGERVERSION_MAJOR, FARMANAGERVERSION_MINOR, FARMANAGERVERSION_BUILD);
-}
-
 extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
   if (editorSet->getEditorCount() > 0)

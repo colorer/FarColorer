@@ -7,4 +7,4 @@ EXPORTS
    ProcessEditorInputW=ProcessEditorInputW@4
    ProcessEditorEventW=ProcessEditorEventW@4
    ExitFARW=ExitFARW@4
-   GetMinFarVersionW=GetMinFarVersionW@0
+   ProcessSynchroEventW=ProcessSynchroEventW@4
