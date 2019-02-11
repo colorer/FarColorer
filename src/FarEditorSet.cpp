@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -20,6 +22,11 @@ FarEditorSet::FarEditorSet():
 {
   log = spdlog::null_logger_mt("main");
   spdlog::set_default_logger(log);
+
+  CString module(Info.ModuleName, 0);
+  size_t pos = module.lastIndexOf('\\');
+  pos = module.lastIndexOf('\\', pos);
+  pluginPath = std::make_unique<SString>(CString(module, 0, pos));
 
   in_construct = true;
   colorer_lib = std::unique_ptr<Colorer>(new Colorer);
@@ -732,7 +739,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
   std::unique_ptr<SString> tpath;
   if (!catalogPathS || !catalogPathS->length()) {
-    SString* path = new SString(PluginPath);
+    SString* path = new SString(*pluginPath);
     path->append(CString(FarCatalogXml));
     tpath.reset(path);
   } else {
@@ -746,7 +753,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
     LoadUserHrc(userHrcPathS.get(), parserFactoryLocal.get());
     FarHrcSettings p(parserFactoryLocal.get());
-    p.readProfile();
+    p.readProfile(pluginPath.get());
     p.readUserProfile();
 
     if (hrc_mode == HRCM_CONSOLE || hrc_mode == HRCM_BOTH) {
@@ -833,7 +840,7 @@ void FarEditorSet::ReloadBase()
     LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
     LoadUserHrc(sUserHrcPathExp.get(), parserFactory.get());
     FarHrcSettings p(parserFactory.get());
-    p.readProfile();
+    p.readProfile(pluginPath.get());
     p.readUserProfile();
     defaultType = static_cast<FileTypeImpl*>(hrcParser->getFileType(&DDefaultScheme));
 
@@ -1011,7 +1018,7 @@ void FarEditorSet::ReadSettings()
   sCatalogPath.reset(new SString(CString(catalogPath)));
   sCatalogPathExp.reset(PathToFullS(catalogPath, false));
   if (!sCatalogPathExp || !sCatalogPathExp->length()) {
-    SString* path = new SString(PluginPath);
+    SString* path = new SString(*pluginPath);
     path->append(CString(FarCatalogXml));
     sCatalogPathExp.reset(path);
   }

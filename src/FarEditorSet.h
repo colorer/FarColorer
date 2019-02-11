@@ -248,6 +248,7 @@ private:
   std::unique_ptr<SString> sUserHrcPathExp;
   std::unique_ptr<SString> sLogPathExp;
 
+  std::unique_ptr<SString> pluginPath;
   int CurrentMenuItem;
 
   unsigned int err_status;

@@ -32,7 +32,7 @@ public:
     parserFactory = _parserFactory;
   }
   void readXML(String* file, bool userValue);
-  void readProfile();
+  void readProfile(SString* plugin_path);
   void readUserProfile();
   void writeUserProfile();
 

@@ -4,9 +4,9 @@
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <colorer/parsers/ParserFactoryException.h>
 
-void FarHrcSettings::readProfile()
+void FarHrcSettings::readProfile(SString* plugin_path)
 {
-  SString* path = new SString(PluginPath);
+  SString* path = new SString(plugin_path);
   path->append(CString(FarProfileXml));
   readXML(path, false);
 

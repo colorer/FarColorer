@@ -7,40 +7,13 @@ FarEditorSet* editorSet = nullptr;
 bool inCreateEditorSet = false;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
-SString* PluginPath;
-
-extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-  switch (fdwReason) {
-    case DLL_PROCESS_ATTACH: {
-      // obtain the path to the folder plugin, without being attached to the file name
-      wchar_t path[MAX_PATH];
-      if (!GetModuleFileNameW(hinstDLL, path, MAX_PATH)) {
-        return false;
-      }
-      CString module(path, 0);
-      size_t pos = module.lastIndexOf('\\');
-      pos = module.lastIndexOf('\\', pos);
-      PluginPath = new SString(CString(module, 0, pos));
-    }
-      break;
-
-    case DLL_PROCESS_DETACH:
-      delete PluginPath;
-      break;
-    default:
-      break;
-  }
-
-  return true;
-}
 
 /**
   Returns message from FAR current language.
 */
 const wchar_t* GetMsg(int msg)
 {
-  return (Info.GetMsg(&MainGuid, msg));
+  return Info.GetMsg(&MainGuid, msg);
 }
 
 /**
