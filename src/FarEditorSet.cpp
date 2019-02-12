@@ -14,6 +14,8 @@
 /// macro - number of elements in array
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
 
+VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
+
 FarEditorSet::FarEditorSet():
   dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
   hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
@@ -43,6 +45,11 @@ FarEditorSet::~FarEditorSet()
   regionMapper.reset();
   parserFactory.reset();
   DeleteTimerQueue(hTimerQueue);
+}
+
+VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
+{
+  Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
 }
 
 void FarEditorSet::openMenu(int MenuId)

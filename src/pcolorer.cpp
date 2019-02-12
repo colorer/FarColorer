@@ -86,6 +86,16 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     case OPEN_FROMMACRO:
       editorSet->openFromMacro(oInfo);
       break;
+    case OPEN_LEFTDISKMENU:break;
+    case OPEN_PLUGINSMENU:break;
+    case OPEN_FINDLIST:break;
+    case OPEN_SHORTCUT:break;
+    case OPEN_VIEWER:break;
+    case OPEN_FILEPANEL:break;
+    case OPEN_DIALOG:break;
+    case OPEN_ANALYSE:break;
+    case OPEN_RIGHTDISKMENU:break;
+    case OPEN_LUAMACRO:break;
   }
   return nullptr;
 }
@@ -115,7 +125,7 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
       inCreateEditorSet = false; //-V519
 
       // при создании FarEditorSet мы теряем сообщение EE_REDRAW, из-за SetBgEditor. компенсируем это
-      struct ProcessEditorEventInfo pInfo2;
+      ProcessEditorEventInfo pInfo2{};
       pInfo2.EditorID = pInfo->EditorID;
       pInfo2.Event = EE_REDRAW;
       pInfo2.StructSize = sizeof(ProcessEditorEventInfo);
@@ -134,17 +144,10 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   return editorSet->editorInput(pInfo->Rec);
 }
 
-extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
-{
-  if (editorSet->getEditorCount() > 0)
-    Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
-  return;
-}
-
-extern "C" intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
+intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
 {
   try {
-    if (editorSet) {
+    if (editorSet && editorSet->getEditorCount() > 0) {
       INPUT_RECORD ir;
       ir.EventType = KEY_EVENT;
       ir.Event.KeyEvent.wVirtualKeyCode = 0;
