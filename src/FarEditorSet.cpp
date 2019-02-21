@@ -1,5 +1,3 @@
-#include <memory>
-
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -31,7 +29,7 @@ FarEditorSet::FarEditorSet():
   pluginPath = std::make_unique<SString>(CString(module, 0, pos));
 
   in_construct = true;
-  colorer_lib = std::unique_ptr<Colorer>(new Colorer);
+  colorer_lib = std::make_unique<Colorer>();
   ReloadBase();
   in_construct = false;
 
@@ -54,13 +52,15 @@ VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 
 void FarEditorSet::menuConfigure()
 {
-  struct FarMenuItem shMenu[2] = {};
+  struct FarMenuItem shMenu[3] = {};
   shMenu[0].Text = GetMsg(mMainSettings);
-  shMenu[1].Text = GetMsg(mLog);
+  shMenu[1].Text = GetMsg(mUserHrcSetting);
+  shMenu[2].Text = GetMsg(mLog);
   int menu_id;
 
   while (true) {
-    menu_id = (int) Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(mSettings), nullptr, nullptr, nullptr, nullptr, shMenu, ARRAYSIZE(shMenu));
+    menu_id = (int) Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(mSettings),
+        nullptr, nullptr, nullptr, nullptr, shMenu, std::size(shMenu));
 
     switch (menu_id) {
       case -1:
@@ -70,6 +70,9 @@ void FarEditorSet::menuConfigure()
         configure();
         break;
       case 1:
+        configureHrc();
+        break;
+      case 2:
         configureLogging();
         break;
       default:
@@ -449,11 +452,6 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           return true;
         }
         break;
-        case IDX_HRC_SETTING: {
-          fes->configureHrc();
-          return true;
-        }
-        break;
         case IDX_OK:
           const wchar_t* temp = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr))));
           const wchar_t* userhrd = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr))));
@@ -483,32 +481,28 @@ void FarEditorSet::configure()
   try {
     FarDialogItem fdi[] = {
       // type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
-      { DI_DOUBLEBOX, 3, 1, 55, 25, 0, nullptr, nullptr, 0, nullptr, 0, 0},     //IDX_BOX,
+      { DI_DOUBLEBOX, 3, 1, 55, 22, 0, nullptr, nullptr, 0, nullptr, 0, 0},     //IDX_BOX,
       { DI_CHECKBOX, 5, 2, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_DISABLED,
-      { DI_CHECKBOX, 5, 3, 0, 0, 0, nullptr, nullptr, DIF_3STATE, nullptr, 0, 0}, //IDX_CROSS,
-      { DI_TEXT, 7, 4, 0, 4, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_CROSS_TEXT,
-      { DI_COMBOBOX, 20, 4, 40, 4, 0, nullptr, nullptr, 0, nullptr, 0, 0},      //IDX_CROSS_STYLE,
-      { DI_CHECKBOX, 5, 5, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_PAIRS,
-      { DI_CHECKBOX, 5, 6, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_SYNTAX,
-      { DI_CHECKBOX, 5, 7, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_OLDOUTLINE,
-      { DI_CHECKBOX, 5, 8, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CHANGE_BG,
-      { DI_TEXT, 5, 9, 0, 9, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_HRD,
-      { DI_BUTTON, 20, 9, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_HRD_SELECT,
-      { DI_TEXT, 5, 10, 0, 10, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_CATALOG,
-      { DI_EDIT, 6, 11, 52, 11, 0, L"catalog", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_CATALOG_EDIT
-      { DI_TEXT, 5, 12, 0, 12, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRC,
-      { DI_EDIT, 6, 13, 52, 13, 0, L"userhrc", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRC_EDIT
-      { DI_TEXT, 5, 14, 0, 14, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRD,
-      { DI_EDIT, 6, 15, 52, 15, 0, L"userhrd", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRD_EDIT
-      { DI_SINGLEBOX, 4, 17, 54, 17, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX,
-      { DI_CHECKBOX, 5, 18, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},       //IDX_TRUEMOD,
-      { DI_TEXT, 5, 19, 0, 19, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_HRD_TM,
-      { DI_BUTTON, 20, 19, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRD_SELECT_TM,
-      { DI_SINGLEBOX, 4, 20, 54, 20, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX_OFF,
-      { DI_BUTTON, 5, 21, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_RELOAD_ALL,
-      { DI_BUTTON, 30, 21, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRC_SETTING,
-      { DI_BUTTON, 35, 23, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0}, //IDX_OK,
-      { DI_BUTTON, 45, 23, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CANCEL,
+      { DI_CHECKBOX, 5, 3, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_PAIRS,
+      { DI_CHECKBOX, 5, 4, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_SYNTAX,
+      { DI_CHECKBOX, 5, 5, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_OLDOUTLINE,
+      { DI_CHECKBOX, 5, 6, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CHANGE_BG,
+      { DI_TEXT, 5, 7, 0, 7, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_HRD,
+      { DI_BUTTON, 20, 7, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_HRD_SELECT,
+      { DI_TEXT, 5, 9, 0, 9, 0, nullptr, nullptr, 0, nullptr, 0, 0},            //IDX_CATALOG,
+      { DI_EDIT, 6, 10, 52, 10, 0, L"catalog", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_CATALOG_EDIT
+      { DI_TEXT, 5, 11, 0, 11, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRC,
+      { DI_EDIT, 6, 12, 52, 12, 0, L"userhrc", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRC_EDIT
+      { DI_TEXT, 5, 13, 0, 13, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRD,
+      { DI_EDIT, 6, 14, 52, 14, 0, L"userhrd", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRD_EDIT
+      { DI_SINGLEBOX, 4, 16, 54, 16, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX,
+      { DI_CHECKBOX, 5, 17, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},       //IDX_TRUEMOD,
+      { DI_TEXT, 5, 18, 0, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_HRD_TM,
+      { DI_BUTTON, 20, 18, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRD_SELECT_TM,
+      { DI_SINGLEBOX, 4, 19, 54, 19, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX_OFF,
+      { DI_BUTTON, 5, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_RELOAD_ALL,
+      { DI_BUTTON, 35, 20, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0}, //IDX_OK,
+      { DI_BUTTON, 45, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CANCEL,
     };//type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
 
     fdi[IDX_BOX].Data = GetMsg(mSetup);
@@ -516,22 +510,6 @@ void FarEditorSet::configure()
     fdi[IDX_ENABLED].Selected = rEnabled;
     fdi[IDX_TRUEMOD].Data = GetMsg(mTrueMod);
     fdi[IDX_TRUEMOD].Selected = TrueModOn;
-    fdi[IDX_CROSS].Data = GetMsg(mCross);
-    fdi[IDX_CROSS].Selected = drawCross;
-    fdi[IDX_CROSS_TEXT].Data = GetMsg(mCrossText);
-
-    FarList fl;
-    FarListItem* style_list = new FarListItem[3];
-    memset(style_list, 0, sizeof(FarListItem) * 3);
-    style_list[0].Text = GetMsg(mCrossBoth);
-    style_list[1].Text = GetMsg(mCrossVert);
-    style_list[2].Text = GetMsg(mCrossHoriz);
-    style_list[CrossStyle].Flags = LIF_SELECTED;
-    fl.StructSize = sizeof(FarList);
-    fl.ItemsNumber = 3;
-    fl.Items = style_list;
-    fdi[IDX_CROSS_STYLE].ListItems = &fl;
-    fdi[IDX_CROSS_STYLE].Flags = DIF_LISTWRAPMODE | DIF_DROPDOWNLIST;
 
     fdi[IDX_PAIRS].Data = GetMsg(mPairs);
     fdi[IDX_PAIRS].Selected = drawPairs;
@@ -559,7 +537,6 @@ void FarEditorSet::configure()
     fdi[IDX_CHANGE_BG].Data = GetMsg(mChangeBackgroundEditor);
     fdi[IDX_CHANGE_BG].Selected = ChangeBgEditor;
     fdi[IDX_RELOAD_ALL].Data = GetMsg(mReloadAll);
-    fdi[IDX_HRC_SETTING].Data = GetMsg(mUserHrcSetting);
     fdi[IDX_OK].Data = GetMsg(mOk);
     fdi[IDX_CANCEL].Data = GetMsg(mCancel);
     fdi[IDX_TM_BOX].Data = GetMsg(mTrueModSetting);
@@ -567,7 +544,7 @@ void FarEditorSet::configure()
     /*
     * Dialog activation
     */
-    HANDLE hDlg = Info.DialogInit(&MainGuid, &PluginConfig, -1, -1, 58, 25, L"config", fdi, ARRAY_SIZE(fdi), 0, 0, SettingDialogProc, this);
+    HANDLE hDlg = Info.DialogInit(&MainGuid, &PluginConfig, -1, -1, 58, 24, L"config", fdi, ARRAY_SIZE(fdi), 0, 0, SettingDialogProc, this);
     intptr_t i = Info.DialogRun(hDlg);
 
     if (i == IDX_OK) {
@@ -586,8 +563,6 @@ void FarEditorSet::configure()
       }
 
       fdi[IDX_ENABLED].Selected = Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
-      drawCross = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CROSS, nullptr));
-      CrossStyle = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CROSS_STYLE, nullptr));
       drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, nullptr);
       drawSyntax = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_SYNTAX, nullptr);
       oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, nullptr);
@@ -626,7 +601,6 @@ void FarEditorSet::configure()
     }
 
     Info.DialogFree(hDlg);
-    delete[] style_list;
 
   } catch (Exception &e) {
     spdlog::error("{0}", e.what());
@@ -923,7 +897,6 @@ FarEditor* FarEditorSet::addCurrentEditor()
   delete s;
   editor->setTrueMod(TrueModOn);
   editor->setRegionMapper(regionMapper.get());
-  editor->setDrawCross(drawCross, CrossStyle);
   editor->setDrawPairs(drawPairs);
   editor->setDrawSyntax(drawSyntax);
   editor->setOutlineStyle(oldOutline);
@@ -996,7 +969,6 @@ void FarEditorSet::ApplySettingsToEditors()
 {
   for (auto fe = farEditorInstances.begin(); fe != farEditorInstances.end(); ++fe) {
     fe->second->setTrueMod(TrueModOn);
-    fe->second->setDrawCross(drawCross, CrossStyle);
     fe->second->setDrawPairs(drawPairs);
     fe->second->setDrawSyntax(drawSyntax);
     fe->second->setOutlineStyle(oldOutline);
@@ -1056,8 +1028,6 @@ void FarEditorSet::ReadSettings()
   slogLevel.reset(new SString(CString(logLevel)));
 
   rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
-  drawCross = ColorerSettings.Get(0, cRegCrossDraw, cCrossDrawDefault);
-  CrossStyle = ColorerSettings.Get(0, cRegCrossStyle, cCrossStyleDefault);
   drawPairs = ColorerSettings.Get(0, cRegPairsDraw, cPairsDrawDefault);
   drawSyntax = ColorerSettings.Get(0, cRegSyntaxDraw, cSyntaxDrawDefault);
   oldOutline = ColorerSettings.Get(0, cRegOldOutLine, cOldOutLineDefault);
@@ -1098,8 +1068,6 @@ void FarEditorSet::SaveSettings() const
   ColorerSettings.Set(0, cRegHrdName, sHrdName->getWChars());
   ColorerSettings.Set(0, cRegHrdNameTm, sHrdNameTm->getWChars());
   ColorerSettings.Set(0, cRegCatalog,  sCatalogPath->getWChars());
-  ColorerSettings.Set(0, cRegCrossDraw, drawCross);
-  ColorerSettings.Set(0, cRegCrossStyle, CrossStyle);
   ColorerSettings.Set(0, cRegPairsDraw, drawPairs);
   ColorerSettings.Set(0, cRegSyntaxDraw, drawSyntax);
   ColorerSettings.Set(0, cRegOldOutLine, oldOutline);

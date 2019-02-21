@@ -16,8 +16,6 @@ const wchar_t cRegEnabled[]        = L"Enabled";
 const wchar_t cRegHrdName[]        = L"HrdName";
 const wchar_t cRegHrdNameTm[]      = L"HrdNameTm";
 const wchar_t cRegCatalog[]        = L"Catalog";
-const wchar_t cRegCrossDraw[]      = L"CrossDraw";
-const wchar_t cRegCrossStyle[]     = L"CrossStyle";
 const wchar_t cRegPairsDraw[]      = L"PairsDraw";
 const wchar_t cRegSyntaxDraw[]     = L"SyntaxDraw";
 const wchar_t cRegOldOutLine[]     = L"OldOutlineView";
@@ -34,8 +32,6 @@ const bool cEnabledDefault          = true;
 const wchar_t cHrdNameDefault[]     = L"default";
 const wchar_t cHrdNameTmDefault[]   = L"default";
 const wchar_t cCatalogDefault[]     = L"";
-const int cCrossDrawDefault         = 2;
-const int cCrossStyleDefault        = 0;
 const bool cPairsDrawDefault        = true;
 const bool cSyntaxDrawDefault       = true;
 const bool cOldOutLineDefault       = true;
@@ -53,10 +49,10 @@ const CString Ddefault   = CString("<default>");
 const CString DAutodetect = CString("autodetect");
 
 enum {
-  IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
+  IDX_BOX, IDX_ENABLED, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
   IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
   IDX_USERHRD, IDX_USERHRD_EDIT, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
-  IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL
+  IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_OK, IDX_CANCEL
 };
 
 enum {
@@ -227,8 +223,6 @@ private:
 
   /** registry settings */
   bool rEnabled; // status plugin
-  int drawCross;
-  int CrossStyle; // 0 - both; 1 - vertical; 2 - horizontal
   bool drawPairs;
   bool drawSyntax;
   bool oldOutline;

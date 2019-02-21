@@ -72,7 +72,7 @@ public:
   /**
   * Change editor properties. These overwrites default HRC settings
   */
-  void setDrawCross(int _drawCross, int _CrossStyle);
+  void setDrawCross(const String* cross_style);
   void setDrawPairs(bool drawPairs);
   void setDrawSyntax(bool drawSyntax);
   void setOutlineStyle(bool oldStyle);
