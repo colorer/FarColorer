@@ -97,7 +97,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     case OPEN_RIGHTDISKMENU:break;
     case OPEN_LUAMACRO:break;
   }
-  return nullptr;
+  return editorSet;
 }
 
 /**
@@ -108,7 +108,7 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* cInfo)
   if (!editorSet) {
     editorSet = new FarEditorSet();
   }
-  editorSet->configure(false);
+  editorSet->configure();
   return 1;
 }
 

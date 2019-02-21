@@ -26,6 +26,9 @@ DEFINE_GUID(FileChooseMenu, 0x46921647, 0xdb52, 0x44ca, 0x8d, 0x8b, 0xf3, 0x4e, 
 DEFINE_GUID(HrdMenu, 0x18a6f7df, 0x375d, 0x4d3d, 0x81, 0x37, 0xdc, 0x50, 0xac, 0x52, 0xb7, 0x1e);
 // {A8A298BA-AD5A-4094-8E24-F65BF38E6C1F}
 DEFINE_GUID(OutlinerMenu, 0xa8a298ba, 0xad5a, 0x4094, 0x8e, 0x24, 0xf6, 0x5b, 0xf3, 0x8e, 0x6c, 0x1f);
+// {63E396BA-8E7F-4E38-A7A8-CBB7E9AC1E6D}
+DEFINE_GUID(ConfigMenu, 0x63e396ba, 0x8e7f, 0x4e38, 0xa7, 0xa8, 0xcb, 0xb7, 0xe9, 0xac, 0x1e, 0x6d);
+
 
 //Message Guid
 // {0C954AC8-2B69-4c74-94C8-7AB10324A005}
@@ -49,7 +52,7 @@ enum {
   mCatalogFile, mHRDName, mHRDNameTrueMod,
   mListTypes, mMatchPair, mSelectBlock, mSelectPair,
   mListFunctions, mFindErrors, mSelectRegion, mCurrentRegionName, mLocateFunction,
-  mUpdateHighlight, mReloadBase, mConfigure,
+  mUpdateHighlight, mReloadBase, mConfigureHotkey,
   mTotalTypes, mSelectSyntax, mOutliner, mNothingFound,
   mGotcha, mChoose,
   mReloading, mCantLoad, mCantOpenFile, mDie, mTry,
@@ -57,7 +60,8 @@ enum {
   mUserHrdFile, mUserHrcFile, mUserHrcSetting,
   mUserHrcSettingDialog, mListSyntax, mParamList, mParamValue, mAutoDetect, mFavorites,
   mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName, mCrossText, mCrossBoth, mCrossVert, mCrossHoriz,
-  mLog, mLogging, mLogTurnOff, mLogLevel, mLogPath
+  mLog, mLogging, mLogTurnOff, mLogLevel, mLogPath,
+  mMainSettings, mSettings
 };
 
 #endif

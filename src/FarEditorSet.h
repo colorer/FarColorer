@@ -55,17 +55,13 @@ const CString DAutodetect = CString("autodetect");
 enum {
   IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
   IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
-  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
+  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
   IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL
 };
 
 enum {
   IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS,
   IDX_CH_PARAM_LIST, IDX_CH_PARAM_VALUE_CAPTION, IDX_CH_PARAM_VALUE_LIST, IDX_CH_DESCRIPTION, IDX_CH_OK, IDX_CH_CANCEL
-};
-
-enum {
-  IDX_LOG_BOX, IDX_LOG_ENABLED, IDX_LOG_LEVEL_CAPTION, IDX_LOG_LEVEL, IDX_LOGPATH_CAPTION, IDX_LOGPATH, IDX_LOG_OK, IDX_LOG_CANCEL
 };
 
 enum ERROR_TYPE {
@@ -92,8 +88,10 @@ public:
 
   /** Shows editor actions menu */
   void openMenu(int MenuId = -1);
+
+  void menuConfigure();
   /** Shows plugin's configuration dialog */
-  void configure(bool fromEditor);
+  void configure();
   /** Views current file with internal viewer */
   void viewFile(const String &path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
@@ -190,6 +188,8 @@ private:
   void dropAllEditors(bool clean);
   /** kill the current editor*/
   void dropCurrentEditor(bool clean);
+
+  void setEmptyLogger();
 
   size_t getCountFileTypeAndGroup() const;
   FileTypeImpl* getFileTypeByIndex(int idx) const;

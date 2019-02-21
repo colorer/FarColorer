@@ -10,6 +10,7 @@
 #include "SettingsControl.h"
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <colorer/parsers/ParserFactoryException.h>
+#include "DlgBuilder.hpp"
 
 /// macro - number of elements in array
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
@@ -22,8 +23,7 @@ FarEditorSet::FarEditorSet():
   sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), 
   CurrentMenuItem(0), err_status(ERR_NO_ERROR)
 {
-  log = spdlog::null_logger_mt("main");
-  spdlog::set_default_logger(log);
+  setEmptyLogger();
 
   CString module(Info.ModuleName, 0);
   size_t pos = module.lastIndexOf('\\');
@@ -52,6 +52,33 @@ VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
   Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
 }
 
+void FarEditorSet::menuConfigure()
+{
+  struct FarMenuItem shMenu[2] = {};
+  shMenu[0].Text = GetMsg(mMainSettings);
+  shMenu[1].Text = GetMsg(mLog);
+  int menu_id;
+
+  while (true) {
+    menu_id = (int) Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(mSettings), nullptr, nullptr, nullptr, nullptr, shMenu, ARRAYSIZE(shMenu));
+
+    switch (menu_id) {
+      case -1:
+        return;
+        break;
+      case 0:
+        configure();
+        break;
+      case 1:
+        configureLogging();
+        break;
+      default:
+        return;
+        break;
+    }
+  }
+}
+
 void FarEditorSet::openMenu(int MenuId)
 {
   if (MenuId < 0) {
@@ -59,7 +86,7 @@ void FarEditorSet::openMenu(int MenuId)
     int iMenuItems[menu_size] = {
       mListTypes, mMatchPair, mSelectBlock, mSelectPair,
       mListFunctions, mFindErrors, mSelectRegion, mCurrentRegionName, mLocateFunction, -1,
-      mUpdateHighlight, mReloadBase, mConfigure
+      mUpdateHighlight, mReloadBase, mConfigureHotkey
     };
     FarMenuItem menuElements[menu_size];
     memset(menuElements, 0, sizeof(menuElements));
@@ -125,7 +152,7 @@ void FarEditorSet::openMenu(int MenuId)
           ReloadBase();
           break;
         case 12:
-          configure(true);
+          menuConfigure();
           break;
       }
     } catch (Exception &e) {
@@ -427,11 +454,6 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           return true;
         }
         break;
-        case IDX_LOG: {
-          fes->configureLogging();
-          return true;
-        }
-        break;
         case IDX_OK:
           const wchar_t* temp = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CATALOG_EDIT, nullptr))));
           const wchar_t* userhrd = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_USERHRD_EDIT, nullptr))));
@@ -456,7 +478,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
 }
 
-void FarEditorSet::configure(bool fromEditor)
+void FarEditorSet::configure()
 {
   try {
     FarDialogItem fdi[] = {
@@ -478,14 +500,13 @@ void FarEditorSet::configure(bool fromEditor)
       { DI_EDIT, 6, 13, 52, 13, 0, L"userhrc", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRC_EDIT
       { DI_TEXT, 5, 14, 0, 14, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_USERHRD,
       { DI_EDIT, 6, 15, 52, 15, 0, L"userhrd", nullptr, DIF_HISTORY, nullptr, 0, 0}, //IDX_USERHRD_EDIT
-      { DI_BUTTON, 5, 17, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0 },         //IDX_LOG,
-      { DI_SINGLEBOX, 4, 18, 54, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX,
-      { DI_CHECKBOX, 5, 19, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},       //IDX_TRUEMOD,
-      { DI_TEXT, 5, 20, 0, 20, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_HRD_TM,
-      { DI_BUTTON, 20, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRD_SELECT_TM,
-      { DI_SINGLEBOX, 4, 21, 54, 21, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX_OFF,
-      { DI_BUTTON, 5, 22, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_RELOAD_ALL,
-      { DI_BUTTON, 30, 22, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRC_SETTING,
+      { DI_SINGLEBOX, 4, 17, 54, 17, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX,
+      { DI_CHECKBOX, 5, 18, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},       //IDX_TRUEMOD,
+      { DI_TEXT, 5, 19, 0, 19, 0, nullptr, nullptr, 0, nullptr, 0, 0},          //IDX_HRD_TM,
+      { DI_BUTTON, 20, 19, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRD_SELECT_TM,
+      { DI_SINGLEBOX, 4, 20, 54, 20, 0, nullptr, nullptr, 0, nullptr, 0, 0},    //IDX_TM_BOX_OFF,
+      { DI_BUTTON, 5, 21, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},         //IDX_RELOAD_ALL,
+      { DI_BUTTON, 30, 21, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_HRC_SETTING,
       { DI_BUTTON, 35, 23, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0}, //IDX_OK,
       { DI_BUTTON, 45, 23, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},        //IDX_CANCEL,
     };//type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
@@ -542,8 +563,6 @@ void FarEditorSet::configure(bool fromEditor)
     fdi[IDX_OK].Data = GetMsg(mOk);
     fdi[IDX_CANCEL].Data = GetMsg(mCancel);
     fdi[IDX_TM_BOX].Data = GetMsg(mTrueModSetting);
-
-    fdi[IDX_LOG].Data = GetMsg(mLog);
 
     /*
     * Dialog activation
@@ -1060,17 +1079,15 @@ void FarEditorSet::applyLogSetting()
         log = spdlog::basic_logger_mt("main", file_name);
         spdlog::set_default_logger(log);
         log->set_level(level);
-        
       }
       catch (std::exception &e) {
+        setEmptyLogger();
         showExceptionMessage(CString(e.what()).getWChars());
       }
     }
   }
   else {
-    spdlog::drop_all();
-    log = spdlog::null_logger_mt("main");
-    spdlog::set_default_logger(log);
+    setEmptyLogger();
   }
 }
 
@@ -1645,66 +1662,39 @@ void FarEditorSet::showExceptionMessage(const wchar_t* message)
 
 void FarEditorSet::configureLogging()
 {
-  FarDialogItem fdi[] = {
-    // type, x1, y1, x2, y2, param, history, mask, flags, userdata, ptrdata, maxlen
-    { DI_DOUBLEBOX, 2, 1, 35, 10, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                 //IDX_LOG_BOX,
-    { DI_CHECKBOX, 4, 3, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                    //IDX_LOG_ENABLED,
-    { DI_TEXT, 4, 4, 0, 3, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                        //IDX_LOG_LEVEL_CAPTION,
-    { DI_COMBOBOX, 5, 5, 25, 5, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                   //IDX_LOG_LEVEL,
-    { DI_TEXT, 4, 6, 0, 6, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                        //IDX_LOGPATH_CAPTION,
-    { DI_EDIT, 5, 7, 33, 7, 0, L"logpath", nullptr, DIF_HISTORY, nullptr, 0, 0 },          //IDX_LOGPATH,
-    { DI_BUTTON, 11, 9, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0 },    //IDX_LOG_OK,
-    { DI_BUTTON, 19, 9, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0 },                    //IDX_LOG_CANCEL,
-    // type, x1, y1, x2, y2, param, history, mask, flags,  data, maxlen,userdata
-  };
+  const wchar_t* levelList[] = {L"error", L"warning", L"info", L"debug"};
+  const auto level_count = std::size(levelList);
 
-  fdi[IDX_LOG_BOX].Data = GetMsg(mLogging);
-  fdi[IDX_LOG_OK].Data = GetMsg(mOk);
-  fdi[IDX_LOG_CANCEL].Data = GetMsg(mCancel);
-  fdi[IDX_LOG_ENABLED].Data = GetMsg(mLogTurnOff);
-  fdi[IDX_LOG_ENABLED].Selected = LogEnabled;
-  fdi[IDX_LOG_LEVEL_CAPTION].Data = GetMsg(mLogLevel);
+  //temporary, todo
+  int log_enabled = LogEnabled;
+  int log_level = 0;
+  wchar_t log_path[MAX_PATH];
+  lstrcpynW(log_path, sLogPath->getWChars(), MAX_PATH);
 
-  const auto level_count = 4;
-  FarListItem levelList[level_count];
-  memset(&levelList, 0, sizeof(FarListItem) * (level_count));
-  levelList[0].Text = L"error";
-  levelList[1].Text = L"warning";
-  levelList[2].Text = L"info";
-  levelList[3].Text = L"debug";
   for (size_t i = 0; i < level_count; ++i) {
-    if (slogLevel->equals(&CString(levelList[i].Text))) {
-      levelList[i].Flags = LIF_SELECTED;
+    if (SString(levelList[i]).equals(slogLevel.get())) {
+      log_level = i;
       break;
     }
   }
-  FarList ListItems;
-  ListItems.Items = levelList;
-  ListItems.ItemsNumber = level_count;
-  ListItems.StructSize = sizeof(FarList);
 
-  fdi[IDX_LOGPATH].Data = sLogPath->getWChars();
-  fdi[IDX_LOG_LEVEL].ListItems = &ListItems;
-  fdi[IDX_LOG_LEVEL].Flags = DIF_LISTWRAPMODE | DIF_DROPDOWNLIST;
+  PluginDialogBuilder Builder(Info, MainGuid, LoggingConfig, mLogging, L"configlog");
+  Builder.AddCheckbox(mLogTurnOff, &log_enabled);
+  Builder.AddSeparator();
+  FarDialogItem* box = Builder.AddComboBox(&log_level, nullptr, 10, levelList, level_count, DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+  Builder.AddTextBefore(box, mLogLevel);
+  Builder.AddText(mLogPath);
+  Builder.AddEditField(log_path, MAX_PATH, 28, L"logpath");
+  Builder.AddOKCancel(mOk, mCancel);
 
-  fdi[IDX_LOGPATH_CAPTION].Data = GetMsg(mLogPath);
-
-  HANDLE hDlg = Info.DialogInit(&MainGuid, &LoggingConfig, -1, -1, 38, 11, L"configlog", fdi, ARRAY_SIZE(fdi), 0, 0, nullptr, this);
-  intptr_t i = Info.DialogRun(hDlg);
-
-  if (i == IDX_LOG_OK) {
-    fdi[IDX_LOG_ENABLED].Selected = Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_LOG_ENABLED, nullptr);
-    fdi[IDX_LOGPATH].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_LOGPATH, nullptr))));
-
-    int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_LOG_LEVEL, nullptr));
-    slogLevel.reset(new SString(levelList[k].Text));
-    sLogPath.reset(new SString(fdi[IDX_LOGPATH].Data));
-    LogEnabled = fdi[IDX_LOG_ENABLED].Selected;
+  if (Builder.ShowDialog()) {
+    LogEnabled = log_enabled != 0;
+    slogLevel = std::make_unique<SString>(levelList[log_level]);
+    sLogPath = std::make_unique<SString>(log_path);
     SaveLogSettings();
     applyLogSetting();
   }
-
-  Info.DialogFree(hDlg);
+  
 }
 
 HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
@@ -1775,6 +1765,14 @@ HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
   delete[] nfile;
   return nullptr;
 }
+
+void FarEditorSet::setEmptyLogger()
+{
+  spdlog::drop_all();
+  log = spdlog::null_logger_mt("main");
+  spdlog::set_default_logger(log);
+}
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
