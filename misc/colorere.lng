@@ -6,7 +6,6 @@
 
 "&Enabled"
 "E&nabled"
-"Cro&ss"
 "&Pairs"
 "S&yntax"
 
@@ -42,9 +41,7 @@
 
 "Reloading schema library..."
 "Problem with Colorer"
-"Can't open file:"
 "Ok"
-"Try anyway"
 "Fatal error loading the library schemes"
 "Select color style"
 "Change Editor &background"

@@ -810,13 +810,10 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
 void FarEditorSet::ReloadBase()
 {
-  HANDLE scr = Info.SaveScreen(0, 0, -1, -1);
-
   try {
     ReadSettings();
     applyLogSetting();
     if (!rEnabled) {
-      Info.RestoreScreen(scr);
       return;
     }
 
@@ -872,8 +869,6 @@ void FarEditorSet::ReloadBase()
     err_status = ERR_BASE_LOAD;
     disableColorer();
   }
-
-  Info.RestoreScreen(scr);
 }
 
 size_t FarEditorSet::getEditorCount() const

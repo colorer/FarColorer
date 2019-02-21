@@ -108,7 +108,7 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* cInfo)
   if (!editorSet) {
     editorSet = new FarEditorSet();
   }
-  editorSet->configure();
+  editorSet->menuConfigure();
   return 1;
 }
 

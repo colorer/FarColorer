@@ -47,7 +47,7 @@ extern FarStandardFunctions FSF;
 /** FAR .lng file identifiers. */
 enum {
   mName, mSetup, mTurnOff, mTrueMod,
-  mCross, mPairs, mSyntax, mOldOutline,
+  mPairs, mSyntax, mOldOutline,
   mOk, mReloadAll, mCancel,
   mCatalogFile, mHRDName, mHRDNameTrueMod,
   mListTypes, mMatchPair, mSelectBlock, mSelectPair,
@@ -55,7 +55,7 @@ enum {
   mUpdateHighlight, mReloadBase, mConfigureHotkey,
   mTotalTypes, mSelectSyntax, mOutliner, mNothingFound,
   mGotcha, mChoose,
-  mReloading, mCantLoad, mCantOpenFile, mDie, mTry,
+  mReloading, mCantLoad, mDie,
   mFatal, mSelectHRD, mChangeBackgroundEditor, mTrueModSetting,
   mUserHrdFile, mUserHrcFile, mUserHrcSetting,
   mUserHrcSettingDialog, mListSyntax, mParamList, mParamValue, mAutoDetect, mFavorites,
