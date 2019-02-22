@@ -69,6 +69,24 @@ enum ERROR_TYPE {
 LONG_PTR WINAPI SettingDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
 LONG_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
 
+struct Options
+{
+  bool rEnabled;
+  bool drawPairs;
+  bool drawSyntax;
+  bool oldOutline;
+  bool TrueModOn;
+  bool ChangeBgEditor;
+  bool LogEnabled;
+  wchar_t HrdName[20];
+  wchar_t HrdNameTm[20];
+  wchar_t CatalogPath[MAX_PATH];
+  wchar_t UserHrdPath[MAX_PATH];
+  wchar_t UserHrcPath[MAX_PATH];
+  wchar_t LogPath[MAX_PATH];
+  wchar_t logLevel[10];
+};
+
 /**
  * FAR Editors container.
  * Manages all library resources and creates FarEditor class instances.
@@ -110,25 +128,15 @@ public:
   */
   enum HRC_MODE {HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH};
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
-  
-  SString* GetCatalogPath() const
-  {
-    return sCatalogPath.get();
-  }
-
-  SString* GetUserHrdPath() const
-  {
-    return sUserHrdPath.get();
-  }
 
   bool GetPluginStatus() const
   {
-    return rEnabled;
+    return Opt.rEnabled;
   }
 
   bool isEnable() const
   {
-    return rEnabled;
+    return Opt.rEnabled;
   }
 
   /** Disables all plugin processing*/
@@ -222,19 +230,9 @@ private:
   CString hrdName;
 
   /** registry settings */
-  bool rEnabled; // status plugin
-  bool drawPairs;
-  bool drawSyntax;
-  bool oldOutline;
-  bool TrueModOn;
-  bool ChangeBgEditor;
+  Options Opt;
   std::unique_ptr<SString> sHrdName;
   std::unique_ptr<SString> sHrdNameTm;
-  std::unique_ptr<SString> sCatalogPath;
-  std::unique_ptr<SString> sUserHrdPath;
-  std::unique_ptr<SString> sUserHrcPath;
-  std::unique_ptr<SString> sLogPath;
-  std::unique_ptr<SString> slogLevel;
 
   /** UNC path */
   std::unique_ptr<SString> sCatalogPathExp;
@@ -249,7 +247,6 @@ private:
 
   bool in_construct;
   std::unique_ptr<Colorer> colorer_lib;
-  bool LogEnabled;
   std::shared_ptr<spdlog::logger> log;
 
   HANDLE hTimer = NULL;

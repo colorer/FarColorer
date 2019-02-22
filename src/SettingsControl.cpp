@@ -28,6 +28,11 @@ const wchar_t* SettingsControl::Get(size_t Root, const wchar_t* Name, const wcha
   return Default;
 }
 
+void SettingsControl::Get(size_t Root, const wchar_t* Name, wchar_t* Value, size_t Size, const wchar_t* Default)
+{
+  lstrcpynW(Value, Get(Root, Name, Default), (int) Size);
+}
+
 unsigned __int64 SettingsControl::Get(size_t Root, const wchar_t* Name, unsigned __int64 Default)
 {
   FarSettingsItem item = {sizeof(FarSettingsItem), Root, Name, FST_QWORD};

@@ -17,8 +17,8 @@ VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 FarEditorSet::FarEditorSet():
   dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
-  hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr), sCatalogPath(nullptr), sUserHrdPath(nullptr), sUserHrcPath(nullptr),
-  sLogPath(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr), 
+  hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr),
+  sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr),
   CurrentMenuItem(0), err_status(ERR_NO_ERROR)
 {
   setEmptyLogger();
@@ -93,7 +93,7 @@ void FarEditorSet::openMenu(int MenuId)
     };
     FarMenuItem menuElements[menu_size];
     memset(menuElements, 0, sizeof(menuElements));
-    if (rEnabled) {
+    if (Opt.rEnabled) {
       menuElements[0].Flags = MIF_SELECTED;
     }
     for (int i = menu_size - 1; i >= 0; i--) {
@@ -105,8 +105,8 @@ void FarEditorSet::openMenu(int MenuId)
     }
 
     intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr,
-                                 rEnabled ? menuElements : menuElements + 12, rEnabled ? menu_size : 1);
-    if (!rEnabled && menu_id == 0) {
+                                 Opt.rEnabled ? menuElements : menuElements + 12, Opt.rEnabled ? menu_size : 1);
+    if (!Opt.rEnabled && menu_id == 0) {
       MenuId = 12;
     } else {
       MenuId = static_cast<int>(menu_id);
@@ -116,7 +116,7 @@ void FarEditorSet::openMenu(int MenuId)
   if (MenuId >= 0) {
     try {
       FarEditor* editor = getCurrentEditor();
-      if (!editor && (rEnabled || MenuId != 12)) {
+      if (!editor && (Opt.rEnabled || MenuId != 12)) {
         throw Exception(CString("Can't find current editor in array."));
       }
 
@@ -172,7 +172,7 @@ void FarEditorSet::openMenu(int MenuId)
 void FarEditorSet::viewFile(const String &path)
 {
   try {
-    if (!rEnabled) {
+    if (!Opt.rEnabled) {
       throw Exception(CString("FarColorer is disabled"));
     }
 
@@ -459,8 +459,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
           bool trumod = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
           int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr));
 
-          if (fes->GetCatalogPath()->compareTo(CString(temp)) || fes->GetUserHrdPath()->compareTo(CString(userhrd))
-              || (!fes->GetPluginStatus() && k) || (trumod == true)) {
+          if ((!fes->GetPluginStatus() && k) || (trumod)) {
             if (fes->TestLoadBase(temp, userhrd, userhrc, false, trumod ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE)) {
               return false;
             } else {
@@ -507,22 +506,22 @@ void FarEditorSet::configure()
 
     fdi[IDX_BOX].Data = GetMsg(mSetup);
     fdi[IDX_ENABLED].Data = GetMsg(mTurnOff);
-    fdi[IDX_ENABLED].Selected = rEnabled;
+    fdi[IDX_ENABLED].Selected = Opt.rEnabled;
     fdi[IDX_TRUEMOD].Data = GetMsg(mTrueMod);
-    fdi[IDX_TRUEMOD].Selected = TrueModOn;
+    fdi[IDX_TRUEMOD].Selected = Opt.TrueModOn;
 
     fdi[IDX_PAIRS].Data = GetMsg(mPairs);
-    fdi[IDX_PAIRS].Selected = drawPairs;
+    fdi[IDX_PAIRS].Selected = Opt.drawPairs;
     fdi[IDX_SYNTAX].Data = GetMsg(mSyntax);
-    fdi[IDX_SYNTAX].Selected = drawSyntax;
+    fdi[IDX_SYNTAX].Selected = Opt.drawSyntax;
     fdi[IDX_OLDOUTLINE].Data = GetMsg(mOldOutline);
-    fdi[IDX_OLDOUTLINE].Selected = oldOutline;
+    fdi[IDX_OLDOUTLINE].Selected = Opt.oldOutline;
     fdi[IDX_CATALOG].Data = GetMsg(mCatalogFile);
-    fdi[IDX_CATALOG_EDIT].Data = sCatalogPath->getWChars();
+    fdi[IDX_CATALOG_EDIT].Data = Opt.CatalogPath;
     fdi[IDX_USERHRC].Data = GetMsg(mUserHrcFile);
-    fdi[IDX_USERHRC_EDIT].Data = sUserHrcPath->getWChars();
+    fdi[IDX_USERHRC_EDIT].Data = Opt.UserHrcPath;
     fdi[IDX_USERHRD].Data = GetMsg(mUserHrdFile);
-    fdi[IDX_USERHRD_EDIT].Data = sUserHrdPath->getWChars();
+    fdi[IDX_USERHRD_EDIT].Data = Opt.UserHrdPath;
     fdi[IDX_HRD].Data = GetMsg(mHRDName);
 
     sTempHrdName.reset(new SString(sHrdName.get()));
@@ -535,7 +534,7 @@ void FarEditorSet::configure()
     fdi[IDX_HRD_TM].Data = GetMsg(mHRDNameTrueMod);
     fdi[IDX_HRD_SELECT_TM].Data = descr2->getWChars();
     fdi[IDX_CHANGE_BG].Data = GetMsg(mChangeBackgroundEditor);
-    fdi[IDX_CHANGE_BG].Selected = ChangeBgEditor;
+    fdi[IDX_CHANGE_BG].Selected = Opt.ChangeBgEditor;
     fdi[IDX_RELOAD_ALL].Data = GetMsg(mReloadAll);
     fdi[IDX_OK].Data = GetMsg(mOk);
     fdi[IDX_CANCEL].Data = GetMsg(mCancel);
@@ -554,41 +553,41 @@ void FarEditorSet::configure()
       //check whether or not to reload the base
       int k = false;
 
-      if (sCatalogPath->compareTo(CString(fdi[IDX_CATALOG_EDIT].Data)) ||
-          sUserHrdPath->compareTo(CString(fdi[IDX_USERHRD_EDIT].Data)) ||
-          sUserHrcPath->compareTo(CString(fdi[IDX_USERHRC_EDIT].Data)) ||
+      if (CString(Opt.CatalogPath).compareTo(CString(fdi[IDX_CATALOG_EDIT].Data)) ||
+          CString(Opt.UserHrdPath).compareTo(CString(fdi[IDX_USERHRD_EDIT].Data)) ||
+          CString(Opt.UserHrcPath).compareTo(CString(fdi[IDX_USERHRC_EDIT].Data)) ||
           sHrdName->compareTo(*sTempHrdName) ||
           sHrdNameTm->compareTo(*sTempHrdNameTm)) {
         k = true;
       }
 
       fdi[IDX_ENABLED].Selected = Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_ENABLED, nullptr);
-      drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, nullptr);
-      drawSyntax = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_SYNTAX, nullptr);
-      oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, nullptr);
-      ChangeBgEditor = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CHANGE_BG, nullptr);
+      Opt.drawPairs = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_PAIRS, nullptr);
+      Opt.drawSyntax = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_SYNTAX, nullptr);
+      Opt.oldOutline = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_OLDOUTLINE, nullptr);
+      Opt.ChangeBgEditor = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_CHANGE_BG, nullptr);
       fdi[IDX_TRUEMOD].Selected = !!Info.SendDlgMessage(hDlg, DM_GETCHECK, IDX_TRUEMOD, nullptr);
       sHrdName = std::move(sTempHrdName);
       sHrdNameTm = std::move(sTempHrdNameTm);
-      sCatalogPath.reset(new SString(CString(fdi[IDX_CATALOG_EDIT].Data)));
-      sUserHrdPath.reset(new SString(CString(fdi[IDX_USERHRD_EDIT].Data)));
-      sUserHrcPath.reset(new SString(CString(fdi[IDX_USERHRC_EDIT].Data)));
+      lstrcpynW(Opt.CatalogPath,fdi[IDX_CATALOG_EDIT].Data,std::size(Opt.CatalogPath));
+      lstrcpynW(Opt.UserHrdPath,fdi[IDX_USERHRD_EDIT].Data,std::size(Opt.UserHrdPath));
+      lstrcpynW(Opt.UserHrcPath,fdi[IDX_USERHRC_EDIT].Data,std::size(Opt.UserHrcPath));
 
       // if the plugin has been enable, and we will disable
-      if (rEnabled && !fdi[IDX_ENABLED].Selected) {
-        rEnabled = false;
-        TrueModOn = !!(fdi[IDX_TRUEMOD].Selected);
+      if (Opt.rEnabled && !fdi[IDX_ENABLED].Selected) {
+        Opt.rEnabled = false;
+        Opt.TrueModOn = fdi[IDX_TRUEMOD].Selected != 0;
         //SaveSettings();
         disableColorer();
       } else {
-        if ((!rEnabled && fdi[IDX_ENABLED].Selected) || k) {
-          rEnabled = true;
-          TrueModOn = !!(fdi[IDX_TRUEMOD].Selected);
+        if ((!Opt.rEnabled && fdi[IDX_ENABLED].Selected) || k) {
+          Opt.rEnabled = true;
+          Opt.TrueModOn = fdi[IDX_TRUEMOD].Selected != 0;
           SaveSettings();
           ReloadBase();
         } else {
-          if (TrueModOn != !!fdi[IDX_TRUEMOD].Selected) {
-            TrueModOn = !!(fdi[IDX_TRUEMOD].Selected);
+          if (Opt.TrueModOn != (fdi[IDX_TRUEMOD].Selected != 0)) {
+            Opt.TrueModOn = fdi[IDX_TRUEMOD].Selected != 0;
             SaveSettings();
             ReloadBase();
           } else {
@@ -650,7 +649,7 @@ const SString FarEditorSet::chooseHRDName(const String* current, const CString &
 
 int FarEditorSet::editorInput(const INPUT_RECORD &Rec)
 {
-  if (rEnabled) {
+  if (Opt.rEnabled) {
     FarEditor* editor = getCurrentEditor();
     if (editor) {
       return editor->editorInput(Rec);
@@ -662,12 +661,12 @@ int FarEditorSet::editorInput(const INPUT_RECORD &Rec)
 int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
 {
   // check whether all the editors cleaned
-  if (!rEnabled && farEditorInstances.size() && pInfo->Event == EE_GOTFOCUS) {
+  if (!Opt.rEnabled && farEditorInstances.size() && pInfo->Event == EE_GOTFOCUS) {
     dropCurrentEditor(true);
     return 0;
   }
 
-  if (!rEnabled) {
+  if (!Opt.rEnabled) {
     return 0;
   }
 
@@ -813,7 +812,7 @@ void FarEditorSet::ReloadBase()
   try {
     ReadSettings();
     applyLogSetting();
-    if (!rEnabled) {
+    if (!Opt.rEnabled) {
       return;
     }
 
@@ -823,7 +822,7 @@ void FarEditorSet::ReloadBase()
     regionMapper.reset();
     parserFactory.reset();
 
-    if (TrueModOn) {
+    if (Opt.TrueModOn) {
       hrdClass = DRgb;
       hrdName = sHrdNameTm.get();
     } else {
@@ -890,11 +889,11 @@ FarEditor* FarEditorSet::addCurrentEditor()
   String* s = getCurrentFileName();
   editor->chooseFileType(s);
   delete s;
-  editor->setTrueMod(TrueModOn);
+  editor->setTrueMod(Opt.TrueModOn);
   editor->setRegionMapper(regionMapper.get());
-  editor->setDrawPairs(drawPairs);
-  editor->setDrawSyntax(drawSyntax);
-  editor->setOutlineStyle(oldOutline);
+  editor->setDrawPairs(Opt.drawPairs);
+  editor->setDrawSyntax(Opt.drawSyntax);
+  editor->setOutlineStyle(Opt.oldOutline);
 
   return editor;
 }
@@ -940,10 +939,10 @@ const wchar_t* FarEditorSet::GetMsg(int msg)
 
 void FarEditorSet::disableColorer()
 {
-  rEnabled = false;
+  Opt.rEnabled = false;
   if (!(err_status & ERR_FARSETTINGS_ERROR)) {
     SettingsControl ColorerSettings;
-    ColorerSettings.Set(0, cRegEnabled, rEnabled);
+    ColorerSettings.Set(0, cRegEnabled, Opt.rEnabled);
   }
 
   dropCurrentEditor(true);
@@ -955,7 +954,7 @@ void FarEditorSet::disableColorer()
 
 void FarEditorSet::enableColorer()
 {
-  rEnabled = true;
+  Opt.rEnabled = true;
   SaveSettings();
   ReloadBase();
 }
@@ -963,10 +962,10 @@ void FarEditorSet::enableColorer()
 void FarEditorSet::ApplySettingsToEditors()
 {
   for (auto fe = farEditorInstances.begin(); fe != farEditorInstances.end(); ++fe) {
-    fe->second->setTrueMod(TrueModOn);
-    fe->second->setDrawPairs(drawPairs);
-    fe->second->setDrawSyntax(drawSyntax);
-    fe->second->setOutlineStyle(oldOutline);
+    fe->second->setTrueMod(Opt.TrueModOn);
+    fe->second->setDrawPairs(Opt.drawPairs);
+    fe->second->setDrawSyntax(Opt.drawSyntax);
+    fe->second->setOutlineStyle(Opt.oldOutline);
   }
 }
 
@@ -1000,46 +999,42 @@ void FarEditorSet::ReadSettings()
   SettingsControl ColorerSettings;
   const wchar_t* hrdName = ColorerSettings.Get(0, cRegHrdName, cHrdNameDefault);
   const wchar_t* hrdNameTm = ColorerSettings.Get(0, cRegHrdNameTm, cHrdNameTmDefault);
-  const wchar_t* catalogPath = ColorerSettings.Get(0, cRegCatalog, cCatalogDefault);
-  const wchar_t* userHrdPath = ColorerSettings.Get(0, cRegUserHrdPath, cUserHrdPathDefault);
-  const wchar_t* userHrcPath = ColorerSettings.Get(0, cRegUserHrcPath, cUserHrcPathDefault);
-  const wchar_t* logPath = ColorerSettings.Get(0, cRegLogPath, cLogPathDefault);
-  const wchar_t* logLevel = ColorerSettings.Get(0, cRegLogLevel, cLogLevelDefault);
+  ColorerSettings.Get(0, cRegCatalog, Opt.CatalogPath, std::size(Opt.CatalogPath), cCatalogDefault);
+  ColorerSettings.Get(0, cRegUserHrcPath, Opt.UserHrcPath, std::size(Opt.UserHrcPath), cUserHrcPathDefault);
+  ColorerSettings.Get(0, cRegUserHrdPath, Opt.UserHrdPath, std::size(Opt.UserHrdPath), cUserHrdPathDefault);
+  ColorerSettings.Get(0, cRegLogPath, Opt.LogPath, std::size(Opt.LogPath),cLogPathDefault);
+  ColorerSettings.Get(0, cRegLogLevel, Opt.logLevel, std::size(Opt.LogPath),cLogLevelDefault);
 
   sHrdName.reset(new SString(CString(hrdName)));
   sHrdNameTm.reset(new SString(CString(hrdNameTm)));
-  sCatalogPath.reset(new SString(CString(catalogPath)));
-  sCatalogPathExp.reset(PathToFullS(catalogPath, false));
+  sCatalogPathExp.reset(PathToFullS(Opt.CatalogPath, false));
   if (!sCatalogPathExp || !sCatalogPathExp->length()) {
     SString* path = new SString(*pluginPath);
     path->append(CString(FarCatalogXml));
     sCatalogPathExp.reset(path);
   }
-  sUserHrdPath.reset(new SString(CString(userHrdPath)));
-  sUserHrdPathExp.reset(PathToFullS(userHrdPath, false));
-  sUserHrcPath.reset(new SString(CString(userHrcPath)));
-  sUserHrcPathExp.reset(PathToFullS(userHrcPath, false));
-  sLogPath.reset(new SString(CString(logPath)));
-  slogLevel.reset(new SString(CString(logLevel)));
 
-  rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
-  drawPairs = ColorerSettings.Get(0, cRegPairsDraw, cPairsDrawDefault);
-  drawSyntax = ColorerSettings.Get(0, cRegSyntaxDraw, cSyntaxDrawDefault);
-  oldOutline = ColorerSettings.Get(0, cRegOldOutLine, cOldOutLineDefault);
-  TrueModOn = ColorerSettings.Get(0, cRegTrueMod, cTrueMod);
-  ChangeBgEditor = ColorerSettings.Get(0, cRegChangeBgEditor, cChangeBgEditor);
-  LogEnabled = ColorerSettings.Get(0, cRegLogEnabled, cLogEnabledDefault);
+  sUserHrdPathExp.reset(PathToFullS(Opt.UserHrdPath, false));
+  sUserHrcPathExp.reset(PathToFullS(Opt.UserHrcPath, false));
+
+  Opt.rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
+  Opt.drawPairs = ColorerSettings.Get(0, cRegPairsDraw, cPairsDrawDefault);
+  Opt.drawSyntax = ColorerSettings.Get(0, cRegSyntaxDraw, cSyntaxDrawDefault);
+  Opt.oldOutline = ColorerSettings.Get(0, cRegOldOutLine, cOldOutLineDefault);
+  Opt.TrueModOn = ColorerSettings.Get(0, cRegTrueMod, cTrueMod);
+  Opt.ChangeBgEditor = ColorerSettings.Get(0, cRegChangeBgEditor, cChangeBgEditor);
+  Opt.LogEnabled = ColorerSettings.Get(0, cRegLogEnabled, cLogEnabledDefault);
 }
 
 void FarEditorSet::applyLogSetting()
 {
-  if (LogEnabled) {
-    auto level = spdlog::level::from_str(slogLevel->getChars());
+  if (Opt.LogEnabled) {
+    auto level = spdlog::level::from_str(CString(Opt.logLevel).getChars());
     if (level != spdlog::level::off) {
       try {
         std::string file_name = "farcolorer.log";
-        if (sLogPath->length() > 0)
-          file_name = std::string(sLogPath->getChars()).append("\\").append(file_name);
+        if (Opt.LogPath[0]!='\0')
+          file_name = std::string(CString(Opt.LogPath).getChars()).append("\\").append(file_name);
         spdlog::drop_all();
         log = spdlog::basic_logger_mt("main", file_name);
         spdlog::set_default_logger(log);
@@ -1059,30 +1054,30 @@ void FarEditorSet::applyLogSetting()
 void FarEditorSet::SaveSettings() const
 {
   SettingsControl ColorerSettings;
-  ColorerSettings.Set(0, cRegEnabled, rEnabled);
+  ColorerSettings.Set(0, cRegEnabled, Opt.rEnabled);
   ColorerSettings.Set(0, cRegHrdName, sHrdName->getWChars());
   ColorerSettings.Set(0, cRegHrdNameTm, sHrdNameTm->getWChars());
-  ColorerSettings.Set(0, cRegCatalog,  sCatalogPath->getWChars());
-  ColorerSettings.Set(0, cRegPairsDraw, drawPairs);
-  ColorerSettings.Set(0, cRegSyntaxDraw, drawSyntax);
-  ColorerSettings.Set(0, cRegOldOutLine, oldOutline);
-  ColorerSettings.Set(0, cRegTrueMod, TrueModOn);
-  ColorerSettings.Set(0, cRegChangeBgEditor, ChangeBgEditor);
-  ColorerSettings.Set(0, cRegUserHrdPath, sUserHrdPath->getWChars());
-  ColorerSettings.Set(0, cRegUserHrcPath, sUserHrcPath->getWChars());
+  ColorerSettings.Set(0, cRegCatalog,  Opt.CatalogPath);
+  ColorerSettings.Set(0, cRegPairsDraw, Opt.drawPairs);
+  ColorerSettings.Set(0, cRegSyntaxDraw, Opt.drawSyntax);
+  ColorerSettings.Set(0, cRegOldOutLine, Opt.oldOutline);
+  ColorerSettings.Set(0, cRegTrueMod, Opt.TrueModOn);
+  ColorerSettings.Set(0, cRegChangeBgEditor, Opt.ChangeBgEditor);
+  ColorerSettings.Set(0, cRegUserHrdPath, Opt.UserHrdPath);
+  ColorerSettings.Set(0, cRegUserHrcPath, Opt.UserHrcPath);
 }
 
 void FarEditorSet::SaveLogSettings() const
 {
   SettingsControl ColorerSettings;
-  ColorerSettings.Set(0, cRegLogPath, sLogPath->getWChars());
-  ColorerSettings.Set(0, cRegLogLevel, slogLevel->getWChars());
-  ColorerSettings.Set(0, cRegLogEnabled, LogEnabled);
+  ColorerSettings.Set(0, cRegLogPath, Opt.LogPath);
+  ColorerSettings.Set(0, cRegLogLevel, Opt.LogEnabled);
+  ColorerSettings.Set(0, cRegLogEnabled, Opt.LogEnabled);
 }
 
 bool FarEditorSet::SetBgEditor() const
 {
-  if (rEnabled && ChangeBgEditor) {
+  if (Opt.rEnabled && Opt.ChangeBgEditor) {
 
     const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(CString("def:Text")));
 
@@ -1092,7 +1087,7 @@ bool FarEditorSet::SetBgEditor() const
     fsc.Flags = FSETCLR_REDRAW;
     fsc.ColorsCount = 1;
     fsc.StartIndex = COL_EDITORTEXT;
-    if (TrueModOn) {
+    if (Opt.TrueModOn) {
       fc.Flags = 0;
       fc.BackgroundColor = revertRGB(def_text->back);
       fc.ForegroundColor = revertRGB(def_text->fore);
@@ -1573,7 +1568,7 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
 
 void FarEditorSet::configureHrc()
 {
-  if (!rEnabled) {
+  if (!Opt.rEnabled) {
     return;
   }
 
@@ -1628,14 +1623,11 @@ void FarEditorSet::configureLogging()
   const wchar_t* levelList[] = {L"error", L"warning", L"info", L"debug"};
   const auto level_count = std::size(levelList);
 
-  //temporary, todo
-  int log_enabled = LogEnabled;
+  int log_enabled = Opt.LogEnabled;
   int log_level = 0;
-  wchar_t log_path[MAX_PATH];
-  lstrcpynW(log_path, sLogPath->getWChars(), MAX_PATH);
 
   for (size_t i = 0; i < level_count; ++i) {
-    if (SString(levelList[i]).equals(slogLevel.get())) {
+    if (SString(levelList[i])==SString(Opt.logLevel)) {
       log_level = i;
       break;
     }
@@ -1644,16 +1636,14 @@ void FarEditorSet::configureLogging()
   PluginDialogBuilder Builder(Info, MainGuid, LoggingConfig, mLogging, L"configlog");
   Builder.AddCheckbox(mLogTurnOff, &log_enabled);
   Builder.AddSeparator();
-  FarDialogItem* box = Builder.AddComboBox(&log_level, nullptr, 10, levelList, level_count, DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+  FarDialogItem* box = Builder.AddComboBox(&log_level, Opt.logLevel, 10, levelList, level_count, DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
   Builder.AddTextBefore(box, mLogLevel);
   Builder.AddText(mLogPath);
-  Builder.AddEditField(log_path, MAX_PATH, 28, L"logpath");
+  Builder.AddEditField(Opt.LogPath, MAX_PATH, 28, L"logpath");
   Builder.AddOKCancel(mOk, mCancel);
 
   if (Builder.ShowDialog()) {
-    LogEnabled = log_enabled != 0;
-    slogLevel = std::make_unique<SString>(levelList[log_level]);
-    sLogPath = std::make_unique<SString>(log_path);
+    Opt.LogEnabled = log_enabled != 0;
     SaveLogSettings();
     applyLogSetting();
   }
