@@ -49,13 +49,6 @@ const CString Ddefault   = CString("<default>");
 const CString DAutodetect = CString("autodetect");
 
 enum {
-  IDX_BOX, IDX_ENABLED, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
-  IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
-  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
-  IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_OK, IDX_CANCEL
-};
-
-enum {
   IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS,
   IDX_CH_PARAM_LIST, IDX_CH_PARAM_VALUE_CAPTION, IDX_CH_PARAM_VALUE_LIST, IDX_CH_DESCRIPTION, IDX_CH_OK, IDX_CH_CANCEL
 };
@@ -71,12 +64,12 @@ LONG_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR 
 
 struct Options
 {
-  bool rEnabled;
-  bool drawPairs;
-  bool drawSyntax;
-  bool oldOutline;
-  bool TrueModOn;
-  bool ChangeBgEditor;
+  int rEnabled;
+  int drawPairs;
+  int drawSyntax;
+  int oldOutline;
+  int TrueModOn;
+  int ChangeBgEditor;
   bool LogEnabled;
   wchar_t HrdName[20];
   wchar_t HrdNameTm[20];
@@ -85,6 +78,14 @@ struct Options
   wchar_t UserHrcPath[MAX_PATH];
   wchar_t LogPath[MAX_PATH];
   wchar_t logLevel[10];
+};
+
+struct SettingWindow
+{
+  int okButtonConfig;
+  int catalogEdit;
+  int hrcEdit;
+  int hrdEdit;
 };
 
 /**
@@ -118,8 +119,6 @@ public:
 
   /** Get the description of HRD, or parameter name if description=null */
   const String* getHRDescription(const String &name, const CString &_hrdClass) const;
-  /** Shows dialog with HRD scheme selection */
-  const SString chooseHRDName(const String* current, const CString &_hrdClass);
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -165,6 +164,7 @@ public:
   std::unique_ptr<SString> sTempHrdName;
   std::unique_ptr<SString> sTempHrdNameTm;
 
+  SettingWindow settingWindow;
 private:
   /** add current active editor and return him. */
   FarEditor* addCurrentEditor();
@@ -200,6 +200,7 @@ private:
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   String* getCurrentFileName();
 
+  int getHrdArrayWithCurrent(const wchar_t* current, const CString &_hrdClass, std::vector<const wchar_t*> *array);
   // FarList for dialog objects
   FarList* buildHrcList() const;
   FarList* buildParamsList(FileTypeImpl* type) const;

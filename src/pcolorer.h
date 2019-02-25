@@ -61,7 +61,7 @@ enum {
   mUserHrcSettingDialog, mListSyntax, mParamList, mParamValue, mAutoDetect, mFavorites,
   mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName,
   mLog, mLogging, mLogTurnOff, mLogLevel, mLogPath,
-  mMainSettings, mSettings
+  mMainSettings, mSettings, mStyleConf
 };
 
 #endif

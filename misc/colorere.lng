@@ -5,7 +5,7 @@
 "FarColorer's settings"
 
 "&Enabled"
-"E&nabled"
+"TrueMod E&nabled"
 "&Pairs"
 "S&yntax"
 
@@ -17,7 +17,7 @@
 
 "c&atalog.xml file:"
 "Colo&r style:"
-"Color s&tyle:"
+"TrueMod color s&tyle:"
 
 "&1 List types"
 "&2 Match pair"
@@ -65,3 +65,4 @@
 "Log path"
 "Main settings"
 "Settings"
+"Style configuration"
