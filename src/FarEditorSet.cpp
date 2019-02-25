@@ -17,8 +17,7 @@ VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 FarEditorSet::FarEditorSet():
   dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
-  hrcParser(nullptr), sHrdName(nullptr), sHrdNameTm(nullptr),
-  sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr),
+  hrcParser(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr),
   CurrentMenuItem(0), err_status(ERR_NO_ERROR)
 {
   setEmptyLogger();
@@ -28,10 +27,8 @@ FarEditorSet::FarEditorSet():
   pos = module.lastIndexOf('\\', pos);
   pluginPath = std::make_unique<SString>(CString(module, 0, pos));
 
-  in_construct = true;
   colorer_lib = std::make_unique<Colorer>();
   ReloadBase();
-  in_construct = false;
 
   hTimerQueue = CreateTimerQueue();
   CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK)ColorThread, nullptr, 500, 500, 0);
@@ -188,7 +185,7 @@ void FarEditorSet::viewFile(const String &path)
     BaseEditor baseEditor(parserFactory.get(), &textLinesStore);
     RegionMapper* regionMap;
     try {
-      regionMap = parserFactory->createStyledMapper(&DConsole, sHrdName.get());
+      regionMap = parserFactory->createStyledMapper(&DConsole, &CString(Opt.HrdName));
     } catch (ParserFactoryException &e) {
       spdlog::error("{0}", e.what());
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
@@ -456,14 +453,16 @@ void FarEditorSet::configure()
 
     Builder.StartColumns();
     std::vector<const wchar_t*> console_style;
-    auto current_style = getHrdArrayWithCurrent(Opt.HrdName, DConsole, &console_style);
+    std::vector<const HRDNode*> hrd_con_instances = parserFactory->enumHRDInstances(DConsole);
+    auto current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
     Builder.AddText(mHRDName);
     Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
     Builder.AddCheckbox(mTrueMod, &Opt.TrueModOn);
 
     std::vector<const wchar_t*> rgb_style;
-    auto current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, DRgb, &rgb_style);
+    std::vector<const HRDNode*> hrd_rgb_instances = parserFactory->enumHRDInstances(DRgb);
+    auto current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
     Builder.AddText(mHRDNameTrueMod);
     Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
@@ -479,6 +478,8 @@ void FarEditorSet::configure()
     settingWindow.okButtonConfig = Builder.GetLastID() - 1;
 
     if (Builder.ShowDialog()) {
+      lstrcpynW(Opt.HrdName,hrd_con_instances.at(current_style)->hrd_name.getWChars(),std::size(Opt.HrdName));
+      lstrcpynW(Opt.HrdNameTm,hrd_rgb_instances.at(current_rstyle)->hrd_name.getWChars(),std::size(Opt.HrdNameTm));
       SaveSettings();
       ReloadBase();
     }
@@ -662,21 +663,24 @@ void FarEditorSet::ReloadBase()
       return;
     }
 
-    const wchar_t* marr[2] = { GetMsg(mName), GetMsg(mReloading) };
-    Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
+    const wchar_t* marr[2] = {GetMsg(mName), GetMsg(mReloading)};
+    Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], std::size(marr), 0);
     dropAllEditors(true);
     regionMapper.reset();
     parserFactory.reset();
 
+    CString hrdClass;
+    CString hrdName;
+
     if (Opt.TrueModOn) {
       hrdClass = DRgb;
-      hrdName = sHrdNameTm.get();
+      hrdName = CString(Opt.HrdNameTm);
     } else {
       hrdClass = DConsole;
-      hrdName = sHrdName.get();
+      hrdName = CString(Opt.HrdName);
     }
 
-    parserFactory.reset(new ParserFactory());
+    parserFactory = std::make_unique<ParserFactory>();
     parserFactory->loadCatalog(sCatalogPathExp.get());
     hrcParser = parserFactory->getHRCParser();
     LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
@@ -684,30 +688,23 @@ void FarEditorSet::ReloadBase()
     FarHrcSettings p(parserFactory.get());
     p.readProfile(pluginPath.get());
     p.readUserProfile();
-    defaultType = static_cast<FileTypeImpl*>(hrcParser->getFileType(&DDefaultScheme));
+    defaultType = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&DDefaultScheme));
 
     try {
       regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, &hrdName));
-    } catch (ParserFactoryException &e) {
+    } catch (ParserFactoryException& e) {
       spdlog::error("{0}", e.what());
       regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, nullptr));
     }
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
-    if (!in_construct) {
-      //в случае изменения настроек в диалоге, надо перерисовать текущий редактор
-      FarEditor* editor = addCurrentEditor();
-      if (editor) {
-        editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
-      }
-    }
-  } catch (SettingsControlException &e) {
+  } catch (SettingsControlException& e) {
 
     spdlog::error("{0}", e.what());
     showExceptionMessage(CString(e.what()).getWChars());
     err_status = ERR_FARSETTINGS_ERROR;
     disableColorer();
-  } catch (Exception &e) {
+  } catch (Exception& e) {
 
     spdlog::error("{0}", e.what());
     showExceptionMessage(CString(e.what()).getWChars());
@@ -843,25 +840,24 @@ void FarEditorSet::dropAllEditors(bool clean)
 void FarEditorSet::ReadSettings()
 {
   SettingsControl ColorerSettings;
-  const wchar_t* hrdName = ColorerSettings.Get(0, cRegHrdName, cHrdNameDefault);
-  const wchar_t* hrdNameTm = ColorerSettings.Get(0, cRegHrdNameTm, cHrdNameTmDefault);
+
+  ColorerSettings.Get(0, cRegHrdName, Opt.HrdName, std::size(Opt.HrdName), cHrdNameDefault);
+  ColorerSettings.Get(0, cRegHrdNameTm, Opt.HrdNameTm, std::size(Opt.HrdNameTm), cHrdNameTmDefault);
   ColorerSettings.Get(0, cRegCatalog, Opt.CatalogPath, std::size(Opt.CatalogPath), cCatalogDefault);
   ColorerSettings.Get(0, cRegUserHrcPath, Opt.UserHrcPath, std::size(Opt.UserHrcPath), cUserHrcPathDefault);
   ColorerSettings.Get(0, cRegUserHrdPath, Opt.UserHrdPath, std::size(Opt.UserHrdPath), cUserHrdPathDefault);
-  ColorerSettings.Get(0, cRegLogPath, Opt.LogPath, std::size(Opt.LogPath),cLogPathDefault);
-  ColorerSettings.Get(0, cRegLogLevel, Opt.logLevel, std::size(Opt.LogPath),cLogLevelDefault);
+  ColorerSettings.Get(0, cRegLogPath, Opt.LogPath, std::size(Opt.LogPath), cLogPathDefault);
+  ColorerSettings.Get(0, cRegLogLevel, Opt.logLevel, std::size(Opt.LogPath), cLogLevelDefault);
 
-  sHrdName.reset(new SString(CString(hrdName)));
-  sHrdNameTm.reset(new SString(CString(hrdNameTm)));
   sCatalogPathExp.reset(PathToFullS(Opt.CatalogPath, false));
   if (!sCatalogPathExp || !sCatalogPathExp->length()) {
-    SString* path = new SString(*pluginPath);
+    auto* path = new SString(*pluginPath);
     path->append(CString(FarCatalogXml));
     sCatalogPathExp.reset(path);
   }
-
   sUserHrdPathExp.reset(PathToFullS(Opt.UserHrdPath, false));
   sUserHrcPathExp.reset(PathToFullS(Opt.UserHrcPath, false));
+  sLogPathExp.reset(PathToFullS(Opt.LogPath, false));
 
   Opt.rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
   Opt.drawPairs = ColorerSettings.Get(0, cRegPairsDraw, cPairsDrawDefault);
@@ -880,7 +876,7 @@ void FarEditorSet::applyLogSetting()
       try {
         std::string file_name = "farcolorer.log";
         if (Opt.LogPath[0]!='\0')
-          file_name = std::string(CString(Opt.LogPath).getChars()).append("\\").append(file_name);
+          file_name = std::string(sLogPathExp->getChars()).append("\\").append(file_name);
         spdlog::drop_all();
         log = spdlog::basic_logger_mt("main", file_name);
         spdlog::set_default_logger(log);
@@ -901,8 +897,8 @@ void FarEditorSet::SaveSettings() const
 {
   SettingsControl ColorerSettings;
   ColorerSettings.Set(0, cRegEnabled, Opt.rEnabled);
-  ColorerSettings.Set(0, cRegHrdName, sHrdName->getWChars());
-  ColorerSettings.Set(0, cRegHrdNameTm, sHrdNameTm->getWChars());
+  ColorerSettings.Set(0, cRegHrdName, Opt.HrdName);
+  ColorerSettings.Set(0, cRegHrdNameTm, Opt.HrdNameTm);
   ColorerSettings.Set(0, cRegCatalog,  Opt.CatalogPath);
   ColorerSettings.Set(0, cRegPairsDraw, Opt.drawPairs);
   ColorerSettings.Set(0, cRegSyntaxDraw, Opt.drawSyntax);
@@ -1469,7 +1465,6 @@ void FarEditorSet::configureLogging()
   const wchar_t* levelList[] = {L"error", L"warning", L"info", L"debug"};
   const auto level_count = std::size(levelList);
 
-  int log_enabled = Opt.LogEnabled;
   int log_level = 0;
 
   for (size_t i = 0; i < level_count; ++i) {
@@ -1480,7 +1475,7 @@ void FarEditorSet::configureLogging()
   }
 
   PluginDialogBuilder Builder(Info, MainGuid, LoggingConfig, mLogging, L"configlog");
-  Builder.AddCheckbox(mLogTurnOff, &log_enabled);
+  Builder.AddCheckbox(mLogTurnOff, &Opt.LogEnabled);
   Builder.AddSeparator();
   FarDialogItem* box = Builder.AddComboBox(&log_level, Opt.logLevel, 10, levelList, level_count, DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
   Builder.AddTextBefore(box, mLogLevel);
@@ -1489,11 +1484,9 @@ void FarEditorSet::configureLogging()
   Builder.AddOKCancel(mOk, mCancel);
 
   if (Builder.ShowDialog()) {
-    Opt.LogEnabled = log_enabled != 0;
     SaveLogSettings();
     applyLogSetting();
   }
-  
 }
 
 HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
@@ -1572,19 +1565,18 @@ void FarEditorSet::setEmptyLogger()
   spdlog::set_default_logger(log);
 }
 
-int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, const CString& _hrdClass, std::vector<const wchar_t*>* array)
+int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array)
 {
-  std::vector<const HRDNode*> hrd_instances = parserFactory->enumHRDInstances(_hrdClass);
-  size_t hrd_count = hrd_instances.size();
+  size_t hrd_count = hrd_instances->size();
   auto current_style=0;
 
   for (size_t i = 0; i < hrd_count; i++) {
-    const HRDNode* hrd_node = hrd_instances.at(i);
+    const HRDNode* hrd_node = hrd_instances->at(i);
 
     if (hrd_node->hrd_description.length() != 0) {
-      array->push_back(hrd_node->hrd_description.getWChars());
+      out_array->push_back(hrd_node->hrd_description.getWChars());
     }else{
-      array->push_back(hrd_node->hrd_name.getWChars());
+      out_array->push_back(hrd_node->hrd_name.getWChars());
     }
 
     if (SString(current).equals(&hrd_node->hrd_name)) {

@@ -70,7 +70,7 @@ struct Options
   int oldOutline;
   int TrueModOn;
   int ChangeBgEditor;
-  bool LogEnabled;
+  int LogEnabled;
   wchar_t HrdName[20];
   wchar_t HrdNameTm[20];
   wchar_t CatalogPath[MAX_PATH];
@@ -200,7 +200,7 @@ private:
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   String* getCurrentFileName();
 
-  int getHrdArrayWithCurrent(const wchar_t* current, const CString &_hrdClass, std::vector<const wchar_t*> *array);
+  int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // FarList for dialog objects
   FarList* buildHrcList() const;
   FarList* buildParamsList(FileTypeImpl* type) const;
@@ -226,14 +226,8 @@ private:
   std::unique_ptr<RegionMapper> regionMapper;
   HRCParser* hrcParser;
 
-  /**current value*/
-  CString hrdClass;
-  CString hrdName;
-
   /** registry settings */
   Options Opt;
-  std::unique_ptr<SString> sHrdName;
-  std::unique_ptr<SString> sHrdNameTm;
 
   /** UNC path */
   std::unique_ptr<SString> sCatalogPathExp;
@@ -246,7 +240,6 @@ private:
 
   unsigned int err_status;
 
-  bool in_construct;
   std::unique_ptr<Colorer> colorer_lib;
   std::shared_ptr<spdlog::logger> log;
 
