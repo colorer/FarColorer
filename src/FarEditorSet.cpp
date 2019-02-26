@@ -10,9 +10,6 @@
 #include <colorer/parsers/ParserFactoryException.h>
 #include "DlgBuilder.hpp"
 
-/// macro - number of elements in array
-#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
-
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 FarEditorSet::FarEditorSet():
@@ -159,6 +156,7 @@ void FarEditorSet::openMenu(int MenuId)
         case 12:
           menuConfigure();
           break;
+        default:break;
       }
     } catch (Exception &e) {
       spdlog::error("{0}", e.what());
@@ -251,7 +249,7 @@ FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx) const
     group = type->getGroup();
   }
 
-  return static_cast<FileTypeImpl*>(type);
+  return dynamic_cast<FileTypeImpl*>(type);
 }
 
 void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const
@@ -275,7 +273,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
 
     size_t i;
     const String* v;
-    v = static_cast<FileTypeImpl*>(type)->getParamValue(DFavorite);
+    v = dynamic_cast<FileTypeImpl*>(type)->getParamValue(DFavorite);
     if (v && v->equals(&DTrue)) {
       i = Menu->AddFavorite(type);
     } else {
@@ -298,7 +296,7 @@ INT_PTR WINAPI KeyDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* P
 {
   wchar wkey[2];
 
-  INPUT_RECORD* record = static_cast<INPUT_RECORD*>(Param2);
+  auto* record = static_cast<INPUT_RECORD*>(Param2);
   if (Msg == DN_CONTROLINPUT && record->EventType == KEY_EVENT) {
     int key = record->Event.KeyEvent.wVirtualKeyCode;
     if (key == VK_ESCAPE  || key == VK_RETURN) {
@@ -336,7 +334,7 @@ void FarEditorSet::chooseType()
   _snwprintf(bottom, 20, GetMsg(mTotalTypes), hrcParser->getFileTypesCount());
   struct FarKey BreakKeys[3] = {VK_INSERT, 0, VK_DELETE, 0, VK_F4, 0};
   intptr_t BreakCode;
-  while (1) {
+  while (true) {
     intptr_t i = Info.Menu(&MainGuid, &FileChooseMenu, -1, -1, 0, FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT,
                            GetMsg(mSelectSyntax), bottom, L"filetypechoose", BreakKeys, &BreakCode, menu.getItems(), menu.getItemsCount());
 
@@ -366,18 +364,18 @@ void FarEditorSet::chooseType()
         };
 
         const String* v;
-        v = static_cast<FileTypeImpl*>(menu.GetFileType(i))->getParamValue(DHotkey);
+        v = dynamic_cast<FileTypeImpl*>(menu.GetFileType(i))->getParamValue(DHotkey);
         if (v && v->length()) {
           KeyAssignDlgData[2].Data = v->getWChars();
         }
 
-        HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData, ARRAY_SIZE(KeyAssignDlgData), 0, 0, KeyDialogProc, nullptr);
+        HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData, std::size(KeyAssignDlgData), 0, 0, KeyDialogProc, nullptr);
         intptr_t res = Info.DialogRun(hDlg);
 
         if (res != -1) {
           KeyAssignDlgData[2].Data = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr))));
           if (menu.GetFileType(i)->getParamValue(DHotkey) == nullptr) {
-            static_cast<FileTypeImpl*>(menu.GetFileType(i))->addParam(&DHotkey);
+            dynamic_cast<FileTypeImpl*>(menu.GetFileType(i))->addParam(&DHotkey);
           }
           CString hotkey = CString(KeyAssignDlgData[2].Data);
           menu.GetFileType(i)->setParamValue(DHotkey, &hotkey);
@@ -556,6 +554,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         return 0;
       }
       break;
+      default:break;
     }
   } catch (Exception &e) {
     spdlog::error("{0}", e.what());
@@ -585,7 +584,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
   std::unique_ptr<SString> tpath;
   if (!catalogPathS || !catalogPathS->length()) {
-    SString* path = new SString(*pluginPath);
+    auto* path = new SString(*pluginPath);
     path->append(CString(FarCatalogXml));
     tpath.reset(path);
   } else {
@@ -593,7 +592,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
   }
 
   try {
-    parserFactoryLocal.reset(new ParserFactory);
+    parserFactoryLocal = std::make_unique<ParserFactory>();
     parserFactoryLocal->loadCatalog(tpath.get());
     HRCParser* hrcParserLocal = parserFactoryLocal->getHRCParser();
     LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
@@ -720,13 +719,13 @@ size_t FarEditorSet::getEditorCount() const
 
 FarEditor* FarEditorSet::addCurrentEditor()
 {
-  EditorInfo ei;
+  EditorInfo ei{};
   ei.StructSize = sizeof(EditorInfo);
   if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
     return nullptr;
   }
 
-  FarEditor* editor = new FarEditor(&Info, parserFactory.get());
+  auto* editor = new FarEditor(&Info, parserFactory.get());
   std::pair<intptr_t, FarEditor*> pair_editor(ei.EditorID, editor);
   farEditorInstances.emplace(pair_editor);
   String* s = getCurrentFileName();
@@ -757,14 +756,14 @@ String* FarEditorSet::getCurrentFileName()
   if (slash_idx == -1) {
     slash_idx = fnpath.lastIndexOf('/');
   }
-  SString* s = new SString(fnpath, slash_idx + 1);
+  auto* s = new SString(fnpath, slash_idx + 1);
   delete[] FileName;
   return s;
 }
 
 FarEditor* FarEditorSet::getCurrentEditor()
 {
-  EditorInfo ei;
+  EditorInfo ei{};
   ei.StructSize = sizeof(EditorInfo);
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
   auto if_editor = farEditorInstances.find(ei.EditorID);
@@ -814,7 +813,7 @@ void FarEditorSet::ApplySettingsToEditors()
 
 void FarEditorSet::dropCurrentEditor(bool clean)
 {
-  EditorInfo ei;
+  EditorInfo ei{};
   ei.StructSize = sizeof(EditorInfo);
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
   auto it_editor = farEditorInstances.find(ei.EditorID);
@@ -923,8 +922,8 @@ bool FarEditorSet::SetBgEditor() const
 
     const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(CString("def:Text")));
 
-    FarSetColors fsc;
-    FarColor fc;
+    FarSetColors fsc{};
+    FarColor fc{};
     fsc.StructSize = sizeof(FarSetColors);
     fsc.Flags = FSETCLR_REDRAW;
     fsc.ColorsCount = 1;
@@ -940,7 +939,7 @@ bool FarEditorSet::SetBgEditor() const
     }
     fc.Reserved = nullptr;
     fsc.Colors = &fc;
-    return !!Info.AdvControl(&MainGuid, ACTL_SETARRAYCOLOR, 0, &fsc);
+    return Info.AdvControl(&MainGuid, ACTL_SETARRAYCOLOR, 0, &fsc) != 0;
   }
   return false;
 }
@@ -953,7 +952,7 @@ void FarEditorSet::LoadUserHrd(const String* filename, ParserFactory* pf)
     xml_parser.setErrorHandler(&err_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
-    uXmlInputSource config = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
+    uXmlInputSource config = XmlInputSource::newInstance(filename->getWChars(), static_cast<const XMLCh*>(nullptr));
     xml_parser.parse(*config->getInputSource());
     if (err_handler.getSawErrors()) {
       throw ParserFactoryException(SString("Error reading ") + CString(filename));
@@ -967,7 +966,7 @@ void FarEditorSet::LoadUserHrd(const String* filename, ParserFactory* pf)
     }
     for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
       if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-        xercesc::DOMElement* subelem = static_cast<xercesc::DOMElement*>(node);
+        auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
         if (xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
           //pf->parseHRDSetsChild(subelem);
         }
@@ -980,7 +979,7 @@ void FarEditorSet::LoadUserHrc(const String* filename, ParserFactory* pf)
 {
   if (filename && filename->length()) {
     HRCParser* hr = pf->getHRCParser();
-    uXmlInputSource dfis = XmlInputSource::newInstance(filename->getWChars(), static_cast<XMLCh*>(nullptr));
+    uXmlInputSource dfis = XmlInputSource::newInstance(filename->getWChars(), static_cast<const XMLCh*>(nullptr));
     try {
       hr->loadSource(dfis.get());
     } catch (Exception &e) {
@@ -996,7 +995,7 @@ const String* FarEditorSet::getParamDefValue(FileTypeImpl* type, SString param) 
   if (value == nullptr) {
     value = defaultType->getParamValue(param);
   }
-  SString* p = new SString("<default-");
+  auto* p = new SString("<default-");
   p->append(CString(value));
   p->append(CString(">"));
   return p;
@@ -1008,7 +1007,7 @@ FarList* FarEditorSet::buildHrcList() const
   const String* group = nullptr;
   FileType* type = nullptr;
 
-  FarListItem* hrcList = new FarListItem[num];
+  auto* hrcList = new FarListItem[num];
   memset(hrcList, 0, sizeof(FarListItem) * (num));
 
   for (int idx = 0, i = 0;; idx++, i++) {
@@ -1038,7 +1037,7 @@ FarList* FarEditorSet::buildHrcList() const
   }
 
   hrcList[0].Flags = LIF_SELECTED;
-  FarList* ListItems = new FarList;
+  auto* ListItems = new FarList;
   ListItems->Items = hrcList;
   ListItems->ItemsNumber = num;
   ListItems->StructSize = sizeof(FarList);
@@ -1049,7 +1048,7 @@ FarList* FarEditorSet::buildParamsList(FileTypeImpl* type) const
 {
   //max count params
   size_t size = type->getParamCount() + defaultType->getParamCount();
-  FarListItem* fparam = new FarListItem[size];
+  auto* fparam = new FarListItem[size];
   memset(fparam, 0, sizeof(FarListItem) * (size));
 
   size_t count = 0;
@@ -1065,7 +1064,7 @@ FarList* FarEditorSet::buildParamsList(FileTypeImpl* type) const
   }
 
   fparam[0].Flags = LIF_SELECTED;
-  FarList* lparam = new FarList;
+  auto* lparam = new FarList;
   lparam->Items = fparam;
   lparam->ItemsNumber = count;
   lparam->StructSize = sizeof(FarList);
@@ -1076,8 +1075,8 @@ FarList* FarEditorSet::buildParamsList(FileTypeImpl* type) const
 void FarEditorSet::ChangeParamValueListType(HANDLE hDlg, bool dropdownlist)
 {
   size_t s = Info.SendDlgMessage(hDlg, DM_GETDLGITEM, IDX_CH_PARAM_VALUE_LIST, nullptr);
-  struct FarDialogItem* DialogItem = static_cast<FarDialogItem*>(calloc(1, s));
-  FarGetDialogItem fgdi;
+  auto* DialogItem = static_cast<FarDialogItem*>(calloc(1, s));
+  FarGetDialogItem fgdi{};
   fgdi.Item = DialogItem;
   fgdi.StructSize = sizeof(FarGetDialogItem);
   fgdi.Size = s;
@@ -1094,18 +1093,18 @@ void FarEditorSet::ChangeParamValueListType(HANDLE hDlg, bool dropdownlist)
 
 void FarEditorSet::setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg)
 {
-  const String* value = static_cast<FileTypeImpl*>(type)->getParamUserValue(DShowCross);
+  const String* value = type->getParamUserValue(DShowCross);
   const String* def_value = getParamDefValue(type, DShowCross);
 
   size_t count = 5;
-  FarListItem* fcross = new FarListItem[count];
+  auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
   fcross[0].Text = DNone.getWChars();
   fcross[1].Text = DVertical.getWChars();
   fcross[2].Text = DHorizontal.getWChars();
   fcross[3].Text = DBoth.getWChars();
   fcross[4].Text = def_value->getWChars();
-  FarList* lcross = new FarList;
+  auto* lcross = new FarList;
   lcross->Items = fcross;
   lcross->ItemsNumber = count;
   lcross->StructSize = sizeof(FarList);
@@ -1138,12 +1137,12 @@ void FarEditorSet::setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDl
   const String* def_value = getParamDefValue(type, DCrossZorder);
 
   size_t count = 3;
-  FarListItem* fcross = new FarListItem[count];
+  auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
   fcross[0].Text = DBottom.getWChars();
   fcross[1].Text = DTop.getWChars();
   fcross[2].Text = def_value->getWChars();
-  FarList* lcross = new FarList;
+  auto* lcross = new FarList;
   lcross->Items = fcross;
   lcross->ItemsNumber = count;
   lcross->StructSize = sizeof(FarList);
@@ -1172,12 +1171,12 @@ void FarEditorSet::setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CSt
   const String* def_value = getParamDefValue(type, param);
 
   size_t count = 3;
-  FarListItem* fcross = new FarListItem[count];
+  auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
   fcross[0].Text = DNo.getWChars();
   fcross[1].Text = DYes.getWChars();
   fcross[2].Text = def_value->getWChars();
-  FarList* lcross = new FarList;
+  auto* lcross = new FarList;
   lcross->Items = fcross;
   lcross->ItemsNumber = count;
   lcross->StructSize = sizeof(FarList);
@@ -1206,12 +1205,12 @@ void FarEditorSet::setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CSt
   const String* def_value = getParamDefValue(type, param);
 
   size_t count = 3;
-  FarListItem* fcross = new FarListItem[count];
+  auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
   fcross[0].Text = DFalse.getWChars();
   fcross[1].Text = DTrue.getWChars();
   fcross[2].Text = def_value->getWChars();
-  FarList* lcross = new FarList;
+  auto* lcross = new FarList;
   lcross->Items = fcross;
   lcross->ItemsNumber = count;
   lcross->StructSize = sizeof(FarList);
@@ -1240,10 +1239,10 @@ void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg,
   const String* def_value = getParamDefValue(type, param);
 
   size_t count = 1;
-  FarListItem* fcross = new FarListItem[count];
+  auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
   fcross[0].Text = def_value->getWChars();
-  FarList* lcross = new FarList;
+  auto* lcross = new FarList;
   lcross->Items = fcross;
   lcross->ItemsNumber = count;
   lcross->StructSize = sizeof(FarList);
@@ -1262,7 +1261,7 @@ void FarEditorSet::setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg,
 
 FileTypeImpl* FarEditorSet::getCurrentTypeInDialog(HANDLE hDlg) const
 {
-  int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CH_SCHEMAS, nullptr));
+  auto k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, IDX_CH_SCHEMAS, nullptr));
   return getFileTypeByIndex(k);
 }
 
@@ -1294,13 +1293,13 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
   //param value
   CString v = CString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
   FileTypeImpl* type = getCurrentTypeInDialog(hDlg);
-  const String* value = static_cast<FileTypeImpl*>(type)->getParamUserValue(p);
+  const String* value = type->getParamUserValue(p);
   const String* def_value = getParamDefValue(type, p);
   if (value == nullptr || !value->length()) { ////было default значение
     //если его изменили
     if (!v.equals(def_value)) {
       if (type->getParamValue(p) == nullptr) {
-        static_cast<FileTypeImpl*>(type)->addParam(&p);
+        type->addParam(&p);
       }
       type->setParamValue(p, &v);
     }
@@ -1366,7 +1365,7 @@ void FarEditorSet::OnSaveHrcParams(HANDLE hDlg)
 
 INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-  FarEditorSet* fes = reinterpret_cast<FarEditorSet*>(Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr));
+  auto* fes = reinterpret_cast<FarEditorSet*>(Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr));
 
   switch (Msg) {
     case DN_GOTFOCUS: {
@@ -1384,6 +1383,7 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
           fes->OnSaveHrcParams(hDlg);
           return false;
           break;
+        default:break;
       }
       break;
     case DN_EDITCHANGE:
@@ -1393,6 +1393,7 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
           fes->OnChangeHrc(hDlg);
           return true;
           break;
+        default:break;
       }
       break;
     case DN_LISTCHANGE:
@@ -1401,8 +1402,10 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
           fes->OnChangeParam(hDlg, reinterpret_cast<intptr_t>(Param2));
           return true;
           break;
+        default:break;
       }
       break;
+    default:break;
   }
 
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -1442,7 +1445,7 @@ void FarEditorSet::configureHrc()
   fdi[IDX_CH_PARAM_VALUE_LIST].Flags = DIF_LISTWRAPMODE ;
 
   dialogFirstFocus = true;
-  HANDLE hDlg = Info.DialogInit(&MainGuid, &HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, ARRAY_SIZE(fdi), 0, 0, SettingHrcDialogProc, this);
+  HANDLE hDlg = Info.DialogInit(&MainGuid, &HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, std::size(fdi), 0, 0, SettingHrcDialogProc, this);
   Info.DialogRun(hDlg);
 
   for (size_t idx = 0; idx < l->ItemsNumber; idx++) {
@@ -1491,8 +1494,8 @@ void FarEditorSet::configureLogging()
 
 HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
 {
-  FARMACROAREA area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
-  OpenMacroInfo* mi = (OpenMacroInfo*) oInfo->Data;
+  auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
+  auto* mi = (OpenMacroInfo*) oInfo->Data;
   int MenuCode = -1;
   std::unique_ptr<SString> command = nullptr;
   if (mi->Count) {
@@ -1504,7 +1507,7 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
         MenuCode = (int) mi->Values[0].Double;
         break;
       case FMVT_STRING:
-        command.reset(new SString(CString(mi->Values[0].String)));
+        command = std::make_unique<SString>(CString(mi->Values[0].String));
         break;
       default:
         MenuCode = -1;
@@ -1519,7 +1522,7 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
       if (mi->Count == 1) {
         return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
       } else {
-        bool new_status = 0;
+        bool new_status = false;
         switch (mi->Values[1].Type) {
           case FMVT_BOOLEAN:
             new_status = mi->Values[1].Boolean;
@@ -1541,11 +1544,12 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
       }
     }
   }
+  return INVALID_HANDLE_VALUE;
 }
 
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
 {
-  OpenCommandLineInfo* ocli = (OpenCommandLineInfo*)oInfo->Data;
+  auto* ocli = (OpenCommandLineInfo*)oInfo->Data;
   //file name, which we received
   const wchar_t* file = ocli->CommandLine;
 
