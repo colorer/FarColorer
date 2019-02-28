@@ -8,6 +8,7 @@
 #include "SettingsControl.h"
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <colorer/parsers/ParserFactoryException.h>
+#include <colorer/parsers/CatalogParser.h>
 #include "DlgBuilder.hpp"
 
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
@@ -474,8 +475,8 @@ void FarEditorSet::configure()
     settingWindow.okButtonConfig = Builder.GetLastID() - 1;
 
     if (Builder.ShowDialog()) {
-      lstrcpynW(Opt.HrdName,hrd_con_instances.at(current_style)->hrd_name.getWChars(),std::size(Opt.HrdName));
-      lstrcpynW(Opt.HrdNameTm,hrd_rgb_instances.at(current_rstyle)->hrd_name.getWChars(),std::size(Opt.HrdNameTm));
+      wcsncpy(Opt.HrdName,hrd_con_instances.at(current_style)->hrd_name.getWChars(),std::size(Opt.HrdName));
+      wcsncpy(Opt.HrdNameTm,hrd_rgb_instances.at(current_rstyle)->hrd_name.getWChars(),std::size(Opt.HrdNameTm));
       SaveSettings();
       ReloadBase();
     }
@@ -504,7 +505,7 @@ int FarEditorSet::editorInput(const INPUT_RECORD &Rec)
 int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
 {
   // check whether all the editors cleaned
-  if (!Opt.rEnabled && farEditorInstances.size() && pInfo->Event == EE_GOTFOCUS) {
+  if (!Opt.rEnabled && !farEditorInstances.empty() && pInfo->Event == EE_GOTFOCUS) {
     dropCurrentEditor(true);
     return 0;
   }
@@ -779,7 +780,7 @@ const wchar_t* FarEditorSet::GetMsg(int msg)
 
 void FarEditorSet::disableColorer()
 {
-  Opt.rEnabled = false;
+  Opt.rEnabled = 0;
   if (!(err_status & ERR_FARSETTINGS_ERROR)) {
     SettingsControl ColorerSettings;
     ColorerSettings.Set(0, cRegEnabled, Opt.rEnabled);
@@ -794,7 +795,7 @@ void FarEditorSet::disableColorer()
 
 void FarEditorSet::enableColorer()
 {
-  Opt.rEnabled = true;
+  Opt.rEnabled = 1;
   SaveSettings();
   ReloadBase();
 }
@@ -966,7 +967,8 @@ void FarEditorSet::LoadUserHrd(const String* filename, ParserFactory* pf)
       if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
         auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
         if (xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
-          //pf->parseHRDSetsChild(subelem);
+          auto hrd = CatalogParser::parseHRDSetsChild(subelem);
+          if (hrd) pf->addHrd(std::move(hrd));
         }
       }
     }
@@ -1470,7 +1472,7 @@ void FarEditorSet::configureLogging()
 
   for (size_t i = 0; i < level_count; ++i) {
     if (SString(levelList[i])==SString(Opt.logLevel)) {
-      log_level = i;
+      log_level = (int)i;
       break;
     }
   }
@@ -1523,13 +1525,13 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
         bool new_status = false;
         switch (mi->Values[1].Type) {
           case FMVT_BOOLEAN:
-            new_status = mi->Values[1].Boolean;
+            new_status = static_cast<bool>(mi->Values[1].Boolean);
             break;
           case FMVT_INTEGER:
-            new_status = mi->Values[1].Integer;
+            new_status = static_cast<bool>(mi->Values[1].Integer);
             break;
           default:
-            new_status = -1;
+            new_status = true;
         }
 
         if (new_status) {
@@ -1582,7 +1584,7 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
     }
 
     if (SString(current).equals(&hrd_node->hrd_name)) {
-      current_style=i;
+      current_style=(int)i;
     }
   }
   return current_style;
