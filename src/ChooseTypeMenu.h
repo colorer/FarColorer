@@ -1,6 +1,7 @@
 #ifndef _CHOOSE_TYPE_MENU_H_
 #define _CHOOSE_TYPE_MENU_H_
 
+#include <vector>
 #include "pcolorer.h"
 
 class ChooseTypeMenu
@@ -8,10 +9,11 @@ class ChooseTypeMenu
 public:
   ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites);
   ~ChooseTypeMenu();
-  FarMenuItem* getItems() const;
+  FarMenuItem const* getItems() const;
+
   size_t getItemsCount() const
   {
-    return ItemCount;
+    return menu_item.size();
   }
 
   size_t AddItem(const FileType* fType, size_t PosAdd = 0x7FFFFFFF);
@@ -24,21 +26,20 @@ public:
   size_t AddFavorite(const FileType* fType);
   void DeleteItem(size_t index);
 
-  void HideEmptyGroup() const;
+  void HideEmptyGroup();
   void DelFromFavorites(size_t index);
   bool IsFavorite(size_t index) const;
   void RefreshItemCaption(size_t index);
-  SString* GenerateName(const FileType* fType);
+  USString GenerateName(const FileType* fType);
 
 private:
-  size_t ItemCount;
-  FarMenuItem* Item;
-
+  std::vector<FarMenuItem> menu_item;
   size_t ItemSelected; // Index of selected item
 
-  size_t AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, const FileType* UserData = nullptr, size_t PosAdd = 0x7FFFFFFF);
+  size_t AddItem(const wchar_t* Text, MENUITEMFLAGS Flags, const FileType* UserData = nullptr, size_t PosAdd = 0x7FFFFFFF);
 
-  static const size_t favorite_idx = 2;
+  static const size_t favorite_start_idx = 1;
+  size_t favorite_end_idx;
 };
 
 

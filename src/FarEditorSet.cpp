@@ -254,12 +254,10 @@ FileTypeImpl* FarEditorSet::getFileTypeByIndex(int idx) const
 
 void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const
 {
-  const String* group = nullptr;
+  const String* group = &DAutodetect;
   FileType* type = nullptr;
 
-  group = &DAutodetect;
-
-  for (int idx = 0;; idx++) {
+   for (int idx = 0;; idx++) {
     type = hrcParser->enumerateFileTypes(idx);
 
     if (type == nullptr) {
@@ -1053,13 +1051,13 @@ FarList* FarEditorSet::buildParamsList(FileTypeImpl* type) const
 
   size_t count = 0;
   std::vector<SString> default_params = defaultType->enumParams();
-  for (auto paramname = default_params.begin(); paramname != default_params.end(); ++paramname) {
-    fparam[count++].Text = wcsdup(paramname->getWChars());
+  for (auto& default_param : default_params) {
+    fparam[count++].Text = wcsdup(default_param.getWChars());
   }
   std::vector<SString> type_params = type->enumParams();
-  for (auto paramname = type_params.begin(); paramname != type_params.end(); ++paramname) {
-    if (defaultType->getParamValue(*paramname) == nullptr) {
-      fparam[count++].Text = wcsdup(paramname->getWChars());
+  for (auto& type_param : type_params) {
+    if (defaultType->getParamValue(type_param) == nullptr) {
+      fparam[count++].Text = wcsdup(type_param.getWChars());
     }
   }
 
