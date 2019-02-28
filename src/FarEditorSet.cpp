@@ -911,7 +911,7 @@ void FarEditorSet::SaveLogSettings() const
 {
   SettingsControl ColorerSettings;
   ColorerSettings.Set(0, cRegLogPath, Opt.LogPath);
-  ColorerSettings.Set(0, cRegLogLevel, Opt.LogEnabled);
+  ColorerSettings.Set(0, cRegLogLevel, Opt.logLevel);
   ColorerSettings.Set(0, cRegLogEnabled, Opt.LogEnabled);
 }
 
