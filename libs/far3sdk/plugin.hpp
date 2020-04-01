@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5230
+Plugin API for Far Manager 3.0 build 5578
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5230
+#define FARMANAGERVERSION_BUILD 5578
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -528,12 +528,6 @@ struct FAR_CHAR_INFO
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
-	static FAR_CHAR_INFO make(wchar_t Char, const FarColor& Attributes)
-	{
-		FAR_CHAR_INFO info = { Char, Attributes };
-		return info;
-	}
-
 	bool operator ==(const FAR_CHAR_INFO& rhs) const
 	{
 		return Char == rhs.Char && Attributes == rhs.Attributes;
@@ -670,12 +664,12 @@ struct FarKey
 
 typedef unsigned long long MENUITEMFLAGS;
 static const MENUITEMFLAGS
-	MIF_SELECTED   = 0x000000000010000ULL,
-	MIF_CHECKED    = 0x000000000020000ULL,
-	MIF_SEPARATOR  = 0x000000000040000ULL,
-	MIF_DISABLE    = 0x000000000080000ULL,
-	MIF_GRAYED     = 0x000000000100000ULL,
-	MIF_HIDDEN     = 0x000000000200000ULL,
+	MIF_SELECTED   = 0x0000000000010000ULL,
+	MIF_CHECKED    = 0x0000000000020000ULL,
+	MIF_SEPARATOR  = 0x0000000000040000ULL,
+	MIF_DISABLE    = 0x0000000000080000ULL,
+	MIF_GRAYED     = 0x0000000000100000ULL,
+	MIF_HIDDEN     = 0x0000000000200000ULL,
 	MIF_NONE       = 0;
 
 struct FarMenuItem
@@ -694,6 +688,10 @@ static const FARMENUFLAGS
 	FMENU_AUTOHIGHLIGHT        = 0x0000000000000004ULL,
 	FMENU_REVERSEAUTOHIGHLIGHT = 0x0000000000000008ULL,
 	FMENU_CHANGECONSOLETITLE   = 0x0000000000000010ULL,
+	FMENU_SHOWNOBOX            = 0x0000000000000020ULL,
+	FMENU_SHOWSHORTBOX         = 0x0000000000000040ULL,
+	FMENU_SHOWSINGLEBOX        = 0x0000000000000080ULL,
+	FMENU_NODRAWSHADOW         = 0x0000000000000100ULL,
 	FMENU_NONE                 = 0;
 
 typedef intptr_t (WINAPI *FARAPIMENU)(
@@ -717,6 +715,7 @@ typedef unsigned long long PLUGINPANELITEMFLAGS;
 static const PLUGINPANELITEMFLAGS
 	PPIF_SELECTED               = 0x0000000040000000ULL,
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
+
 	PPIF_NONE                   = 0;
 
 struct FarPanelItemFreeInfo
@@ -879,7 +878,7 @@ struct FarPanelDirectory
 #define PANEL_NONE    ((HANDLE)(-1))
 #define PANEL_ACTIVE  ((HANDLE)(-1))
 #define PANEL_PASSIVE ((HANDLE)(-2))
-#define PANEL_STOP ((HANDLE)(-1))
+#define PANEL_STOP    ((HANDLE)(-1))
 
 enum FILE_CONTROL_COMMANDS
 {
@@ -929,6 +928,8 @@ typedef void (WINAPI *FARAPITEXT)(
 typedef HANDLE(WINAPI *FARAPISAVESCREEN)(intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2);
 
 typedef void (WINAPI *FARAPIRESTORESCREEN)(HANDLE hScreen);
+
+typedef void (WINAPI *FARAPIFREESCREEN)(HANDLE hScreen);
 
 
 typedef intptr_t (WINAPI *FARAPIGETDIRLIST)(
@@ -1037,6 +1038,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_WAITKEY                    = 2,
 	ACTL_GETCOLOR                   = 3,
 	ACTL_GETARRAYCOLOR              = 4,
+
 	ACTL_GETWINDOWINFO              = 6,
 	ACTL_GETWINDOWCOUNT             = 7,
 	ACTL_SETCURRENTWINDOW           = 8,
@@ -1053,12 +1055,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
-
-
 };
-
-
-
 
 enum FAR_MACRO_CONTROL_COMMANDS
 {
@@ -1178,6 +1175,7 @@ enum FARMACROVARTYPE
 	FMVT_NIL                    = 7,
 	FMVT_ARRAY                  = 8,
 	FMVT_PANEL                  = 9,
+	FMVT_ERROR                  = 10,
 };
 
 struct FarMacroValue
@@ -1270,6 +1268,7 @@ struct FarSetColors
 
 enum WINDOWINFO_TYPE
 {
+	WTYPE_UNKNOWN                   = -1,
 	WTYPE_DESKTOP                   = 0,
 	WTYPE_PANELS                    = 1,
 	WTYPE_VIEWER                    = 2,
@@ -2265,8 +2264,9 @@ struct PluginStartupInfo
 	FARAPIREGEXPCONTROL    RegExpControl;
 	FARAPIMACROCONTROL     MacroControl;
 	FARAPISETTINGSCONTROL  SettingsControl;
-	void                  *Private;
-	void* Instance;
+	const void*            Private;
+	void*                  Instance;
+	FARAPIFREESCREEN       FreeScreen;
 };
 
 typedef HANDLE (WINAPI *FARAPICREATEFILE)(const wchar_t *Object,DWORD DesiredAccess,DWORD ShareMode,LPSECURITY_ATTRIBUTES SecurityAttributes,DWORD CreationDistribution,DWORD FlagsAndAttributes,HANDLE TemplateFile);
@@ -2339,6 +2339,8 @@ enum VERSION_STAGE
 	VS_ALPHA                        = 1,
 	VS_BETA                         = 2,
 	VS_RC                           = 3,
+	VS_SPECIAL                      = 4,
+	VS_PRIVATE                      = 5,
 };
 
 struct VersionInfo
@@ -2352,7 +2354,11 @@ struct VersionInfo
 
 static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struct VersionInfo* Required)
 {
-	return (Current->Major > Required->Major) || (Current->Major == Required->Major && Current->Minor > Required->Minor) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
+	return
+		(Current->Major > Required->Major) ||
+		(Current->Major == Required->Major && Current->Minor > Required->Minor) ||
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) ||
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
 }
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)
@@ -2895,7 +2901,7 @@ extern "C"
 	void     WINAPI FreeContentDataW(const struct GetContentDataInfo *Info);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif /* RC_INVOKED */
