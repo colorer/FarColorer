@@ -233,7 +233,6 @@ private:
   std::unique_ptr<SString> sCatalogPathExp;
   std::unique_ptr<SString> sUserHrdPathExp;
   std::unique_ptr<SString> sUserHrcPathExp;
-  std::unique_ptr<SString> sLogPathExp;
 
   std::unique_ptr<SString> pluginPath;
   int CurrentMenuItem;

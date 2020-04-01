@@ -15,7 +15,7 @@ VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 FarEditorSet::FarEditorSet():
   dialogFirstFocus(false), menuid(0), sTempHrdName(nullptr), sTempHrdNameTm(nullptr), parserFactory(nullptr), regionMapper(nullptr), 
-  hrcParser(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr), sLogPathExp(nullptr),
+  hrcParser(nullptr), sCatalogPathExp(nullptr), sUserHrdPathExp(nullptr), sUserHrcPathExp(nullptr),
   CurrentMenuItem(0), err_status(ERR_NO_ERROR)
 {
   setEmptyLogger();
@@ -855,7 +855,6 @@ void FarEditorSet::ReadSettings()
   }
   sUserHrdPathExp.reset(PathToFullS(Opt.UserHrdPath, false));
   sUserHrcPathExp.reset(PathToFullS(Opt.UserHrcPath, false));
-  sLogPathExp.reset(PathToFullS(Opt.LogPath, false));
 
   Opt.rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
   Opt.drawPairs = ColorerSettings.Get(0, cRegPairsDraw, cPairsDrawDefault);
@@ -873,8 +872,10 @@ void FarEditorSet::applyLogSetting()
     if (level != spdlog::level::off) {
       try {
         std::string file_name = "farcolorer.log";
-        if (Opt.LogPath[0]!='\0')
-          file_name = std::string(sLogPathExp->getChars()).append("\\").append(file_name);
+        if (Opt.LogPath[0] != '\0') {
+          SString sLogPathExp(PathToFullS(Opt.LogPath, false));
+          file_name = std::string(sLogPathExp.getChars()).append("\\").append(file_name);
+        }
         spdlog::drop_all();
         log = spdlog::basic_logger_mt("main", file_name);
         spdlog::set_default_logger(log);
@@ -1459,8 +1460,8 @@ void FarEditorSet::configureHrc()
 
 void FarEditorSet::showExceptionMessage(const wchar_t* message)
 {
-  const wchar_t* exceptionMessage[4] = {GetMsg(mName), GetMsg(mCantLoad), message, GetMsg(mDie)};
-  Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], sizeof(exceptionMessage) / sizeof(exceptionMessage[0]), 1);
+  const wchar_t* exceptionMessage[3] = {GetMsg(mName), message, GetMsg(mDie)};
+  Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], std::size(exceptionMessage), 1);
 }
 
 void FarEditorSet::configureLogging()
