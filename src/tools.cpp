@@ -79,7 +79,7 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
   }
   FSF.ConvertPath(mode, new_path, new_path, len);
 
-  return new_path;
+  return trim(new_path);
 }
 
 SString* PathToFullS(const wchar_t* path, bool unc)
