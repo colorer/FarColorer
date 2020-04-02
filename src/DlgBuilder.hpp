@@ -5,7 +5,7 @@
 /*
 DlgBuilder.hpp
 
-Dynamic construction of dialogs for FAR Manager 3.0 build 5230
+Dynamic construction of dialogs for FAR Manager 3.0 build 5555
 */
 /*
 Copyright © 2009 Far Group
@@ -230,7 +230,7 @@ class DialogBuilderBase
 					intptr_t Width = Item.X2 - Item.X1 + 1;
 					// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
 					if (Item.Flags & DIF_HISTORY)
-						Width++;
+						++Width;
 					return Width;
 				}
 
@@ -262,10 +262,11 @@ class DialogBuilderBase
 					m_DialogItems[i].X2 = Title->X2;
 				}
 				else if (m_DialogItems[i].Type == DI_TEXT && (m_DialogItems[i].Flags & DIF_CENTERTEXT))
-				{//BUGBUG: two columns items are not supported
+				{
+					//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
-				
+
 				if (m_DialogItems[i].Y2 > MaxHeight)
 				{
 					MaxHeight = m_DialogItems[i].Y2;
@@ -284,13 +285,13 @@ class DialogBuilderBase
 			{
 				if (m_DialogItems [i].X1 == SECOND_COLUMN) continue;
 				intptr_t Width = ItemWidth(m_DialogItems [i]);
-				intptr_t Indent = m_DialogItems [i].X1 - 5;
+				const intptr_t Indent = m_DialogItems [i].X1 - 5;
 				Width += Indent;
 
 				if (MaxWidth < Width)
 					MaxWidth = Width;
 			}
-			intptr_t ColumnsWidth = 2*m_ColumnMinWidth+1;
+			const intptr_t ColumnsWidth = 2*m_ColumnMinWidth+1;
 			if (MaxWidth < ColumnsWidth)
 				return ColumnsWidth;
 			return MaxWidth;
@@ -326,7 +327,7 @@ class DialogBuilderBase
 
 		int GetItemID(T *Item) const
 		{
-			int Index = static_cast<int>(Item - m_DialogItems);
+			const int Index = static_cast<int>(Item - m_DialogItems);
 			if (Index >= 0 && Index < m_DialogItemsCount)
 				return Index;
 			return -1;
@@ -555,7 +556,7 @@ class DialogBuilderBase
 		{
 			for(int i=m_ColumnStartIndex; i<m_DialogItemsCount; i++)
 			{
-				intptr_t Width = ItemWidth(m_DialogItems [i]);
+				const intptr_t Width = ItemWidth(m_DialogItems [i]);
 				if (Width > m_ColumnMinWidth)
 					m_ColumnMinWidth = Width;
 				if (i >= m_ColumnBreakIndex)
@@ -621,8 +622,8 @@ class DialogBuilderBase
 			if (Separator)
 				AddSeparator();
 
-			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
-			int NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
+			int const MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
+			int const NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
 
 			AddButtons(NumButtons, MsgIDs, 0, 1);
 		}
@@ -679,7 +680,7 @@ class DialogBuilderBase
 
 		bool ShowDialog()
 		{
-			intptr_t Result = ShowDialogEx();
+			const intptr_t Result = ShowDialogEx();
 			return Result >= 0 && (m_CancelButtonID < 0 || Result + m_FirstButtonID != m_CancelButtonID);
 		}
 
@@ -714,7 +715,7 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
-		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
+		const int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
 		{
 			*Value = Selected;
@@ -781,7 +782,7 @@ public:
 	{
 		memset(Buffer, 0, sizeof(Buffer));
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
-		int MaskWidth = Width < 31 ? Width : 31;
+		const int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=1; i<MaskWidth; i++)
 			Mask[i] = L'9';
 		Mask[0] = L'#';
@@ -819,7 +820,7 @@ public:
 	{
 		memset(Buffer, 0, sizeof(Buffer));
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
-		int MaskWidth = Width < 31 ? Width : 31;
+		const int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=1; i<MaskWidth; i++)
 			Mask[i] = L'9';
 		Mask[0] = L'#';
@@ -849,7 +850,7 @@ private:
 	int *SelectedIndex;
 	wchar_t *TextBuf;
 	FarList *List;
-	
+
 public:
 	PluginListControlBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, wchar_t *aText, FarList *aList)
 		: DialogAPIBinding(aInfo, aHandle, aID), SelectedIndex(aValue), TextBuf(aText), List(aList)
@@ -861,7 +862,7 @@ public:
 	{
 	}
 
-	~PluginListControlBinding()
+	~PluginListControlBinding() override
 	{
 		if (List)
 		{
@@ -917,8 +918,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		intptr_t DoShowDialog() override
 		{
-			intptr_t Width = m_DialogItems[0].X2+4;
-			intptr_t Height = m_DialogItems[0].Y2+2;
+			const intptr_t Width = m_DialogItems[0].X2+4;
+			const intptr_t Height = m_DialogItems[0].Y2+2;
 			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, m_DialogItems, m_DialogItemsCount, 0, Flags, DlgProc, UserParam);
 			return Info.DialogRun(DialogHandle);
 		}
@@ -933,7 +934,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return new PluginRadioButtonBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value);
 		}
 
-		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* ItemsText [], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			FarDialogItem *Item = AddDialogItem(Type, Text ? Text : L"");
 			SetNextY(Item);
@@ -995,7 +996,7 @@ public:
 			AddBorder(TitleMessage);
 		}
 
-		~PluginDialogBuilder()
+		~PluginDialogBuilder() override
 		{
 			Info.DialogFree(DialogHandle);
 		}
@@ -1068,22 +1069,31 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddReadonlyEditField(const wchar_t *Value, int Width)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
+			SetNextY(Item);
+			Item->X2 = Item->X1 + (Width > 0 ? Width : TextWidth(*Item)) - 1;
+			Item->Flags |= DIF_READONLY;
+			return Item;
+		}
+
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int* MessageIDs, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, MessageIDs, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int* MessageIDs, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, MessageIDs, ItemCount, ItemFlags);
 		}
