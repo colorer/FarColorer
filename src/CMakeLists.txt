@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 project (farcolorer CXX)
 
 #====================================================
@@ -68,16 +68,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   set(FLAGS_DEBUG)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # defaut for msvc
-
-  # CMAKE_CXX_FLAGS= /DWIN32 /D_WINDOWS /W3 /GR /EHsc
+  # CMAKE_CXX_FLAGS= /DWIN32 /D_WINDOWS /GR /EHsc
   # CMAKE_CXX_FLAGS_DEBUG= /MDd /Zi /Ob0 /Od /RTC1
   # CMAKE_CXX_FLAGS_RELEASE= /MD /O2 /Ob2 /DNDEBUG
 
-  # set all flags and clean default, because Visual Studio project don`t overwrite default parameters
-  # https://stackoverflow.com/questions/45995784/how-to-set-compiler-options-with-cmake-in-visual-studio-2017
-  set(FLAGS_CXX_DEFAULT /DWIN32 /D_WINDOWS /W3 /GR /EHsc /Zi)
-  set(FLAGS_CXX_RELEASE /MT /O2 /Ob2 /DNDEBUG /Oi /Ot /GL /GS-)
-  set(FLAGS_CXX_DEBUG /MTd /Zi /Ob0 /Od /RTC1 /GS)
+  set(FLAGS_CXX_DEFAULT /Zi)
+  set(FLAGS_CXX_RELEASE /W3 /Oi /Ot /GL /GS-)
+  set(FLAGS_CXX_DEBUG /W4 /GS)
 
   set(LINK_FLAGS "/MAP /MANIFEST:NO")
 
@@ -85,11 +82,13 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(FLAGS_CXX_DEFAULT ${FLAGS_CXX_DEFAULT} /arch:IA32)
   endif()
 
-  set(CMAKE_CXX_FLAGS "")
-  set(CMAKE_CXX_FLAGS_RELEASE "")
-  set(CMAKE_CXX_FLAGS_DEBUG "")
 endif()
 
+# set options for target
+set(MAIN_FLAGS_CXX_DEBUG ${FLAGS_CXX_DEBUG} ${FLAGS_CXX_DEFAULT})
+set(MAIN_FLAGS_CXX_RELEASE ${FLAGS_CXX_RELEASE} ${FLAGS_CXX_DEFAULT})
+set(MAIN_FLAGS_C_DEBUG ${FLAGS_C_DEBUG} ${FLAGS_C_DEFAULT})
+set(MAIN_FLAGS_C_RELEASE ${FLAGS_C_RELEASE} ${FLAGS_C_DEFAULT})
 #====================================================
 # build
 #====================================================
