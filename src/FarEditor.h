@@ -7,26 +7,26 @@
 #include "pcolorer.h"
 
 const intptr_t CurrentEditor = -1;
-const CString DDefaultScheme = CString("default");
-const CString DShowCross    = CString("show-cross");
-const CString DNone         = CString("none");
-const CString DVertical     = CString("vertical");
-const CString DHorizontal   = CString("horizontal");
-const CString DBoth         = CString("both");
-const CString DCrossZorder  = CString("cross-zorder");
-const CString DBottom       = CString("bottom");
-const CString DTop          = CString("top");
-const CString DYes          = CString("yes");
-const CString DNo           = CString("no");
-const CString DTrue         = CString("true");
-const CString DFalse        = CString("false");
-const CString DBackparse    = CString("backparse");
-const CString DMaxLen       = CString("maxlinelength");
-const CString DDefFore      = CString("default-fore");
-const CString DDefBack      = CString("default-back");
-const CString DFullback     = CString("fullback");
-const CString DHotkey       = CString("hotkey");
-const CString DFavorite     = CString("favorite");
+extern const CString DDefaultScheme;
+extern const CString DShowCross;
+extern const CString DNone;
+extern const CString DVertical;
+extern const CString DHorizontal;
+extern const CString DBoth;
+extern const CString DCrossZorder;
+extern const CString DBottom;
+extern const CString DTop;
+extern const CString DYes;
+extern const CString DNo;
+extern const CString DTrue;
+extern const CString DFalse;
+extern const CString DBackparse;
+extern const CString DMaxLen;
+extern const CString DDefFore;
+extern const CString DDefBack;
+extern const CString DFullback;
+extern const CString DHotkey;
+extern const CString DFavorite;
 
 #define revertRGB(x) (BYTE)(x>>16 & 0xff)|((BYTE)(x>>8 & 0xff)<<8)|((BYTE)(x & 0xff)<<16)
 

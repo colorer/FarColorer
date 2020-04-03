@@ -1,6 +1,27 @@
 #include "FarEditor.h"
 #include <colorer/unicode/Character.h>
 
+const CString DDefaultScheme("default");
+const CString DShowCross("show-cross");
+const CString DNone("none");
+const CString DVertical("vertical");
+const CString DHorizontal("horizontal");
+const CString DBoth("both");
+const CString DCrossZorder("cross-zorder");
+const CString DBottom("bottom");
+const CString DTop("top");
+const CString DYes("yes");
+const CString DNo("no");
+const CString DTrue("true");
+const CString DFalse("false");
+const CString DBackparse("backparse");
+const CString DMaxLen("maxlinelength");
+const CString DDefFore("default-fore");
+const CString DDefBack("default-back");
+const CString DFullback("fullback");
+const CString DHotkey("hotkey");
+const CString DFavorite("favorite");
+
 FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) :
   info(info_), parserFactory(pf), maxLineLength(0), fullBackground(true), drawCross(0), CrossStyle(0), showVerticalCross(false),
     showHorizontalCross(false), crossZOrder(0), drawPairs(true), drawSyntax(true), oldOutline(false), TrueMod(true),
