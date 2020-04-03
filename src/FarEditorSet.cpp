@@ -57,7 +57,7 @@ void FarEditorSet::menuConfigure()
 
   while (true) {
     menu_id = (int) Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(mSettings),
-        nullptr, nullptr, nullptr, nullptr, shMenu, std::size(shMenu));
+        nullptr, L"settingsmenu", nullptr, nullptr, shMenu, std::size(shMenu));
 
     switch (menu_id) {
       case -1:
