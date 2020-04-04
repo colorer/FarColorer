@@ -571,7 +571,6 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 {
   bool res = true;
   const wchar_t* marr[2] = { GetMsg(mName), GetMsg(mReloading) };
-  HANDLE scr = Info.SaveScreen(0, 0, -1, -1);
   Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
 
   std::unique_ptr<ParserFactory> parserFactoryLocal = nullptr;
@@ -618,7 +617,6 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       }
     }
 
-    Info.RestoreScreen(scr);
     if (full) {
       for (int idx = 0;; idx++) {
         FileType* type = hrcParserLocal->enumerateFileTypes(idx);
@@ -636,16 +634,13 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
         tname.append(type->getDescription());
         marr[1] = tname.getWChars();
-        scr = Info.SaveScreen(0, 0, -1, -1);
         Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
         type->getBaseScheme();
-        Info.RestoreScreen(scr);
       }
     }
   } catch (Exception &e) {
     spdlog::error("{0}", e.what());
     showExceptionMessage(CString(e.what()).getWChars());
-    Info.RestoreScreen(scr);
     res = false;
   }
 
