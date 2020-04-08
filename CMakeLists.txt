@@ -16,12 +16,24 @@ else()
 endif()
 message("FarColorer configurations for IDE: ${CMAKE_CONFIGURATION_TYPES}")       
 
-# set global Visual C++ runtime
-if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
-elseif ()
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+if (MSVC)
+  # set global Visual C++ runtime
+  if (CMAKE_BUILD_TYPE MATCHES Debug)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+  else ()
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+  endif ()
+
+  if(${CMAKE_CL_64} STREQUAL "0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:IA32 /Zc:threadSafeInit-")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:IA32 /Zc:threadSafeInit-")
+
+	# definition for spdlog in winxp
+    add_definitions(-D_WIN32_WINNT=0x0500)
+  endif()
 endif ()
+
+
 #====================================================
 # colorer_lib
 #====================================================

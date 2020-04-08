@@ -28,29 +28,31 @@ else()
   set(SRC_DEF pcolorer3.gcc.def)
 endif()
 
-if(${CMAKE_GENERATOR} STREQUAL "NMake Makefiles")
+if(MSVC)
+  set(ASM_SOURCE ${SRC_ROOT}/vc_crt_fix.asm)
+  set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
+  set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
+  set(MASM_DEFINES "")
   if(${CMAKE_CL_64} STREQUAL "0")
     find_program (MASM_EXECUTABLE ml)
-
-    set(ASM_OBJECTS)
-    foreach(src vc_crt_fix)
-      set(ASM_SOURCE ${SRC_ROOT}/${src}.asm)
-      set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/${src}.obj)
-      set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
-      add_custom_command(
-        OUTPUT ${ASM_OBJECT}
-        COMMAND ${MASM_EXECUTABLE}
-        ARGS   /c /Fo ${ASM_OBJECT} ${ASM_SOURCE}
-        DEPENDS ${ASM_SOURCE}
-      )
-    endforeach(src)
-
-    set(SRC_CPP ${SRC_CPP}
-      vc_crt_fix_impl.cpp
-      ${ASM_OBJECTS}
-    )
+  else()
+    find_program (MASM_EXECUTABLE ml64)
+	set(MASM_DEFINES "/DX64")
   endif()
+  
+  add_custom_command(
+    OUTPUT ${ASM_OBJECT}
+    COMMAND ${MASM_EXECUTABLE}
+    ARGS   /c ${MASM_DEFINES} /Fo ${ASM_OBJECT} ${ASM_SOURCE}
+    DEPENDS ${ASM_SOURCE}
+  )
+
+  set(SRC_CPP ${SRC_CPP}
+    vc_crt_fix_impl.cpp
+    ${ASM_OBJECTS}
+  )
 endif()
+
 #====================================================
 # common flags
 #====================================================
@@ -77,11 +79,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(FLAGS_CXX_DEBUG /W4 /GS)
 
   set(LINK_FLAGS "/MAP /MANIFEST:NO")
-
-  if(${CMAKE_CL_64} STREQUAL "0")
-    set(FLAGS_CXX_DEFAULT ${FLAGS_CXX_DEFAULT} /arch:IA32)
-  endif()
-
 endif()
 
 # set options for target
