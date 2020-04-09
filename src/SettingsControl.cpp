@@ -1,4 +1,5 @@
 #include "SettingsControl.h"
+#include <colorer/unicode/CString.h>
 
 SettingsControl::SettingsControl()
 {
@@ -9,7 +10,7 @@ SettingsControl::SettingsControl()
     farSettingHandle = fsc.Handle;
   } else {
     farSettingHandle = INVALID_HANDLE_VALUE;
-    throw SettingsControlException(DString("Access error to the FarSettings."));
+    throw SettingsControlException(CString("Access error to the FarSettings."));
   }
 }
 
@@ -25,6 +26,11 @@ const wchar_t* SettingsControl::Get(size_t Root, const wchar_t* Name, const wcha
     return item.String;
   }
   return Default;
+}
+
+void SettingsControl::Get(size_t Root, const wchar_t* Name, wchar_t* Value, size_t Size, const wchar_t* Default)
+{
+  lstrcpynW(Value, Get(Root, Name, Default), (int) Size);
 }
 
 unsigned __int64 SettingsControl::Get(size_t Root, const wchar_t* Name, unsigned __int64 Default)

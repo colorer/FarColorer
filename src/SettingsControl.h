@@ -2,6 +2,7 @@
 #define _SETTINGSCONTROL_H_
 
 #include "pcolorer.h"
+#include <colorer/Exception.h>
 
 class SettingsControl
 {
@@ -10,6 +11,7 @@ public:
   ~SettingsControl();
 
   const wchar_t*   Get(size_t Root, const wchar_t *Name, const wchar_t *Default);
+  void             Get(size_t Root, const wchar_t* Name, wchar_t* Value, size_t Size, const wchar_t* Default);
   unsigned __int64 Get(size_t Root, const wchar_t *Name, unsigned __int64 Default);
   __int64          Get(size_t Root, const wchar_t *Name, __int64 Default) { return (__int64)Get(Root,Name,(unsigned __int64)Default); }
   int              Get(size_t Root, const wchar_t *Name, int Default)  { return (int)Get(Root,Name,(unsigned __int64)Default); }
@@ -35,9 +37,9 @@ private:
 
 class SettingsControlException : public Exception{
 public:
-  SettingsControlException(){};
-  SettingsControlException(const String& msg){
-    message->append(DString("SettingsControl: ")).append(msg);
+  SettingsControlException() noexcept : Exception("[SettingsControl] ") {};
+  SettingsControlException(const String &msg) noexcept : SettingsControlException(){
+    what_str.append(msg);
   };
 };
 

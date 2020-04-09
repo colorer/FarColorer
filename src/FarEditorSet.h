@@ -1,7 +1,8 @@
 #ifndef _FAREDITORSET_H_
 #define _FAREDITORSET_H_
 
-#include <colorer/handlers/FileErrorHandler.h>
+#include <spdlog/logger.h>
+#include <colorer/common/Colorer.h>
 #include <colorer/handlers/LineRegionsSupport.h>
 #include <colorer/viewer/TextConsoleViewer.h>
 
@@ -15,8 +16,6 @@ const wchar_t cRegEnabled[]        = L"Enabled";
 const wchar_t cRegHrdName[]        = L"HrdName";
 const wchar_t cRegHrdNameTm[]      = L"HrdNameTm";
 const wchar_t cRegCatalog[]        = L"Catalog";
-const wchar_t cRegCrossDraw[]      = L"CrossDraw";
-const wchar_t cRegCrossStyle[]      = L"CrossStyle";
 const wchar_t cRegPairsDraw[]      = L"PairsDraw";
 const wchar_t cRegSyntaxDraw[]     = L"SyntaxDraw";
 const wchar_t cRegOldOutLine[]     = L"OldOutlineView";
@@ -25,14 +24,14 @@ const wchar_t cRegChangeBgEditor[] = L"ChangeBgEditor";
 const wchar_t cRegUserHrdPath[]    = L"UserHrdPath";
 const wchar_t cRegUserHrcPath[]    = L"UserHrcPath";
 const wchar_t cRegLogPath[]        = L"LogPath";
+const wchar_t cRegLogLevel[]       = L"LogLevel";
+const wchar_t cRegLogEnabled[]     = L"LogEnabled";
 
 //values of registry keys by default
 const bool cEnabledDefault          = true;
 const wchar_t cHrdNameDefault[]     = L"default";
 const wchar_t cHrdNameTmDefault[]   = L"default";
 const wchar_t cCatalogDefault[]     = L"";
-const int cCrossDrawDefault         = 2;
-const int cCrossStyleDefault        = 0;
 const bool cPairsDrawDefault        = true;
 const bool cSyntaxDrawDefault       = true;
 const bool cOldOutLineDefault       = true;
@@ -40,19 +39,14 @@ const bool cTrueMod                 = false;
 const bool cChangeBgEditor          = false;
 const wchar_t cUserHrdPathDefault[] = L"";
 const wchar_t cUserHrcPathDefault[] = L"";
-const wchar_t cLogPathDefault[] = L"";
+const wchar_t cLogPathDefault[]     = L"";
+const wchar_t cLogLevelDefault[]    = L"INFO";
+const bool cLogEnabledDefault       = false;
 
-const DString DConsole   = DString("console");
-const DString DRgb       = DString("rgb");
-const DString Ddefault   = DString("<default>");
-const DString DAutodetect = DString("autodetect");
-
-enum {
-  IDX_BOX, IDX_ENABLED, IDX_CROSS, IDX_CROSS_TEXT, IDX_CROSS_STYLE, IDX_PAIRS, IDX_SYNTAX, IDX_OLDOUTLINE, IDX_CHANGE_BG,
-  IDX_HRD, IDX_HRD_SELECT, IDX_CATALOG, IDX_CATALOG_EDIT, IDX_USERHRC, IDX_USERHRC_EDIT,
-  IDX_USERHRD, IDX_USERHRD_EDIT, IDX_LOG, IDX_LOG_EDIT, IDX_TM_BOX, IDX_TRUEMOD, IDX_HRD_TM,
-  IDX_HRD_SELECT_TM, IDX_TM_BOX_OFF, IDX_RELOAD_ALL, IDX_HRC_SETTING, IDX_OK, IDX_CANCEL
-};
+const CString DConsole   = CString("console");
+const CString DRgb       = CString("rgb");
+const CString Ddefault   = CString("<default>");
+const CString DAutodetect = CString("autodetect");
 
 enum {
   IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS,
@@ -67,6 +61,32 @@ enum ERROR_TYPE {
 
 LONG_PTR WINAPI SettingDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
 LONG_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
+
+struct Options
+{
+  int rEnabled;
+  int drawPairs;
+  int drawSyntax;
+  int oldOutline;
+  int TrueModOn;
+  int ChangeBgEditor;
+  int LogEnabled;
+  wchar_t HrdName[20];
+  wchar_t HrdNameTm[20];
+  wchar_t CatalogPath[MAX_PATH];
+  wchar_t UserHrdPath[MAX_PATH];
+  wchar_t UserHrcPath[MAX_PATH];
+  wchar_t LogPath[MAX_PATH];
+  wchar_t logLevel[10];
+};
+
+struct SettingWindow
+{
+  int okButtonConfig;
+  int catalogEdit;
+  int hrcEdit;
+  int hrdEdit;
+};
 
 /**
  * FAR Editors container.
@@ -83,10 +103,14 @@ public:
 
   /** Shows editor actions menu */
   void openMenu(int MenuId = -1);
+
+  void menuConfigure();
   /** Shows plugin's configuration dialog */
-  void configure(bool fromEditor);
+  void configure();
   /** Views current file with internal viewer */
   void viewFile(const String &path);
+  HANDLE openFromMacro(const struct OpenInfo* oInfo);
+  HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
 
   /** Dispatch editor event in the opened editor */
   int  editorEvent(const struct ProcessEditorEventInfo* pInfo);
@@ -94,9 +118,7 @@ public:
   int  editorInput(const INPUT_RECORD &Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String* getHRDescription(const String &name, const DString &_hrdClass) const;
-  /** Shows dialog with HRD scheme selection */
-  const SString chooseHRDName(const String* current, const DString &_hrdClass);
+  const String* getHRDescription(const String &name, const CString &_hrdClass) const;
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -105,25 +127,15 @@ public:
   */
   enum HRC_MODE {HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH};
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
-  
-  SString* GetCatalogPath() const
-  {
-    return sCatalogPath.get();
-  }
-
-  SString* GetUserHrdPath() const
-  {
-    return sUserHrdPath.get();
-  }
 
   bool GetPluginStatus() const
   {
-    return rEnabled;
+    return Opt.rEnabled;
   }
 
   bool isEnable() const
   {
-    return rEnabled;
+    return Opt.rEnabled;
   }
 
   /** Disables all plugin processing*/
@@ -140,8 +152,11 @@ public:
   void OnChangeParam(HANDLE hDlg, intptr_t idx);
   void OnSaveHrcParams(HANDLE hDlg);
 
+  /** Show logging configuration dialog*/
+  void configureLogging();
+
   void showExceptionMessage(const wchar_t* message);
-  void setLogPath(const wchar_t* log_path);
+  void applyLogSetting();
   size_t getEditorCount() const;
 
   bool dialogFirstFocus;
@@ -149,9 +164,8 @@ public:
   std::unique_ptr<SString> sTempHrdName;
   std::unique_ptr<SString> sTempHrdNameTm;
 
+  SettingWindow settingWindow;
 private:
-  /** Returns current global error handler. */
-  colorer::ErrorHandler* getErrorHandler() const;
   /** add current active editor and return him. */
   FarEditor* addCurrentEditor();
   /** Returns currently active editor. */
@@ -172,17 +186,21 @@ private:
   void ApplySettingsToEditors();
   /** writes settings in the registry*/
   void SaveSettings() const;
+  void SaveLogSettings() const;
 
   /** Kills all currently opened editors*/
   void dropAllEditors(bool clean);
   /** kill the current editor*/
   void dropCurrentEditor(bool clean);
 
+  void setEmptyLogger();
+
   size_t getCountFileTypeAndGroup() const;
   FileTypeImpl* getFileTypeByIndex(int idx) const;
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   String* getCurrentFileName();
 
+  int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // FarList for dialog objects
   FarList* buildHrcList() const;
   FarList* buildParamsList(FileTypeImpl* type) const;
@@ -193,9 +211,9 @@ private:
   //set list of values to combobox
   void setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
   void setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
-  void setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
-  void setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
-  void setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, DString param);
+  void setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
+  void setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
+  void setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
 
   FileTypeImpl* getCurrentTypeInDialog(HANDLE hDlg) const;
 
@@ -208,38 +226,21 @@ private:
   std::unique_ptr<RegionMapper> regionMapper;
   HRCParser* hrcParser;
 
-  /**current value*/
-  DString hrdClass;
-  DString hrdName;
-
   /** registry settings */
-  bool rEnabled; // status plugin
-  int drawCross;
-  int CrossStyle; // 0 - both; 1 - vertical; 2 - horizontal
-  bool drawPairs;
-  bool drawSyntax;
-  bool oldOutline;
-  bool TrueModOn;
-  bool ChangeBgEditor;
-  std::unique_ptr<SString> sHrdName;
-  std::unique_ptr<SString> sHrdNameTm;
-  std::unique_ptr<SString> sCatalogPath;
-  std::unique_ptr<SString> sUserHrdPath;
-  std::unique_ptr<SString> sUserHrcPath;
-  std::unique_ptr<SString> sLogPath;
+  Options Opt;
 
   /** UNC path */
   std::unique_ptr<SString> sCatalogPathExp;
   std::unique_ptr<SString> sUserHrdPathExp;
   std::unique_ptr<SString> sUserHrcPathExp;
-  std::unique_ptr<SString> sLogPathExp;
 
+  std::unique_ptr<SString> pluginPath;
   int CurrentMenuItem;
 
   unsigned int err_status;
-  std::unique_ptr<colorer::ErrorHandler> error_handler;
 
-  bool in_construct;
+  std::unique_ptr<Colorer> colorer_lib;
+  std::shared_ptr<spdlog::logger> log;
 
   HANDLE hTimer = NULL;
   HANDLE hTimerQueue = NULL;

@@ -1,5 +1,26 @@
-#include <common/Logging.h>
 #include "FarEditor.h"
+#include <colorer/unicode/Character.h>
+
+const CString DDefaultScheme("default");
+const CString DShowCross("show-cross");
+const CString DNone("none");
+const CString DVertical("vertical");
+const CString DHorizontal("horizontal");
+const CString DBoth("both");
+const CString DCrossZorder("cross-zorder");
+const CString DBottom("bottom");
+const CString DTop("top");
+const CString DYes("yes");
+const CString DNo("no");
+const CString DTrue("true");
+const CString DFalse("false");
+const CString DBackparse("backparse");
+const CString DMaxLen("maxlinelength");
+const CString DDefFore("default-fore");
+const CString DDefBack("default-back");
+const CString DFullback("fullback");
+const CString DHotkey("hotkey");
+const CString DFavorite("favorite");
 
 FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) :
   info(info_), parserFactory(pf), maxLineLength(0), fullBackground(true), drawCross(0), CrossStyle(0), showVerticalCross(false),
@@ -8,8 +29,8 @@ FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) :
     ret_str(nullptr), ret_strNumber(SIZE_MAX), newfore(-1), newback(-1), rdBackground(nullptr), cursorRegion(nullptr),
     visibleLevel(100), editor_id(-1)
 {
-  DString def_out = DString("def:Outlined");
-  DString def_err = DString("def:Error");
+  CString def_out = CString("def:Outlined");
+  CString def_err = CString("def:Error");
   baseEditor = new BaseEditor(parserFactory, this);
   const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
   const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
@@ -48,7 +69,7 @@ void FarEditor::endJob(int lno)
   ret_str = nullptr;
 }
 
-String* FarEditor::getLine(size_t lno)
+SString* FarEditor::getLine(size_t lno)
 {
   if (ret_strNumber == lno && ret_str != nullptr) {
     return ret_str;
@@ -70,7 +91,7 @@ String* FarEditor::getLine(size_t lno)
   }
 
   delete ret_str;
-  ret_str = new SString(DString(es.StringText, 0, (int)len));
+  ret_str = new SString(CString(es.StringText, 0, (int)len));
   return ret_str;
 }
 
@@ -97,7 +118,7 @@ void FarEditor::reloadTypeSettings()
   FileType* def = hrcParser->getFileType(&DDefaultScheme);
 
   if (def == nullptr) {
-    throw Exception(DString("No 'default' file type found"));
+    throw Exception(CString("No 'default' file type found"));
   }
 
   int backparse = def->getParamValueInt(DBackparse, 2000);
@@ -129,6 +150,13 @@ void FarEditor::reloadTypeSettings()
   if (value != nullptr && value->equals(&DTop)) {
     crossZOrder = 1;
   }
+
+  const String* cross_style;
+  cross_style = ftype->getParamValue(DShowCross);
+  if (!cross_style) {
+    cross_style = def->getParamValue(DShowCross);
+  }
+  setDrawCross(cross_style);
 }
 
 FileType* FarEditor::getFileType() const
@@ -136,63 +164,28 @@ FileType* FarEditor::getFileType() const
   return baseEditor->getFileType();
 }
 
-void FarEditor::setDrawCross(int _drawCross, int _CrossStyle)
+void FarEditor::setDrawCross(const String* cross_style)
 {
-  drawCross = _drawCross;
-  CrossStyle = _CrossStyle;
-  switch (drawCross) {
-    case 0:
+  if (cross_style) {
+    if (cross_style->equals(&DNone)) {
       showHorizontalCross = false;
       showVerticalCross   = false;
-      break;
-    case 1:
-      switch (CrossStyle) {
-        case 0:
-          showHorizontalCross = true;
-          showVerticalCross   = true;
-          break;
-        case 1:
-          showHorizontalCross = false;
-          showVerticalCross   = true;
-          break;
-        case 2:
-          showHorizontalCross = true;
-          showVerticalCross   = false;
-          break;
-      }
-      break;
-    case 2:
-      FileType* ftype = baseEditor->getFileType();
-      HRCParser* hrcParser = parserFactory->getHRCParser();
-      FileType* def = hrcParser->getFileType(&DDefaultScheme);
-      const String* value;
-      value = ftype->getParamValue(DShowCross);
-      if (!value) {
-        value = def->getParamValue(DShowCross);
-      }
+    }
 
-      if (value) {
-        if (value->equals(&DNone)) {
-          showHorizontalCross = false;
-          showVerticalCross   = false;
-        }
+    if (cross_style->equals(&DVertical)) {
+      showHorizontalCross = false;
+      showVerticalCross   = true;
+    }
 
-        if (value->equals(&DVertical)) {
-          showHorizontalCross = false;
-          showVerticalCross   = true;
-        }
+    if (cross_style->equals(&DHorizontal)) {
+      showHorizontalCross = true;
+      showVerticalCross   = false;
+    }
 
-        if (value->equals(&DHorizontal)) {
-          showHorizontalCross = true;
-          showVerticalCross   = false;
-        }
-
-        if (value->equals(&DBoth)) {
-          showHorizontalCross = true;
-          showVerticalCross   = true;
-        }
-      }
-      break;
+    if (cross_style->equals(&DBoth)) {
+      showHorizontalCross = true;
+      showVerticalCross   = true;
+    }
   }
 }
 
@@ -375,9 +368,9 @@ void FarEditor::getNameCurrentScheme()
   egs.StringNumber = ei.CurLine;
   info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
   if (cursorRegion != nullptr) {
-    StringBuffer region, scheme;
-    region.append(DString(L"Region: "));
-    scheme.append(DString(L"Scheme: "));
+    SString region, scheme;
+    region.append(CString(L"Region: "));
+    scheme.append(CString(L"Scheme: "));
     if (cursorRegion->region != nullptr) {
       const Region* r = cursorRegion->region;
       region.append(r->getName());
@@ -432,7 +425,7 @@ void FarEditor::locateFunction()
     }
 
     SString funcname(curLine, sword + 1, eword - sword - 1);
-    CLR_INFO("FC", "Letter %s", funcname.getChars());
+    spdlog::debug("FC] Letter {0}", funcname.getChars());
     baseEditor->validate(-1, false);
     EditorSetPosition esp;
     esp.StructSize = sizeof(EditorSetPosition);
@@ -445,10 +438,10 @@ void FarEditor::locateFunction()
     }
 
     //search through the outliner
-    for (int idx = 0; idx < items_num; idx++) {
+    for (size_t idx = 0; idx < items_num; idx++) {
       OutlineItem* item = structOutliner->getItem(idx);
 
-      if (item->token->indexOfIgnoreCase(DString(funcname)) != -1) {
+      if (item->token->indexOfIgnoreCase(CString(funcname)) != -1) {
         if (item->lno == ei.CurLine) {
           item_last = item;
         } else {
@@ -580,7 +573,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   }
 
   if (rdBackground == nullptr) {
-    throw Exception(DString("HRD Background region 'def:Text' not found"));
+    throw Exception(CString("HRD Background region 'def:Text' not found"));
   }
 
   EditorInfo ei = enterHandler();
@@ -625,7 +618,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     egs.StringNumber = lno;
     info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
     int llen = (int)egs.StringLength;
-    DString s = DString(egs.StringText);
+    CString s = CString(egs.StringText);
     //position previously found a column in the current row
     ecp_cl.StructSize = sizeof(EditorConvertPos);
     ecp_cl.StringNumber = lno;
@@ -696,7 +689,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
             addFARColor(lno, start, end, col1);
           }
 
-          // не меняем цвет для EOL
+          // ?? ?????? ???? ??? EOL
           if (end > llen && show_eol) {
             FarColor col2 = col1;
             col2.ForegroundColor = rdBackground->fore;
@@ -835,7 +828,7 @@ void FarEditor::showOutliner(Outliner* outliner)
     for (i = 0; i < items_num; i++) {
       OutlineItem* item = outliner->getItem(i);
 
-      if (item->token->indexOfIgnoreCase(DString(filter)) != -1) {
+      if (item->token->indexOfIgnoreCase(CString(filter)) != -1) {
         int treeLevel = Outliner::manageTree(treeStack, item->level);
 
         if (maxLevel < treeLevel) {
@@ -849,7 +842,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         wchar_t* menuItem = new wchar_t[255];
 
         if (!oldOutline) {
-          int si = _snwprintf(menuItem, 255, L"%4d ", item->lno + 1);
+          int si = _snwprintf(menuItem, 255, L"%4zd ", item->lno + 1);
 
           for (int lIdx = 0; lIdx < treeLevel; lIdx++) {
             menuItem[si++] = ' ';
@@ -862,7 +855,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
           si += _snwprintf(menuItem + si, 255 - si, L"%c ", cls);
 
-          int labelLength = item->token->length();
+          size_t labelLength = item->token->length();
 
           if (labelLength + si > 110) {
             labelLength = 110;
@@ -872,7 +865,7 @@ void FarEditor::showOutliner(Outliner* outliner)
           menuItem[si + labelLength] = 0;
         } else {
           String* line = getLine(item->lno);
-          int labelLength = line->length();
+          size_t labelLength = line->length();
 
           if (labelLength > 110) {
             labelLength = 110;
@@ -912,7 +905,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
     while (code != 0 && menu_size > 1 && same && plen < FILTER_SIZE) {
       plen = aflen + 1;
-      int auto_ptr  = DString(menu[0].Text).indexOfIgnoreCase(DString(autofilter));
+      int auto_ptr  = CString(menu[0].Text).indexOfIgnoreCase(CString(autofilter));
 
       if (int(wcslen(menu[0].Text) - auto_ptr) < plen) {
         break;
@@ -922,7 +915,7 @@ void FarEditor::showOutliner(Outliner* outliner)
       prefix[plen] = 0;
 
       for (int j = 1 ; j < menu_size ; j++) {
-        if (DString(menu[j].Text).indexOfIgnoreCase(DString(prefix)) == -1) {
+        if (CString(menu[j].Text).indexOfIgnoreCase(CString(prefix)) == -1) {
           same = false;
           break;
         }
@@ -1247,9 +1240,8 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   ec.Owner = MainGuid;
   ec.Priority = 0;
   ec.Color = col;
-  CLR_TRACE("FarEditor", "line:%d, %d-%d, color bg:%d fg:%d flag:%d", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
+  spdlog::debug("[FarEditor] line:{0}, {1}-{2}, color bg:{3} fg:{4} flag:{5}", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
-  CLR_TRACE("FarEditor", "line %d: %d-%d: color bg:%d fg:%d flag:%d", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
 }
 
 const wchar_t* FarEditor::GetMsg(int msg) const

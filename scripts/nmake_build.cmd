@@ -9,15 +9,15 @@ set PROJECT_BUIILDDIR=%PROJECT_ROOT%\build\%PROJECT_CONFIG%\%PROJECT_CONF%
 if not exist %PROJECT_BUIILDDIR% ( mkdir %PROJECT_BUIILDDIR% > NUL )
 pushd %PROJECT_BUIILDDIR%
 
-@call "%VS140COMNTOOLS%..\..\VC\vcvarsall.bat" %PROJECT_CONF%
-cmake.exe -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% %PROJECT_ROOT%\src
+@call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %PROJECT_CONF%
+cmake.exe -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% %PROJECT_ROOT%
 nmake
 
 :: Create temp directory
 set PKGDIR=%PROJECT_ROOT%\build\FarColorer
 set PKGDIRARCH=%PKGDIR%\%PROJECT_CONF%
 set PKGDIRBIN=%PKGDIRARCH%\bin
-set SDIR=%PROJECT_ROOT%\build\%PROJECT_CONFIG%\%PROJECT_CONF%
+set SDIR=%PROJECT_ROOT%\build\%PROJECT_CONFIG%\%PROJECT_CONF%\src
 if exist %PKGDIRARCH% rmdir /S /Q %PKGDIRARCH%
 
 :: Copy files

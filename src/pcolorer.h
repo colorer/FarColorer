@@ -2,10 +2,7 @@
 #define _PCOLORER_H_
 
 #include <plugin.hpp>
-
-#include <memory>
-#include <windows.h>
-#include <unicode/StringBuffer.h>
+#include <colorer/unicode/SString.h>
 
 #include <initguid.h>
 // Dialog Guid
@@ -17,6 +14,8 @@ DEFINE_GUID(PluginConfig, 0x87c92249, 0x430d, 0x4334, 0xac, 0x33, 0x5, 0xe7, 0x4
 DEFINE_GUID(HrcPluginConfig, 0x497f43a, 0xa8b9, 0x4af1, 0xa3, 0xa4, 0xfa, 0x56, 0x8f, 0x45, 0x57, 0x7);
 // {C6BE56D8-A80A-4f7d-A331-A711435F2665}
 DEFINE_GUID(AssignKeyDlg, 0xc6be56d8, 0xa80a, 0x4f7d, 0xa3, 0x31, 0xa7, 0x11, 0x43, 0x5f, 0x26, 0x65);
+// {3D1031EA-B67A-451C-9FC6-081320D3A139}
+DEFINE_GUID(LoggingConfig, 0x3d1031ea, 0xb67a, 0x451c, 0x9f, 0xc6, 0x8, 0x13, 0x20, 0xd3, 0xa1, 0x39);
 
 // Menu Guid
 // {45453CAC-499D-4b37-82B8-0A77F7BD087C}
@@ -27,6 +26,9 @@ DEFINE_GUID(FileChooseMenu, 0x46921647, 0xdb52, 0x44ca, 0x8d, 0x8b, 0xf3, 0x4e, 
 DEFINE_GUID(HrdMenu, 0x18a6f7df, 0x375d, 0x4d3d, 0x81, 0x37, 0xdc, 0x50, 0xac, 0x52, 0xb7, 0x1e);
 // {A8A298BA-AD5A-4094-8E24-F65BF38E6C1F}
 DEFINE_GUID(OutlinerMenu, 0xa8a298ba, 0xad5a, 0x4094, 0x8e, 0x24, 0xf6, 0x5b, 0xf3, 0x8e, 0x6c, 0x1f);
+// {63E396BA-8E7F-4E38-A7A8-CBB7E9AC1E6D}
+DEFINE_GUID(ConfigMenu, 0x63e396ba, 0x8e7f, 0x4e38, 0xa7, 0xa8, 0xcb, 0xb7, 0xe9, 0xac, 0x1e, 0x6d);
+
 
 //Message Guid
 // {0C954AC8-2B69-4c74-94C8-7AB10324A005}
@@ -41,26 +43,25 @@ DEFINE_GUID(RegionName, 0x70656884, 0xb7bd, 0x4440, 0xa8, 0xff, 0x6c, 0xe7, 0x81
 
 extern PluginStartupInfo Info;
 extern FarStandardFunctions FSF;
-extern StringBuffer* PluginPath;
-extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 /** FAR .lng file identifiers. */
 enum {
   mName, mSetup, mTurnOff, mTrueMod,
-  mCross, mPairs, mSyntax, mOldOutline,
+  mPairs, mSyntax, mOldOutline,
   mOk, mReloadAll, mCancel,
   mCatalogFile, mHRDName, mHRDNameTrueMod,
   mListTypes, mMatchPair, mSelectBlock, mSelectPair,
   mListFunctions, mFindErrors, mSelectRegion, mCurrentRegionName, mLocateFunction,
-  mUpdateHighlight, mReloadBase, mConfigure,
+  mUpdateHighlight, mReloadBase, mConfigureHotkey,
   mTotalTypes, mSelectSyntax, mOutliner, mNothingFound,
   mGotcha, mChoose,
-  mReloading, mCantLoad, mCantOpenFile, mDie, mTry,
+  mReloading, mCantLoad, mDie,
   mFatal, mSelectHRD, mChangeBackgroundEditor, mTrueModSetting,
   mUserHrdFile, mUserHrcFile, mUserHrcSetting,
   mUserHrcSettingDialog, mListSyntax, mParamList, mParamValue, mAutoDetect, mFavorites,
-  mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName, mCrossText, mCrossBoth, mCrossVert, mCrossHoriz,
-  mLog
+  mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName,
+  mLog, mLogging, mLogTurnOff, mLogLevel, mLogPath,
+  mMainSettings, mSettings, mStyleConf
 };
 
 #endif

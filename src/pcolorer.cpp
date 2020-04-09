@@ -7,37 +7,13 @@ FarEditorSet* editorSet = nullptr;
 bool inCreateEditorSet = false;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
-StringBuffer* PluginPath;
 
-extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-  switch (fdwReason) {
-    case DLL_PROCESS_ATTACH: {
-      // obtain the path to the folder plugin, without being attached to the file name
-      wchar_t path[MAX_PATH];
-      if (!GetModuleFileName(hinstDLL, path, MAX_PATH)) {
-        return false;
-      }
-      DString module(path, 0);
-      int pos = module.lastIndexOf('\\');
-      pos = module.lastIndexOf('\\', pos);
-      PluginPath = new StringBuffer(DString(module, 0, pos));
-    }
-    break;
-
-    case DLL_PROCESS_DETACH:
-      delete PluginPath;
-      break;
-  }
-
-  return true;
-}
 /**
   Returns message from FAR current language.
 */
 const wchar_t* GetMsg(int msg)
 {
-  return (Info.GetMsg(&MainGuid, msg));
+  return Info.GetMsg(&MainGuid, msg);
 }
 
 /**
@@ -75,7 +51,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo* pInfo)
   pInfo->StructSize = sizeof(*pInfo);
   pInfo->PluginConfig.Count = 1;
   pInfo->PluginMenu.Count = 1;
-  PluginMenuStrings = (wchar_t*)GetMsg(mName);
+  PluginMenuStrings = (wchar_t*) GetMsg(mName);
   pInfo->PluginConfig.Strings = &PluginMenuStrings;
   pInfo->PluginMenu.Strings = &PluginMenuStrings;
   pInfo->PluginConfig.Guids = &PluginConfig;
@@ -96,90 +72,32 @@ void WINAPI ExitFARW(const struct ExitInfo* eInfo)
 */
 HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
 {
+  if (!editorSet) {
+    editorSet = new FarEditorSet();
+  }
+
   switch (oInfo->OpenFrom) {
     case OPEN_EDITOR:
       editorSet->openMenu();
       break;
-    case OPEN_COMMANDLINE: {
-      OpenCommandLineInfo* ocli = (OpenCommandLineInfo*)oInfo->Data;
-      //file name, which we received
-      const wchar_t* file = ocli->CommandLine;
-
-      wchar_t* nfile = PathToFull(file, true);
-      if (nfile) {
-        if (!editorSet) {
-          editorSet = new FarEditorSet();
-        }
-        editorSet->viewFile(DString(nfile));
-      }
-
-      delete[] nfile;
-    }
-    break;
-    case OPEN_FROMMACRO: {
-      FARMACROAREA area = (FARMACROAREA)Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
-      OpenMacroInfo* mi = (OpenMacroInfo*)oInfo->Data;
-      int MenuCode = -1;
-      std::unique_ptr<SString> command = nullptr;
-      if (mi->Count) {
-        switch (mi->Values[0].Type) {
-        case FMVT_INTEGER:
-          MenuCode = (int)mi->Values[0].Integer;
-          break;
-        case FMVT_DOUBLE:
-          MenuCode = (int)mi->Values[0].Double;
-          break;
-        case FMVT_STRING:
-          command.reset(new SString(DString(mi->Values[0].String)));
-          break;
-        default:
-          MenuCode = -1;
-        }
-      }
-
-      if (MenuCode >= 0 && area == MACROAREA_EDITOR && editorSet) {
-        editorSet->openMenu(MenuCode - 1);
-        return INVALID_HANDLE_VALUE;
-      }
-      else
-        if (command)
-        {
-          if (!editorSet) {
-            editorSet = new FarEditorSet();
-          }
-
-          if (command->equals("status")){
-            if (mi->Count == 1) {
-              return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-            }
-            else {
-              bool new_status = 0;
-              switch (mi->Values[1].Type) {
-              case FMVT_BOOLEAN:
-                new_status = mi->Values[1].Boolean;
-                break;
-              case FMVT_INTEGER:
-                new_status = mi->Values[1].Integer;
-                break;
-              default:
-                new_status = -1;
-              }
-
-              if (new_status) {
-                editorSet->enableColorer();
-                return editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-              } else {
-                editorSet->disableColorer();
-                return !editorSet->isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-              }
-            }
-          }
-
-        }
-    }
-    break;
+    case OPEN_COMMANDLINE:
+      editorSet->openFromCommandLine(oInfo);
+      break;
+    case OPEN_FROMMACRO:
+      editorSet->openFromMacro(oInfo);
+      break;
+    case OPEN_LEFTDISKMENU:break;
+    case OPEN_PLUGINSMENU:break;
+    case OPEN_FINDLIST:break;
+    case OPEN_SHORTCUT:break;
+    case OPEN_VIEWER:break;
+    case OPEN_FILEPANEL:break;
+    case OPEN_DIALOG:break;
+    case OPEN_ANALYSE:break;
+    case OPEN_RIGHTDISKMENU:break;
+    case OPEN_LUAMACRO:break;
   }
-  return nullptr;
+  return editorSet;
 }
 
 /**
@@ -190,7 +108,7 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* cInfo)
   if (!editorSet) {
     editorSet = new FarEditorSet();
   }
-  editorSet->configure(false);
+  editorSet->menuConfigure();
   return 1;
 }
 
@@ -207,7 +125,7 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
       inCreateEditorSet = false; //-V519
 
       // при создании FarEditorSet мы теряем сообщение EE_REDRAW, из-за SetBgEditor. компенсируем это
-      struct ProcessEditorEventInfo pInfo2;
+      ProcessEditorEventInfo pInfo2{};
       pInfo2.EditorID = pInfo->EditorID;
       pInfo2.Event = EE_REDRAW;
       pInfo2.StructSize = sizeof(ProcessEditorEventInfo);
@@ -226,34 +144,17 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   return editorSet->editorInput(pInfo->Rec);
 }
 
-// in order to not fall when it starts in far2
-extern "C" int WINAPI GetMinFarVersionW(void)
+intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
 {
-#define MAKEFARVERSION_OLD(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
-
-  return MAKEFARVERSION_OLD(FARMANAGERVERSION_MAJOR, FARMANAGERVERSION_MINOR, FARMANAGERVERSION_BUILD);
-}
-
-extern VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
-{
-  if (editorSet->getEditorCount() > 0)
-    Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
-  return;
-}
-
-extern "C" intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo *pInfo)
-{
-  try
-  {
-    if (editorSet) {
+  try {
+    if (editorSet && editorSet->getEditorCount() > 0) {
       INPUT_RECORD ir;
       ir.EventType = KEY_EVENT;
       ir.Event.KeyEvent.wVirtualKeyCode = 0;
       return editorSet->editorInput(ir);
     }
   }
-  catch (...)
-  {
+  catch (...) {
   }
   return 0;
 }

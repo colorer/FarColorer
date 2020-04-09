@@ -19,9 +19,9 @@ How to build from source
 ==========
 To build plugin from source, you will need:
 
-  * Visual Studio 2015 or higher
+  * Visual Studio 2017 or higher
   * git
-  * cmake 2.8.9 or higher
+  * cmake 3.15 or higher
 
 Download the source from git repository:
 
