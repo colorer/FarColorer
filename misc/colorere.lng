@@ -40,12 +40,8 @@
 "[Ctrl]Enter, Tab, Ctrl-Cursor, [0-9a-z;:-_]"
 
 "Reloading schema library..."
-"Problem with Colorer"
 "Ok"
-"Fatal error loading the library schemes"
-"Select color style"
 "Change Editor &background"
-"TrueMod settings"
 "&Users file of color styles"
 "Users &file of schemes"
 "&Scheme settings"
