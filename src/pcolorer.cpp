@@ -124,7 +124,7 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
       editorSet = new FarEditorSet();
       inCreateEditorSet = false; //-V519
 
-      // ïðè ñîçäàíèè FarEditorSet ìû òåðÿåì ñîîáùåíèå EE_REDRAW, èç-çà SetBgEditor. êîìïåíñèðóåì ýòî
+      // Ð¿Ñ€Ð¸ ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ð¸ FarEditorSet Ð¼Ñ‹ Ñ‚ÐµÑ€ÑÐµÐ¼ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ EE_REDRAW, Ð¸Ð·-Ð·Ð° SetBgEditor. ÐºÐ¾Ð¼Ð¿ÐµÐ½ÑÐ¸Ñ€ÑƒÐµÐ¼ ÑÑ‚Ð¾
       ProcessEditorEventInfo pInfo2{};
       pInfo2.EditorID = pInfo->EditorID;
       pInfo2.Event = EE_REDRAW;
