@@ -1,6 +1,6 @@
 #include "pcolorer.h"
-#include "tools.h"
 #include "FarEditorSet.h"
+#include "tools.h"
 #include "version.h"
 
 FarEditorSet* editorSet = nullptr;
@@ -86,16 +86,26 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     case OPEN_FROMMACRO:
       editorSet->openFromMacro(oInfo);
       break;
-    case OPEN_LEFTDISKMENU:break;
-    case OPEN_PLUGINSMENU:break;
-    case OPEN_FINDLIST:break;
-    case OPEN_SHORTCUT:break;
-    case OPEN_VIEWER:break;
-    case OPEN_FILEPANEL:break;
-    case OPEN_DIALOG:break;
-    case OPEN_ANALYSE:break;
-    case OPEN_RIGHTDISKMENU:break;
-    case OPEN_LUAMACRO:break;
+    case OPEN_LEFTDISKMENU:
+      break;
+    case OPEN_PLUGINSMENU:
+      break;
+    case OPEN_FINDLIST:
+      break;
+    case OPEN_SHORTCUT:
+      break;
+    case OPEN_VIEWER:
+      break;
+    case OPEN_FILEPANEL:
+      break;
+    case OPEN_DIALOG:
+      break;
+    case OPEN_ANALYSE:
+      break;
+    case OPEN_RIGHTDISKMENU:
+      break;
+    case OPEN_LUAMACRO:
+      break;
   }
   return editorSet;
 }
@@ -122,10 +132,10 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
     if (!editorSet) {
       inCreateEditorSet = true;
       editorSet = new FarEditorSet();
-      inCreateEditorSet = false; //-V519
+      inCreateEditorSet = false;  //-V519
 
       // при создании FarEditorSet мы теряем сообщение EE_REDRAW, из-за SetBgEditor. компенсируем это
-      ProcessEditorEventInfo pInfo2{};
+      ProcessEditorEventInfo pInfo2 {};
       pInfo2.EditorID = pInfo->EditorID;
       pInfo2.Event = EE_REDRAW;
       pInfo2.StructSize = sizeof(ProcessEditorEventInfo);
@@ -153,8 +163,7 @@ intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
       ir.Event.KeyEvent.wVirtualKeyCode = 0;
       return editorSet->editorInput(ir);
     }
-  }
-  catch (...) {
+  } catch (...) {
   }
   return 0;
 }

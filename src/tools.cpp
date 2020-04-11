@@ -14,8 +14,8 @@ wchar_t* rtrim(wchar_t* str)
 
 wchar_t* ltrim(wchar_t* str)
 {
-  while (iswspace(*(str++)));
-
+  while (iswspace(*(str++))) {
+  }
   return str - 1;
 }
 
@@ -65,7 +65,7 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
   if (unc) {
     mode = CPM_NATIVE;
   } else {
-    mode = CPM_FULL ;
+    mode = CPM_FULL;
   }
 
   // take the full path to the file, converting all kinds of ../ ./ etc

@@ -1,6 +1,6 @@
+#include "ChooseTypeMenu.h"
 #include <colorer/parsers/FileTypeImpl.h>
 #include "FarEditor.h"
-#include "ChooseTypeMenu.h"
 
 ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites)
 {
@@ -37,7 +37,7 @@ FarMenuItem const* ChooseTypeMenu::getItems() const
 
 size_t ChooseTypeMenu::AddItem(const wchar_t* Text, MENUITEMFLAGS Flags, const FileType* UserData, size_t PosAdd)
 {
-  FarMenuItem new_elem{};
+  FarMenuItem new_elem {};
   new_elem.Flags = Flags;
   new_elem.Text = _wcsdup(Text);
   new_elem.UserData = (DWORD_PTR) UserData;
@@ -147,7 +147,9 @@ size_t ChooseTypeMenu::AddItemInGroup(FileType* fType)
 {
   size_t i;
   const String* group = fType->getGroup();
-  for (i = favorite_end_idx + 1; i < menu_item.size() && !((menu_item[i].Flags & MIF_SEPARATOR) && (group->compareTo(CString(menu_item[i].Text)) == 0)); i++);
+  for (i = favorite_end_idx + 1;
+       i < menu_item.size() && !((menu_item[i].Flags & MIF_SEPARATOR) && (group->compareTo(CString(menu_item[i].Text)) == 0)); i++)
+    ;
   if (menu_item[i].Flags & MIF_HIDDEN) {
     menu_item[i].Flags &= ~MIF_HIDDEN;
   }

@@ -2,8 +2,8 @@
 #define _FAREDITOR_H_
 
 #include <colorer/editor/BaseEditor.h>
-#include <colorer/handlers/StyledRegion.h>
 #include <colorer/editor/Outliner.h>
+#include <colorer/handlers/StyledRegion.h>
 #include "pcolorer.h"
 
 const intptr_t CurrentEditor = -1;
@@ -28,7 +28,7 @@ extern const CString DFullback;
 extern const CString DHotkey;
 extern const CString DFavorite;
 
-#define revertRGB(x) (BYTE)(x>>16 & 0xff)|((BYTE)(x>>8 & 0xff)<<8)|((BYTE)(x & 0xff)<<16)
+#define revertRGB(x) (BYTE)(x >> 16 & 0xff) | ((BYTE)(x >> 8 & 0xff) << 8) | ((BYTE)(x & 0xff) << 16)
 
 /** FAR Editor internal plugin structures.
     Implements text parsing and different
@@ -37,9 +37,9 @@ extern const CString DFavorite;
 */
 class FarEditor : public LineSource
 {
-public:
+ public:
   /** Creates FAR editor instance.
-  */
+   */
   FarEditor(PluginStartupInfo* info, ParserFactory* pf);
   /** Drops this editor */
   ~FarEditor();
@@ -52,16 +52,15 @@ public:
   SString* getLine(size_t lno);
 
   /** Changes current assigned file type.
-  */
+   */
   void setFileType(FileType* ftype);
   /** Returns currently selected file type.
-  */
+   */
   FileType* getFileType() const;
 
   /** Selects file type with it's extension and first lines
-  */
+   */
   void chooseFileType(String* fname);
-
 
   /** Installs specified RegionMapper implementation.
   This class serves to request mapping of regions into
@@ -70,8 +69,8 @@ public:
   void setRegionMapper(RegionMapper* rs);
 
   /**
-  * Change editor properties. These overwrites default HRC settings
-  */
+   * Change editor properties. These overwrites default HRC settings
+   */
   void setDrawCross(const String* cross_style);
   void setDrawPairs(bool drawPairs);
   void setDrawSyntax(bool drawSyntax);
@@ -79,51 +78,52 @@ public:
   void setTrueMod(bool _TrueMod);
 
   /** Editor action: pair matching.
-  */
+   */
   void matchPair();
   /** Editor action: pair selection.
-  */
+   */
   void selectPair();
   /** Editor action: pair selection with current block.
-  */
+   */
   void selectBlock();
   /** Editor action: Selection of current region under cursor.
-  */
+   */
   void selectRegion();
   /** Editor action: Lists fuctional region.
-  */
+   */
   void listFunctions();
   /** Editor action: Lists syntax errors in text.
-  */
+   */
   void listErrors();
   /**
-  * Locates a function under cursor and tries to jump to it using outliner information
-  */
+   * Locates a function under cursor and tries to jump to it using outliner information
+   */
   void locateFunction();
 
   /** Invalidates current syntax highlighting
-  */
+   */
   void updateHighlighting();
 
   /** Handle passed FAR editor event */
   int editorEvent(intptr_t event, void* param);
   /** Dispatch editor input event */
-  int editorInput(const INPUT_RECORD &Rec);
+  int editorInput(const INPUT_RECORD& Rec);
 
   void cleanEditor();
 
   void getNameCurrentScheme();
-private:
+
+ private:
   PluginStartupInfo* info;
 
   ParserFactory* parserFactory;
   BaseEditor* baseEditor;
 
-  int  maxLineLength;
+  int maxLineLength;
   bool fullBackground;
 
-  int drawCross;//0 - off,  1 - always, 2 - if included in the scheme
-  int CrossStyle; // 0 - both; 1 - vertical; 2 - horizontal
+  int drawCross;   // 0 - off,  1 - always, 2 - if included in the scheme
+  int CrossStyle;  // 0 - both; 1 - vertical; 2 - horizontal
   bool showVerticalCross;
   bool showHorizontalCross;
   int crossZOrder;
@@ -159,10 +159,10 @@ private:
   void reloadTypeSettings();
   EditorInfo enterHandler();
   FarColor convert(const StyledRegion* rd) const;
-  bool foreDefault(const FarColor &col) const;
-  bool backDefault(const FarColor &col) const;
+  bool foreDefault(const FarColor& col) const;
+  bool backDefault(const FarColor& col) const;
   void showOutliner(Outliner* outliner);
-  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor &col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
+  void addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor& col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
   void deleteFarColor(intptr_t lno, intptr_t s) const;
   const wchar_t* GetMsg(int msg) const;
   static COLORREF getSuitableColor(const COLORREF base_color, const COLORREF blend_color);

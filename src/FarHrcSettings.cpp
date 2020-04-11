@@ -1,8 +1,8 @@
-#include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FarHrcSettings.h"
-#include "SettingsControl.h"
-#include <colorer/xml/XmlParserErrorHandler.h>
 #include <colorer/parsers/ParserFactoryException.h>
+#include <colorer/xml/XmlParserErrorHandler.h>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include "SettingsControl.h"
 
 void FarHrcSettings::readProfile(SString* plugin_path)
 {
@@ -109,7 +109,7 @@ void FarHrcSettings::readProfileFromRegistry()
   if (ColorerSettings.rEnum(hrc_subkey, &fse)) {
     for (size_t i = 0; i < fse.Count; i++) {
       if (fse.Items[i].Type == FST_SUBKEY) {
-        //check whether we have such a scheme
+        // check whether we have such a scheme
         CString named = CString(fse.Items[i].Name);
         FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&named));
         if (type) {
@@ -121,7 +121,7 @@ void FarHrcSettings::readProfileFromRegistry()
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
-                CString name_fse= CString(type_fse.Items[j].Name);
+                CString name_fse = CString(type_fse.Items[j].Name);
                 if (type->getParamValue(name_fse) == nullptr) {
                   type->addParam(&name_fse);
                 }
@@ -155,14 +155,14 @@ void FarHrcSettings::writeProfileToRegistry()
   hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
 
   // enum all FileTypes
-  for (int idx = 0; ; idx++) {
+  for (int idx = 0;; idx++) {
     type = static_cast<FileTypeImpl*>(hrcParser->enumerateFileTypes(idx));
 
     if (!type) {
       break;
     }
 
-    if (type->getParamCount() && type->getParamUserValueCount()) { // params>0 and user values >0
+    if (type->getParamCount() && type->getParamUserValueCount()) {  // params>0 and user values >0
       size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, type->getName()->getWChars());
       // enum all params
       std::vector<SString> type_params = type->enumParams();
@@ -174,5 +174,4 @@ void FarHrcSettings::writeProfileToRegistry()
       }
     }
   }
-
 }

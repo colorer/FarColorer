@@ -1,63 +1,65 @@
 #ifndef _FAREDITORSET_H_
 #define _FAREDITORSET_H_
 
-#include <spdlog/logger.h>
 #include <colorer/common/Colorer.h>
 #include <colorer/handlers/LineRegionsSupport.h>
 #include <colorer/viewer/TextConsoleViewer.h>
-
-#include "pcolorer.h"
+#include <spdlog/logger.h>
+#include "ChooseTypeMenu.h"
 #include "FarEditor.h"
 #include "FarHrcSettings.h"
-#include "ChooseTypeMenu.h"
+#include "pcolorer.h"
 
-//registry keys
-const wchar_t cRegEnabled[]        = L"Enabled";
-const wchar_t cRegHrdName[]        = L"HrdName";
-const wchar_t cRegHrdNameTm[]      = L"HrdNameTm";
-const wchar_t cRegCatalog[]        = L"Catalog";
-const wchar_t cRegPairsDraw[]      = L"PairsDraw";
-const wchar_t cRegSyntaxDraw[]     = L"SyntaxDraw";
-const wchar_t cRegOldOutLine[]     = L"OldOutlineView";
-const wchar_t cRegTrueMod[]        = L"TrueMod";
+// registry keys
+const wchar_t cRegEnabled[] = L"Enabled";
+const wchar_t cRegHrdName[] = L"HrdName";
+const wchar_t cRegHrdNameTm[] = L"HrdNameTm";
+const wchar_t cRegCatalog[] = L"Catalog";
+const wchar_t cRegPairsDraw[] = L"PairsDraw";
+const wchar_t cRegSyntaxDraw[] = L"SyntaxDraw";
+const wchar_t cRegOldOutLine[] = L"OldOutlineView";
+const wchar_t cRegTrueMod[] = L"TrueMod";
 const wchar_t cRegChangeBgEditor[] = L"ChangeBgEditor";
-const wchar_t cRegUserHrdPath[]    = L"UserHrdPath";
-const wchar_t cRegUserHrcPath[]    = L"UserHrcPath";
-const wchar_t cRegLogPath[]        = L"LogPath";
-const wchar_t cRegLogLevel[]       = L"LogLevel";
-const wchar_t cRegLogEnabled[]     = L"LogEnabled";
+const wchar_t cRegUserHrdPath[] = L"UserHrdPath";
+const wchar_t cRegUserHrcPath[] = L"UserHrcPath";
+const wchar_t cRegLogPath[] = L"LogPath";
+const wchar_t cRegLogLevel[] = L"LogLevel";
+const wchar_t cRegLogEnabled[] = L"LogEnabled";
 
-//values of registry keys by default
-const bool cEnabledDefault          = true;
-const wchar_t cHrdNameDefault[]     = L"default";
-const wchar_t cHrdNameTmDefault[]   = L"default";
-const wchar_t cCatalogDefault[]     = L"";
-const bool cPairsDrawDefault        = true;
-const bool cSyntaxDrawDefault       = true;
-const bool cOldOutLineDefault       = true;
-const bool cTrueMod                 = false;
-const bool cChangeBgEditor          = false;
+// values of registry keys by default
+const bool cEnabledDefault = true;
+const wchar_t cHrdNameDefault[] = L"default";
+const wchar_t cHrdNameTmDefault[] = L"default";
+const wchar_t cCatalogDefault[] = L"";
+const bool cPairsDrawDefault = true;
+const bool cSyntaxDrawDefault = true;
+const bool cOldOutLineDefault = true;
+const bool cTrueMod = false;
+const bool cChangeBgEditor = false;
 const wchar_t cUserHrdPathDefault[] = L"";
 const wchar_t cUserHrcPathDefault[] = L"";
-const wchar_t cLogPathDefault[]     = L"";
-const wchar_t cLogLevelDefault[]    = L"INFO";
-const bool cLogEnabledDefault       = false;
+const wchar_t cLogPathDefault[] = L"";
+const wchar_t cLogLevelDefault[] = L"INFO";
+const bool cLogEnabledDefault = false;
 
-const CString DConsole   = CString("console");
-const CString DRgb       = CString("rgb");
-const CString Ddefault   = CString("<default>");
+const CString DConsole = CString("console");
+const CString DRgb = CString("rgb");
+const CString Ddefault = CString("<default>");
 const CString DAutodetect = CString("autodetect");
 
 enum {
-  IDX_CH_BOX, IDX_CH_CAPTIONLIST, IDX_CH_SCHEMAS,
-  IDX_CH_PARAM_LIST, IDX_CH_PARAM_VALUE_CAPTION, IDX_CH_PARAM_VALUE_LIST, IDX_CH_DESCRIPTION, IDX_CH_OK, IDX_CH_CANCEL
+  IDX_CH_BOX,
+  IDX_CH_CAPTIONLIST,
+  IDX_CH_SCHEMAS,
+  IDX_CH_PARAM_LIST,
+  IDX_CH_PARAM_VALUE_CAPTION,
+  IDX_CH_PARAM_VALUE_LIST,
+  IDX_CH_DESCRIPTION,
+  IDX_CH_OK,
+  IDX_CH_CANCEL
 };
 
-enum ERROR_TYPE {
-  ERR_NO_ERROR = 0,
-  ERR_BASE_LOAD = 1,
-  ERR_FARSETTINGS_ERROR = 2
-};
+enum ERROR_TYPE { ERR_NO_ERROR = 0, ERR_BASE_LOAD = 1, ERR_FARSETTINGS_ERROR = 2 };
 
 LONG_PTR WINAPI SettingDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
 LONG_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
@@ -95,7 +97,7 @@ struct SettingWindow
  */
 class FarEditorSet
 {
-public:
+ public:
   /** Creates set and initialises it with PluginStartupInfo structure */
   FarEditorSet();
   /** Standard destructor */
@@ -108,24 +110,24 @@ public:
   /** Shows plugin's configuration dialog */
   void configure();
   /** Views current file with internal viewer */
-  void viewFile(const String &path);
+  void viewFile(const String& path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
   HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
 
   /** Dispatch editor event in the opened editor */
-  int  editorEvent(const struct ProcessEditorEventInfo* pInfo);
+  int editorEvent(const struct ProcessEditorEventInfo* pInfo);
   /** Dispatch editor input event in the opened editor */
-  int  editorInput(const INPUT_RECORD &Rec);
+  int editorInput(const INPUT_RECORD& Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String* getHRDescription(const String &name, const CString &_hrdClass) const;
+  const String* getHRDescription(const String& name, const CString& _hrdClass) const;
 
   /** Reads all registry settings into variables */
   void ReadSettings();
   /**
-  * trying to load the database on the specified path
-  */
-  enum HRC_MODE {HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH};
+   * trying to load the database on the specified path
+   */
+  enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
 
   bool GetPluginStatus() const
@@ -165,17 +167,18 @@ public:
   std::unique_ptr<SString> sTempHrdNameTm;
 
   SettingWindow settingWindow;
-private:
+
+ private:
   /** add current active editor and return him. */
   FarEditor* addCurrentEditor();
   /** Returns currently active editor. */
   FarEditor* getCurrentEditor();
   /**
-  * Reloads HRC database.
-  * Drops all currently opened editors and their
-  * internal structures. Prepares to work with newly
-  * loaded database. Read settings from registry
-  */
+   * Reloads HRC database.
+   * Drops all currently opened editors and their
+   * internal structures. Prepares to work with newly
+   * loaded database. Read settings from registry
+   */
   void ReloadBase();
 
   /** Shows dialog of file type selection */
@@ -206,9 +209,9 @@ private:
   FarList* buildParamsList(FileTypeImpl* type) const;
   // filetype "default"
   FileTypeImpl* defaultType;
-  //change combobox type
+  // change combobox type
   void ChangeParamValueListType(HANDLE hDlg, bool dropdownlist);
-  //set list of values to combobox
+  // set list of values to combobox
   void setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
   void setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
   void setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);

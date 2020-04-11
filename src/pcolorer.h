@@ -1,10 +1,9 @@
 #ifndef _PCOLORER_H_
 #define _PCOLORER_H_
 
-#include <plugin.hpp>
 #include <colorer/unicode/SString.h>
-
 #include <initguid.h>
+#include <plugin.hpp>
 // Dialog Guid
 // {D2F36B62-A470-418d-83A3-ED7A3710E5B5}
 DEFINE_GUID(MainGuid, 0xd2f36b62, 0xa470, 0x418d, 0x83, 0xa3, 0xed, 0x7a, 0x37, 0x10, 0xe5, 0xb5);
@@ -29,8 +28,7 @@ DEFINE_GUID(OutlinerMenu, 0xa8a298ba, 0xad5a, 0x4094, 0x8e, 0x24, 0xf6, 0x5b, 0x
 // {63E396BA-8E7F-4E38-A7A8-CBB7E9AC1E6D}
 DEFINE_GUID(ConfigMenu, 0x63e396ba, 0x8e7f, 0x4e38, 0xa7, 0xa8, 0xcb, 0xb7, 0xe9, 0xac, 0x1e, 0x6d);
 
-
-//Message Guid
+// Message Guid
 // {0C954AC8-2B69-4c74-94C8-7AB10324A005}
 DEFINE_GUID(ErrorMessage, 0xc954ac8, 0x2b69, 0x4c74, 0x94, 0xc8, 0x7a, 0xb1, 0x3, 0x24, 0xa0, 0x5);
 // {DEE3B49D-4A55-48a8-9DC8-D11DA04CBF37}
@@ -40,28 +38,69 @@ DEFINE_GUID(NothingFoundMesage, 0xab214dce, 0x450b, 0x4389, 0x9e, 0x3b, 0x53, 0x
 // {70656884-B7BD-4440-A8FF-6CE781C7DC6A}
 DEFINE_GUID(RegionName, 0x70656884, 0xb7bd, 0x4440, 0xa8, 0xff, 0x6c, 0xe7, 0x81, 0xc7, 0xdc, 0x6a);
 
-
 extern PluginStartupInfo Info;
 extern FarStandardFunctions FSF;
 
 /** FAR .lng file identifiers. */
 enum {
-  mName, mSetup, mTurnOff, mTrueMod,
-  mPairs, mSyntax, mOldOutline,
-  mOk, mReloadAll, mCancel,
-  mCatalogFile, mHRDName, mHRDNameTrueMod,
-  mListTypes, mMatchPair, mSelectBlock, mSelectPair,
-  mListFunctions, mFindErrors, mSelectRegion, mCurrentRegionName, mLocateFunction,
-  mUpdateHighlight, mReloadBase, mConfigureHotkey,
-  mTotalTypes, mSelectSyntax, mOutliner, mNothingFound,
-  mGotcha, mChoose,
-  mReloading, mCantLoad, mDie,
-  mFatal, mSelectHRD, mChangeBackgroundEditor, mTrueModSetting,
-  mUserHrdFile, mUserHrcFile, mUserHrcSetting,
-  mUserHrcSettingDialog, mListSyntax, mParamList, mParamValue, mAutoDetect, mFavorites,
-  mKeyAssignDialogTitle, mKeyAssignTextTitle, mRegionName,
-  mLog, mLogging, mLogTurnOff, mLogLevel, mLogPath,
-  mMainSettings, mSettings, mStyleConf
+  mName,
+  mSetup,
+  mTurnOff,
+  mTrueMod,
+  mPairs,
+  mSyntax,
+  mOldOutline,
+  mOk,
+  mReloadAll,
+  mCancel,
+  mCatalogFile,
+  mHRDName,
+  mHRDNameTrueMod,
+  mListTypes,
+  mMatchPair,
+  mSelectBlock,
+  mSelectPair,
+  mListFunctions,
+  mFindErrors,
+  mSelectRegion,
+  mCurrentRegionName,
+  mLocateFunction,
+  mUpdateHighlight,
+  mReloadBase,
+  mConfigureHotkey,
+  mTotalTypes,
+  mSelectSyntax,
+  mOutliner,
+  mNothingFound,
+  mGotcha,
+  mChoose,
+  mReloading,
+  mCantLoad,
+  mDie,
+  mFatal,
+  mSelectHRD,
+  mChangeBackgroundEditor,
+  mTrueModSetting,
+  mUserHrdFile,
+  mUserHrcFile,
+  mUserHrcSetting,
+  mUserHrcSettingDialog,
+  mListSyntax,
+  mParamList,
+  mParamValue,
+  mAutoDetect,
+  mFavorites,
+  mKeyAssignDialogTitle,
+  mKeyAssignTextTitle,
+  mRegionName,
+  mLog,
+  mLogging,
+  mLogTurnOff,
+  mLogLevel,
+  mLogPath,
+  mMainSettings,
+  mSettings,
+  mStyleConf
 };
 
 #endif
