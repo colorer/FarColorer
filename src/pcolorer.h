@@ -1,7 +1,6 @@
 #ifndef _PCOLORER_H_
 #define _PCOLORER_H_
 
-#include <colorer/unicode/SString.h>
 #include <initguid.h>
 #include <plugin.hpp>
 // Dialog Guid

@@ -1,7 +1,7 @@
 #ifndef _TOOLS_H_
 #define _TOOLS_H_
 
-#include "pcolorer.h"
+#include <colorer/unicode/SString.h>
 
 wchar_t* rtrim(wchar_t* str);
 wchar_t* ltrim(wchar_t* str);

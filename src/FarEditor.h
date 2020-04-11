@@ -42,14 +42,14 @@ class FarEditor : public LineSource
    */
   FarEditor(PluginStartupInfo* info, ParserFactory* pf);
   /** Drops this editor */
-  ~FarEditor();
+  ~FarEditor() override;
 
   void endJob(int lno);
   /**
   Returns line number "lno" from FAR interface. Line is only valid until next call of this function,
   it also should not be disposed, this function takes care of this.
   */
-  SString* getLine(size_t lno);
+  SString* getLine(size_t lno) override;
 
   /** Changes current assigned file type.
    */

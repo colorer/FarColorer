@@ -1,6 +1,5 @@
 #include "pcolorer.h"
 #include "FarEditorSet.h"
-#include "tools.h"
 #include "version.h"
 
 FarEditorSet* editorSet = nullptr;
@@ -62,7 +61,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo* pInfo)
 /**
   On FAR exit. Destroys all internal structures.
 */
-void WINAPI ExitFARW(const struct ExitInfo* eInfo)
+void WINAPI ExitFARW(const struct ExitInfo* /*eInfo*/)
 {
   delete editorSet;
 }
@@ -87,23 +86,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
       editorSet->openFromMacro(oInfo);
       break;
     case OPEN_LEFTDISKMENU:
-      break;
     case OPEN_PLUGINSMENU:
-      break;
     case OPEN_FINDLIST:
-      break;
     case OPEN_SHORTCUT:
-      break;
     case OPEN_VIEWER:
-      break;
     case OPEN_FILEPANEL:
-      break;
     case OPEN_DIALOG:
-      break;
     case OPEN_ANALYSE:
-      break;
     case OPEN_RIGHTDISKMENU:
-      break;
     case OPEN_LUAMACRO:
       break;
   }
@@ -113,7 +103,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
 /**
   Configures plugin.
 */
-intptr_t WINAPI ConfigureW(const struct ConfigureInfo* cInfo)
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo* /*cInfo*/)
 {
   if (!editorSet) {
     editorSet = new FarEditorSet();
@@ -154,7 +144,7 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   return editorSet->editorInput(pInfo->Rec);
 }
 
-intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
+intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* /*pInfo*/)
 {
   try {
     if (editorSet && editorSet->getEditorCount() > 0) {

@@ -1,4 +1,5 @@
 #include "tools.h"
+#include "pcolorer.h"
 
 wchar_t* rtrim(wchar_t* str)
 {

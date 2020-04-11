@@ -49,7 +49,7 @@ FarEditorSet::~FarEditorSet()
   DeleteTimerQueue(hTimerQueue);
 }
 
-VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired)
+VOID CALLBACK ColorThread(PVOID /*lpParam*/, BOOLEAN /*TimerOrWaitFired*/)
 {
   Info.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, nullptr);
 }
@@ -833,12 +833,12 @@ void FarEditorSet::enableColorer()
 
 void FarEditorSet::ApplySettingsToEditors()
 {
-  for (auto fe = farEditorInstances.begin(); fe != farEditorInstances.end(); ++fe) {
-    fe->second->setTrueMod(Opt.TrueModOn);
-    fe->second->setDrawPairs(Opt.drawPairs);
-    fe->second->setDrawSyntax(Opt.drawSyntax);
-    fe->second->setOutlineStyle(Opt.oldOutline);
-    fe->second->setDrawCross(Opt.drawCross, Opt.CrossStyle);
+  for (auto & farEditorInstance : farEditorInstances) {
+    farEditorInstance.second->setTrueMod(Opt.TrueModOn);
+    farEditorInstance.second->setDrawPairs(Opt.drawPairs);
+    farEditorInstance.second->setDrawSyntax(Opt.drawSyntax);
+    farEditorInstance.second->setOutlineStyle(Opt.oldOutline);
+    farEditorInstance.second->setDrawCross(Opt.drawCross, Opt.CrossStyle);
   }
 }
 

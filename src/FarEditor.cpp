@@ -85,7 +85,7 @@ FarEditor::~FarEditor()
   delete ret_str;
 }
 
-void FarEditor::endJob(int lno)
+void FarEditor::endJob(int /*lno*/)
 {
   delete ret_str;
   ret_str = nullptr;
@@ -241,19 +241,19 @@ void FarEditor::setDrawCross(int _drawCross, int _CrossStyle)
   }
 }
 
-void FarEditor::setDrawPairs(bool drawPairs)
+void FarEditor::setDrawPairs(bool _drawPairs)
 {
-  this->drawPairs = drawPairs;
+  drawPairs = _drawPairs;
 }
 
-void FarEditor::setDrawSyntax(bool drawSyntax)
+void FarEditor::setDrawSyntax(bool _drawSyntax)
 {
-  this->drawSyntax = drawSyntax;
+  drawSyntax =_drawSyntax;
 }
 
-void FarEditor::setOutlineStyle(bool oldStyle)
+void FarEditor::setOutlineStyle(bool _oldStyle)
 {
-  this->oldOutline = oldStyle;
+  oldOutline = _oldStyle;
 }
 
 void FarEditor::setTrueMod(bool _TrueMod)
@@ -279,7 +279,7 @@ void FarEditor::setRegionMapper(RegionMapper* rs)
 
 void FarEditor::matchPair()
 {
-  EditorSetPosition esp;
+  EditorSetPosition esp{};
   esp.StructSize = sizeof(EditorSetPosition);
   EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair((int) ei.CurLine, (int) ei.CurPos);
@@ -315,7 +315,7 @@ void FarEditor::matchPair()
 
 void FarEditor::selectPair()
 {
-  EditorSelect es;
+  EditorSelect es{};
   es.StructSize = sizeof(EditorSelect);
   int X1, X2, Y1, Y2;
   EditorInfo ei = enterHandler();
@@ -351,7 +351,7 @@ void FarEditor::selectPair()
 
 void FarEditor::selectBlock()
 {
-  EditorSelect es;
+  EditorSelect es{};
   es.StructSize = sizeof(EditorSelect);
   int X1, X2, Y1, Y2;
   EditorInfo ei = enterHandler();
@@ -387,9 +387,9 @@ void FarEditor::selectBlock()
 
 void FarEditor::selectRegion()
 {
-  EditorSelect es;
+  EditorSelect es{};
   es.StructSize = sizeof(EditorSelect);
-  EditorGetString egs;
+  EditorGetString egs{};
   egs.StructSize = sizeof(EditorGetString);
   EditorInfo ei = enterHandler();
   egs.StringNumber = ei.CurLine;
@@ -414,7 +414,7 @@ void FarEditor::selectRegion()
 
 void FarEditor::getNameCurrentScheme()
 {
-  EditorGetString egs;
+  EditorGetString egs{};
   egs.StructSize = sizeof(EditorGetString);
   EditorInfo ei = enterHandler();
   egs.StringNumber = ei.CurLine;
@@ -477,7 +477,7 @@ void FarEditor::locateFunction()
     SString funcname(curLine, sword + 1, eword - sword - 1);
     spdlog::debug("FC] Letter {0}", funcname.getChars());
     baseEditor->validate(-1, false);
-    EditorSetPosition esp;
+    EditorSetPosition esp{};
     esp.StructSize = sizeof(EditorSetPosition);
     OutlineItem* item_found = nullptr;
     OutlineItem* item_last = nullptr;
@@ -601,7 +601,7 @@ COLORREF FarEditor::getSuitableColor(const COLORREF base_color, const COLORREF b
 int FarEditor::editorEvent(intptr_t event, void* param)
 {
   if (event == EE_CHANGE) {
-    EditorChange* editor_change = static_cast<EditorChange*>(param);
+    auto* editor_change = static_cast<EditorChange*>(param);
 
     int ml = (int) (prevLinePosition < editor_change->StringNumber ? prevLinePosition : editor_change->StringNumber) - 1;
 
@@ -643,14 +643,14 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   cursorRegion = nullptr;
 
   // Position the cursor on the screen
-  EditorConvertPos ecp, ecp_cl;
+  EditorConvertPos ecp{}, ecp_cl{};
   ecp.StructSize = sizeof(EditorConvertPos);
   ecp.StringNumber = -1;
   ecp.SrcPos = ei.CurPos;
   info->EditorControl(editor_id, ECTL_REALTOTAB, 0, &ecp);
 
-  bool show_whitespase = !!(ei.Options & EOPT_SHOWWHITESPACE);
-  bool show_eol = !!(ei.Options & EOPT_SHOWLINEBREAK);
+  bool show_whitespase = (ei.Options & EOPT_SHOWWHITESPACE) != 0;
+  bool show_eol = (ei.Options & EOPT_SHOWLINEBREAK) != 0;
 
   for (intptr_t lno = ei.TopScreenLine; lno < ei.TopScreenLine + WindowSizeY; lno++) {
     if (lno >= ei.TotalLines) {
@@ -828,7 +828,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 void FarEditor::showOutliner(Outliner* outliner)
 {
   FarMenuItem* menu;
-  EditorSetPosition esp;
+  EditorSetPosition esp{};
   esp.StructSize = sizeof(EditorSetPosition);
   bool moved = false;
   intptr_t code = 0;
@@ -924,7 +924,7 @@ void FarEditor::showOutliner(Outliner* outliner)
           continue;
         }
 
-        wchar_t* menuItem = new wchar_t[255];
+        auto* menuItem = new wchar_t[255];
 
         if (!oldOutline) {
           int si = _snwprintf(menuItem, 255, L"%4zd ", item->lno + 1);
@@ -1052,7 +1052,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         }
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
+        auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         esp.CurLine = item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
@@ -1100,7 +1100,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         }
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
+        auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         esp.CurLine = item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
@@ -1126,7 +1126,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         }
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
+        auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         esp.CurLine = item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
@@ -1163,7 +1163,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         // read current position
         info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
         // insert text
-        OutlineItem* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
+        auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
         SString str = SString(item->token.get());
         //!! warning , after call next line  object 'item' changes
         info->EditorControl(editor_id, ECTL_INSERTTEXT, 0, (void*) str.getWChars());
@@ -1306,7 +1306,7 @@ bool FarEditor::backDefault(const FarColor& col) const
 
 void FarEditor::deleteFarColor(intptr_t lno, intptr_t s) const
 {
-  EditorDeleteColor edc;
+  EditorDeleteColor edc{};
   edc.Owner = MainGuid;
   edc.StartPos = s;
   edc.StringNumber = lno;
@@ -1316,7 +1316,7 @@ void FarEditor::deleteFarColor(intptr_t lno, intptr_t s) const
 
 void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor& col, EDITORCOLORFLAGS TabMarkStyle) const
 {
-  EditorColor ec;
+  EditorColor ec{};
   ec.StructSize = sizeof(EditorColor);
   ec.Flags = TabMarkStyle;
   ec.StringNumber = lno;
