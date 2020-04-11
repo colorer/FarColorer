@@ -71,7 +71,7 @@ class FarEditor : public LineSource
   /**
    * Change editor properties. These overwrites default HRC settings
    */
-  void setDrawCross(const String* cross_style);
+  void setDrawCross(int _drawCross, int _CrossStyle);
   void setDrawPairs(bool drawPairs);
   void setDrawSyntax(bool drawSyntax);
   void setOutlineStyle(bool oldStyle);

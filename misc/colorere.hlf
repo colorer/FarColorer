@@ -82,6 +82,14 @@ $^#FarColorer's settings.#
      The effect is visible on the files, the number of rows in less than window height
      editor.
 
+  #Cross#
+     [ ] Do not show ever
+     [?] Show if included in the scheme.
+     [x] Always Show.
+
+  #Cross style#
+     Cross style shown when "[x] Cross"
+
   #{ Ok }#
      Closes dialog and save settings.
 

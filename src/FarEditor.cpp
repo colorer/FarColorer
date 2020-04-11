@@ -173,12 +173,7 @@ void FarEditor::reloadTypeSettings()
     crossZOrder = 1;
   }
 
-  const String* cross_style;
-  cross_style = ftype->getParamValue(DShowCross);
-  if (!cross_style) {
-    cross_style = def->getParamValue(DShowCross);
-  }
-  setDrawCross(cross_style);
+  setDrawCross(drawCross, CrossStyle);
 }
 
 FileType* FarEditor::getFileType() const
@@ -186,28 +181,63 @@ FileType* FarEditor::getFileType() const
   return baseEditor->getFileType();
 }
 
-void FarEditor::setDrawCross(const String* cross_style)
+void FarEditor::setDrawCross(int _drawCross, int _CrossStyle)
 {
-  if (cross_style) {
-    if (cross_style->equals(&DNone)) {
+  drawCross = _drawCross;
+  CrossStyle = _CrossStyle;
+  switch (drawCross) {
+    case 0:
       showHorizontalCross = false;
       showVerticalCross = false;
-    }
+      break;
+    case 1:
+      switch (CrossStyle) {
+        case 0:
+          showHorizontalCross = true;
+          showVerticalCross = true;
+          break;
+        case 1:
+          showHorizontalCross = false;
+          showVerticalCross = true;
+          break;
+        case 2:
+          showHorizontalCross = true;
+          showVerticalCross = false;
+          break;
+      }
+      break;
+    case 2:
+      FileType* ftype = baseEditor->getFileType();
+      HRCParser* hrcParser = parserFactory->getHRCParser();
+      FileType* def = hrcParser->getFileType(&DDefaultScheme);
+      const String* value;
+      value = ftype->getParamValue(DShowCross);
+      if (!value) {
+        value = def->getParamValue(DShowCross);
+      }
 
-    if (cross_style->equals(&DVertical)) {
-      showHorizontalCross = false;
-      showVerticalCross = true;
-    }
+      if (value) {
+        if (value->equals(&DNone)) {
+          showHorizontalCross = false;
+          showVerticalCross = false;
+        }
 
-    if (cross_style->equals(&DHorizontal)) {
-      showHorizontalCross = true;
-      showVerticalCross = false;
-    }
+        if (value->equals(&DVertical)) {
+          showHorizontalCross = false;
+          showVerticalCross = true;
+        }
 
-    if (cross_style->equals(&DBoth)) {
-      showHorizontalCross = true;
-      showVerticalCross = true;
-    }
+        if (value->equals(&DHorizontal)) {
+          showHorizontalCross = true;
+          showVerticalCross = false;
+        }
+
+        if (value->equals(&DBoth)) {
+          showHorizontalCross = true;
+          showVerticalCross = true;
+        }
+      }
+      break;
   }
 }
 

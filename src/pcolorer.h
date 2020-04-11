@@ -96,7 +96,12 @@ enum {
   mLogPath,
   mMainSettings,
   mSettings,
-  mStyleConf
+  mStyleConf,
+  mCrossText,
+  mCrossBoth,
+  mCrossVert,
+  mCrossHoriz,
+  mCross
 };
 
 #endif

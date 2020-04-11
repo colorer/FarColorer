@@ -497,6 +497,11 @@ void FarEditorSet::configure()
     Builder.AddCheckbox(mOldOutline, &Opt.oldOutline);
     Builder.AddCheckbox(mChangeBackgroundEditor, &Opt.ChangeBgEditor);
 
+    Builder.AddCheckbox(mCross, &Opt.drawCross, 0, true);
+    Builder.AddText(mCrossText);
+    const wchar_t* cross_style[] = {GetMsg(mCrossBoth), GetMsg(mCrossVert), GetMsg(mCrossHoriz)};
+    Builder.AddComboBox(&Opt.CrossStyle, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+
     Builder.EndColumns();
     Builder.AddOKCancel(mOk, mCancel);
     settingWindow.okButtonConfig = Builder.GetLastID() - 1;
@@ -761,6 +766,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
   editor->setDrawPairs(Opt.drawPairs);
   editor->setDrawSyntax(Opt.drawSyntax);
   editor->setOutlineStyle(Opt.oldOutline);
+  editor->setDrawCross(Opt.drawCross, Opt.CrossStyle);
 
   return editor;
 }
@@ -832,6 +838,7 @@ void FarEditorSet::ApplySettingsToEditors()
     fe->second->setDrawPairs(Opt.drawPairs);
     fe->second->setDrawSyntax(Opt.drawSyntax);
     fe->second->setOutlineStyle(Opt.oldOutline);
+    fe->second->setDrawCross(Opt.drawCross, Opt.CrossStyle);
   }
 }
 
@@ -888,6 +895,8 @@ void FarEditorSet::ReadSettings()
   Opt.TrueModOn = ColorerSettings.Get(0, cRegTrueMod, cTrueMod);
   Opt.ChangeBgEditor = ColorerSettings.Get(0, cRegChangeBgEditor, cChangeBgEditor);
   Opt.LogEnabled = ColorerSettings.Get(0, cRegLogEnabled, cLogEnabledDefault);
+  Opt.drawCross = ColorerSettings.Get(0, cRegCrossDraw, cCrossDrawDefault);
+  Opt.CrossStyle = ColorerSettings.Get(0, cRegCrossStyle, cCrossStyleDefault);
 }
 
 void FarEditorSet::applyLogSetting()
@@ -929,6 +938,8 @@ void FarEditorSet::SaveSettings() const
   ColorerSettings.Set(0, cRegChangeBgEditor, Opt.ChangeBgEditor);
   ColorerSettings.Set(0, cRegUserHrdPath, Opt.UserHrdPath);
   ColorerSettings.Set(0, cRegUserHrcPath, Opt.UserHrcPath);
+  ColorerSettings.Set(0, cRegCrossDraw, Opt.drawCross);
+  ColorerSettings.Set(0, cRegCrossStyle, Opt.CrossStyle);
 }
 
 void FarEditorSet::SaveLogSettings() const
