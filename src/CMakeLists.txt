@@ -29,7 +29,7 @@ else()
 endif()
 
 if(MSVC)
-  set(ASM_SOURCE ${SRC_ROOT}/vc_crt_fix.asm)
+  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
   set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
   set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
   set(MASM_DEFINES "")
@@ -48,7 +48,7 @@ if(MSVC)
   )
 
   set(SRC_CPP ${SRC_CPP}
-    vc_crt_fix_impl.cpp
+      ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix_impl.cpp
     ${ASM_OBJECTS}
   )
 endif()
@@ -94,7 +94,7 @@ set(SRC_FILES ${SRC_CPP} ${SRC_DEF})
 add_library(colorer SHARED ${SRC_FILES} )
 target_link_libraries(colorer colorer_lib)
 target_include_directories(colorer
-    PUBLIC ../libs/far3sdk/
+    PUBLIC ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
     )
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
   target_compile_options(colorer
