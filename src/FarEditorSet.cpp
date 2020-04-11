@@ -457,19 +457,38 @@ void FarEditorSet::configure()
     Builder.AddSeparator(mStyleConf);
 
     Builder.StartColumns();
+
+    std::vector<const HRDNode*> hrd_con_instances;
     std::vector<const wchar_t*> console_style;
-    std::vector<const HRDNode*> hrd_con_instances = parserFactory->enumHRDInstances(DConsole);
-    auto current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
+    unsigned long flag_disable = 0;
+    int current_style;
+    if (Opt.rEnabled) {
+      hrd_con_instances = parserFactory->enumHRDInstances(DConsole);
+      current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
+    } else {
+      console_style.push_back(Opt.HrdName);
+      current_style = 0;
+      flag_disable = DIF_DISABLE;
+    }
     Builder.AddText(mHRDName);
-    Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+    Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
 
     Builder.AddCheckbox(mTrueMod, &Opt.TrueModOn);
 
+    std::vector<const HRDNode*> hrd_rgb_instances;
     std::vector<const wchar_t*> rgb_style;
-    std::vector<const HRDNode*> hrd_rgb_instances = parserFactory->enumHRDInstances(DRgb);
-    auto current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
+    flag_disable = 0;
+    int current_rstyle;
+    if (Opt.rEnabled) {
+      hrd_rgb_instances = parserFactory->enumHRDInstances(DRgb);
+      current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
+    } else {
+      rgb_style.push_back(Opt.HrdNameTm);
+      current_rstyle = 0;
+      flag_disable = DIF_DISABLE;
+    }
     Builder.AddText(mHRDNameTrueMod);
-    Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+    Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
 
     Builder.ColumnBreak();
 
@@ -483,10 +502,16 @@ void FarEditorSet::configure()
     settingWindow.okButtonConfig = Builder.GetLastID() - 1;
 
     if (Builder.ShowDialog()) {
-      wcsncpy(Opt.HrdName, hrd_con_instances.at(current_style)->hrd_name.getWChars(), std::size(Opt.HrdName));
-      wcsncpy(Opt.HrdNameTm, hrd_rgb_instances.at(current_rstyle)->hrd_name.getWChars(), std::size(Opt.HrdNameTm));
+      if (flag_disable == 0) {
+        wcsncpy(Opt.HrdName, hrd_con_instances.at(current_style)->hrd_name.getWChars(), std::size(Opt.HrdName));
+        wcsncpy(Opt.HrdNameTm, hrd_rgb_instances.at(current_rstyle)->hrd_name.getWChars(), std::size(Opt.HrdNameTm));
+      }
       SaveSettings();
-      ReloadBase();
+      if (Opt.rEnabled) {
+        ReloadBase();
+      } else {
+        disableColorer();
+      }
     }
 
   } catch (Exception& e) {
@@ -791,7 +816,6 @@ void FarEditorSet::disableColorer()
 
   regionMapper.reset();
   parserFactory.reset();
-  SaveSettings();
 }
 
 void FarEditorSet::enableColorer()
