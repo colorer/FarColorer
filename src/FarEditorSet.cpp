@@ -641,6 +641,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         tname.append(type->getDescription());
         marr[1] = tname.getWChars();
         Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
+        if (idx % 5 == 0)
+          Info.EditorControl(-1, ECTL_REDRAW, 0, nullptr);
         type->getBaseScheme();
       }
     }
