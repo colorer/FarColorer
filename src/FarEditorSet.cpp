@@ -62,12 +62,13 @@ void FarEditorSet::menuConfigure()
   shMenu[2].Text = GetMsg(mLog);
   shMenu[3].Flags = MIF_SEPARATOR;
   shMenu[4].Text = GetMsg(mReloadAll);
-  int menu_id;
+  int menu_id = 0;
+  int prev_id = 0;
 
   while (true) {
+    shMenu[prev_id].Flags = MIF_SELECTED;
     menu_id = (int) Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(mSettings), nullptr, L"settingsmenu",
                               nullptr, nullptr, shMenu, std::size(shMenu));
-
     switch (menu_id) {
       case -1:
         return;
@@ -88,6 +89,8 @@ void FarEditorSet::menuConfigure()
         return;
         break;
     }
+    shMenu[prev_id].Flags ^= MIF_SELECTED;
+    prev_id = menu_id;
   }
 }
 
@@ -833,7 +836,7 @@ void FarEditorSet::enableColorer()
 
 void FarEditorSet::ApplySettingsToEditors()
 {
-  for (auto & farEditorInstance : farEditorInstances) {
+  for (auto& farEditorInstance : farEditorInstances) {
     farEditorInstance.second->setTrueMod(Opt.TrueModOn);
     farEditorInstance.second->setDrawPairs(Opt.drawPairs);
     farEditorInstance.second->setDrawSyntax(Opt.drawSyntax);
