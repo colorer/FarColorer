@@ -1672,7 +1672,7 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
   }
 
   if (CString("Types").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR)
+    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
       return nullptr;
     SString command = SString(CString(params->Values[1].String));
     if (CString("Menu").equalsIgnoreCase(&command)) {
@@ -1680,4 +1680,71 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
     }
   }
 
+  if (CString("Brackets").equalsIgnoreCase(&command_type)) {
+    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+      return nullptr;
+
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+    SString command = SString(CString(params->Values[1].String));
+    if (CString("Match").equalsIgnoreCase(&command)) {
+      editor->matchPair();
+      return INVALID_HANDLE_VALUE;
+    } else if (CString("SelectAll").equalsIgnoreCase(&command)) {
+      editor->selectBlock();
+      return INVALID_HANDLE_VALUE;
+    } else if (CString("SelectIn").equalsIgnoreCase(&command)) {
+      editor->selectPair();
+      return INVALID_HANDLE_VALUE;
+    }
+  }
+
+  if (CString("Region").equalsIgnoreCase(&command_type)) {
+    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+      return nullptr;
+
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+    SString command = SString(CString(params->Values[1].String));
+    if (CString("Select").equalsIgnoreCase(&command)) {
+      editor->selectRegion();
+      return INVALID_HANDLE_VALUE;
+    } else if (CString("Show").equalsIgnoreCase(&command)) {
+      editor->getNameCurrentScheme();
+      return INVALID_HANDLE_VALUE;
+    }
+  }
+
+  if (CString("Functions").equalsIgnoreCase(&command_type)) {
+    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+      return nullptr;
+
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+    SString command = SString(CString(params->Values[1].String));
+    if (CString("Show").equalsIgnoreCase(&command)) {
+      editor->listFunctions();
+      return INVALID_HANDLE_VALUE;
+    } else if (CString("Find").equalsIgnoreCase(&command)) {
+      editor->locateFunction();
+      return INVALID_HANDLE_VALUE;
+    }
+  }
+
+  if (CString("Errors").equalsIgnoreCase(&command_type)) {
+    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+      return nullptr;
+
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+    SString command = SString(CString(params->Values[1].String));
+    if (CString("Show").equalsIgnoreCase(&command)) {
+      editor->listErrors();
+      return INVALID_HANDLE_VALUE;
+    }
+  }
 }
