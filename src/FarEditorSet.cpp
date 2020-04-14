@@ -1650,6 +1650,13 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
       }
     }
   }
+  return nullptr;
+}
+
+static void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count)
+{
+  delete[] Values;
+  delete (FarMacroCall*) CallbackData;
 }
 
 void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
@@ -1747,4 +1754,45 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
       return INVALID_HANDLE_VALUE;
     }
   }
+
+  if (CString("Editor").equalsIgnoreCase(&command_type)) {
+    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+      return nullptr;
+
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+    SString command = SString(CString(params->Values[1].String));
+    if (CString("CrossStatus").equalsIgnoreCase(&command)) {
+      if (params->Count > 2) {
+        // change
+        //TODO
+      } else {
+        // current
+        return editor->getCrossStatus() ? INVALID_HANDLE_VALUE : nullptr;
+      }
+      return INVALID_HANDLE_VALUE;
+    } else if (CString("CrossType").equalsIgnoreCase(&command)) {
+      if (params->Count > 2) {
+        // change
+        //TODO
+      } else {
+        // current
+        auto* out_params = new FarMacroValue[1];
+        out_params[0].Type = FMVT_INTEGER;
+        out_params[0].Integer = editor->getCrossType();
+
+        auto* out_result = new FarMacroCall;
+        out_result->StructSize = sizeof(FarMacroCall);
+        out_result->Count = 1;
+        out_result->Values = out_params;
+        out_result->Callback = MacroCallback;
+        out_result->CallbackData = out_result;
+
+        return out_result;
+      }
+      return INVALID_HANDLE_VALUE;
+    }
+  }
+  return nullptr;
 }

@@ -113,6 +113,8 @@ class FarEditor : public LineSource
 
   void getNameCurrentScheme();
 
+  bool getCrossStatus();
+  int getCrossType();
  private:
   PluginStartupInfo* info;
 
