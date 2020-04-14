@@ -504,7 +504,8 @@ bool FarEditorSet::configure()
     Builder.AddCheckbox(mCross, &Opt.drawCross, 0, true);
     Builder.AddText(mCrossText);
     const wchar_t* cross_style[] = {GetMsg(mCrossBoth), GetMsg(mCrossVert), GetMsg(mCrossHoriz)};
-    Builder.AddComboBox(&Opt.CrossStyle, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+    int cross_style_id = Opt.CrossStyle - 1;
+    Builder.AddComboBox(&cross_style_id, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
     Builder.EndColumns();
     Builder.AddOKCancel(mOk, mCancel);
@@ -515,6 +516,8 @@ bool FarEditorSet::configure()
         wcsncpy(Opt.HrdName, hrd_con_instances.at(current_style)->hrd_name.getWChars(), std::size(Opt.HrdName));
         wcsncpy(Opt.HrdNameTm, hrd_rgb_instances.at(current_rstyle)->hrd_name.getWChars(), std::size(Opt.HrdNameTm));
       }
+      if (cross_style_id != Opt.CrossStyle)
+        Opt.CrossStyle = cross_style_id + 1;
       SaveSettings();
       if (Opt.rEnabled) {
         ReloadBase();
@@ -777,7 +780,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
   editor->setDrawPairs(Opt.drawPairs);
   editor->setDrawSyntax(Opt.drawSyntax);
   editor->setOutlineStyle(Opt.oldOutline);
-  editor->setDrawCross(Opt.drawCross, Opt.CrossStyle);
+  editor->setCrossState(Opt.drawCross, Opt.CrossStyle);
 
   return editor;
 }
@@ -849,7 +852,7 @@ void FarEditorSet::ApplySettingsToEditors()
     farEditorInstance.second->setDrawPairs(Opt.drawPairs);
     farEditorInstance.second->setDrawSyntax(Opt.drawSyntax);
     farEditorInstance.second->setOutlineStyle(Opt.oldOutline);
-    farEditorInstance.second->setDrawCross(Opt.drawCross, Opt.CrossStyle);
+    farEditorInstance.second->setCrossState(Opt.drawCross, Opt.CrossStyle);
   }
 }
 
@@ -1763,36 +1766,63 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
     if (!editor)
       return nullptr;
     SString command = SString(CString(params->Values[1].String));
-    if (CString("CrossStatus").equalsIgnoreCase(&command)) {
-      if (params->Count > 2) {
-        // change
-        //TODO
-      } else {
-        // current
-        return editor->getCrossStatus() ? INVALID_HANDLE_VALUE : nullptr;
-      }
-      return INVALID_HANDLE_VALUE;
-    } else if (CString("CrossType").equalsIgnoreCase(&command)) {
-      if (params->Count > 2) {
-        // change
-        //TODO
-      } else {
-        // current
-        auto* out_params = new FarMacroValue[1];
-        out_params[0].Type = FMVT_INTEGER;
-        out_params[0].Integer = editor->getCrossType();
+    if (CString("CrossVisible").equalsIgnoreCase(&command)) {
+      auto* out_params = new FarMacroValue[1];
+      out_params[0].Type = FMVT_INTEGER;
+      out_params[0].Integer = editor->getVisibleCrossState();
 
-        auto* out_result = new FarMacroCall;
-        out_result->StructSize = sizeof(FarMacroCall);
-        out_result->Count = 1;
-        out_result->Values = out_params;
-        out_result->Callback = MacroCallback;
-        out_result->CallbackData = out_result;
+      auto* out_result = new FarMacroCall;
+      out_result->StructSize = sizeof(FarMacroCall);
+      out_result->Count = 1;
+      out_result->Values = out_params;
+      out_result->Callback = MacroCallback;
+      out_result->CallbackData = out_result;
 
-        return out_result;
-      }
-      return INVALID_HANDLE_VALUE;
+      return out_result;
     }
+    if (CString("CrossStatus").equalsIgnoreCase(&command)) {
+      // current status
+      auto* out_params = new FarMacroValue[1];
+      out_params[0].Type = FMVT_INTEGER;
+      out_params[0].Integer = editor->getCrossStatus();
+
+      auto* out_result = new FarMacroCall;
+      out_result->StructSize = sizeof(FarMacroCall);
+      out_result->Count = 1;
+      out_result->Values = out_params;
+      out_result->Callback = MacroCallback;
+      out_result->CallbackData = out_result;
+
+      if (params->Count > 2) {
+        // change status
+        intptr_t val = GetValue(params->Values + 2);
+        editor->setCrossStatus(val);
+      }
+
+      return out_result;
+    }
+    if (CString("CrossType").equalsIgnoreCase(&command)) {
+      // current style
+      auto* out_params = new FarMacroValue[1];
+      out_params[0].Type = FMVT_INTEGER;
+      out_params[0].Integer = editor->getCrossStyle();
+
+      auto* out_result = new FarMacroCall;
+      out_result->StructSize = sizeof(FarMacroCall);
+      out_result->Count = 1;
+      out_result->Values = out_params;
+      out_result->Callback = MacroCallback;
+      out_result->CallbackData = out_result;
+
+      if (params->Count > 2) {
+        // change style
+        intptr_t val = GetValue(params->Values + 2);
+        editor->setCrossStyle(val);
+      }
+
+      return out_result;
+    }
+    return nullptr;
   }
   return nullptr;
 }

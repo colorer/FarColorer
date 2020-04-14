@@ -27,8 +27,8 @@ FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf)
       parserFactory(pf),
       maxLineLength(0),
       fullBackground(true),
-      drawCross(0),
-      CrossStyle(0),
+      crossStatus(0),
+      crossStyle(0),
       showVerticalCross(false),
       showHorizontalCross(false),
       crossZOrder(0),
@@ -173,7 +173,7 @@ void FarEditor::reloadTypeSettings()
     crossZOrder = 1;
   }
 
-  setDrawCross(drawCross, CrossStyle);
+  setCrossState(crossStatus, crossStyle);
 }
 
 FileType* FarEditor::getFileType() const
@@ -181,32 +181,19 @@ FileType* FarEditor::getFileType() const
   return baseEditor->getFileType();
 }
 
-void FarEditor::setDrawCross(int _drawCross, int _CrossStyle)
+void FarEditor::setCrossState(int status, int style)
 {
-  drawCross = _drawCross;
-  CrossStyle = _CrossStyle;
-  switch (drawCross) {
-    case 0:
-      showHorizontalCross = false;
-      showVerticalCross = false;
+  crossStatus = status;
+  crossStyle = style;
+
+  switch (crossStatus) {
+    case CROSS_OFF:
+      changeCrossStyle(CSTYLE_NONE);
       break;
-    case 1:
-      switch (CrossStyle) {
-        case 0:
-          showHorizontalCross = true;
-          showVerticalCross = true;
-          break;
-        case 1:
-          showHorizontalCross = false;
-          showVerticalCross = true;
-          break;
-        case 2:
-          showHorizontalCross = true;
-          showVerticalCross = false;
-          break;
-      }
+    case CROSS_ON:
+      changeCrossStyle((CROSS_STYLE) crossStyle);
       break;
-    case 2:
+    case CROSS_INSCHEME:
       FileType* ftype = baseEditor->getFileType();
       HRCParser* hrcParser = parserFactory->getHRCParser();
       FileType* def = hrcParser->getFileType(&DDefaultScheme);
@@ -218,23 +205,13 @@ void FarEditor::setDrawCross(int _drawCross, int _CrossStyle)
 
       if (value) {
         if (value->equals(&DNone)) {
-          showHorizontalCross = false;
-          showVerticalCross = false;
-        }
-
-        if (value->equals(&DVertical)) {
-          showHorizontalCross = false;
-          showVerticalCross = true;
-        }
-
-        if (value->equals(&DHorizontal)) {
-          showHorizontalCross = true;
-          showVerticalCross = false;
-        }
-
-        if (value->equals(&DBoth)) {
-          showHorizontalCross = true;
-          showVerticalCross = true;
+          changeCrossStyle(CSTYLE_NONE);
+        } else if (value->equals(&DVertical)) {
+          changeCrossStyle(CSTYLE_VERT);
+        } else if (value->equals(&DHorizontal)) {
+          changeCrossStyle(CSTYLE_HOR);
+        } else if (value->equals(&DBoth)) {
+          changeCrossStyle(CSTYLE_BOTH);
         }
       }
       break;
@@ -1342,17 +1319,56 @@ void FarEditor::cleanEditor()
   }
 }
 
-bool FarEditor::getCrossStatus()
+int FarEditor::getVisibleCrossState() const
 {
-  return showHorizontalCross || showVerticalCross;
+  if (!showHorizontalCross && !showVerticalCross)
+    return CSTYLE_NONE;
+  if (showHorizontalCross && showVerticalCross)
+    return CSTYLE_BOTH;
+  if (!showHorizontalCross && showVerticalCross)
+    return CSTYLE_VERT;
+  if (showHorizontalCross && !showVerticalCross)
+    return CSTYLE_HOR;
 }
 
-int FarEditor::getCrossType()
+void FarEditor::changeCrossStyle(FarEditor::CROSS_STYLE newStyle)
 {
-  if (showHorizontalCross && showVerticalCross)
-    return 0;
-  if (!showHorizontalCross && showVerticalCross)
-    return 1;
-  if (showHorizontalCross && !showVerticalCross)
-    return 2;
+  switch (newStyle) {
+    case CSTYLE_NONE:
+      showHorizontalCross = false;
+      showVerticalCross = false;
+      break;
+    case CSTYLE_BOTH:
+      showHorizontalCross = true;
+      showVerticalCross = true;
+      break;
+    case CSTYLE_VERT:
+      showHorizontalCross = false;
+      showVerticalCross = true;
+      break;
+    case CSTYLE_HOR:
+      showHorizontalCross = true;
+      showVerticalCross = false;
+      break;
+  }
+}
+
+int FarEditor::getCrossStatus() const
+{
+  return crossStatus;
+}
+
+int FarEditor::getCrossStyle() const
+{
+  return crossStyle;
+}
+
+void FarEditor::setCrossStatus(int status)
+{
+  setCrossState(status, crossStyle);
+}
+
+void FarEditor::setCrossStyle(int style)
+{
+  setCrossState(crossStatus, style);
 }

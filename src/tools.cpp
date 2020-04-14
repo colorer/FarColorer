@@ -1,5 +1,4 @@
 #include "tools.h"
-#include "pcolorer.h"
 
 wchar_t* rtrim(wchar_t* str)
 {
@@ -92,4 +91,14 @@ SString* PathToFullS(const wchar_t* path, bool unc)
   }
   delete[] t;
   return spath;
+}
+
+intptr_t GetValue(FarMacroValue* value, intptr_t def)
+{
+  intptr_t result = def;
+  if (FMVT_INTEGER == value->Type)
+    result = value->Integer;
+  else if (FMVT_DOUBLE == value->Type)
+    result = static_cast<intptr_t>(value->Double);
+  return result;
 }
