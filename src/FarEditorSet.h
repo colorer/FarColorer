@@ -114,11 +114,13 @@ class FarEditorSet
 
   void menuConfigure();
   /** Shows plugin's configuration dialog */
-  void configure();
+  bool configure();
   /** Views current file with internal viewer */
   void viewFile(const String& path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
   HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
+  void* oldMacro(FARMACROAREA area, OpenMacroInfo* params);
+  void* execMacro(FARMACROAREA area, OpenMacroInfo* params);
 
   /** Dispatch editor event in the opened editor */
   int editorEvent(const struct ProcessEditorEventInfo* pInfo);
@@ -155,13 +157,13 @@ class FarEditorSet
   void LoadUserHrc(const String* filename, ParserFactory* pf);
 
   /** Shows hrc configuration dialog */
-  void configureHrc();
+  bool configureHrc();
   void OnChangeHrc(HANDLE hDlg);
   void OnChangeParam(HANDLE hDlg, intptr_t idx);
   void OnSaveHrcParams(HANDLE hDlg);
 
   /** Show logging configuration dialog*/
-  void configureLogging();
+  bool configureLogging();
 
   void showExceptionMessage(const wchar_t* message);
   void applyLogSetting();
@@ -188,7 +190,7 @@ class FarEditorSet
   void ReloadBase();
 
   /** Shows dialog of file type selection */
-  void chooseType();
+  bool chooseType();
   /** FAR localized messages */
   const wchar_t* GetMsg(int msg);
   /** Applies the current settings for editors*/
@@ -253,6 +255,8 @@ class FarEditorSet
 
   HANDLE hTimer = NULL;
   HANDLE hTimerQueue = NULL;
+
+  bool ignore_event = false;
 };
 
 #endif

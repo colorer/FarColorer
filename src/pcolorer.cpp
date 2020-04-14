@@ -83,7 +83,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
       editorSet->openFromCommandLine(oInfo);
       break;
     case OPEN_FROMMACRO:
-      editorSet->openFromMacro(oInfo);
+      return editorSet->openFromMacro(oInfo);
       break;
     case OPEN_LEFTDISKMENU:
     case OPEN_PLUGINSMENU:
