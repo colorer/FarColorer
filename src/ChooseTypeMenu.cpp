@@ -132,7 +132,7 @@ size_t ChooseTypeMenu::AddFavorite(const FileType* fType)
 {
   size_t i;
   for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++);
-  size_t p = AddItem(fType, i = ItemCount ? i : i + 1);
+  size_t p = AddItem(fType,  i);
   if (ItemSelected >= p) {
     ItemSelected++;
   }
@@ -181,10 +181,7 @@ bool ChooseTypeMenu::IsFavorite(size_t index) const
   size_t i;
   for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++);
   i = ItemCount ? i : i + 1;
-  if (i > index) {
-    return true;
-  }
-  return false;
+  return i > index;
 }
 
 void ChooseTypeMenu::RefreshItemCaption(size_t index)
