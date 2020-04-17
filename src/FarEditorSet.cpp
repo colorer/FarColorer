@@ -1427,8 +1427,8 @@ void FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
     if (p.equals(&DCrossZorder)) {
       setCrossPosValueListToCombobox(type, hDlg);
     }
-    else if (p.equals(&DMaxLen) || p.equals(&DBackparse) || p.equals(&DDefFore) || p.equals(&DDefBack) || p.equals(&CString("firstlines")) ||
-             p.equals(&CString("firstlinebytes")) || p.equals(&DHotkey)) {
+    else if (p.equals(&DMaxLen) || p.equals(&DBackparse) || p.equals(&DDefFore) || p.equals(&DDefBack) || CString("firstlines").equals(&p) ||
+             CString("firstlinebytes").equals(&p) || p.equals(&DHotkey)) {
       setCustomListValueToCombobox(type, hDlg, CString(List.Item.Text));
     }
     else if (p.equals(&DFullback)) {
