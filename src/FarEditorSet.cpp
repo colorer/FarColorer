@@ -1710,7 +1710,13 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
   if (CString("Hrc").equalsIgnoreCase(&command)) {
     return configureHrc() ? INVALID_HANDLE_VALUE : nullptr;
   }
-
+  if (CString("Reload").equalsIgnoreCase(&command)) {
+    ReloadBase();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("Status").equalsIgnoreCase(&command)) {
+    return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+  }
   return nullptr;
 }
 
@@ -1827,7 +1833,7 @@ void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
   }
   if (CString("List").equalsIgnoreCase(&command)) {
     SString region, scheme;
-    editor->getCurrentRegionInfo(region,scheme);
+    editor->getCurrentRegionInfo(region, scheme);
     auto* out_params = new FarMacroValue[2];
     out_params[0].Type = FMVT_STRING;
     out_params[0].String = _wcsdup(region.getWChars());
@@ -1910,8 +1916,10 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
       int val = static_cast<int>(macroGetValue(params->Values + 2));
       editor->setCrossStyle(val);
     }
-
     return macroReturnInt(cur_style);
+  }
+  if (CString("Refresh").equalsIgnoreCase(&command)) {
+    editor->updateHighlighting();
   }
   return nullptr;
 }
