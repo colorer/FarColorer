@@ -206,11 +206,14 @@ void FarEditor::setCrossState(int status, int style)
       if (value) {
         if (value->equals(&DNone)) {
           changeCrossStyle(CSTYLE_NONE);
-        } else if (value->equals(&DVertical)) {
+        }
+        else if (value->equals(&DVertical)) {
           changeCrossStyle(CSTYLE_VERT);
-        } else if (value->equals(&DHorizontal)) {
+        }
+        else if (value->equals(&DHorizontal)) {
           changeCrossStyle(CSTYLE_HOR);
-        } else if (value->equals(&DBoth)) {
+        }
+        else if (value->equals(&DBoth)) {
           changeCrossStyle(CSTYLE_BOTH);
         }
       }
@@ -274,7 +277,8 @@ void FarEditor::matchPair()
 
   if (!pm->topPosition) {
     esp.CurPos = pm->end->start;
-  } else {
+  }
+  else {
     esp.CurPos = pm->end->end - 1;
   }
 
@@ -308,7 +312,8 @@ void FarEditor::selectPair()
     X2 = pm->end->start - 1;
     Y1 = pm->sline;
     Y2 = pm->eline;
-  } else {
+  }
+  else {
     X2 = pm->start->start - 1;
     X1 = pm->end->end;
     Y2 = pm->sline;
@@ -344,7 +349,8 @@ void FarEditor::selectBlock()
     X2 = pm->end->end - 1;
     Y1 = pm->sline;
     Y2 = pm->eline;
-  } else {
+  }
+  else {
     X2 = pm->start->end - 1;
     X1 = pm->end->start;
     Y2 = pm->sline;
@@ -391,11 +397,6 @@ void FarEditor::selectRegion()
 
 void FarEditor::getNameCurrentScheme()
 {
-  EditorGetString egs {};
-  egs.StructSize = sizeof(EditorGetString);
-  EditorInfo ei = enterHandler();
-  egs.StringNumber = ei.CurLine;
-  info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
   if (cursorRegion != nullptr) {
     SString region, scheme;
     region.append(CString(L"Region: "));
@@ -408,8 +409,21 @@ void FarEditor::getNameCurrentScheme()
       scheme.append(cursorRegion->scheme->getName());
     }
     const wchar_t* exceptionMessage[3] = {GetMsg(mRegionName), region.getWChars(), scheme.getWChars()};
-    info->Message(&MainGuid, &RegionName, FMSG_MB_OK | FMSG_LEFTALIGN, L"exception", &exceptionMessage[0],
+    info->Message(&MainGuid, &RegionName, FMSG_MB_OK | FMSG_LEFTALIGN, nullptr, &exceptionMessage[0],
                   sizeof(exceptionMessage) / sizeof(exceptionMessage[0]), 1);
+  }
+}
+
+void FarEditor::getCurrentRegionInfo(SString& region, SString& scheme)
+{
+  if (cursorRegion != nullptr) {
+    if (cursorRegion->region != nullptr) {
+      const Region* r = cursorRegion->region;
+      region.append(r->getName());
+    }
+    if (cursorRegion->scheme != nullptr) {
+      scheme.append(cursorRegion->scheme->getName());
+    }
   }
 }
 
@@ -471,7 +485,8 @@ void FarEditor::locateFunction()
       if (item->token->indexOfIgnoreCase(CString(funcname)) != -1) {
         if (item->lno == ei.CurLine) {
           item_last = item;
-        } else {
+        }
+        else {
           item_found = item;
         }
       }
@@ -521,7 +536,8 @@ int FarEditor::editorInput(const INPUT_RECORD& Rec)
       baseEditor->idleJob(idleCount * 10);
       info->EditorControl(editor_id, ECTL_REDRAW, 0, nullptr);
     }
-  } else if (Rec.EventType == KEY_EVENT) {
+  }
+  else if (Rec.EventType == KEY_EVENT) {
     idleCount = 0;
   }
 
@@ -570,7 +586,8 @@ COLORREF FarEditor::getSuitableColor(const COLORREF base_color, const COLORREF b
       default:
         return blend_color;
     }
-  } else {
+  }
+  else {
     return blend_color;
   }
 }
@@ -691,7 +708,8 @@ int FarEditor::editorEvent(intptr_t event, void* param)
               }
               end = j >= llen ? lend : j;
               whitespace = true;
-            } else {
+            }
+            else {
               while ((j <= llen) && (j < lend) && (egs.StringText[j] != L' ' && egs.StringText[j] != L'\t')) {
                 j++;
               }
@@ -710,7 +728,8 @@ int FarEditor::editorEvent(intptr_t event, void* param)
             }
             col1.BackgroundColor = getSuitableColor(col1.ForegroundColor, horzCrossColor.BackgroundColor);
             addFARColor(lno, start, end, col1);
-          } else {
+          }
+          else {
             addFARColor(lno, start, end, col1);
           }
 
@@ -727,7 +746,8 @@ int FarEditor::editorEvent(intptr_t event, void* param)
           if (showVerticalCross && start <= ecp_cl.DestPos && ecp_cl.DestPos < end) {
             if ((ecp_cl.DestPos == llen || ecp_cl.DestPos == llen + 1) && show_eol) {
               col1.ForegroundColor = rdBackground->fore;
-            } else {
+            }
+            else {
               if (crossZOrder != 0 && !whitespace) {
                 col1.ForegroundColor = vertCrossColor.ForegroundColor;
               }
@@ -738,7 +758,8 @@ int FarEditor::editorEvent(intptr_t event, void* param)
           j = end;
         }
       }
-    } else {
+    }
+    else {
       // cross at the show is off the drawSyntax
       if (lno == ei.CurLine && showHorizontalCross) {
         addFARColor(lno, 0, ei.LeftPos + ei.WindowSizeX, horzCrossColor);
@@ -925,7 +946,8 @@ void FarEditor::showOutliner(Outliner* outliner)
 
           wcsncpy(menuItem + si, item->token->getWChars(), labelLength);
           menuItem[si + labelLength] = 0;
-        } else {
+        }
+        else {
           String* line = getLine(item->lno);
           size_t labelLength = line->length();
 
@@ -1072,7 +1094,8 @@ void FarEditor::showOutliner(Outliner* outliner)
 
         if (sel == 0) {
           sel = menu_size - 1;
-        } else {
+        }
+        else {
           sel--;
         }
 
@@ -1098,7 +1121,8 @@ void FarEditor::showOutliner(Outliner* outliner)
 
         if (sel == menu_size - 1) {
           sel = 0;
-        } else {
+        }
+        else {
           sel++;
         }
 
@@ -1120,7 +1144,8 @@ void FarEditor::showOutliner(Outliner* outliner)
       case 7: {  // ctrl-left
         if (visibleLevel > maxLevel) {
           visibleLevel = maxLevel - 1;
-        } else {
+        }
+        else {
           if (visibleLevel > 0) {
             visibleLevel--;
           }
@@ -1263,7 +1288,8 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
 
   if (!TrueMod) {
     col.Flags |= FCF_4BITMASK;
-  } else {
+  }
+  else {
     col.ForegroundColor = revertRGB(col.ForegroundColor);
     col.BackgroundColor = revertRGB(col.BackgroundColor);
   }
@@ -1329,6 +1355,8 @@ int FarEditor::getVisibleCrossState() const
     return CSTYLE_VERT;
   if (showHorizontalCross && !showVerticalCross)
     return CSTYLE_HOR;
+
+  return CSTYLE_NONE;
 }
 
 void FarEditor::changeCrossStyle(FarEditor::CROSS_STYLE newStyle)

@@ -117,6 +117,7 @@ class FarEditor : public LineSource
   void cleanEditor();
 
   void getNameCurrentScheme();
+  void getCurrentRegionInfo(SString& region, SString& scheme);
 
   void changeCrossStyle(CROSS_STYLE newStyle);
   int getVisibleCrossState() const;

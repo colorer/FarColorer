@@ -1749,20 +1749,34 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     if (file_type) {
       auto* out_params = new FarMacroValue[2];
       out_params[0].Type = FMVT_STRING;
-      out_params[0].String = wcsdup(file_type->getName()->getWChars());
+      out_params[0].String = _wcsdup(file_type->getName()->getWChars());
       out_params[1].Type = FMVT_STRING;
-      out_params[1].String = wcsdup(file_type->getGroup()->getWChars());
+      out_params[1].String = _wcsdup(file_type->getGroup()->getWChars());
 
-      auto* out_result = new FarMacroCall;
-      out_result->StructSize = sizeof(FarMacroCall);
-      out_result->Count = 2;
-      out_result->Values = out_params;
-      out_result->Callback = MacroCallback;
-      out_result->CallbackData = out_result;
-      return out_result;
+      return macroReturnValues(out_params, 2);
     }
     else
       return nullptr;
+  }
+  if (CString("List").equalsIgnoreCase(&command)) {
+    auto type_count = hrcParser->getFileTypesCount();
+    FileType* type = nullptr;
+
+    auto* array = new FarMacroValue[type_count];
+
+    for (auto idx = 0; idx < type_count; idx++) {
+      type = hrcParser->enumerateFileTypes(idx);
+      if (type == nullptr) {
+        break;
+      }
+      array[idx].Type = FMVT_STRING;
+      array[idx].String = _wcsdup(type->getName()->getWChars());
+    }
+    auto* out_params = new FarMacroValue[1];
+    out_params->Type = FMVT_ARRAY;
+    out_params->Array.Values = array;
+    out_params->Array.Count = type_count;
+    return macroReturnValues(out_params, 1);
   }
   return nullptr;
 }
@@ -1811,7 +1825,17 @@ void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
     editor->getNameCurrentScheme();
     return INVALID_HANDLE_VALUE;
   }
+  if (CString("List").equalsIgnoreCase(&command)) {
+    SString region, scheme;
+    editor->getCurrentRegionInfo(region,scheme);
+    auto* out_params = new FarMacroValue[2];
+    out_params[0].Type = FMVT_STRING;
+    out_params[0].String = _wcsdup(region.getWChars());
+    out_params[1].Type = FMVT_STRING;
+    out_params[1].String = _wcsdup(scheme.getWChars());
 
+    return macroReturnValues(out_params, 2);
+  }
   return nullptr;
 }
 
