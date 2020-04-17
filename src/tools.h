@@ -13,4 +13,5 @@ SString* PathToFullS(const wchar_t* path, bool unc);
 
 intptr_t macroGetValue(FarMacroValue* value, intptr_t def = 0);
 FarMacroCall* macroReturnInt(long long int value);
+void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count);
 #endif

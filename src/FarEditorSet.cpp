@@ -1723,7 +1723,47 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
   if (CString("Menu").equalsIgnoreCase(&command)) {
     return chooseType() ? INVALID_HANDLE_VALUE : nullptr;
   }
+  if (CString("Set").equalsIgnoreCase(&command)) {
+    if (params->Count > 2) {
+      SString new_type = SString(CString(params->Values[2].String));
+      FarEditor* editor = getCurrentEditor();
+      if (!editor)
+        return nullptr;
 
+      auto file_type = hrcParser->getFileType(&new_type);
+      if (file_type) {
+        editor->setFileType(file_type);
+        return INVALID_HANDLE_VALUE;
+      }
+      else
+        return nullptr;
+    }
+    return nullptr;
+  }
+  if (CString("Get").equalsIgnoreCase(&command)) {
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+
+    auto file_type = editor->getFileType();
+    if (file_type) {
+      auto* out_params = new FarMacroValue[2];
+      out_params[0].Type = FMVT_STRING;
+      out_params[0].String = wcsdup(file_type->getName()->getWChars());
+      out_params[1].Type = FMVT_STRING;
+      out_params[1].String = wcsdup(file_type->getGroup()->getWChars());
+
+      auto* out_result = new FarMacroCall;
+      out_result->StructSize = sizeof(FarMacroCall);
+      out_result->Count = 2;
+      out_result->Values = out_params;
+      out_result->Callback = MacroCallback;
+      out_result->CallbackData = out_result;
+      return out_result;
+    }
+    else
+      return nullptr;
+  }
   return nullptr;
 }
 

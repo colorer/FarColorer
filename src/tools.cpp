@@ -104,9 +104,11 @@ intptr_t macroGetValue(FarMacroValue* value, intptr_t def)
 }
 
 // free memory after far save values
-static void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count)
+void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count)
 {
-  (void) Count;
+  for (auto i=0; i<Count;i++){
+    delete[] Values[i].String;
+  }
   delete[] Values;
   delete (FarMacroCall*) CallbackData;
 }
