@@ -56,7 +56,7 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
   if (i > len) {
     len = i;
   }
-  wchar_t* temp = new wchar_t[len];
+  auto* temp = new wchar_t[len];
   ExpandEnvironmentStringsW(new_path, temp, static_cast<DWORD>(i));
   delete[] new_path;
   new_path = temp;
@@ -72,10 +72,10 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
   size_t p = FSF.ConvertPath(mode, new_path, nullptr, 0);
   if (p > len) {
     len = p;
-    wchar_t* temp = new wchar_t[len];
-    wcscpy(temp, new_path);
+    auto* temp2 = new wchar_t[len];
+    wcscpy(temp2, new_path);
     delete[] new_path;
-    new_path = temp;
+    new_path = temp2;
   }
   FSF.ConvertPath(mode, new_path, new_path, len);
 
@@ -93,7 +93,7 @@ SString* PathToFullS(const wchar_t* path, bool unc)
   return spath;
 }
 
-intptr_t GetValue(FarMacroValue* value, intptr_t def)
+intptr_t macroGetValue(FarMacroValue* value, intptr_t def)
 {
   intptr_t result = def;
   if (FMVT_INTEGER == value->Type)
@@ -101,4 +101,28 @@ intptr_t GetValue(FarMacroValue* value, intptr_t def)
   else if (FMVT_DOUBLE == value->Type)
     result = static_cast<intptr_t>(value->Double);
   return result;
+}
+
+// free memory after far save values
+static void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count)
+{
+  (void) Count;
+  delete[] Values;
+  delete (FarMacroCall*) CallbackData;
+}
+
+FarMacroCall* macroReturnInt(long long int value)
+{
+  auto* out_params = new FarMacroValue[1];
+  out_params[0].Type = FMVT_INTEGER;
+  out_params[0].Integer = value;
+
+  auto* out_result = new FarMacroCall;
+  out_result->StructSize = sizeof(FarMacroCall);
+  out_result->Count = 1;
+  out_result->Values = out_params;
+  out_result->Callback = MacroCallback;
+  out_result->CallbackData = out_result;
+
+  return out_result;
 }

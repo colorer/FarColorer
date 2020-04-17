@@ -206,6 +206,14 @@ class FarEditorSet
 
   void setEmptyLogger();
 
+  void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroTypes(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroBrackets(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroRegion(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroFunctions(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroErrors(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroEditor(FARMACROAREA area, OpenMacroInfo* params);
+
   size_t getCountFileTypeAndGroup() const;
   FileTypeImpl* getFileTypeByIndex(int idx) const;
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
