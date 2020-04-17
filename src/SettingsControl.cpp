@@ -3,7 +3,7 @@
 
 SettingsControl::SettingsControl()
 {
-  FarSettingsCreate fsc;
+  FarSettingsCreate fsc {};
   fsc.Guid = MainGuid;
   fsc.StructSize = sizeof(FarSettingsCreate);
   if (Info.SettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, PSL_ROAMING, &fsc)) {
@@ -65,13 +65,13 @@ size_t SettingsControl::rGetSubKey(size_t Root, const wchar_t* Name)
 bool SettingsControl::rEnum(size_t Root, FarSettingsEnum* fse)
 {
   fse->Root = Root;
-  return !!Info.SettingsControl(farSettingHandle, SCTL_ENUM, 0, fse);
+  return Info.SettingsControl(farSettingHandle, SCTL_ENUM, 0, fse) != 0;
 }
 
 bool SettingsControl::rDeleteSubKey(size_t Root, const wchar_t* Name)
 {
   FarSettingsValue fsv = {sizeof(FarSettingsValue), Root, Name};
-  return !!Info.SettingsControl(farSettingHandle, SCTL_DELETE, 0, &fsv);
+  return Info.SettingsControl(farSettingHandle, SCTL_DELETE, 0, &fsv) != 0;
 }
 
 __int64 SettingsControl::Get(size_t Root, const wchar_t* Name, __int64 Default)
@@ -96,7 +96,7 @@ DWORD SettingsControl::Get(size_t Root, const wchar_t* Name, DWORD Default)
 
 bool SettingsControl::Get(size_t Root, const wchar_t* Name, bool Default)
 {
-  return Get(Root, Name, Default ? 1ull : 0ull) ? true : false;
+  return Get(Root, Name, Default ? 1ull : 0ull) != 0;
 }
 
 bool SettingsControl::Set(size_t Root, const wchar_t* Name, __int64 Value)

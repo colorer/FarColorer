@@ -39,10 +39,10 @@ class SettingsControlException : public Exception
 {
  public:
   SettingsControlException() noexcept : Exception("[SettingsControl] ") {};
-  SettingsControlException(const String& msg) noexcept : SettingsControlException()
+  explicit SettingsControlException(const String& msg) noexcept : SettingsControlException()
   {
     what_str.append(msg);
-  };
+  }
 };
 
 #endif

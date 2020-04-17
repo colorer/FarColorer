@@ -6,7 +6,7 @@
 
 void FarHrcSettings::readProfile(SString* plugin_path)
 {
-  SString* path = new SString(plugin_path);
+  auto* path = new SString(plugin_path);
   path->append(CString(FarProfileXml));
   readXML(path, false);
 
@@ -103,7 +103,7 @@ void FarHrcSettings::readProfileFromRegistry()
   SettingsControl ColorerSettings;
   size_t hrc_subkey;
   hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
-  FarSettingsEnum fse;
+  FarSettingsEnum fse{};
   fse.StructSize = sizeof(FarSettingsEnum);
   // enum all the sections in HrcSettings
   if (ColorerSettings.rEnum(hrc_subkey, &fse)) {
@@ -116,7 +116,7 @@ void FarHrcSettings::readProfileFromRegistry()
           // enum all params in the section
           size_t type_subkey;
           type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, fse.Items[i].Name);
-          FarSettingsEnum type_fse;
+          FarSettingsEnum type_fse{};
           type_fse.StructSize = sizeof(FarSettingsEnum);
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {

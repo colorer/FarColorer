@@ -108,7 +108,8 @@ void FarEditorSet::openMenu(int MenuId)
     for (int i = menu_size - 1; i >= 0; i--) {
       if (iMenuItems[i] == -1) {
         menuElements[i].Flags |= MIF_SEPARATOR;
-      } else {
+      }
+      else {
         menuElements[i].Text = GetMsg(iMenuItems[i]);
       }
     }
@@ -117,7 +118,8 @@ void FarEditorSet::openMenu(int MenuId)
                                  Opt.rEnabled ? menuElements : menuElements + 12, Opt.rEnabled ? menu_size : 1);
     if (!Opt.rEnabled && menu_id == 0) {
       MenuId = 12;
-    } else {
+    }
+    else {
       MenuId = static_cast<int>(menu_id);
     }
   }
@@ -283,7 +285,8 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
     v = dynamic_cast<FileTypeImpl*>(type)->getParamValue(DFavorite);
     if (v && v->equals(&DTrue)) {
       i = Menu->AddFavorite(type);
-    } else {
+    }
+    else {
       i = Menu->AddItem(type);
     }
     if (type == CurFileType) {
@@ -348,16 +351,20 @@ bool FarEditorSet::chooseType()
       if (BreakCode == 0) {
         if (i != 0 && !menu.IsFavorite(i)) {
           menu.MoveToFavorites(i);
-        } else {
+        }
+        else {
           menu.SetSelected(i);
         }
-      } else if (BreakCode == 1) {
+      }
+      else if (BreakCode == 1) {
         if (i != 0 && menu.IsFavorite(i)) {
           menu.DelFromFavorites(i);
-        } else {
+        }
+        else {
           menu.SetSelected(i);
         }
-      } else if (BreakCode == 2) {
+      }
+      else if (BreakCode == 2) {
         if (i == 0) {
           menu.SetSelected(i);
           continue;
@@ -391,7 +398,8 @@ bool FarEditorSet::chooseType()
         }
         menu.SetSelected(i);
         Info.DialogFree(hDlg);
-      } else {
+      }
+      else {
         if (i == 0) {
           String* s = getCurrentFileName();
           fe->chooseFileType(s);
@@ -401,7 +409,8 @@ bool FarEditorSet::chooseType()
         fe->setFileType(menu.GetFileType(i));
         break;
       }
-    } else {
+    }
+    else {
       break;
     }
   }
@@ -469,7 +478,8 @@ bool FarEditorSet::configure()
     if (Opt.rEnabled) {
       hrd_con_instances = parserFactory->enumHRDInstances(DConsole);
       current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
-    } else {
+    }
+    else {
       console_style.push_back(Opt.HrdName);
       current_style = 0;
       flag_disable = DIF_DISABLE;
@@ -486,7 +496,8 @@ bool FarEditorSet::configure()
     if (Opt.rEnabled) {
       hrd_rgb_instances = parserFactory->enumHRDInstances(DRgb);
       current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
-    } else {
+    }
+    else {
       rgb_style.push_back(Opt.HrdNameTm);
       current_rstyle = 0;
       flag_disable = DIF_DISABLE;
@@ -521,7 +532,8 @@ bool FarEditorSet::configure()
       SaveSettings();
       if (Opt.rEnabled) {
         ReloadBase();
-      } else {
+      }
+      else {
         disableColorer();
       }
     }
@@ -582,7 +594,8 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         auto it_editor = farEditorInstances.find(pInfo->EditorID);
         if (it_editor != farEditorInstances.end()) {
           return it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
-        } else {
+        }
+        else {
           return 0;
         }
       } break;
@@ -635,7 +648,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     auto* path = new SString(*pluginPath);
     path->append(CString(FarCatalogXml));
     tpath.reset(path);
-  } else {
+  }
+  else {
     tpath = std::move(catalogPathS);
   }
 
@@ -720,7 +734,8 @@ void FarEditorSet::ReloadBase()
     if (Opt.TrueModOn) {
       hrdClass = DRgb;
       hrdName = CString(Opt.HrdNameTm);
-    } else {
+    }
+    else {
       hrdClass = DConsole;
       hrdName = CString(Opt.HrdName);
     }
@@ -814,7 +829,8 @@ FarEditor* FarEditorSet::getCurrentEditor()
   auto if_editor = farEditorInstances.find(ei.EditorID);
   if (if_editor != farEditorInstances.end()) {
     return if_editor->second;
-  } else {
+  }
+  else {
     return nullptr;
   }
 }
@@ -935,7 +951,8 @@ void FarEditorSet::applyLogSetting()
         showExceptionMessage(CString(e.what()).getWChars());
       }
     }
-  } else {
+  }
+  else {
     setEmptyLogger();
   }
 }
@@ -981,7 +998,8 @@ bool FarEditorSet::SetBgEditor() const
       fc.Flags = 0;
       fc.BackgroundColor = revertRGB(def_text->back);
       fc.ForegroundColor = revertRGB(def_text->fore);
-    } else {
+    }
+    else {
       fc.Flags = FCF_4BITMASK;
       fc.BackgroundColor = def_text->back;
       fc.ForegroundColor = def_text->fore;
@@ -1079,7 +1097,8 @@ FarList* FarEditorSet::buildHrcList() const
 
     if (group != nullptr) {
       groupChars = group->getWChars();
-    } else {
+    }
+    else {
       groupChars = L"<no group>";
     }
 
@@ -1161,14 +1180,18 @@ void FarEditorSet::setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg)
   size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 4;
-  } else {
+  }
+  else {
     if (value->equals(&DNone)) {
       ret = 0;
-    } else if (value->equals(&DVertical)) {
+    }
+    else if (value->equals(&DVertical)) {
       ret = 1;
-    } else if (value->equals(&DHorizontal)) {
+    }
+    else if (value->equals(&DHorizontal)) {
       ret = 2;
-    } else if (value->equals(&DBoth)) {
+    }
+    else if (value->equals(&DBoth)) {
       ret = 3;
     }
   }
@@ -1199,10 +1222,12 @@ void FarEditorSet::setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDl
   size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
-  } else {
+  }
+  else {
     if (value->equals(&DBottom)) {
       ret = 0;
-    } else if (value->equals(&DTop)) {
+    }
+    else if (value->equals(&DTop)) {
       ret = 1;
     }
   }
@@ -1233,10 +1258,12 @@ void FarEditorSet::setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CSt
   size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
-  } else {
+  }
+  else {
     if (value->equals(&DNo)) {
       ret = 0;
-    } else if (value->equals(&DYes)) {
+    }
+    else if (value->equals(&DYes)) {
       ret = 1;
     }
   }
@@ -1267,10 +1294,12 @@ void FarEditorSet::setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CSt
   size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
-  } else {
+  }
+  else {
     if (value->equals(&DFalse)) {
       ret = 0;
-    } else if (value->equals(&DTrue)) {
+    }
+    else if (value->equals(&DTrue)) {
       ret = 1;
     }
   }
@@ -1353,7 +1382,8 @@ void FarEditorSet::SaveChangedValueParam(HANDLE hDlg)
       }
       type->setParamValue(p, &v);
     }
-  } else {                   //было пользовательское значение
+  }
+  else {                     //было пользовательское значение
     if (!v.equals(value)) {  // changed
       type->setParamValue(p, &v);
     }
@@ -1392,15 +1422,19 @@ void FarEditorSet::OnChangeParam(HANDLE hDlg, intptr_t idx)
   Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_DESCRIPTION, &c);
   if (p.equals(&DShowCross)) {
     setCrossValueListToCombobox(type, hDlg);
-  } else {
+  }
+  else {
     if (p.equals(&DCrossZorder)) {
       setCrossPosValueListToCombobox(type, hDlg);
-    } else if (p.equals(&DMaxLen) || p.equals(&DBackparse) || p.equals(&DDefFore) || p.equals(&DDefBack) || p.equals(&CString("firstlines")) ||
-               p.equals(&CString("firstlinebytes")) || p.equals(&DHotkey)) {
+    }
+    else if (p.equals(&DMaxLen) || p.equals(&DBackparse) || p.equals(&DDefFore) || p.equals(&DDefBack) || CString("firstlines").equals(&p) ||
+             CString("firstlinebytes").equals(&p) || p.equals(&DHotkey)) {
       setCustomListValueToCombobox(type, hDlg, CString(List.Item.Text));
-    } else if (p.equals(&DFullback)) {
+    }
+    else if (p.equals(&DFullback)) {
       setYNListValueToCombobox(type, hDlg, CString(List.Item.Text));
-    } else {
+    }
+    else {
       setTFListValueToCombobox(type, hDlg, CString(List.Item.Text));
     }
   }
@@ -1556,8 +1590,6 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
     return oldMacro(area, mi);
   else
     return execMacro(area, mi);
-
-  return INVALID_HANDLE_VALUE;
 }
 
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
@@ -1592,7 +1624,8 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
 
     if (hrd_node->hrd_description.length() != 0) {
       out_array->push_back(hrd_node->hrd_description.getWChars());
-    } else {
+    }
+    else {
       out_array->push_back(hrd_node->hrd_name.getWChars());
     }
 
@@ -1603,6 +1636,9 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
   return current_style;
 }
 
+#pragma region macro_functions
+
+// TODO remove in 01/01/2021
 void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
 {
   int MenuCode = -1;
@@ -1626,11 +1662,13 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
   if (MenuCode >= 0 && area == MACROAREA_EDITOR) {
     openMenu(MenuCode - 1);
     return INVALID_HANDLE_VALUE;
-  } else if (command) {
-    if (command->equals(&CString("status"))) {
+  }
+  else if (command) {
+    if (CString("status").equals(command.get())) {
       if (params->Count == 1) {
         return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-      } else {
+      }
+      else {
         bool new_status = false;
         switch (params->Values[1].Type) {
           case FMVT_BOOLEAN:
@@ -1646,7 +1684,8 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
         if (new_status) {
           enableColorer();
           return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        } else {
+        }
+        else {
           disableColorer();
           return !isEnable() ? INVALID_HANDLE_VALUE : nullptr;
         }
@@ -1656,10 +1695,233 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-static void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count)
+void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
-  delete[] Values;
-  delete (FarMacroCall*) CallbackData;
+  if (area != MACROAREA_EDITOR)
+    return nullptr;
+  SString command = SString(CString(params->Values[1].String));
+
+  if (CString("Main").equalsIgnoreCase(&command)) {
+    return configure() ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  if (CString("Log").equalsIgnoreCase(&command)) {
+    return configureLogging() ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  if (CString("Hrc").equalsIgnoreCase(&command)) {
+    return configureHrc() ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  if (CString("Reload").equalsIgnoreCase(&command)) {
+    ReloadBase();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("Status").equalsIgnoreCase(&command)) {
+    return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  return nullptr;
+}
+
+void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+    return nullptr;
+  SString command = SString(CString(params->Values[1].String));
+
+  if (CString("Menu").equalsIgnoreCase(&command)) {
+    return chooseType() ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  if (CString("Set").equalsIgnoreCase(&command)) {
+    if (params->Count > 2) {
+      SString new_type = SString(CString(params->Values[2].String));
+      FarEditor* editor = getCurrentEditor();
+      if (!editor)
+        return nullptr;
+
+      auto file_type = hrcParser->getFileType(&new_type);
+      if (file_type) {
+        editor->setFileType(file_type);
+        return INVALID_HANDLE_VALUE;
+      }
+      else
+        return nullptr;
+    }
+    return nullptr;
+  }
+  if (CString("Get").equalsIgnoreCase(&command)) {
+    FarEditor* editor = getCurrentEditor();
+    if (!editor)
+      return nullptr;
+
+    auto file_type = editor->getFileType();
+    if (file_type) {
+      auto* out_params = new FarMacroValue[2];
+      out_params[0].Type = FMVT_STRING;
+      out_params[0].String = _wcsdup(file_type->getName()->getWChars());
+      out_params[1].Type = FMVT_STRING;
+      out_params[1].String = _wcsdup(file_type->getGroup()->getWChars());
+
+      return macroReturnValues(out_params, 2);
+    }
+    else
+      return nullptr;
+  }
+  if (CString("List").equalsIgnoreCase(&command)) {
+    auto type_count = hrcParser->getFileTypesCount();
+    FileType* type = nullptr;
+
+    auto* array = new FarMacroValue[type_count];
+
+    for (auto idx = 0; idx < type_count; idx++) {
+      type = hrcParser->enumerateFileTypes(idx);
+      if (type == nullptr) {
+        break;
+      }
+      array[idx].Type = FMVT_STRING;
+      array[idx].String = _wcsdup(type->getName()->getWChars());
+    }
+    auto* out_params = new FarMacroValue[1];
+    out_params->Type = FMVT_ARRAY;
+    out_params->Array.Values = array;
+    out_params->Array.Count = type_count;
+    return macroReturnValues(out_params, 1);
+  }
+  return nullptr;
+}
+
+void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+    return nullptr;
+
+  FarEditor* editor = getCurrentEditor();
+  if (!editor)
+    return nullptr;
+
+  SString command = SString(CString(params->Values[1].String));
+  if (CString("Match").equalsIgnoreCase(&command)) {
+    editor->matchPair();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("SelectAll").equalsIgnoreCase(&command)) {
+    editor->selectBlock();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("SelectIn").equalsIgnoreCase(&command)) {
+    editor->selectPair();
+    return INVALID_HANDLE_VALUE;
+  }
+
+  return nullptr;
+}
+
+void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+    return nullptr;
+
+  FarEditor* editor = getCurrentEditor();
+  if (!editor)
+    return nullptr;
+
+  SString command = SString(CString(params->Values[1].String));
+  if (CString("Select").equalsIgnoreCase(&command)) {
+    editor->selectRegion();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("Show").equalsIgnoreCase(&command)) {
+    editor->getNameCurrentScheme();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("List").equalsIgnoreCase(&command)) {
+    SString region, scheme;
+    editor->getCurrentRegionInfo(region, scheme);
+    auto* out_params = new FarMacroValue[2];
+    out_params[0].Type = FMVT_STRING;
+    out_params[0].String = _wcsdup(region.getWChars());
+    out_params[1].Type = FMVT_STRING;
+    out_params[1].String = _wcsdup(scheme.getWChars());
+
+    return macroReturnValues(out_params, 2);
+  }
+  return nullptr;
+}
+
+void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+    return nullptr;
+
+  FarEditor* editor = getCurrentEditor();
+  if (!editor)
+    return nullptr;
+
+  SString command = SString(CString(params->Values[1].String));
+  if (CString("Show").equalsIgnoreCase(&command)) {
+    editor->listFunctions();
+    return INVALID_HANDLE_VALUE;
+  }
+  if (CString("Find").equalsIgnoreCase(&command)) {
+    editor->locateFunction();
+    return INVALID_HANDLE_VALUE;
+  }
+
+  return nullptr;
+}
+
+void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+    return nullptr;
+
+  FarEditor* editor = getCurrentEditor();
+  if (!editor)
+    return nullptr;
+
+  SString command = SString(CString(params->Values[1].String));
+  if (CString("Show").equalsIgnoreCase(&command)) {
+    editor->listErrors();
+    return INVALID_HANDLE_VALUE;
+  }
+
+  return nullptr;
+}
+
+void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+    return nullptr;
+
+  FarEditor* editor = getCurrentEditor();
+  if (!editor)
+    return nullptr;
+  SString command = SString(CString(params->Values[1].String));
+  if (CString("CrossVisible").equalsIgnoreCase(&command)) {
+    return macroReturnInt(editor->getVisibleCrossState());
+  }
+  if (CString("CrossStatus").equalsIgnoreCase(&command)) {
+    // current status
+    auto cur_status = editor->getCrossStatus();
+    if (params->Count > 2) {
+      // change status
+      int val = static_cast<int>(macroGetValue(params->Values + 2));
+      editor->setCrossStatus(val);
+    }
+
+    return macroReturnInt(cur_status);
+  }
+  if (CString("CrossType").equalsIgnoreCase(&command)) {
+    // current style
+    auto cur_style = editor->getCrossStyle();
+    if (params->Count > 2) {
+      // change style
+      int val = static_cast<int>(macroGetValue(params->Values + 2));
+      editor->setCrossStyle(val);
+    }
+    return macroReturnInt(cur_style);
+  }
+  if (CString("Refresh").equalsIgnoreCase(&command)) {
+    editor->updateHighlighting();
+  }
+  return nullptr;
 }
 
 void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
@@ -1669,160 +1931,34 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
 
   SString command_type = SString(CString(params->Values[0].String));
   if (CString("Settings").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("Main").equalsIgnoreCase(&command)) {
-      return configure() ? INVALID_HANDLE_VALUE : nullptr;
-    } else if (CString("Log").equalsIgnoreCase(&command)) {
-      return configureLogging() ? INVALID_HANDLE_VALUE : nullptr;
-    } else if (CString("Hrc").equalsIgnoreCase(&command)) {
-      return configureHrc() ? INVALID_HANDLE_VALUE : nullptr;
-    }
+    return macroSettings(area, params);
   }
 
   if (CString("Types").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("Menu").equalsIgnoreCase(&command)) {
-      return chooseType() ? INVALID_HANDLE_VALUE : nullptr;
-    }
+    return macroTypes(area, params);
   }
 
   if (CString("Brackets").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
-      return nullptr;
-
-    FarEditor* editor = getCurrentEditor();
-    if (!editor)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("Match").equalsIgnoreCase(&command)) {
-      editor->matchPair();
-      return INVALID_HANDLE_VALUE;
-    } else if (CString("SelectAll").equalsIgnoreCase(&command)) {
-      editor->selectBlock();
-      return INVALID_HANDLE_VALUE;
-    } else if (CString("SelectIn").equalsIgnoreCase(&command)) {
-      editor->selectPair();
-      return INVALID_HANDLE_VALUE;
-    }
+    return macroBrackets(area, params);
   }
 
   if (CString("Region").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
-      return nullptr;
-
-    FarEditor* editor = getCurrentEditor();
-    if (!editor)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("Select").equalsIgnoreCase(&command)) {
-      editor->selectRegion();
-      return INVALID_HANDLE_VALUE;
-    } else if (CString("Show").equalsIgnoreCase(&command)) {
-      editor->getNameCurrentScheme();
-      return INVALID_HANDLE_VALUE;
-    }
+    return macroRegion(area, params);
   }
 
   if (CString("Functions").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
-      return nullptr;
-
-    FarEditor* editor = getCurrentEditor();
-    if (!editor)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("Show").equalsIgnoreCase(&command)) {
-      editor->listFunctions();
-      return INVALID_HANDLE_VALUE;
-    } else if (CString("Find").equalsIgnoreCase(&command)) {
-      editor->locateFunction();
-      return INVALID_HANDLE_VALUE;
-    }
+    return macroFunctions(area, params);
   }
 
   if (CString("Errors").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
-      return nullptr;
-
-    FarEditor* editor = getCurrentEditor();
-    if (!editor)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("Show").equalsIgnoreCase(&command)) {
-      editor->listErrors();
-      return INVALID_HANDLE_VALUE;
-    }
+    return macroErrors(area, params);
   }
 
   if (CString("Editor").equalsIgnoreCase(&command_type)) {
-    if (area != MACROAREA_EDITOR || !Opt.rEnabled)
-      return nullptr;
-
-    FarEditor* editor = getCurrentEditor();
-    if (!editor)
-      return nullptr;
-    SString command = SString(CString(params->Values[1].String));
-    if (CString("CrossVisible").equalsIgnoreCase(&command)) {
-      auto* out_params = new FarMacroValue[1];
-      out_params[0].Type = FMVT_INTEGER;
-      out_params[0].Integer = editor->getVisibleCrossState();
-
-      auto* out_result = new FarMacroCall;
-      out_result->StructSize = sizeof(FarMacroCall);
-      out_result->Count = 1;
-      out_result->Values = out_params;
-      out_result->Callback = MacroCallback;
-      out_result->CallbackData = out_result;
-
-      return out_result;
-    }
-    if (CString("CrossStatus").equalsIgnoreCase(&command)) {
-      // current status
-      auto* out_params = new FarMacroValue[1];
-      out_params[0].Type = FMVT_INTEGER;
-      out_params[0].Integer = editor->getCrossStatus();
-
-      auto* out_result = new FarMacroCall;
-      out_result->StructSize = sizeof(FarMacroCall);
-      out_result->Count = 1;
-      out_result->Values = out_params;
-      out_result->Callback = MacroCallback;
-      out_result->CallbackData = out_result;
-
-      if (params->Count > 2) {
-        // change status
-        intptr_t val = GetValue(params->Values + 2);
-        editor->setCrossStatus(val);
-      }
-
-      return out_result;
-    }
-    if (CString("CrossType").equalsIgnoreCase(&command)) {
-      // current style
-      auto* out_params = new FarMacroValue[1];
-      out_params[0].Type = FMVT_INTEGER;
-      out_params[0].Integer = editor->getCrossStyle();
-
-      auto* out_result = new FarMacroCall;
-      out_result->StructSize = sizeof(FarMacroCall);
-      out_result->Count = 1;
-      out_result->Values = out_params;
-      out_result->Callback = MacroCallback;
-      out_result->CallbackData = out_result;
-
-      if (params->Count > 2) {
-        // change style
-        intptr_t val = GetValue(params->Values + 2);
-        editor->setCrossStyle(val);
-      }
-
-      return out_result;
-    }
-    return nullptr;
+    return macroEditor(area, params);
   }
+
   return nullptr;
 }
+
+#pragma endregion macro_functions
