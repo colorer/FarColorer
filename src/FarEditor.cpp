@@ -1412,3 +1412,13 @@ Outliner* FarEditor::getErrorOutliner()
   baseEditor->validate(-1, false);
   return errorOutliner;
 }
+
+bool FarEditor::isDrawPairs() const
+{
+  return drawPairs;
+}
+
+bool FarEditor::isDrawSyntax() const
+{
+  return drawSyntax;
+}

@@ -1877,7 +1877,7 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
       array_string[idx].String = _wcsdup(line->getWChars());
 
       array_numline[idx].Type = FMVT_INTEGER;
-      array_numline[idx].Integer = item->lno+1;
+      array_numline[idx].Integer = item->lno + 1;
     }
 
     auto* out_params = new FarMacroValue[2];
@@ -1922,7 +1922,7 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
       array_string[idx].String = _wcsdup(line->getWChars());
 
       array_numline[idx].Type = FMVT_INTEGER;
-      array_numline[idx].Integer = item->lno+1;
+      array_numline[idx].Integer = item->lno + 1;
     }
 
     auto* out_params = new FarMacroValue[2];
@@ -1974,7 +1974,31 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
   }
   if (CString("Refresh").equalsIgnoreCase(&command)) {
     editor->updateHighlighting();
+    return INVALID_HANDLE_VALUE;
   }
+
+  if (CString("Pair").equalsIgnoreCase(&command)) {
+    // current status
+    auto cur_status = editor->isDrawPairs();
+    if (params->Count > 2) {
+      // change status
+      int val = static_cast<int>(macroGetValue(params->Values + 2));
+      editor->setDrawPairs(val);
+    }
+    return macroReturnInt(cur_status);
+  }
+
+  if (CString("Syntax").equalsIgnoreCase(&command)) {
+    // current status
+    auto cur_status = editor->isDrawSyntax();
+    if (params->Count > 2) {
+      // change status
+      int val = static_cast<int>(macroGetValue(params->Values + 2));
+      editor->setDrawSyntax(val);
+    }
+    return macroReturnInt(cur_status);
+  }
+
   return nullptr;
 }
 

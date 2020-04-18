@@ -123,6 +123,8 @@ class FarEditor : public LineSource
   int getVisibleCrossState() const;
   int getCrossStatus() const;
   int getCrossStyle() const;
+  bool isDrawPairs() const;
+  bool isDrawSyntax() const;
 
   Outliner* getFunctionOutliner();
   Outliner* getErrorOutliner();
@@ -145,6 +147,8 @@ class FarEditor : public LineSource
   FarColor vertCrossColor;
 
   bool drawPairs;
+
+ private:
   bool drawSyntax;
   bool oldOutline;
   bool TrueMod;
