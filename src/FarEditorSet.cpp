@@ -1697,7 +1697,7 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || FMVT_STRING != params->Values[1].Type)
+  if (FMVT_STRING != params->Values[1].Type)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
 
