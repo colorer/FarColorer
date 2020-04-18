@@ -1400,3 +1400,15 @@ void FarEditor::setCrossStyle(int style)
 {
   setCrossState(crossStatus, style);
 }
+
+Outliner* FarEditor::getFunctionOutliner()
+{
+  baseEditor->validate(-1, false);
+  return structOutliner;
+}
+
+Outliner* FarEditor::getErrorOutliner()
+{
+  baseEditor->validate(-1, false);
+  return errorOutliner;
+}

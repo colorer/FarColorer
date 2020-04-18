@@ -1779,9 +1779,9 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
       array[idx].String = _wcsdup(type->getName()->getWChars());
     }
     auto* out_params = new FarMacroValue[1];
-    out_params->Type = FMVT_ARRAY;
-    out_params->Array.Values = array;
-    out_params->Array.Count = type_count;
+    out_params[0].Type = FMVT_ARRAY;
+    out_params[0].Array.Values = array;
+    out_params[0].Array.Count = type_count;
     return macroReturnValues(out_params, 1);
   }
   return nullptr;
@@ -1863,7 +1863,34 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
     editor->locateFunction();
     return INVALID_HANDLE_VALUE;
   }
+  if (CString("List").equalsIgnoreCase(&command)) {
+    auto* outliner = editor->getFunctionOutliner();
+    auto items_num = outliner->itemCount();
 
+    auto* array_string = new FarMacroValue[items_num];
+    auto* array_numline = new FarMacroValue[items_num];
+    for (auto idx = 0; idx < items_num; idx++) {
+      OutlineItem* item = outliner->getItem(idx);
+      String* line = editor->getLine(item->lno);
+
+      array_string[idx].Type = FMVT_STRING;
+      array_string[idx].String = _wcsdup(line->getWChars());
+
+      array_numline[idx].Type = FMVT_INTEGER;
+      array_numline[idx].Integer = item->lno+1;
+    }
+
+    auto* out_params = new FarMacroValue[2];
+    out_params[0].Type = FMVT_ARRAY;
+    out_params[0].Array.Values = array_string;
+    out_params[0].Array.Count = items_num;
+
+    out_params[1].Type = FMVT_ARRAY;
+    out_params[1].Array.Values = array_numline;
+    out_params[1].Array.Count = items_num;
+
+    return macroReturnValues(out_params, 2);
+  }
   return nullptr;
 }
 
@@ -1881,7 +1908,34 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
     editor->listErrors();
     return INVALID_HANDLE_VALUE;
   }
+  if (CString("List").equalsIgnoreCase(&command)) {
+    auto* outliner = editor->getFunctionOutliner();
+    auto items_num = outliner->itemCount();
 
+    auto* array_string = new FarMacroValue[items_num];
+    auto* array_numline = new FarMacroValue[items_num];
+    for (auto idx = 0; idx < items_num; idx++) {
+      OutlineItem* item = outliner->getItem(idx);
+      String* line = editor->getLine(item->lno);
+
+      array_string[idx].Type = FMVT_STRING;
+      array_string[idx].String = _wcsdup(line->getWChars());
+
+      array_numline[idx].Type = FMVT_INTEGER;
+      array_numline[idx].Integer = item->lno+1;
+    }
+
+    auto* out_params = new FarMacroValue[2];
+    out_params[0].Type = FMVT_ARRAY;
+    out_params[0].Array.Values = array_string;
+    out_params[0].Array.Count = items_num;
+
+    out_params[1].Type = FMVT_ARRAY;
+    out_params[1].Array.Values = array_numline;
+    out_params[1].Array.Count = items_num;
+
+    return macroReturnValues(out_params, 2);
+  }
   return nullptr;
 }
 

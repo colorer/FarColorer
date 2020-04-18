@@ -124,6 +124,8 @@ class FarEditor : public LineSource
   int getCrossStatus() const;
   int getCrossStyle() const;
 
+  Outliner* getFunctionOutliner();
+  Outliner* getErrorOutliner();
  private:
   PluginStartupInfo* info;
 

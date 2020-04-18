@@ -109,8 +109,9 @@ intptr_t macroGetValue(FarMacroValue* value, intptr_t def)
 void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count)
 {
   for (auto i = 0; i < Count; i++) {
-    if (FMVT_STRING == Values[i].Type)
-      free((void*)Values[i].String);
+    if (FMVT_STRING == Values[i].Type) {
+      free((void*) Values[i].String);
+    }
     else if (FMVT_ARRAY == Values[i].Type) {
       for (auto k = 0; k < Values[i].Array.Count; k++) {
         if (FMVT_STRING == Values[i].Array.Values[k].Type) {
