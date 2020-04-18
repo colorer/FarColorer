@@ -1697,7 +1697,7 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR)
+  if (area != MACROAREA_EDITOR || FMVT_STRING != params->Values[1].Type)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
 
@@ -1722,7 +1722,7 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
 
@@ -1730,7 +1730,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     return chooseType() ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (CString("Set").equalsIgnoreCase(&command)) {
-    if (params->Count > 2) {
+    if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
       SString new_type = SString(CString(params->Values[2].String));
       FarEditor* editor = getCurrentEditor();
       if (!editor)
@@ -1789,7 +1789,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
@@ -1815,7 +1815,7 @@ void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
@@ -1847,7 +1847,7 @@ void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
@@ -1869,7 +1869,7 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
@@ -1887,7 +1887,7 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
 {
-  if (area != MACROAREA_EDITOR || !Opt.rEnabled)
+  if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
