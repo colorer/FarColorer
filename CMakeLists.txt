@@ -31,6 +31,8 @@ message("FarColorer configurations for IDE: ${CMAKE_CONFIGURATION_TYPES}")
 #====================================================
 # global settings
 #====================================================
+option(COLORER_WIN64_BUILD "Build for x64, else x86" ON)
+
 if (MSVC)
   # set global Visual C++ runtime
   if (CMAKE_BUILD_TYPE MATCHES Debug)

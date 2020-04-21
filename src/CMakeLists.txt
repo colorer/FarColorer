@@ -89,6 +89,10 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(LINK_FLAGS "${LINK_FLAGS} /incremental:no /OPT:REF /OPT:ICF /debug /ltcg")
   endif ()
 
+  if (COLORER_WIN64_BUILD)
+    set(CMAKE_RC_FLAGS -D_WIN64)
+  endif ()
+
 endif ()
 
 # set options for target
