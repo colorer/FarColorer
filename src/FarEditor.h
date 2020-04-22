@@ -140,7 +140,7 @@ class FarEditor : public LineSource
 
   int crossStatus;  // 0 - off,  1 - always, 2 - if included in the scheme
   int crossStyle;
-  // 0 - both; 1 - vertical; 2 - horizontal
+  // 3 - both; 1 - vertical; 2 - horizontal
   bool showVerticalCross;
   bool showHorizontalCross;
   int crossZOrder;

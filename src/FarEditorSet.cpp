@@ -1949,29 +1949,29 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
   if (CString("CrossVisible").equalsIgnoreCase(&command)) {
-    return macroReturnInt(editor->getVisibleCrossState());
-  }
-  if (CString("CrossStatus").equalsIgnoreCase(&command)) {
-    // current status
+    auto cur_style = editor->getVisibleCrossState();
     auto cur_status = editor->getCrossStatus();
-    if (params->Count > 2) {
-      // change status
-      int val = static_cast<int>(macroGetValue(params->Values + 2));
-      editor->setCrossStatus(val);
-    }
 
-    return macroReturnInt(cur_status);
-  }
-  if (CString("CrossType").equalsIgnoreCase(&command)) {
-    // current style
-    auto cur_style = editor->getCrossStyle();
     if (params->Count > 2) {
       // change style
       int val = static_cast<int>(macroGetValue(params->Values + 2));
       editor->setCrossStyle(val);
     }
-    return macroReturnInt(cur_style);
+    if (params->Count > 3) {
+      // change status
+      int val = static_cast<int>(macroGetValue(params->Values + 3));
+      editor->setCrossStatus(val);
+    }
+
+    auto* out_params = new FarMacroValue[2];
+    out_params[0].Type = FMVT_INTEGER;
+    out_params[0].Integer = cur_style;
+    out_params[1].Type = FMVT_INTEGER;
+    out_params[1].Integer = cur_status;
+
+    return macroReturnValues(out_params, 2);
   }
+
   if (CString("Refresh").equalsIgnoreCase(&command)) {
     editor->updateHighlighting();
     return INVALID_HANDLE_VALUE;
