@@ -39,7 +39,7 @@ class FarEditor : public LineSource
 {
  public:
   enum CROSS_STATUS { CROSS_OFF = 0, CROSS_ON = 1, CROSS_INSCHEME = 2 };
-  enum CROSS_STYLE { CSTYLE_NONE = 0, CSTYLE_BOTH = 1, CSTYLE_VERT = 2, CSTYLE_HOR = 3 };
+  enum CROSS_STYLE { CSTYLE_NONE = 0, CSTYLE_VERT = 1, CSTYLE_HOR = 2, CSTYLE_BOTH = 3 };
 
   /** Creates FAR editor instance.
    */
@@ -128,6 +128,7 @@ class FarEditor : public LineSource
 
   Outliner* getFunctionOutliner();
   Outliner* getErrorOutliner();
+
  private:
   PluginStartupInfo* info;
 
@@ -139,7 +140,7 @@ class FarEditor : public LineSource
 
   int crossStatus;  // 0 - off,  1 - always, 2 - if included in the scheme
   int crossStyle;
-  // 0 - both; 1 - vertical; 2 - horizontal
+  // 3 - both; 1 - vertical; 2 - horizontal
   bool showVerticalCross;
   bool showHorizontalCross;
   int crossZOrder;

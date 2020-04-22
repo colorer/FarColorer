@@ -2,23 +2,24 @@ cmake_minimum_required(VERSION 3.15)
 project(farcolorer CXX)
 
 #====================================================
-# init variables
+# farcolorer
 #====================================================
 
-# get source root
-get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
-
-set(SRC_ROOT ${PROJECT_ROOT}/../src)
-
 set(SRC_CPP
-    pcolorer.cpp pcolorer.h
-    FarEditorSet.cpp FarEditorSet.h
-    FarEditor.cpp FarEditor.h
-    ChooseTypeMenu.cpp ChooseTypeMenu.h
-    FarHrcSettings.cpp FarHrcSettings.h
-    SettingsControl.cpp SettingsControl.h
-    tools.cpp tools.h
+    ChooseTypeMenu.cpp
+    ChooseTypeMenu.h
+    FarEditor.cpp
+    FarEditor.h
+    FarEditorSet.cpp
+    FarEditorSet.h
+    FarHrcSettings.cpp
+    FarHrcSettings.h
+    SettingsControl.cpp
+    SettingsControl.h
+    pcolorer.cpp
+    pcolorer.h
     pcolorer3.rc
+    tools.cpp tools.h
     version.h
     )
 
@@ -28,6 +29,9 @@ else ()
   set(SRC_DEF pcolorer3.gcc.def)
 endif ()
 
+#====================================================
+# support win2k, winxp
+#====================================================
 if (MSVC)
   set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
   set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
@@ -80,8 +84,13 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
   set(LINK_FLAGS "/MAP /MANIFEST:NO")
 
+  # build with debug info in pdb
   if (CMAKE_BUILD_TYPE MATCHES "Release")
     set(LINK_FLAGS "${LINK_FLAGS} /incremental:no /OPT:REF /OPT:ICF /debug /ltcg")
+  endif ()
+
+  if (COLORER_WIN64_BUILD)
+    set(CMAKE_RC_FLAGS -D_WIN64)
   endif ()
 
 endif ()
@@ -101,6 +110,7 @@ target_link_libraries(colorer colorer_lib)
 target_include_directories(colorer
     PUBLIC ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
     )
+
 if (${CMAKE_BUILD_TYPE} MATCHES Debug)
   target_compile_options(colorer
       PUBLIC $<$<COMPILE_LANGUAGE:C>:${MAIN_FLAGS_C_DEBUG}>

@@ -1,3 +1,4 @@
+#pragma code_page(65001)
 #include <windows.h>
 #include "version.h"
 
@@ -5,24 +6,23 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION VER_FILEVERSION
  PRODUCTVERSION VER_PRODUCTVERSION
- FILEFLAGSMASK 0x17L
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS 0x1L
 #else
  FILEFLAGS 0x0L
 #endif
- FILEOS 0x40004L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "041904b0"
+        BLOCK "040904B0"
         BEGIN
             VALUE "FileDescription", FILE_DESCRIPTION
             VALUE "FileVersion", VER_FILEVERSION_STR
             VALUE "InternalName", "FarColorer"
-            VALUE "LegalCopyright", "© 1999-2009 Igor Russkih, © Aleksey Dobrunov 2009-2019"
+            VALUE "LegalCopyright", "(c) 1999-2009 Igor Russkih, (c) Aleksey Dobrunov 2009-2020"
             VALUE "OriginalFilename", "colorer.dll"
             VALUE "ProductName", "FarColorer library"
             VALUE "ProductVersion", VER_PRODUCTVERSION_STR
@@ -30,6 +30,6 @@ BEGIN
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x419, 1200
+        VALUE "Translation", 0x0409, 1200
     END
 END

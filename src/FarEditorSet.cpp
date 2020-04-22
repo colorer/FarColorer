@@ -514,7 +514,7 @@ bool FarEditorSet::configure()
 
     Builder.AddCheckbox(mCross, &Opt.drawCross, 0, true);
     Builder.AddText(mCrossText);
-    const wchar_t* cross_style[] = {GetMsg(mCrossBoth), GetMsg(mCrossVert), GetMsg(mCrossHoriz)};
+    const wchar_t* cross_style[] = {GetMsg(mCrossVert), GetMsg(mCrossHoriz), GetMsg(mCrossBoth)};
     int cross_style_id = Opt.CrossStyle - 1;
     Builder.AddComboBox(&cross_style_id, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
@@ -1697,6 +1697,7 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
+  (void)area;
   if (FMVT_STRING != params->Values[1].Type)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
@@ -1949,29 +1950,31 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
   if (CString("CrossVisible").equalsIgnoreCase(&command)) {
-    return macroReturnInt(editor->getVisibleCrossState());
-  }
-  if (CString("CrossStatus").equalsIgnoreCase(&command)) {
-    // current status
+    auto cur_style = editor->getVisibleCrossState();
     auto cur_status = editor->getCrossStatus();
-    if (params->Count > 2) {
-      // change status
-      int val = static_cast<int>(macroGetValue(params->Values + 2));
-      editor->setCrossStatus(val);
-    }
 
-    return macroReturnInt(cur_status);
-  }
-  if (CString("CrossType").equalsIgnoreCase(&command)) {
-    // current style
-    auto cur_style = editor->getCrossStyle();
     if (params->Count > 2) {
       // change style
       int val = static_cast<int>(macroGetValue(params->Values + 2));
-      editor->setCrossStyle(val);
+      if (val >= FarEditor::CROSS_STYLE::CSTYLE_VERT && val <= FarEditor::CROSS_STYLE::CSTYLE_BOTH)
+        editor->setCrossStyle(val);
     }
-    return macroReturnInt(cur_style);
+    if (params->Count > 3) {
+      // change status
+      int val = static_cast<int>(macroGetValue(params->Values + 3));
+      if (val >= FarEditor::CROSS_STATUS::CROSS_OFF && val <= FarEditor::CROSS_STATUS::CROSS_INSCHEME)
+        editor->setCrossStatus(val);
+    }
+
+    auto* out_params = new FarMacroValue[2];
+    out_params[0].Type = FMVT_INTEGER;
+    out_params[0].Integer = cur_style;
+    out_params[1].Type = FMVT_INTEGER;
+    out_params[1].Integer = cur_status;
+
+    return macroReturnValues(out_params, 2);
   }
+
   if (CString("Refresh").equalsIgnoreCase(&command)) {
     editor->updateHighlighting();
     return INVALID_HANDLE_VALUE;
@@ -1982,7 +1985,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     auto cur_status = editor->isDrawPairs();
     if (params->Count > 2) {
       // change status
-      int val = static_cast<int>(macroGetValue(params->Values + 2));
+      bool val = static_cast<bool>(macroGetValue(params->Values + 2));
       editor->setDrawPairs(val);
     }
     return macroReturnInt(cur_status);
@@ -1993,7 +1996,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     auto cur_status = editor->isDrawSyntax();
     if (params->Count > 2) {
       // change status
-      int val = static_cast<int>(macroGetValue(params->Values + 2));
+      bool val = static_cast<bool>(macroGetValue(params->Values + 2));
       editor->setDrawSyntax(val);
     }
     return macroReturnInt(cur_status);
