@@ -514,7 +514,7 @@ bool FarEditorSet::configure()
 
     Builder.AddCheckbox(mCross, &Opt.drawCross, 0, true);
     Builder.AddText(mCrossText);
-    const wchar_t* cross_style[] = {GetMsg(mCrossBoth), GetMsg(mCrossVert), GetMsg(mCrossHoriz)};
+    const wchar_t* cross_style[] = {GetMsg(mCrossVert), GetMsg(mCrossHoriz), GetMsg(mCrossBoth)};
     int cross_style_id = Opt.CrossStyle - 1;
     Builder.AddComboBox(&cross_style_id, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 

@@ -44,7 +44,7 @@ const wchar_t cLogPathDefault[] = L"";
 const wchar_t cLogLevelDefault[] = L"INFO";
 const bool cLogEnabledDefault = false;
 const int cCrossDrawDefault = 2;
-const int cCrossStyleDefault = 0;
+const int cCrossStyleDefault = 3;
 
 const CString DConsole = CString("console");
 const CString DRgb = CString("rgb");
