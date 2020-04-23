@@ -82,7 +82,8 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
         }
         if (userValue) {
           type->setParamValue(CString(name), &CString(value));
-        } else {
+        }
+        else {
           delete type->getParamDefaultValue(CString(name));
           type->setParamDefaultValue(CString(name), &CString(value));
         }
@@ -103,7 +104,7 @@ void FarHrcSettings::readProfileFromRegistry()
   SettingsControl ColorerSettings;
   size_t hrc_subkey;
   hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
-  FarSettingsEnum fse{};
+  FarSettingsEnum fse {};
   fse.StructSize = sizeof(FarSettingsEnum);
   // enum all the sections in HrcSettings
   if (ColorerSettings.rEnum(hrc_subkey, &fse)) {
@@ -116,7 +117,7 @@ void FarHrcSettings::readProfileFromRegistry()
           // enum all params in the section
           size_t type_subkey;
           type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, fse.Items[i].Name);
-          FarSettingsEnum type_fse{};
+          FarSettingsEnum type_fse {};
           type_fse.StructSize = sizeof(FarSettingsEnum);
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
@@ -162,14 +163,20 @@ void FarHrcSettings::writeProfileToRegistry()
       break;
     }
 
-    if (type->getParamCount() && type->getParamUserValueCount()) {  // params>0 and user values >0
+    if (type->getParamCount()) {  // params>0 and user values >0
       size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, type->getName()->getWChars());
       // enum all params
       std::vector<SString> type_params = type->enumParams();
-      for (auto paramname = type_params.begin(); paramname != type_params.end(); ++paramname) {
-        const String* v = type->getParamUserValue(*paramname);
+      for (auto& type_param : type_params) {
+        const String* v = type->getParamUserValue(type_param);
         if (v != nullptr) {
-          ColorerSettings.Set(type_subkey, paramname->getWChars(), v->getWChars());
+          ColorerSettings.Set(type_subkey, type_param.getWChars(), v->getWChars());
+        }
+        else {
+          auto val = ColorerSettings.Get(type_subkey, type_param.getWChars(), nullptr);
+          if (val) {
+            ColorerSettings.rDeleteSubKey(type_subkey, type_param.getWChars());
+          }
         }
       }
     }

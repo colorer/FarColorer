@@ -1697,7 +1697,7 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
-  (void)area;
+  (void) area;
   if (FMVT_STRING != params->Values[1].Type)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
@@ -1717,6 +1717,13 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
   }
   if (CString("Status").equalsIgnoreCase(&command)) {
     return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  if (CString("SaveSettings").equalsIgnoreCase(&command)) {
+    SaveSettings();
+    SaveLogSettings();
+    FarHrcSettings p(parserFactory.get());
+    p.writeUserProfile();
+    return INVALID_HANDLE_VALUE;
   }
   return nullptr;
 }
@@ -2005,6 +2012,121 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
+void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (!Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
+    return nullptr;
+
+  SString command = SString(CString(params->Values[1].String));
+  if (CString("List").equalsIgnoreCase(&command)) {
+    if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
+      SString type = SString(CString(params->Values[2].String));
+      auto* file_type = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&type));
+      if (file_type) {
+        // max count params
+        size_t size = file_type->getParamCount() + defaultType->getParamCount();
+        auto* array_param = new FarMacroValue[size];
+        auto* array_param_value = new FarMacroValue[size];
+
+        size_t count = 0;
+        std::vector<SString> type_params = file_type->enumParams();
+        for (auto& type_param : type_params) {
+          if (defaultType->getParamValue(type_param) == nullptr) {
+            array_param[count].Type = FMVT_STRING;
+            array_param[count].String = wcsdup(type_param.getWChars());
+
+            auto* value = file_type->getParamValue(type_param);
+            if (value) {
+              array_param_value[count].Type = FMVT_STRING;
+              array_param_value[count].String = _wcsdup(value->getWChars());
+            }
+            else {
+              array_param_value[count].Type = FMVT_NIL;
+            }
+            count++;
+          }
+        }
+
+        std::vector<SString> default_params = defaultType->enumParams();
+        for (auto& default_param : default_params) {
+          array_param[count].Type = FMVT_STRING;
+          array_param[count].String = wcsdup(default_param.getWChars());
+
+          auto* value = file_type->getParamValue(default_param);
+          if (value) {
+            array_param_value[count].Type = FMVT_STRING;
+            array_param_value[count].String = _wcsdup(value->getWChars());
+          }
+          else {
+            array_param_value[count].Type = FMVT_NIL;
+          }
+          count++;
+        }
+
+        auto* out_params = new FarMacroValue[2];
+        out_params[0].Type = FMVT_ARRAY;
+        out_params[0].Array.Values = array_param;
+        out_params[0].Array.Count = size;
+
+        out_params[1].Type = FMVT_ARRAY;
+        out_params[1].Array.Values = array_param_value;
+        out_params[1].Array.Count = size;
+
+        return macroReturnValues(out_params, 2);
+      }
+    }
+    return nullptr;
+  }
+
+  if (CString("Get").equalsIgnoreCase(&command)) {
+    if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
+      SString type = SString(CString(params->Values[2].String));
+      SString param_name = SString(CString(params->Values[3].String));
+
+      auto file_type = hrcParser->getFileType(&type);
+      if (file_type) {
+        auto* value = file_type->getParamValue(param_name);
+        auto* out_params = new FarMacroValue[1];
+        if (value) {
+          out_params[0].Type = FMVT_STRING;
+          out_params[0].String = _wcsdup(value->getWChars());
+        }
+        else {
+          out_params[0].Type = FMVT_NIL;
+        }
+
+        return macroReturnValues(out_params, 1);
+      }
+    }
+    return nullptr;
+  }
+
+  if (CString("Set").equalsIgnoreCase(&command)) {
+    if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
+      SString type = SString(CString(params->Values[2].String));
+      SString param_name = SString(CString(params->Values[3].String));
+      auto* file_type = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&type));
+      if (file_type) {
+        if (params->Count > 4 && FMVT_STRING == params->Values[4].Type) {
+          // replace value
+          SString param_value = SString(CString(params->Values[4].String));
+          file_type->setParamValue(param_name, &param_value);
+        }
+        else if (params->Count == 4) {
+          // remove value
+          file_type->setParamValue(param_name, nullptr);
+        }
+        else
+          return nullptr;
+        return INVALID_HANDLE_VALUE;
+      }
+    }
+    return nullptr;
+  }
+
+  return nullptr;
+}
+
 void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
 {
   if (params->Count < 2 || params->Values[0].Type != FMVT_STRING)
@@ -2037,6 +2159,10 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
 
   if (CString("Editor").equalsIgnoreCase(&command_type)) {
     return macroEditor(area, params);
+  }
+
+  if (CString("ParamsOfType").equalsIgnoreCase(&command_type)) {
+    return macroParams(area, params);
   }
 
   return nullptr;
