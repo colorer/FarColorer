@@ -28,12 +28,29 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
         return false;
       }
       break;
+    case DN_CONTROLINPUT:
+      if (IDX_CH_PARAM_VALUE_LIST == Param1) {
+        const auto* record = (const INPUT_RECORD*) Param2;
+        if (record->EventType == KEY_EVENT || record->EventType == MOUSE_EVENT) {
+          int len = Info.SendDlgMessage(hDlg, DM_GETTEXT, IDX_CH_PARAM_VALUE_LIST, nullptr);
+          EditorSetPosition set_pos {};
+          set_pos.StructSize = sizeof(EditorSetPosition);
+          if (Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, IDX_CH_PARAM_VALUE_LIST, &set_pos)) {
+            if (set_pos.CurPos > len) {
+              COORD c {len, 0};
+              Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_PARAM_VALUE_LIST, &c);
+            }
+          }
+        }
+      }
+      break;
     case DN_EDITCHANGE:
       if (IDX_CH_SCHEMAS == Param1) {
         fes->menuid = -1;
         fes->OnChangeHrc();
         return true;
       }
+
       break;
     case DN_LISTCHANGE:
       if (IDX_CH_PARAM_LIST == Param1) {
@@ -81,7 +98,9 @@ bool HrcSettingsForm::showForm()
   fdi[IDX_CH_PARAM_VALUE_LIST].Flags = DIF_LISTWRAPMODE;
 
   hDlg = Info.DialogInit(&MainGuid, &HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, std::size(fdi), 0, 0, SettingHrcDialogProc, this);
-  Info.DialogRun(hDlg);
+  if (-1 != Info.DialogRun(hDlg)) {
+    SaveChangedValueParam();
+  }
 
   removeFarList(l);
 
@@ -405,7 +424,7 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
   fcross[1].Text = _wcsdup(DTop.getWChars());
   fcross[2].Text = _wcsdup(def_value->getWChars());
   delete def_value;
-  
+
   size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
