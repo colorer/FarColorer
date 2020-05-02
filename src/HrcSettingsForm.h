@@ -7,31 +7,34 @@ class HrcSettingsForm
 {
  public:
   explicit HrcSettingsForm(FarEditorSet* _farEditorSet);
-  ~HrcSettingsForm();
+  ~HrcSettingsForm()= default;
 
   bool Show();
 
   bool showForm();
   FarList* buildHrcList() const;
-  void OnSaveHrcParams(HANDLE hDlg);
-  void OnChangeParam(HANDLE hDlg, intptr_t idx);
-  void SaveChangedValueParam(HANDLE hDlg);
-  FileTypeImpl* getCurrentTypeInDialog(HANDLE hDlg) const;
-  void OnChangeHrc(HANDLE hDlg);
-  void setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
-  void setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
-  void setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
-  void setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
-  void setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
-  void ChangeParamValueListType(HANDLE hDlg, bool dropdownlist);
+  void OnSaveHrcParams();
+  void OnChangeParam(intptr_t idx);
+  void SaveChangedValueParam() const;
+  void getCurrentTypeInDialog();
+  void OnChangeHrc();
+  void setCustomListValueToCombobox(CString param) const;
+  void setTFListValueToCombobox(CString param) const;
+  void setYNListValueToCombobox(CString param) const;
+  void setCrossPosValueListToCombobox() const;
+  void setCrossValueListToCombobox() const;
+  void ChangeParamValueListType(bool dropdownlist) const;
   FarList* buildParamsList(FileTypeImpl* type) const;
   const String* getParamDefValue(FileTypeImpl* type, SString param) const;
   size_t getCountFileTypeAndGroup() const;
-  FileTypeImpl* getFileTypeByIndex(int idx) const;
+
+  static FarList* buildFarList(FarListItem* list, size_t count);
+  static void removeFarList(FarList* list);
 
   FarEditorSet* farEditorSet;
-  bool dialogFirstFocus;
   intptr_t menuid;
+  FileTypeImpl* current_filetype;
+  HANDLE hDlg;
 };
 
 #endif  // _HRCSETTINGSFORM_H_
