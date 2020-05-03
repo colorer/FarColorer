@@ -96,6 +96,7 @@ struct SettingWindow
   int hrdEdit;
 };
 
+class HrcSettingsForm;
 /**
  * FAR Editors container.
  * Manages all library resources and creates FarEditor class instances.
@@ -103,6 +104,8 @@ struct SettingWindow
  */
 class FarEditorSet
 {
+  friend HrcSettingsForm;
+
  public:
   /** Creates set and initialises it with PluginStartupInfo structure */
   FarEditorSet();
@@ -157,10 +160,7 @@ class FarEditorSet
   void LoadUserHrc(const String* filename, ParserFactory* pf);
 
   /** Shows hrc configuration dialog */
-  bool configureHrc();
-  void OnChangeHrc(HANDLE hDlg);
-  void OnChangeParam(HANDLE hDlg, intptr_t idx);
-  void OnSaveHrcParams(HANDLE hDlg);
+  bool configureHrc(bool call_from_editor);
 
   /** Show logging configuration dialog*/
   bool configureLogging();
@@ -169,8 +169,6 @@ class FarEditorSet
   void applyLogSetting();
   size_t getEditorCount() const;
 
-  bool dialogFirstFocus;
-  intptr_t menuid;
   std::unique_ptr<SString> sTempHrdName;
   std::unique_ptr<SString> sTempHrdNameTm;
 
@@ -221,26 +219,8 @@ class FarEditorSet
   String* getCurrentFileName();
 
   int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
-  // FarList for dialog objects
-  FarList* buildHrcList() const;
-  FarList* buildParamsList(FileTypeImpl* type) const;
   // filetype "default"
   FileTypeImpl* defaultType;
-  // change combobox type
-  void ChangeParamValueListType(HANDLE hDlg, bool dropdownlist);
-  // set list of values to combobox
-  void setCrossValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
-  void setCrossPosValueListToCombobox(FileTypeImpl* type, HANDLE hDlg);
-  void setYNListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
-  void setTFListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
-  void setCustomListValueToCombobox(FileTypeImpl* type, HANDLE hDlg, CString param);
-
-  FileTypeImpl* getCurrentTypeInDialog(HANDLE hDlg) const;
-
-  const String* getParamDefValue(FileTypeImpl* type, SString param) const;
-
-  void SaveChangedValueParam(HANDLE hDlg);
-
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;

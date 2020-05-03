@@ -14,6 +14,8 @@ set(SRC_CPP
     FarEditorSet.h
     FarHrcSettings.cpp
     FarHrcSettings.h
+    HrcSettingsForm.cpp
+    HrcSettingsForm.h
     SettingsControl.cpp
     SettingsControl.h
     pcolorer.cpp
