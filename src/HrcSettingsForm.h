@@ -13,7 +13,7 @@ class HrcSettingsForm
 
   bool showForm();
   FarList* buildHrcList() const;
-  void OnSaveHrcParams();
+  void OnSaveHrcParams() const;
   void OnChangeParam(intptr_t idx);
   void SaveChangedValueParam() const;
   void getCurrentTypeInDialog();
@@ -25,7 +25,7 @@ class HrcSettingsForm
   void setCrossValueListToCombobox() const;
   void ChangeParamValueListType(bool dropdownlist) const;
   FarList* buildParamsList(FileTypeImpl* type) const;
-  const String* getParamDefValue(FileTypeImpl* type, SString param) const;
+  const String* getParamDefValue(FileTypeImpl* type, const SString& param) const;
   size_t getCountFileTypeAndGroup() const;
 
   static FarList* buildFarList(FarListItem* list, size_t count);

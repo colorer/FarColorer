@@ -36,8 +36,8 @@ void FarHrcSettings::readXML(String* file, bool userValue)
   }
   for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
     if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      xercesc::DOMElement* subelem = static_cast<xercesc::DOMElement*>(node);
-      if (xercesc::XMLString::equals(subelem->getNodeName(), tagPrototype)) {
+      auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
+      if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagPrototype)) {
         UpdatePrototype(subelem, userValue);
       }
     }
@@ -57,15 +57,15 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
   }
   HRCParser* hrcParser = parserFactory->getHRCParser();
   CString typenamed = CString(typeName);
-  FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&typenamed));
+  auto* type = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&typenamed));
   if (type == nullptr) {
     return;
   }
 
   for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
     if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      xercesc::DOMElement* subelem = static_cast<xercesc::DOMElement*>(node);
-      if (xercesc::XMLString::equals(subelem->getNodeName(), tagParam)) {
+      auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
+      if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagParam)) {
         const XMLCh* name = subelem->getAttribute(tagParamAttrParamName);
         const XMLCh* value = subelem->getAttribute(tagParamAttrParamValue);
         const XMLCh* descr = subelem->getAttribute(tagParamAttrParamDescription);
@@ -74,18 +74,21 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
           continue;
         }
 
-        if (type->getParamValue(CString(name)) == nullptr) {
-          type->addParam(&CString(name));
+        CString cname = CString(name);
+        CString cvalue = CString(value);
+        CString cdescr = CString(descr);
+        if (type->getParamValue(cname) == nullptr) {
+          type->addParam(&cname);
         }
         if (descr != nullptr) {
-          type->setParamDescription(CString(name), &CString(descr));
+          type->setParamDescription(cname, &cdescr);
         }
         if (userValue) {
-          type->setParamValue(CString(name), &CString(value));
+          type->setParamValue(cname, &cvalue);
         }
         else {
-          delete type->getParamDefaultValue(CString(name));
-          type->setParamDefaultValue(CString(name), &CString(value));
+          delete type->getParamDefaultValue(cname);
+          type->setParamDefaultValue(cname, &cvalue);
         }
       }
     }
@@ -112,7 +115,7 @@ void FarHrcSettings::readProfileFromRegistry()
       if (fse.Items[i].Type == FST_SUBKEY) {
         // check whether we have such a scheme
         CString named = CString(fse.Items[i].Name);
-        FileTypeImpl* type = static_cast<FileTypeImpl*>(hrcParser->getFileType(&named));
+        auto* type = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&named));
         if (type) {
           // enum all params in the section
           size_t type_subkey;
@@ -148,7 +151,7 @@ void FarHrcSettings::writeUserProfile()
 void FarHrcSettings::writeProfileToRegistry()
 {
   HRCParser* hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl* type = nullptr;
+  FileTypeImpl* type;
 
   SettingsControl ColorerSettings;
   ColorerSettings.rDeleteSubKey(0, HrcSettings);
@@ -157,7 +160,7 @@ void FarHrcSettings::writeProfileToRegistry()
 
   // enum all FileTypes
   for (int idx = 0;; idx++) {
-    type = static_cast<FileTypeImpl*>(hrcParser->enumerateFileTypes(idx));
+    type = dynamic_cast<FileTypeImpl*>(hrcParser->enumerateFileTypes(idx));
 
     if (!type) {
       break;

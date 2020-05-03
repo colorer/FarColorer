@@ -39,7 +39,7 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
           set_pos.StructSize = sizeof(EditorSetPosition);
           if (Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, IDX_CH_PARAM_VALUE_LIST, &set_pos)) {
             if (set_pos.CurPos > len) {
-              COORD c {len, 0};
+              COORD c {static_cast<SHORT>(len), 0};
               Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_PARAM_VALUE_LIST, &c);
             }
           }
@@ -225,7 +225,7 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
   }
 }
 
-void HrcSettingsForm::OnSaveHrcParams()
+void HrcSettingsForm::OnSaveHrcParams() const
 {
   SaveChangedValueParam();
   FarHrcSettings p(farEditorSet->parserFactory.get());
@@ -249,21 +249,16 @@ void HrcSettingsForm::SaveChangedValueParam() const
 
   const String* value = current_filetype->getParamUserValue(p);
   const String* def_value = getParamDefValue(current_filetype, p);
-  if (value == nullptr || !value->length()) {  ////было default значение
-    //если его изменили
-    if (!v.equals(def_value)) {
-      if (current_filetype->getParamValue(p) == nullptr) {
-        current_filetype->addParam(&p);
-      }
-      current_filetype->setParamValue(p, &v);
-    }
+  if (v.equals(def_value)) {
+    if (value != nullptr)
+      current_filetype->setParamValue(p, nullptr);
   }
-  else {                     //было пользовательское значение
-    if (!v.equals(value)) {  // changed
-      current_filetype->setParamValue(p, &v);
+  else if (!v.equals(value)) {  // changed
+    if (current_filetype->getParamValue(p) == nullptr) {
+      current_filetype->addParam(&p);
     }
+    current_filetype->setParamValue(p, &v);
   }
-
   delete def_value;
 }
 
@@ -449,17 +444,22 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
   removeFarList(lcross);
 }
 
-const String* HrcSettingsForm::getParamDefValue(FileTypeImpl* type, SString param) const
+const String* HrcSettingsForm::getParamDefValue(FileTypeImpl* type, const SString& param) const
 {
   const String* value;
   value = type->getParamDefaultValue(param);
   if (value == nullptr) {
     value = farEditorSet->defaultType->getParamValue(param);
   }
-  auto* p = new SString("<default-");
-  p->append(CString(value));
-  p->append(CString(">"));
-  return p;
+  if (value == nullptr) {
+    return new SString("<default->");
+  }
+  else {
+    auto* p = new SString("<default-");
+    p->append(CString(value));
+    p->append(CString(">"));
+    return p;
+  }
 }
 
 FarList* HrcSettingsForm::buildParamsList(FileTypeImpl* type) const
