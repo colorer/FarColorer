@@ -1594,6 +1594,9 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
         if (params->Count > 4 && FMVT_STRING == params->Values[4].Type) {
           // replace value
           SString param_value = SString(CString(params->Values[4].String));
+          if (file_type->getParamValue(param_value) == nullptr) {
+            file_type->addParam(&param_value);
+          }
           file_type->setParamValue(param_name, &param_value);
         }
         else if (params->Count == 4) {

@@ -470,15 +470,15 @@ FarList* HrcSettingsForm::buildParamsList(FileTypeImpl* type) const
   memset(fparam, 0, sizeof(FarListItem) * (size));
 
   size_t count = 0;
-  std::vector<SString> default_params = farEditorSet->defaultType->enumParams();
-  for (auto& default_param : default_params) {
-    fparam[count++].Text = _wcsdup(default_param.getWChars());
-  }
   std::vector<SString> type_params = type->enumParams();
   for (auto& type_param : type_params) {
     if (farEditorSet->defaultType->getParamValue(type_param) == nullptr) {
       fparam[count++].Text = _wcsdup(type_param.getWChars());
     }
+  }
+  std::vector<SString> default_params = farEditorSet->defaultType->enumParams();
+  for (auto& default_param : default_params) {
+    fparam[count++].Text = _wcsdup(default_param.getWChars());
   }
 
   fparam[0].Flags = LIF_SELECTED;
