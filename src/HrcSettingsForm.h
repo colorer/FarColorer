@@ -6,8 +6,8 @@
 class HrcSettingsForm
 {
  public:
-  explicit HrcSettingsForm(FarEditorSet* _farEditorSet);
-  ~HrcSettingsForm()= default;
+  explicit HrcSettingsForm(FarEditorSet* _farEditorSet, FileType* filetype);
+  ~HrcSettingsForm() = default;
 
   bool Show();
 
@@ -34,7 +34,8 @@ class HrcSettingsForm
   FarEditorSet* farEditorSet;
   intptr_t menuid;
   FileTypeImpl* current_filetype;
-  HANDLE hDlg;
+  FileType* filetype_in_editor;
+  HANDLE hDlg {};
 };
 
 #endif  // _HRCSETTINGSFORM_H_

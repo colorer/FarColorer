@@ -1,10 +1,12 @@
 #include "HrcSettingsForm.h"
 #include "tools.h"
 
-HrcSettingsForm::HrcSettingsForm(FarEditorSet* _farEditorSet) : menuid(0)
+HrcSettingsForm::HrcSettingsForm(FarEditorSet* _farEditorSet, FileType* filetype)
 {
+  menuid = 0;
   farEditorSet = _farEditorSet;
   current_filetype = nullptr;
+  filetype_in_editor = filetype;
 }
 
 bool HrcSettingsForm::Show()
@@ -147,6 +149,10 @@ FarList* HrcSettingsForm::buildHrcList() const
       break;
     }
 
+    if (type == filetype_in_editor) {
+      hrcList[i].Flags = LIF_SELECTED;
+    }
+
     if (group != nullptr && !group->equals(type->getGroup())) {
       hrcList[i].Flags = LIF_SEPARATOR;
       i++;
@@ -168,7 +174,6 @@ FarList* HrcSettingsForm::buildHrcList() const
     hrcList[i].UserData = (intptr_t) type;
   }
 
-  hrcList[0].Flags = LIF_SELECTED;
   return buildFarList(hrcList, num);
 }
 

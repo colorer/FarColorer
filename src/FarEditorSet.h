@@ -160,7 +160,7 @@ class FarEditorSet
   void LoadUserHrc(const String* filename, ParserFactory* pf);
 
   /** Shows hrc configuration dialog */
-  bool configureHrc();
+  bool configureHrc(bool call_from_editor);
 
   /** Show logging configuration dialog*/
   bool configureLogging();

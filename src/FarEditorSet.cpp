@@ -76,7 +76,7 @@ void FarEditorSet::menuConfigure()
         configure();
         break;
       case 1:
-        configureHrc();
+        configureHrc(true);
         break;
       case 2:
         configureLogging();
@@ -1013,13 +1013,19 @@ void FarEditorSet::LoadUserHrc(const String* filename, ParserFactory* pf)
   }
 }
 
-bool FarEditorSet::configureHrc()
+bool FarEditorSet::configureHrc(bool call_from_editor)
 {
   if (!Opt.rEnabled) {
     return false;
   }
 
-  HrcSettingsForm form(this);
+  FileType* ft = defaultType;
+  if (call_from_editor) {
+    auto* editor = getCurrentEditor();
+    if (editor)
+      ft = editor->getFileType();
+  }
+  HrcSettingsForm form(this, ft);
   return form.Show();
 }
 
@@ -1187,7 +1193,7 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
     return configureLogging() ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (CString("Hrc").equalsIgnoreCase(&command)) {
-    return configureHrc() ? INVALID_HANDLE_VALUE : nullptr;
+    return configureHrc(area == MACROAREA_EDITOR) ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (CString("Reload").equalsIgnoreCase(&command)) {
     ReloadBase();
@@ -1647,4 +1653,3 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
 }
 
 #pragma endregion macro_functions
-
