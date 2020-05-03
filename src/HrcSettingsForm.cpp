@@ -286,7 +286,7 @@ void HrcSettingsForm::OnChangeHrc()
   OnChangeParam(0);
 }
 
-void HrcSettingsForm::setYNListValueToCombobox(CString param) const
+void HrcSettingsForm::setYNListValueToCombobox(const CString& param) const
 {
   const String* value = current_filetype->getParamUserValue(param);
   const String* def_value = getParamDefValue(current_filetype, param);
@@ -299,7 +299,7 @@ void HrcSettingsForm::setYNListValueToCombobox(CString param) const
   fcross[2].Text = _wcsdup(def_value->getWChars());
   delete def_value;
 
-  size_t ret = 2;
+  size_t ret;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -318,7 +318,7 @@ void HrcSettingsForm::setYNListValueToCombobox(CString param) const
   removeFarList(lcross);
 }
 
-void HrcSettingsForm::setTFListValueToCombobox(CString param) const
+void HrcSettingsForm::setTFListValueToCombobox(const CString& param) const
 {
   const String* value = current_filetype->getParamUserValue(param);
   const String* def_value = getParamDefValue(current_filetype, param);
@@ -331,7 +331,7 @@ void HrcSettingsForm::setTFListValueToCombobox(CString param) const
   fcross[2].Text = _wcsdup(def_value->getWChars());
   delete def_value;
 
-  size_t ret = 2;
+  size_t ret;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -350,7 +350,7 @@ void HrcSettingsForm::setTFListValueToCombobox(CString param) const
   removeFarList(lcross);
 }
 
-void HrcSettingsForm::setCustomListValueToCombobox(CString param) const
+void HrcSettingsForm::setCustomListValueToCombobox(const CString& param) const
 {
   const String* value = current_filetype->getParamUserValue(param);
   const String* def_value = getParamDefValue(current_filetype, param);
@@ -425,7 +425,7 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
   fcross[2].Text = _wcsdup(def_value->getWChars());
   delete def_value;
 
-  size_t ret = 2;
+  size_t ret;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }

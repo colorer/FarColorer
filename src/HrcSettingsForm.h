@@ -18,9 +18,9 @@ class HrcSettingsForm
   void SaveChangedValueParam() const;
   void getCurrentTypeInDialog();
   void OnChangeHrc();
-  void setCustomListValueToCombobox(CString param) const;
-  void setTFListValueToCombobox(CString param) const;
-  void setYNListValueToCombobox(CString param) const;
+  void setCustomListValueToCombobox(const CString& param) const;
+  void setTFListValueToCombobox(const CString& param) const;
+  void setYNListValueToCombobox(const CString& param) const;
   void setCrossPosValueListToCombobox() const;
   void setCrossValueListToCombobox() const;
   void ChangeParamValueListType(bool dropdownlist) const;
