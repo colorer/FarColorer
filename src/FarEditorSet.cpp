@@ -1117,6 +1117,7 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
       current_style = (int) i;
     }
   }
+  std::sort(out_array->begin(), out_array->end(), [](auto strA, auto strB) { return std::wcscmp(strA, strB) < 0; });
   return current_style;
 }
 
