@@ -65,8 +65,8 @@ bool HrcSettingsForm::showForm()
       {DI_TEXT, 32, 5, 0, 5, 0, nullptr, nullptr, 0, nullptr, 0, 0},                     // IDX_CH_PARAM_VALUE_CAPTION
       {DI_COMBOBOX, 32, 6, 54, 6, 0, nullptr, nullptr, 0, nullptr, 0, 0},                // IDX_CH_PARAM_VALUE_LIST
       {DI_EDIT, 4, 18, 54, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},                   // IDX_CH_DESCRIPTION,
-      {DI_BUTTON, 37, 20, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0},  // IDX_OK,
-      {DI_BUTTON, 45, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},                  // IDX_CANCEL,
+      {DI_BUTTON, 37, 20, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0},  // IDX_CH_OK,
+      {DI_BUTTON, 45, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},                  // IDX_CH_CANCEL,
   };
 
   fdi[IDX_CH_BOX].Data = farEditorSet->GetMsg(mUserHrcSettingDialog);
@@ -84,7 +84,7 @@ bool HrcSettingsForm::showForm()
   fdi[IDX_CH_PARAM_VALUE_LIST].Flags = DIF_LISTWRAPMODE;
 
   hDlg = Info.DialogInit(&MainGuid, &HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, std::size(fdi), 0, 0, SettingHrcDialogProc, this);
-  if (-1 != Info.DialogRun(hDlg)) {
+  if (IDX_CH_OK == Info.DialogRun(hDlg)) {
     SaveChangedValueParam();
   }
 
