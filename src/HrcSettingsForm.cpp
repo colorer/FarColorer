@@ -30,22 +30,6 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
         return false;
       }
       break;
-    case DN_CONTROLINPUT:
-      if (IDX_CH_PARAM_VALUE_LIST == Param1) {
-        const auto* record = (const INPUT_RECORD*) Param2;
-        if (record->EventType == KEY_EVENT || record->EventType == MOUSE_EVENT) {
-          int len = Info.SendDlgMessage(hDlg, DM_GETTEXT, IDX_CH_PARAM_VALUE_LIST, nullptr);
-          EditorSetPosition set_pos {};
-          set_pos.StructSize = sizeof(EditorSetPosition);
-          if (Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, IDX_CH_PARAM_VALUE_LIST, &set_pos)) {
-            if (set_pos.CurPos > len) {
-              COORD c {static_cast<SHORT>(len), 0};
-              Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_PARAM_VALUE_LIST, &c);
-            }
-          }
-        }
-      }
-      break;
     case DN_EDITCHANGE:
       if (IDX_CH_SCHEMAS == Param1) {
         fes->menuid = -1;
