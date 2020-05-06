@@ -1201,7 +1201,16 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
     return INVALID_HANDLE_VALUE;
   }
   if (CString("Status").equalsIgnoreCase(&command)) {
-    return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
+    auto cur_status = isEnable();
+    if (params->Count > 2) {
+      // change status
+      bool val = static_cast<bool>(macroGetValue(params->Values + 2));
+      if (val)
+        enableColorer();
+      else
+        disableColorer();
+    }
+    return cur_status ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (CString("SaveSettings").equalsIgnoreCase(&command)) {
     SaveSettings();
