@@ -98,7 +98,9 @@ SString* PathToFullS(const wchar_t* path, bool unc)
 intptr_t macroGetValue(FarMacroValue* value, intptr_t def)
 {
   intptr_t result = def;
-  if (FMVT_INTEGER == value->Type)
+  if (FMVT_BOOLEAN == value->Type)
+    result = value->Boolean;
+  else if (FMVT_INTEGER == value->Type)
     result = value->Integer;
   else if (FMVT_DOUBLE == value->Type)
     result = static_cast<intptr_t>(value->Double);
