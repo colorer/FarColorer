@@ -213,8 +213,6 @@ class FarEditorSet
   void* macroEditor(FARMACROAREA area, OpenMacroInfo* params);
   void* macroParams(FARMACROAREA area, OpenMacroInfo* params);
 
-  size_t getCountFileTypeAndGroup() const;
-  FileTypeImpl* getFileTypeByIndex(int idx) const;
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   String* getCurrentFileName();
 

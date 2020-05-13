@@ -3,7 +3,7 @@
 #include "version.h"
 
 FarEditorSet* editorSet = nullptr;
-bool inCreateEditorSet = false;
+bool inEventProcess = false;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
 
@@ -118,30 +118,34 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* /*cInfo*/)
 */
 intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
 {
-  if (!inCreateEditorSet) {
-    if (!editorSet) {
-      inCreateEditorSet = true;
-      editorSet = new FarEditorSet();
-      inCreateEditorSet = false;  //-V519
-
-      // при создании FarEditorSet мы теряем сообщение EE_REDRAW, из-за SetBgEditor. компенсируем это
-      ProcessEditorEventInfo pInfo2 {};
-      pInfo2.EditorID = pInfo->EditorID;
-      pInfo2.Event = EE_REDRAW;
-      pInfo2.StructSize = sizeof(ProcessEditorEventInfo);
-      pInfo2.Param = pInfo->Param;
-      return editorSet->editorEvent(&pInfo2);
-    } else {
-      return editorSet->editorEvent(pInfo);
-    }
-  } else {
+  if (inEventProcess)
     return 0;
+
+  int result = 0;
+  inEventProcess = true;
+
+  if (!editorSet) {
+    editorSet = new FarEditorSet();
   }
+
+  result = editorSet->editorEvent(pInfo);
+
+  inEventProcess = false;
+  return result;
 }
 
 intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
 {
-  return editorSet->editorInput(pInfo->Rec);
+  if (inEventProcess)
+    return 0;
+
+  int result = 0;
+  inEventProcess = true;
+
+  result = editorSet->editorInput(pInfo->Rec);
+
+  inEventProcess = false;
+  return result;
 }
 
 intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* /*pInfo*/)

@@ -509,6 +509,8 @@ bool FarEditorSet::configure()
 
 int FarEditorSet::editorInput(const INPUT_RECORD& Rec)
 {
+  if (ignore_event)
+    return 0;
   if (Opt.rEnabled) {
     FarEditor* editor = getCurrentEditor();
     if (editor) {
@@ -671,6 +673,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
 void FarEditorSet::ReloadBase()
 {
+  ignore_event = true;
   try {
     ReadSettings();
     applyLogSetting();
@@ -725,6 +728,7 @@ void FarEditorSet::ReloadBase()
     err_status = ERR_BASE_LOAD;
     disableColorer();
   }
+  ignore_event = false;
 }
 
 size_t FarEditorSet::getEditorCount() const
