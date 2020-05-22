@@ -148,8 +148,10 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   return result;
 }
 
-intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* /*pInfo*/)
+intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
 {
+  if (pInfo->Event != SE_COMMONSYNCHRO)
+    return 0;
   try {
     if (editorSet && editorSet->getEditorCount() > 0) {
       INPUT_RECORD ir;
@@ -159,5 +161,6 @@ intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* /*pInfo*/)
     }
   } catch (...) {
   }
+
   return 0;
 }
