@@ -529,12 +529,19 @@ int FarEditor::editorInput(const INPUT_RECORD& Rec)
 {
   if (Rec.EventType == KEY_EVENT && Rec.Event.KeyEvent.wVirtualKeyCode == 0) {
     if (baseEditor->haveInvalidLine()) {
+      auto invalid_line1 = baseEditor->getInvalidLine();
       idleCount++;
       if (idleCount > 10) {
         idleCount = 10;
       }
       baseEditor->idleJob(idleCount * 10);
-      info->EditorControl(editor_id, ECTL_REDRAW, 0, nullptr);
+      auto invalid_line2 = baseEditor->getInvalidLine();
+      EditorInfo ei = enterHandler();
+
+      if ((invalid_line1 < ei.TopScreenLine && invalid_line2 >= ei.TopScreenLine) ||
+          (invalid_line1 < ei.TopScreenLine + WindowSizeY && invalid_line2 >= ei.TopScreenLine + WindowSizeY)) {
+        info->EditorControl(editor_id, ECTL_REDRAW, 0, nullptr);
+      }
     }
   }
   else if (Rec.EventType == KEY_EVENT) {
