@@ -653,16 +653,13 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   bool show_whitespase = (ei.Options & EOPT_SHOWWHITESPACE) != 0;
   bool show_eol = (ei.Options & EOPT_SHOWLINEBREAK) != 0;
 
-  for (intptr_t lno = ei.TopScreenLine; lno < ei.TopScreenLine + WindowSizeY; lno++) {
-    if (lno >= ei.TotalLines) {
-      break;
-    }
+  for (auto lno = ei.TopScreenLine; lno < ei.TopScreenLine + WindowSizeY && lno < ei.TotalLines; lno++) {
 
     // clean line in far editor
     deleteFarColor(lno, -1);
 
     // length current string
-    EditorGetString egs;
+    EditorGetString egs{};
     egs.StructSize = sizeof(EditorGetString);
     egs.StringNumber = lno;
     info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
@@ -685,7 +682,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
           continue;
         }
         if (l1->start > ei.LeftPos + ei.WindowSizeX) {
-          continue;
+          break;
         }
         if (l1->end != -1 && l1->end < ei.LeftPos - ei.WindowSizeX) {
           continue;
