@@ -27,6 +27,7 @@ extern const CString DDefBack;
 extern const CString DFullback;
 extern const CString DHotkey;
 extern const CString DFavorite;
+extern const CString DMaxblocksize;
 
 #define revertRGB(x) (BYTE)(x >> 16 & 0xff) | ((BYTE)(x >> 8 & 0xff) << 8) | ((BYTE)(x & 0xff) << 16)
 

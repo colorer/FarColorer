@@ -197,7 +197,7 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
       setCrossPosValueListToCombobox();
     }
     else if (DMaxLen.equals(&p) || DBackparse.equals(&p) || DDefFore.equals(&p) || DDefBack.equals(&p) || CString("firstlines").equals(&p) ||
-             CString("firstlinebytes").equals(&p) || DHotkey.equals(&p)) {
+             CString("firstlinebytes").equals(&p) || DHotkey.equals(&p) || DMaxblocksize.equals(&p)) {
       setCustomListValueToCombobox(CString(List.Item.Text));
     }
     else if (DFullback.equals(&p)) {
