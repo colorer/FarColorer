@@ -10,5 +10,6 @@
 		<param name="default-back" value="" description="User-defined foreground color for this particular type"/>
 		<param name="hotkey" value="" description="Key is assigned in the menu select the file type, for this type"/>
 		<param name="favorite" value="false" description="If true then the prototype is displayed in a group of favorites"/>
+		<param name="maxblocksize" value="300" description="Maximum length of regexp block in text"/>
 	</prototype>
 </hrc-settings>

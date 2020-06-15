@@ -15,6 +15,7 @@ const CString DNo("no");
 const CString DTrue("true");
 const CString DFalse("false");
 const CString DBackparse("backparse");
+const CString DMaxblocksize("maxblocksize");
 const CString DMaxLen("maxlinelength");
 const CString DDefFore("default-fore");
 const CString DDefBack("default-back");
@@ -174,6 +175,10 @@ void FarEditor::reloadTypeSettings()
   }
 
   setCrossState(crossStatus, crossStyle);
+
+  int maxBlockSize = def->getParamValueInt(DMaxblocksize, 300);
+  maxBlockSize = ftype->getParamValueInt(DMaxblocksize, maxBlockSize);
+  baseEditor->setMaxBlockSize(maxBlockSize);
 }
 
 FileType* FarEditor::getFileType() const
