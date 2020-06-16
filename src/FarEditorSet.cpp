@@ -1507,6 +1507,13 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return macroReturnInt(cur_status);
   }
 
+  if (CString("Progress").equalsIgnoreCase(&command)) {
+    auto* out_params = new FarMacroValue[1];
+    out_params[0].Type = FMVT_INTEGER;
+    out_params[0].Integer = editor->getParseProgress();
+    return macroReturnValues(out_params, 1);
+  }
+
   return nullptr;
 }
 

@@ -1431,3 +1431,11 @@ bool FarEditor::isDrawSyntax() const
 {
   return drawSyntax;
 }
+
+int FarEditor::getParseProgress()
+{
+  auto eh = enterHandler();
+  auto invalid_line = baseEditor->getInvalidLine();
+
+  return (int)(100*invalid_line/eh.TotalLines);
+}

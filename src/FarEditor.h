@@ -130,6 +130,8 @@ class FarEditor : public LineSource
   Outliner* getFunctionOutliner();
   Outliner* getErrorOutliner();
 
+  int getParseProgress();
+
  private:
   PluginStartupInfo* info;
 
