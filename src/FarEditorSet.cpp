@@ -1415,7 +1415,7 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
     return INVALID_HANDLE_VALUE;
   }
   if (CString("List").equalsIgnoreCase(&command)) {
-    auto* outliner = editor->getFunctionOutliner();
+    auto* outliner = editor->getErrorOutliner();
     auto items_num = outliner->itemCount();
 
     auto* array_string = new FarMacroValue[items_num];
