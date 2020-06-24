@@ -23,44 +23,17 @@ const CString DFullback("fullback");
 const CString DHotkey("hotkey");
 const CString DFavorite("favorite");
 
-FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf)
-    : info(info_),
-      parserFactory(pf),
-      maxLineLength(0),
-      fullBackground(true),
-      crossStatus(0),
-      crossStyle(0),
-      showVerticalCross(false),
-      showHorizontalCross(false),
-      crossZOrder(0),
-      drawPairs(true),
-      drawSyntax(true),
-      oldOutline(false),
-      TrueMod(true),
-      WindowSizeX(0),
-      WindowSizeY(0),
-      inRedraw(false),
-      idleCount(0),
-      prevLinePosition(0),
-      blockTopPosition(-1),
-      ret_str(nullptr),
-      ret_strNumber(SIZE_MAX),
-      newfore(-1),
-      newback(-1),
-      rdBackground(nullptr),
-      cursorRegion(nullptr),
-      visibleLevel(100),
-      editor_id(-1)
+FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) : info(info_), parserFactory(pf)
 {
   CString def_out = CString("def:Outlined");
   CString def_err = CString("def:Error");
   baseEditor = new BaseEditor(parserFactory, this);
   const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
   const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
-  structOutliner = new Outliner(baseEditor, def_Outlined);
-  errorOutliner = new Outliner(baseEditor, def_Error);
+  structOutliner = std::make_unique<Outliner>(Outliner(baseEditor, def_Outlined));
+  errorOutliner = std::make_unique<Outliner>(Outliner(baseEditor, def_Error));
 
-  EditorInfo ei = {0};
+  EditorInfo ei {};
   ei.StructSize = sizeof(EditorInfo);
   info->EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
   editor_id = ei.EditorID;
@@ -79,43 +52,38 @@ FarEditor::~FarEditor()
   EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
   info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
 
-  delete cursorRegion;
-  delete structOutliner;
-  delete errorOutliner;
   delete baseEditor;
-  delete ret_str;
 }
 
 void FarEditor::endJob(int /*lno*/)
 {
-  delete ret_str;
-  ret_str = nullptr;
+  ret_str.reset();
 }
 
 SString* FarEditor::getLine(size_t lno)
 {
-  if (ret_strNumber == lno && ret_str != nullptr) {
-    return ret_str;
+  if (ret_strNumber == lno && ret_str) {
+    return ret_str.get();
   }
 
-  EditorGetString es = {0};
+  EditorGetString es {};
   es.StructSize = sizeof(EditorGetString);
   es.StringNumber = lno;
-  es.StringText = nullptr;
 
   intptr_t len = 0;
   ret_strNumber = lno;
   if (info->EditorControl(editor_id, ECTL_GETSTRING, 0, &es)) {
     len = es.StringLength;
+    if (len > maxLineLength && maxLineLength > 0) {
+      len = maxLineLength;
+    }
+  }
+  else {
+    len = 0;
   }
 
-  if (len > maxLineLength && maxLineLength > 0) {
-    len = maxLineLength;
-  }
-
-  delete ret_str;
-  ret_str = new SString(CString(es.StringText, 0, (int) len));
-  return ret_str;
+  ret_str = std::make_unique<SString>(SString(CString(es.StringText, 0, (int) len)));
+  return ret_str.get();
 }
 
 void FarEditor::chooseFileType(String* fname)
@@ -402,7 +370,7 @@ void FarEditor::selectRegion()
 
 void FarEditor::getNameCurrentScheme()
 {
-  if (cursorRegion != nullptr) {
+  if (cursorRegion) {
     SString region, scheme;
     region.append(CString(L"Region: "));
     scheme.append(CString(L"Scheme: "));
@@ -421,7 +389,7 @@ void FarEditor::getNameCurrentScheme()
 
 void FarEditor::getCurrentRegionInfo(SString& region, SString& scheme)
 {
-  if (cursorRegion != nullptr) {
+  if (cursorRegion) {
     if (cursorRegion->region != nullptr) {
       const Region* r = cursorRegion->region;
       region.append(r->getName());
@@ -435,13 +403,13 @@ void FarEditor::getCurrentRegionInfo(SString& region, SString& scheme)
 void FarEditor::listFunctions()
 {
   baseEditor->validate(-1, false);
-  showOutliner(structOutliner);
+  showOutliner(structOutliner.get());
 }
 
 void FarEditor::listErrors()
 {
   baseEditor->validate(-1, false);
-  showOutliner(errorOutliner);
+  showOutliner(errorOutliner.get());
 }
 
 void FarEditor::locateFunction()
@@ -645,8 +613,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     blockTopPosition = (int) ei.BlockStartLine;
   }
 
-  delete cursorRegion;
-  cursorRegion = nullptr;
+  cursorRegion.reset();
 
   // Position the cursor on the screen
   EditorConvertPos ecp {}, ecp_cl {};
@@ -659,12 +626,11 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   bool show_eol = (ei.Options & EOPT_SHOWLINEBREAK) != 0;
 
   for (auto lno = ei.TopScreenLine; lno < ei.TopScreenLine + WindowSizeY && lno < ei.TotalLines; lno++) {
-
     // clean line in far editor
     deleteFarColor(lno, -1);
 
     // length current string
-    EditorGetString egs{};
+    EditorGetString egs {};
     egs.StructSize = sizeof(EditorGetString);
     egs.StringNumber = lno;
     info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
@@ -698,8 +664,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
           lend = fullBackground ? (int) (ei.LeftPos + ei.WindowSizeX) : llen;
         }
         if (lno == ei.CurLine && (l1->start <= ei.CurPos) && (ei.CurPos <= lend)) {
-          delete cursorRegion;
-          cursorRegion = new LineRegion(*l1);
+          cursorRegion.reset(new LineRegion(*l1));
         }
 
         FarColor col = convert(l1->styled());
@@ -1257,8 +1222,7 @@ EditorInfo FarEditor::enterHandler()
   info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
 
   ret_strNumber = SIZE_MAX;
-  delete ret_str;
-  ret_str = nullptr;
+  ret_str.reset();
   return ei;
 }
 
@@ -1413,13 +1377,13 @@ void FarEditor::setCrossStyle(int style)
 Outliner* FarEditor::getFunctionOutliner()
 {
   baseEditor->validate(-1, false);
-  return structOutliner;
+  return structOutliner.get();
 }
 
 Outliner* FarEditor::getErrorOutliner()
 {
   baseEditor->validate(-1, false);
-  return errorOutliner;
+  return errorOutliner.get();
 }
 
 bool FarEditor::isDrawPairs() const
@@ -1437,5 +1401,5 @@ int FarEditor::getParseProgress()
   auto eh = enterHandler();
   auto invalid_line = baseEditor->getInvalidLine();
 
-  return (int)(100*invalid_line/eh.TotalLines);
+  return (int) (100 * invalid_line / eh.TotalLines);
 }
