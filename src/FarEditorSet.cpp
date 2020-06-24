@@ -37,7 +37,7 @@ FarEditorSet::FarEditorSet()
   ReloadBase();
 
   hTimerQueue = CreateTimerQueue();
-  CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 500, 500, 0);
+  CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 500, 100, 0);
 }
 
 FarEditorSet::~FarEditorSet()
