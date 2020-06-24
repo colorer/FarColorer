@@ -48,7 +48,7 @@ class FarEditor : public LineSource
   /** Drops this editor */
   ~FarEditor() override;
 
-  void endJob(int lno);
+  void endJob(size_t lno) override;
   /**
   Returns line number "lno" from FAR interface. Line is only valid until next call of this function,
   it also should not be disposed, this function takes care of this.
@@ -136,47 +136,39 @@ class FarEditor : public LineSource
   PluginStartupInfo* info;
 
   ParserFactory* parserFactory;
-  BaseEditor* baseEditor;
+  std::unique_ptr<BaseEditor> baseEditor;
 
-  int maxLineLength;
-  bool fullBackground;
+  int maxLineLength = 0;
+  bool fullBackground = true;
 
-  int crossStatus;  // 0 - off,  1 - always, 2 - if included in the scheme
-  int crossStyle;
+  int crossStatus = 0;  // 0 - off,  1 - always, 2 - if included in the scheme
+  int crossStyle = 0;
   // 3 - both; 1 - vertical; 2 - horizontal
-  bool showVerticalCross;
-  bool showHorizontalCross;
-  int crossZOrder;
+  bool showVerticalCross = false;
+  bool showHorizontalCross = false;
+  int crossZOrder = 0;
   FarColor horzCrossColor;
   FarColor vertCrossColor;
 
-  bool drawPairs;
+  bool drawPairs = true;
+  bool drawSyntax = true;
+  bool oldOutline = false;
+  bool TrueMod = true;
 
- private:
-  bool drawSyntax;
-  bool oldOutline;
-  bool TrueMod;
+  bool inRedraw = false;
+  int idleCount = 0;
 
-  int WindowSizeX;
-  int WindowSizeY;
-  bool inRedraw;
-  int idleCount;
+  std::unique_ptr<SString> ret_str;
 
-  int prevLinePosition;
-  int blockTopPosition;
+  int newfore = -1;
+  int newback = -1;
+  const StyledRegion* rdBackground = nullptr;
+  std::unique_ptr<LineRegion> cursorRegion;
 
-  SString* ret_str;
-  size_t ret_strNumber;
-
-  int newfore;
-  int newback;
-  const StyledRegion* rdBackground;
-  LineRegion* cursorRegion;
-
-  int visibleLevel;
-  Outliner* structOutliner;
-  Outliner* errorOutliner;
-  intptr_t editor_id;
+  int visibleLevel = 100;
+  std::unique_ptr<Outliner> structOutliner;
+  std::unique_ptr<Outliner> errorOutliner;
+  intptr_t editor_id = -1;
 
   void reloadTypeSettings();
   EditorInfo enterHandler();
