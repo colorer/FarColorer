@@ -23,6 +23,7 @@ const CString DFullback("fullback");
 const CString DHotkey("hotkey");
 const CString DFavorite("favorite");
 
+
 FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) : info(info_), parserFactory(pf)
 {
   CString def_out = CString("def:Outlined");
@@ -51,7 +52,7 @@ FarEditor::~FarEditor()
   info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
 }
 
-void FarEditor::endJob(int /*lno*/)
+void FarEditor::endJob(size_t lno)
 {
   ret_str.reset();
 }
@@ -503,7 +504,7 @@ int FarEditor::editorInput(const INPUT_RECORD& Rec)
       EditorInfo ei = enterHandler();
 
       if ((invalid_line1 < ei.TopScreenLine && invalid_line2 >= ei.TopScreenLine) ||
-          (invalid_line1 < ei.TopScreenLine + WindowSizeY && invalid_line2 >= ei.TopScreenLine + WindowSizeY)) {
+          (invalid_line1 < ei.TopScreenLine + ei.WindowSizeY && invalid_line2 >= ei.TopScreenLine + ei.WindowSizeY)) {
         info->EditorControl(editor_id, ECTL_REDRAW, 0, nullptr);
       }
     }
@@ -567,17 +568,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 {
   if (event == EE_CHANGE) {
     auto* editor_change = static_cast<EditorChange*>(param);
-
-    int ml = (int) (prevLinePosition < editor_change->StringNumber ? prevLinePosition : editor_change->StringNumber) - 1;
-
-    if (ml < 0) {
-      ml = 0;
-    }
-    if (blockTopPosition != -1 && ml > blockTopPosition) {
-      ml = blockTopPosition;
-    }
-
-    baseEditor->modifyEvent(ml);
+    baseEditor->modifyEvent((int) editor_change->StringNumber);
     return 0;
   }
   // ignore event
@@ -590,19 +581,9 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   }
 
   EditorInfo ei = enterHandler();
-  WindowSizeX = (int) ei.WindowSizeX;
-  WindowSizeY = (int) ei.WindowSizeY;
 
-  baseEditor->visibleTextEvent((int) ei.TopScreenLine, WindowSizeY);
-
+  baseEditor->visibleTextEvent((int) ei.TopScreenLine, ei.WindowSizeY);
   baseEditor->lineCountEvent((int) ei.TotalLines);
-
-  prevLinePosition = (int) ei.CurLine;
-  blockTopPosition = -1;
-
-  if (ei.BlockType != BTYPE_NONE) {
-    blockTopPosition = (int) ei.BlockStartLine;
-  }
 
   cursorRegion.reset();
 
@@ -616,7 +597,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   bool show_whitespase = (ei.Options & EOPT_SHOWWHITESPACE) != 0;
   bool show_eol = (ei.Options & EOPT_SHOWLINEBREAK) != 0;
 
-  for (auto lno = ei.TopScreenLine; lno < ei.TopScreenLine + WindowSizeY && lno < ei.TotalLines; lno++) {
+  for (auto lno = ei.TopScreenLine; lno < ei.TopScreenLine + ei.WindowSizeY && lno < ei.TotalLines; lno++) {
     // clean line in far editor
     deleteFarColor(lno, -1);
 
@@ -785,7 +766,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     inRedraw = false;
   }
 
-  return true;
+  return 1;
 }
 
 void FarEditor::showOutliner(Outliner* outliner)

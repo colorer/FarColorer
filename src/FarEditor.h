@@ -48,7 +48,7 @@ class FarEditor : public LineSource
   /** Drops this editor */
   ~FarEditor() override;
 
-  void endJob(int lno);
+  void endJob(size_t lno) override;
   /**
   Returns line number "lno" from FAR interface. Line is only valid until next call of this function,
   it also should not be disposed, this function takes care of this.
@@ -155,13 +155,8 @@ class FarEditor : public LineSource
   bool oldOutline = false;
   bool TrueMod = true;
 
-  int WindowSizeX = 0;
-  int WindowSizeY = 0;
   bool inRedraw = false;
   int idleCount = 0;
-
-  int prevLinePosition = 0;
-  int blockTopPosition = -1;
 
   std::unique_ptr<SString> ret_str;
 
