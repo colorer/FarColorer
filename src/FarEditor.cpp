@@ -27,16 +27,14 @@ FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) : info(info_),
 {
   CString def_out = CString("def:Outlined");
   CString def_err = CString("def:Error");
-  baseEditor = new BaseEditor(parserFactory, this);
+  baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
   const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
   const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
-  structOutliner = std::make_unique<Outliner>(Outliner(baseEditor, def_Outlined));
-  errorOutliner = std::make_unique<Outliner>(Outliner(baseEditor, def_Error));
+  structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
+  errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
 
-  EditorInfo ei {};
-  ei.StructSize = sizeof(EditorInfo);
-  info->EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
-  editor_id = ei.EditorID;
+  auto eh = enterHandler();
+  editor_id = eh.EditorID;
 
   // subscribe for event change text
   EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
@@ -51,8 +49,6 @@ FarEditor::~FarEditor()
   // destroy subscribe
   EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
   info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
-
-  delete baseEditor;
 }
 
 void FarEditor::endJob(int /*lno*/)
@@ -62,16 +58,11 @@ void FarEditor::endJob(int /*lno*/)
 
 SString* FarEditor::getLine(size_t lno)
 {
-  if (ret_strNumber == lno && ret_str) {
-    return ret_str.get();
-  }
-
   EditorGetString es {};
   es.StructSize = sizeof(EditorGetString);
   es.StringNumber = lno;
 
   intptr_t len = 0;
-  ret_strNumber = lno;
   if (info->EditorControl(editor_id, ECTL_GETSTRING, 0, &es)) {
     len = es.StringLength;
     if (len > maxLineLength && maxLineLength > 0) {
@@ -82,7 +73,7 @@ SString* FarEditor::getLine(size_t lno)
     len = 0;
   }
 
-  ret_str = std::make_unique<SString>(SString(CString(es.StringText, 0, (int) len)));
+  ret_str = std::make_unique<SString>(CString(es.StringText, 0, (int) len));
   return ret_str.get();
 }
 
@@ -1217,12 +1208,10 @@ void FarEditor::showOutliner(Outliner* outliner)
 
 EditorInfo FarEditor::enterHandler()
 {
-  EditorInfo ei = {0};
+  EditorInfo ei {};
   ei.StructSize = sizeof(EditorInfo);
   info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
 
-  ret_strNumber = SIZE_MAX;
-  ret_str.reset();
   return ei;
 }
 
@@ -1301,7 +1290,6 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   ec.Owner = MainGuid;
   ec.Priority = 0;
   ec.Color = col;
-  spdlog::debug("[FarEditor] line:{0}, {1}-{2}, color bg:{3} fg:{4} flag:{5}", lno, s, e, col.BackgroundColor, col.ForegroundColor, col.Flags);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
 }
 

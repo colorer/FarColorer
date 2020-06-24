@@ -136,7 +136,7 @@ class FarEditor : public LineSource
   PluginStartupInfo* info;
 
   ParserFactory* parserFactory;
-  BaseEditor* baseEditor;
+  std::unique_ptr<BaseEditor> baseEditor;
 
   int maxLineLength = 0;
   bool fullBackground = true;
@@ -164,7 +164,6 @@ class FarEditor : public LineSource
   int blockTopPosition = -1;
 
   std::unique_ptr<SString> ret_str;
-  size_t ret_strNumber = SIZE_MAX;
 
   int newfore = -1;
   int newback = -1;
