@@ -100,7 +100,9 @@ enum {
   mCrossBoth,
   mCrossVert,
   mCrossHoriz,
-  mCross
+  mCross,
+  mPerfomance,
+  mBuildPeriod
 };
 
 #endif

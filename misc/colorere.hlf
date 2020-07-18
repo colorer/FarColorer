@@ -88,6 +88,10 @@ $^#FarColorer's settings.#
   #Cross style#
      Cross style shown when "[x] Cross"
 
+  #Period for build#
+     The frequency, in milliseconds, at which Far call "background" parsing of the file in Colorer. The lower value -
+     the faster large file is drawn, but the responsiveness of the screen drops.
+
   #{ Ok }#
      Closes dialog and save settings.
 

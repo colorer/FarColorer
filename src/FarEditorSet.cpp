@@ -35,9 +35,6 @@ FarEditorSet::FarEditorSet()
 
   colorer_lib = std::make_unique<Colorer>();
   ReloadBase();
-
-  hTimerQueue = CreateTimerQueue();
-  CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 500, 100, 0);
 }
 
 FarEditorSet::~FarEditorSet()
@@ -475,6 +472,10 @@ bool FarEditorSet::configure()
     Builder.AddComboBox(&cross_style_id, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
     Builder.EndColumns();
+    Builder.AddSeparator(mPerfomance);
+    auto intbox = Builder.AddIntEditField(&Opt.ThreadBuildPeriod,6);
+    Builder.AddTextBefore(intbox, mBuildPeriod);
+
     Builder.AddOKCancel(mOk, mCancel);
     settingWindow.okButtonConfig = Builder.GetLastID() - 1;
 
@@ -675,6 +676,7 @@ void FarEditorSet::ReloadBase()
 {
   ignore_event = true;
   try {
+    DeleteTimerQueue(hTimerQueue);
     ReadSettings();
     applyLogSetting();
     if (!Opt.rEnabled) {
@@ -717,6 +719,10 @@ void FarEditorSet::ReloadBase()
     }
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
+
+    hTimerQueue = CreateTimerQueue();
+    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 500, Opt.ThreadBuildPeriod, 0);
+
   } catch (SettingsControlException& e) {
     spdlog::error("{0}", e.what());
     showExceptionMessage(CString(e.what()).getWChars());
@@ -812,6 +818,7 @@ void FarEditorSet::disableColorer()
 
   regionMapper.reset();
   parserFactory.reset();
+  DeleteTimerQueue(hTimerQueue);
 }
 
 void FarEditorSet::enableColorer()
@@ -889,6 +896,7 @@ void FarEditorSet::ReadSettings()
   Opt.LogEnabled = ColorerSettings.Get(0, cRegLogEnabled, cLogEnabledDefault);
   Opt.drawCross = ColorerSettings.Get(0, cRegCrossDraw, cCrossDrawDefault);
   Opt.CrossStyle = ColorerSettings.Get(0, cRegCrossStyle, cCrossStyleDefault);
+  Opt.ThreadBuildPeriod = ColorerSettings.Get(0, cThreadBuildPeriod, cThreadBuildPeriodDefault);
 }
 
 void FarEditorSet::applyLogSetting()
@@ -933,6 +941,7 @@ void FarEditorSet::SaveSettings() const
   ColorerSettings.Set(0, cRegUserHrcPath, Opt.UserHrcPath);
   ColorerSettings.Set(0, cRegCrossDraw, Opt.drawCross);
   ColorerSettings.Set(0, cRegCrossStyle, Opt.CrossStyle);
+  ColorerSettings.Set(0, cThreadBuildPeriod, Opt.ThreadBuildPeriod);
 }
 
 void FarEditorSet::SaveLogSettings() const

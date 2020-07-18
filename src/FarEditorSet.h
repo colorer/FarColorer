@@ -27,6 +27,7 @@ const wchar_t cRegLogLevel[] = L"LogLevel";
 const wchar_t cRegLogEnabled[] = L"LogEnabled";
 const wchar_t cRegCrossDraw[] = L"CrossDraw";
 const wchar_t cRegCrossStyle[] = L"CrossStyle";
+const wchar_t cThreadBuildPeriod[] = L"ThreadBuildPeriod";
 
 // values of registry keys by default
 const bool cEnabledDefault = true;
@@ -45,6 +46,7 @@ const wchar_t cLogLevelDefault[] = L"INFO";
 const bool cLogEnabledDefault = false;
 const int cCrossDrawDefault = 2;
 const int cCrossStyleDefault = 3;
+const int cThreadBuildPeriodDefault = 200;
 
 const CString DConsole = CString("console");
 const CString DRgb = CString("rgb");
@@ -79,6 +81,7 @@ struct Options
   int drawCross;
   int CrossStyle;
   int LogEnabled;
+  int ThreadBuildPeriod;
   wchar_t HrdName[20];
   wchar_t HrdNameTm[20];
   wchar_t CatalogPath[MAX_PATH];
