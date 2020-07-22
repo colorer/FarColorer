@@ -676,7 +676,8 @@ void FarEditorSet::ReloadBase()
 {
   ignore_event = true;
   try {
-    DeleteTimerQueue(hTimerQueue);
+    DeleteTimerQueueTimer(nullptr, hTimer, nullptr);
+    hTimer = nullptr;
     ReadSettings();
     applyLogSetting();
     if (!Opt.rEnabled) {
@@ -720,7 +721,6 @@ void FarEditorSet::ReloadBase()
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
 
-    hTimerQueue = CreateTimerQueue();
     CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 500, Opt.ThreadBuildPeriod, 0);
 
   } catch (SettingsControlException& e) {
