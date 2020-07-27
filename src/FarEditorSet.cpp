@@ -34,15 +34,16 @@ FarEditorSet::FarEditorSet()
   pluginPath = std::make_unique<SString>(CString(module, 0, pos));
 
   colorer_lib = std::make_unique<Colorer>();
+  hTimerQueue = CreateTimerQueue();
   ReloadBase();
 }
 
 FarEditorSet::~FarEditorSet()
 {
+  DeleteTimerQueue(hTimerQueue);
   dropAllEditors(false);
   regionMapper.reset();
   parserFactory.reset();
-  DeleteTimerQueue(hTimerQueue);
 }
 
 VOID CALLBACK ColorThread(PVOID /*lpParam*/, BOOLEAN /*TimerOrWaitFired*/)
@@ -473,7 +474,7 @@ bool FarEditorSet::configure()
 
     Builder.EndColumns();
     Builder.AddSeparator(mPerfomance);
-    auto intbox = Builder.AddIntEditField(&Opt.ThreadBuildPeriod,6);
+    auto intbox = Builder.AddIntEditField(&Opt.ThreadBuildPeriod, 6);
     Builder.AddTextBefore(intbox, mBuildPeriod);
 
     Builder.AddOKCancel(mOk, mCancel);
@@ -676,7 +677,8 @@ void FarEditorSet::ReloadBase()
 {
   ignore_event = true;
   try {
-    DeleteTimerQueueTimer(nullptr, hTimer, nullptr);
+    if (hTimer)
+      DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
     hTimer = nullptr;
     ReadSettings();
     applyLogSetting();
@@ -720,8 +722,7 @@ void FarEditorSet::ReloadBase()
     }
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
-
-    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 500, Opt.ThreadBuildPeriod, 0);
+    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 200, Opt.ThreadBuildPeriod, 0);
 
   } catch (SettingsControlException& e) {
     spdlog::error("{0}", e.what());
@@ -813,12 +814,14 @@ void FarEditorSet::disableColorer()
     SettingsControl ColorerSettings;
     ColorerSettings.Set(0, cRegEnabled, Opt.rEnabled);
   }
-
+  if (hTimer)
+    DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
+  hTimer = nullptr;
+  
   dropCurrentEditor(true);
 
   regionMapper.reset();
   parserFactory.reset();
-  DeleteTimerQueue(hTimerQueue);
 }
 
 void FarEditorSet::enableColorer()
