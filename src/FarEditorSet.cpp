@@ -198,6 +198,12 @@ void FarEditorSet::viewFile(const String& path)
     }
     baseEditor.setRegionMapper(regionMap);
     baseEditor.chooseFileType(&path);
+
+    FileType* def = hrcParser->getFileType(&DDefaultScheme);
+    int maxBlockSize = def->getParamValueInt(DMaxblocksize, 300);
+    maxBlockSize = baseEditor.getFileType()->getParamValueInt(DMaxblocksize, maxBlockSize);
+    baseEditor.setMaxBlockSize(maxBlockSize);
+
     // initial event
     baseEditor.lineCountEvent((int) textLinesStore.getLineCount());
     // computing background color
@@ -817,7 +823,7 @@ void FarEditorSet::disableColorer()
   if (hTimer)
     DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
   hTimer = nullptr;
-  
+
   dropCurrentEditor(true);
 
   regionMapper.reset();
