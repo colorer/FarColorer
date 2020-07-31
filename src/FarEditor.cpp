@@ -23,33 +23,36 @@ const CString DFullback("fullback");
 const CString DHotkey("hotkey");
 const CString DFavorite("favorite");
 
-
-FarEditor::FarEditor(PluginStartupInfo* info_, ParserFactory* pf) : info(info_), parserFactory(pf)
+FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled) : info(info), parserFactory(pf), colorerEnable(editorEnabled)
 {
-  CString def_out = CString("def:Outlined");
-  CString def_err = CString("def:Error");
-  baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
-  const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
-  const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
-  structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
-  errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
+  if (colorerEnable) {
+    CString def_out = CString("def:Outlined");
+    CString def_err = CString("def:Error");
+    baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
+    const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
+    const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
+    structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
+    errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
 
-  auto eh = enterHandler();
-  editor_id = eh.EditorID;
+    auto eh = enterHandler();
+    editor_id = eh.EditorID;
 
-  // subscribe for event change text
-  EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
-  info->EditorControl(editor_id, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
+    // subscribe for event change text
+    EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
+    info->EditorControl(editor_id, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
 
-  horzCrossColor = FarColor();
-  vertCrossColor = FarColor();
+    horzCrossColor = FarColor();
+    vertCrossColor = FarColor();
+  }
 }
 
 FarEditor::~FarEditor()
 {
-  // destroy subscribe
-  EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
-  info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
+  if (colorerEnable) {
+    // destroy subscribe
+    EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
+    info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
+  }
 }
 
 void FarEditor::endJob(size_t lno)
@@ -1371,4 +1374,9 @@ int FarEditor::getParseProgress()
   auto invalid_line = baseEditor->getInvalidLine();
 
   return (int) (100 * invalid_line / eh.TotalLines);
+}
+
+bool FarEditor::isColorerEnable() const
+{
+  return colorerEnable;
 }

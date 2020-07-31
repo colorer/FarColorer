@@ -93,6 +93,10 @@ void FarEditorSet::menuConfigure()
 
 void FarEditorSet::openMenu(int MenuId)
 {
+  FarEditor* editor = getCurrentEditor();
+  if (!editor)
+    return;
+
   if (MenuId < 0) {
     const size_t menu_size = 13;
     int iMenuItems[menu_size] = {mListTypes,         mMatchPair,      mSelectBlock, mSelectPair,      mListFunctions, mFindErrors,     mSelectRegion,
@@ -112,8 +116,9 @@ void FarEditorSet::openMenu(int MenuId)
     }
 
     intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr,
-                                 Opt.rEnabled ? menuElements : menuElements + 12, Opt.rEnabled ? menu_size : 1);
-    if (!Opt.rEnabled && menu_id == 0) {
+                                 Opt.rEnabled && editor->isColorerEnable() ? menuElements : menuElements + 12,
+                                 Opt.rEnabled && editor->isColorerEnable() ? menu_size : 1);
+    if ((!Opt.rEnabled || !editor->isColorerEnable()) && menu_id == 0) {
       MenuId = 12;
     }
     else {
@@ -122,7 +127,6 @@ void FarEditorSet::openMenu(int MenuId)
   }
   if (MenuId >= 0) {
     try {
-      FarEditor* editor = getCurrentEditor();
       if (!editor && (Opt.rEnabled || MenuId != 12)) {
         throw Exception(CString("Can't find current editor in array."));
       }
@@ -521,7 +525,7 @@ int FarEditorSet::editorInput(const INPUT_RECORD& Rec)
     return 0;
   if (Opt.rEnabled) {
     FarEditor* editor = getCurrentEditor();
-    if (editor) {
+    if (editor && editor->isColorerEnable()) {
       return editor->editorInput(Rec);
     }
   }
@@ -550,7 +554,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         if (!editor) {
           editor = addCurrentEditor();
         }
-        if (editor) {
+        if (editor && editor->isColorerEnable()) {
           return editor->editorEvent(pInfo->Event, pInfo->Param);
         }
         return 0;
@@ -558,7 +562,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
       case EE_CHANGE: {
         //запрещено вызывать EditorControl (getCurrentEditor)
         auto it_editor = farEditorInstances.find(pInfo->EditorID);
-        if (it_editor != farEditorInstances.end()) {
+        if (it_editor != farEditorInstances.end() && it_editor->second->isColorerEnable()) {
           return it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
         }
         else {
@@ -757,7 +761,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
     return nullptr;
   }
 
-  auto* editor = new FarEditor(&Info, parserFactory.get());
+  auto* editor = new FarEditor(&Info, parserFactory.get(), true);
   std::pair<intptr_t, FarEditor*> pair_editor(ei.EditorID, editor);
   farEditorInstances.emplace(pair_editor);
   String* s = getCurrentFileName();
@@ -1044,7 +1048,7 @@ bool FarEditorSet::configureHrc(bool call_from_editor)
   FileType* ft = defaultType;
   if (call_from_editor) {
     auto* editor = getCurrentEditor();
-    if (editor)
+    if (editor && editor->isColorerEnable())
       ft = editor->getFileType();
   }
   HrcSettingsForm form(this, ft);
@@ -1141,6 +1145,43 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
   }
   std::sort(out_array->begin(), out_array->end(), [](auto strA, auto strB) { return std::wcscmp(strA, strB) < 0; });
   return current_style;
+}
+
+void FarEditorSet::disableColorerInEditor()
+{
+  EditorInfo ei {};
+  ei.StructSize = sizeof(EditorInfo);
+  if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
+    return;
+  }
+
+  auto it_editor = farEditorInstances.find(ei.EditorID);
+  if (it_editor != farEditorInstances.end()) {
+    it_editor->second->cleanEditor();
+    delete it_editor->second;
+    farEditorInstances.erase(it_editor);
+  }
+  auto* new_editor = new FarEditor(&Info, parserFactory.get(), false);
+  std::pair<intptr_t, FarEditor*> pair_editor(ei.EditorID, new_editor);
+  farEditorInstances.emplace(pair_editor);
+}
+
+void FarEditorSet::enableColorerInEditor()
+{
+  EditorInfo ei {};
+  ei.StructSize = sizeof(EditorInfo);
+  if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
+    return;
+  }
+
+  auto it_editor = farEditorInstances.find(ei.EditorID);
+  if (it_editor != farEditorInstances.end()) {
+    delete it_editor->second;
+    farEditorInstances.erase(it_editor);
+  }
+
+  auto* new_editor = addCurrentEditor();
+  new_editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
 }
 
 #pragma region macro_functions
@@ -1257,7 +1298,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
       SString new_type = SString(CString(params->Values[2].String));
       FarEditor* editor = getCurrentEditor();
-      if (!editor)
+      if (!editor || !editor->isColorerEnable())
         return nullptr;
 
       auto file_type = hrcParser->getFileType(&new_type);
@@ -1272,7 +1313,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
   }
   if (CString("Get").equalsIgnoreCase(&command)) {
     FarEditor* editor = getCurrentEditor();
-    if (!editor)
+    if (!editor || !editor->isColorerEnable())
       return nullptr;
 
     auto file_type = editor->getFileType();
@@ -1317,7 +1358,7 @@ void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
-  if (!editor)
+  if (!editor || !editor->isColorerEnable())
     return nullptr;
 
   SString command = SString(CString(params->Values[1].String));
@@ -1343,7 +1384,7 @@ void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
-  if (!editor)
+  if (!editor || !editor->isColorerEnable())
     return nullptr;
 
   SString command = SString(CString(params->Values[1].String));
@@ -1375,7 +1416,7 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
-  if (!editor)
+  if (!editor || !editor->isColorerEnable())
     return nullptr;
 
   SString command = SString(CString(params->Values[1].String));
@@ -1424,7 +1465,7 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   FarEditor* editor = getCurrentEditor();
-  if (!editor)
+  if (!editor || !editor->isColorerEnable())
     return nullptr;
 
   SString command = SString(CString(params->Values[1].String));
@@ -1472,6 +1513,23 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
   if (!editor)
     return nullptr;
   SString command = SString(CString(params->Values[1].String));
+
+  if (CString("Status").equalsIgnoreCase(&command)) {
+    auto cur_status = editor->isColorerEnable();
+    if (params->Count > 2) {
+      // change status
+      bool val = static_cast<bool>(macroGetValue(params->Values + 2));
+      if (val)
+        enableColorerInEditor();
+      else
+        disableColorerInEditor();
+    }
+    return cur_status ? INVALID_HANDLE_VALUE : nullptr;
+  }
+
+  if (!editor->isColorerEnable())
+    return nullptr;
+
   if (CString("CrossVisible").equalsIgnoreCase(&command)) {
     auto cur_style = editor->getVisibleCrossState();
     auto cur_status = editor->getCrossStatus();

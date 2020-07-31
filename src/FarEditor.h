@@ -44,7 +44,7 @@ class FarEditor : public LineSource
 
   /** Creates FAR editor instance.
    */
-  FarEditor(PluginStartupInfo* info, ParserFactory* pf);
+  FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled);
   /** Drops this editor */
   ~FarEditor() override;
 
@@ -131,6 +131,7 @@ class FarEditor : public LineSource
   Outliner* getErrorOutliner();
 
   int getParseProgress();
+  bool isColorerEnable() const;
 
  private:
   PluginStartupInfo* info;
@@ -138,6 +139,7 @@ class FarEditor : public LineSource
   ParserFactory* parserFactory;
   std::unique_ptr<BaseEditor> baseEditor;
 
+  bool colorerEnable = true;
   int maxLineLength = 0;
   bool fullBackground = true;
 

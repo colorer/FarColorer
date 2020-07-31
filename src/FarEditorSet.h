@@ -216,6 +216,8 @@ class FarEditorSet
   void* macroEditor(FARMACROAREA area, OpenMacroInfo* params);
   void* macroParams(FARMACROAREA area, OpenMacroInfo* params);
 
+  void disableColorerInEditor();
+  void enableColorerInEditor();
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   String* getCurrentFileName();
 
