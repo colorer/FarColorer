@@ -94,8 +94,6 @@ void FarEditorSet::menuConfigure()
 void FarEditorSet::openMenu(int MenuId)
 {
   FarEditor* editor = getCurrentEditor();
-  if (!editor)
-    return;
 
   if (MenuId < 0) {
     const size_t menu_size = 13;
@@ -116,8 +114,8 @@ void FarEditorSet::openMenu(int MenuId)
     }
 
     intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr,
-                                 Opt.rEnabled && editor->isColorerEnable() ? menuElements : menuElements + 12,
-                                 Opt.rEnabled && editor->isColorerEnable() ? menu_size : 1);
+                                 Opt.rEnabled && (editor && editor->isColorerEnable()) ? menuElements : menuElements + 12,
+                                 Opt.rEnabled && (editor && editor->isColorerEnable()) ? menu_size : 1);
     if ((!Opt.rEnabled || !editor->isColorerEnable()) && menu_id == 0) {
       MenuId = 12;
     }
