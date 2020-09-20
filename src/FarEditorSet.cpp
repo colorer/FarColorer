@@ -1129,6 +1129,25 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
   size_t hrd_count = hrd_instances->size();
   auto current_style = 0;
 
+  std::sort(hrd_instances->begin(), hrd_instances->end(), [](auto elmA, auto elmB) {
+    const wchar_t* strA;
+    if (elmA->hrd_description.length() != 0) {
+      strA = elmA->hrd_description.getWChars();
+    }
+    else {
+      strA = elmA->hrd_name.getWChars();
+    }
+
+    const wchar_t* strB;
+    if (elmB->hrd_description.length() != 0) {
+      strB = elmB->hrd_description.getWChars();
+    }
+    else {
+      strB = elmB->hrd_name.getWChars();
+    }
+    return std::wcscmp(strA, strB) < 0;
+  });
+
   for (size_t i = 0; i < hrd_count; i++) {
     const HRDNode* hrd_node = hrd_instances->at(i);
 
@@ -1143,7 +1162,7 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
       current_style = (int) i;
     }
   }
-  std::sort(out_array->begin(), out_array->end(), [](auto strA, auto strB) { return std::wcscmp(strA, strB) < 0; });
+
   return current_style;
 }
 
