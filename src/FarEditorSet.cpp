@@ -800,7 +800,9 @@ FarEditor* FarEditorSet::getCurrentEditor()
 {
   EditorInfo ei {};
   ei.StructSize = sizeof(EditorInfo);
-  Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
+  if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
+    return nullptr;
+  }
   auto if_editor = farEditorInstances.find(ei.EditorID);
   if (if_editor != farEditorInstances.end()) {
     return if_editor->second;
