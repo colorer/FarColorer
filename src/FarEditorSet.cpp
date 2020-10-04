@@ -1272,6 +1272,10 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
   if (CString("Main").equalsIgnoreCase(&command)) {
     return configure() ? INVALID_HANDLE_VALUE : nullptr;
   }
+  if (CString("Menu").equalsIgnoreCase(&command)) {
+    openMenu(12);
+    return INVALID_HANDLE_VALUE;
+  }
   if (CString("Log").equalsIgnoreCase(&command)) {
     return configureLogging() ? INVALID_HANDLE_VALUE : nullptr;
   }
