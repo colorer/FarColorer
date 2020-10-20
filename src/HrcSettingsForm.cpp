@@ -145,18 +145,17 @@ FarList* HrcSettingsForm::buildHrcList() const
 
     group = type->getGroup();
 
-    const wchar_t* groupChars;
+    std::wstring groupChars;
 
     if (group != nullptr) {
-      //TODO error
-      groupChars = UStr::to_stdwstr(group).c_str();
+      groupChars = std::wstring(UStr::to_stdwstr(group).c_str());
     }
     else {
-      groupChars = L"<no group>";
+      groupChars = std::wstring(L"<no group>");
     }
 
     hrcList[i].Text = new wchar_t[255];
-    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars, UStr::to_stdwstr(type->getDescription()).c_str());
+    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars.c_str(), UStr::to_stdwstr(type->getDescription()).c_str());
     hrcList[i].UserData = (intptr_t) type;
   }
 

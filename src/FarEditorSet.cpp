@@ -303,6 +303,7 @@ bool FarEditorSet::chooseType()
   FillTypeMenu(&menu, fe->getFileType());
 
   wchar_t bottom[20];
+  std::wstring key;
   _snwprintf(bottom, 20, GetMsg(mTotalTypes), hrcParser->getFileTypesCount());
   struct FarKey BreakKeys[3] = {VK_INSERT, 0, VK_DELETE, 0, VK_F4, 0};
   intptr_t BreakCode;
@@ -342,8 +343,8 @@ bool FarEditorSet::chooseType()
         const UnicodeString* v;
         v = menu.GetFileType(i)->getParamValue(DHotkey);
         if (v && v->length()) {
-          //TODO error
-          KeyAssignDlgData[2].Data = UStr::to_stdwstr(v).c_str();
+          key = std::wstring(UStr::to_stdwstr(v).c_str());
+          KeyAssignDlgData[2].Data = key.c_str();
         }
 
         HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData, std::size(KeyAssignDlgData), 0, 0,
@@ -667,8 +668,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         }
 
         tname.append(*type->getDescription());
-        //TODO error
-        marr[1] = UStr::to_stdwstr(&tname).c_str();
+        std::wstring str_message = UStr::to_stdwstr(&tname);
+        marr[1] = str_message.c_str();
         Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
         if (idx % 5 == 0)
           Info.EditorControl(-1, ECTL_REDRAW, 0, nullptr);
@@ -1155,12 +1156,10 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
     const HRDNode* hrd_node = hrd_instances->at(i);
 
     if (hrd_node->hrd_description.length() != 0) {
-        //TODO error
-      out_array->push_back(UStr::to_stdwstr(&hrd_node->hrd_description).c_str());
+      out_array->push_back(_wcsdup(UStr::to_stdwstr(&hrd_node->hrd_description).c_str()));
     }
     else {
-        //TODO error
-      out_array->push_back(UStr::to_stdwstr(&hrd_node->hrd_name).c_str());
+      out_array->push_back(_wcsdup(UStr::to_stdwstr(&hrd_node->hrd_name).c_str()));
     }
 
     if (UnicodeString(current).compare(hrd_node->hrd_name)==0) {
