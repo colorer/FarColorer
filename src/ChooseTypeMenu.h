@@ -2,6 +2,7 @@
 #define _CHOOSE_TYPE_MENU_H_
 
 #include "pcolorer.h"
+#include <colorer/FileType.h>
 
 class ChooseTypeMenu
 {
@@ -28,7 +29,7 @@ public:
   void DelFromFavorites(size_t index);
   bool IsFavorite(size_t index) const;
   void RefreshItemCaption(size_t index);
-  SString* GenerateName(const FileType* fType);
+  UnicodeString* GenerateName(const FileType* fType);
 
 private:
   size_t ItemCount;

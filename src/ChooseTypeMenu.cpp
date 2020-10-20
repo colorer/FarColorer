@@ -1,6 +1,7 @@
+#include "ChooseTypeMenu.h"
+#include <colorer/common/UStr.h>
 #include <colorer/parsers/FileTypeImpl.h>
 #include "FarEditor.h"
-#include "ChooseTypeMenu.h"
 
 ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites)
 {
@@ -8,9 +9,9 @@ ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorit
   Item = nullptr;
   ItemSelected = 0;
 
-  SString s;
-  s.append(CString("&A ")).append(CString(AutoDetect));
-  AddItem(s.getWChars(), 0, nullptr, 0);
+  UnicodeString s;
+  s.append("&A ").append(AutoDetect);
+  AddItem(UStr::to_stdwstr(&s).c_str(), 0, nullptr, 0);
   AddItem(Favorites, MIF_SEPARATOR, nullptr, 1);
 }
 
@@ -50,7 +51,7 @@ size_t ChooseTypeMenu::AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, c
   if (!(ItemCount & 255)) {
     FarMenuItem* NewPtr = static_cast<FarMenuItem*>(realloc(Item, sizeof(FarMenuItem) * (ItemCount + 256 + 1)));
     if (!NewPtr) {
-      throw Exception(CString("ChooseTypeMenu: not enough available memory."));
+      throw Exception("ChooseTypeMenu: not enough available memory.");
     }
 
     Item = NewPtr;
@@ -79,8 +80,8 @@ size_t ChooseTypeMenu::AddGroup(const wchar_t* Text)
 
 size_t ChooseTypeMenu::AddItem(const FileType* fType, size_t PosAdd)
 {
-  SString* s = GenerateName(fType);
-  size_t k = AddItem(s->getWChars(), 0, fType, PosAdd);
+  UnicodeString* s = GenerateName(fType);
+  size_t k = AddItem(UStr::to_stdwstr(s).c_str(), 0, fType, PosAdd);
   delete s;
   return k;
 }
@@ -117,7 +118,7 @@ FileType* ChooseTypeMenu::GetFileType(size_t index) const
 
 void ChooseTypeMenu::MoveToFavorites(size_t index)
 {
-  FileTypeImpl* f = (FileTypeImpl*)Item[index].UserData;
+  FileType* f = (FileType*)Item[index].UserData;
   DeleteItem(index);
   size_t k = AddFavorite(f);
   SetSelected(k);
@@ -150,7 +151,7 @@ void ChooseTypeMenu::HideEmptyGroup() const
 
 void ChooseTypeMenu::DelFromFavorites(size_t index)
 {
-  FileTypeImpl* f = (FileTypeImpl*)Item[index].UserData;
+  FileType* f = (FileType*)Item[index].UserData;
   DeleteItem(index);
   AddItemInGroup(f);
   if (Item[index].Flags & MIF_SEPARATOR) {
@@ -164,8 +165,8 @@ void ChooseTypeMenu::DelFromFavorites(size_t index)
 size_t ChooseTypeMenu::AddItemInGroup(FileType* fType)
 {
   size_t i;
-  const String* group = fType->getGroup();
-  for (i = favorite_idx; i < ItemCount && !((Item[i].Flags & MIF_SEPARATOR) && (group->compareTo(CString(Item[i].Text)) == 0)); i++);
+  const UnicodeString* group = fType->getGroup();
+  for (i = favorite_idx; i < ItemCount && !((Item[i].Flags & MIF_SEPARATOR) && (group->compare(UnicodeString(Item[i].Text)) == 0)); i++);
   if (Item[i].Flags & MIF_HIDDEN) {
     Item[i].Flags &= ~MIF_HIDDEN;
   }
@@ -190,22 +191,22 @@ void ChooseTypeMenu::RefreshItemCaption(size_t index)
     free((void*) Item[index].Text);
   }
 
-  SString* s = GenerateName(GetFileType(index));
-  Item[index].Text = _wcsdup(s->getWChars());
+  UnicodeString* s = GenerateName(GetFileType(index));
+  Item[index].Text = _wcsdup(UStr::to_stdwstr(s).c_str());
   delete s;
 }
 
-SString* ChooseTypeMenu::GenerateName(const FileType* fType)
+UnicodeString* ChooseTypeMenu::GenerateName(const FileType* fType)
 {
-  const String* v;
-  v = ((FileTypeImpl*)fType)->getParamValue(DHotkey);
-  SString* s = new SString;
+  const UnicodeString* v;
+  v = ((FileType*)fType)->getParamValue(DHotkey);
+  UnicodeString* s = new UnicodeString;
   if (v != nullptr && v->length()) {
-    s->append(CString("&")).append(v);
+    s->append("&").append(*v);
   } else {
-    s->append(CString(" "));
+    s->append(" ");
   }
-  s->append(CString(" ")).append(((FileType*)fType)->getDescription());
+  s->append(" ").append(*((FileType*)fType)->getDescription());
 
   return s;
 }

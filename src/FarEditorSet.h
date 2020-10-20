@@ -1,8 +1,8 @@
 #ifndef _FAREDITORSET_H_
 #define _FAREDITORSET_H_
 
-#include <colorer/common/Colorer.h>
 #include <colorer/handlers/LineRegionsSupport.h>
+#include <colorer/parsers/HRDNode.h>
 #include <colorer/viewer/TextConsoleViewer.h>
 #include <spdlog/logger.h>
 #include "ChooseTypeMenu.h"
@@ -48,10 +48,10 @@ const int cCrossDrawDefault = 2;
 const int cCrossStyleDefault = 3;
 const int cThreadBuildPeriodDefault = 200;
 
-const CString DConsole = CString("console");
-const CString DRgb = CString("rgb");
-const CString Ddefault = CString("<default>");
-const CString DAutodetect = CString("autodetect");
+const UnicodeString DConsole = UnicodeString("console");
+const UnicodeString DRgb = UnicodeString("rgb");
+const UnicodeString Ddefault = UnicodeString("<default>");
+const UnicodeString DAutodetect = UnicodeString("autodetect");
 
 enum {
   IDX_CH_BOX,
@@ -122,7 +122,7 @@ class FarEditorSet
   /** Shows plugin's configuration dialog */
   bool configure();
   /** Views current file with internal viewer */
-  void viewFile(const String& path);
+  void viewFile(const UnicodeString& path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
   HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
   void* oldMacro(FARMACROAREA area, OpenMacroInfo* params);
@@ -134,7 +134,7 @@ class FarEditorSet
   int editorInput(const INPUT_RECORD& Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String* getHRDescription(const String& name, const CString& _hrdClass) const;
+  const UnicodeString* getHRDescription(const UnicodeString& name, const UnicodeString& _hrdClass) const;
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -159,8 +159,8 @@ class FarEditorSet
   void enableColorer();
 
   bool SetBgEditor() const;
-  void LoadUserHrd(const String* filename, ParserFactory* pf);
-  void LoadUserHrc(const String* filename, ParserFactory* pf);
+  void LoadUserHrd(const UnicodeString* filename, ParserFactory* pf);
+  void LoadUserHrc(const UnicodeString* filename, ParserFactory* pf);
 
   /** Shows hrc configuration dialog */
   bool configureHrc(bool call_from_editor);
@@ -172,8 +172,8 @@ class FarEditorSet
   void applyLogSetting();
   size_t getEditorCount() const;
 
-  std::unique_ptr<SString> sTempHrdName;
-  std::unique_ptr<SString> sTempHrdNameTm;
+  std::unique_ptr<UnicodeString> sTempHrdName;
+  std::unique_ptr<UnicodeString> sTempHrdNameTm;
 
   SettingWindow settingWindow;
 
@@ -219,11 +219,11 @@ class FarEditorSet
   void disableColorerInEditor();
   void enableColorerInEditor();
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
-  String* getCurrentFileName();
+  UnicodeString* getCurrentFileName();
 
   int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // filetype "default"
-  FileTypeImpl* defaultType;
+  FileType* defaultType;
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
@@ -233,16 +233,15 @@ class FarEditorSet
   Options Opt;
 
   /** UNC path */
-  std::unique_ptr<SString> sCatalogPathExp;
-  std::unique_ptr<SString> sUserHrdPathExp;
-  std::unique_ptr<SString> sUserHrcPathExp;
+  std::unique_ptr<UnicodeString> sCatalogPathExp;
+  std::unique_ptr<UnicodeString> sUserHrdPathExp;
+  std::unique_ptr<UnicodeString> sUserHrcPathExp;
 
-  std::unique_ptr<SString> pluginPath;
+  std::unique_ptr<UnicodeString> pluginPath;
   int CurrentMenuItem;
 
   unsigned int err_status;
 
-  std::unique_ptr<Colorer> colorer_lib;
   std::shared_ptr<spdlog::logger> log;
 
   HANDLE hTimer = NULL;

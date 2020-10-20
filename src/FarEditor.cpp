@@ -1,33 +1,33 @@
 #include "FarEditor.h"
-#include <colorer/unicode/Character.h>
+#include <colorer/common/UStr.h>
 
-const CString DDefaultScheme("default");
-const CString DShowCross("show-cross");
-const CString DNone("none");
-const CString DVertical("vertical");
-const CString DHorizontal("horizontal");
-const CString DBoth("both");
-const CString DCrossZorder("cross-zorder");
-const CString DBottom("bottom");
-const CString DTop("top");
-const CString DYes("yes");
-const CString DNo("no");
-const CString DTrue("true");
-const CString DFalse("false");
-const CString DBackparse("backparse");
-const CString DMaxblocksize("maxblocksize");
-const CString DMaxLen("maxlinelength");
-const CString DDefFore("default-fore");
-const CString DDefBack("default-back");
-const CString DFullback("fullback");
-const CString DHotkey("hotkey");
-const CString DFavorite("favorite");
+const UnicodeString DDefaultScheme("default");
+const UnicodeString DShowCross("show-cross");
+const UnicodeString DNone("none");
+const UnicodeString DVertical("vertical");
+const UnicodeString DHorizontal("horizontal");
+const UnicodeString DBoth("both");
+const UnicodeString DCrossZorder("cross-zorder");
+const UnicodeString DBottom("bottom");
+const UnicodeString DTop("top");
+const UnicodeString DYes("yes");
+const UnicodeString DNo("no");
+const UnicodeString DTrue("true");
+const UnicodeString DFalse("false");
+const UnicodeString DBackparse("backparse");
+const UnicodeString DMaxblocksize("maxblocksize");
+const UnicodeString DMaxLen("maxlinelength");
+const UnicodeString DDefFore("default-fore");
+const UnicodeString DDefBack("default-back");
+const UnicodeString DFullback("fullback");
+const UnicodeString DHotkey("hotkey");
+const UnicodeString DFavorite("favorite");
 
 FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled) : info(info), parserFactory(pf), colorerEnable(editorEnabled)
 {
   if (colorerEnable) {
-    CString def_out = CString("def:Outlined");
-    CString def_err = CString("def:Error");
+    UnicodeString def_out = UnicodeString("def:Outlined");
+    UnicodeString def_err = UnicodeString("def:Error");
     baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
     const Region* def_Outlined = pf->getHRCParser()->getRegion(&def_out);
     const Region* def_Error = pf->getHRCParser()->getRegion(&def_err);
@@ -60,7 +60,7 @@ void FarEditor::endJob(size_t lno)
   ret_str.reset();
 }
 
-SString* FarEditor::getLine(size_t lno)
+UnicodeString* FarEditor::getLine(size_t lno)
 {
   EditorGetString es {};
   es.StructSize = sizeof(EditorGetString);
@@ -77,11 +77,11 @@ SString* FarEditor::getLine(size_t lno)
     len = 0;
   }
 
-  ret_str = std::make_unique<SString>(CString(es.StringText, 0, (int) len));
+  ret_str = std::make_unique<UnicodeString>(UnicodeString(es.StringText, 0, (int) len));
   return ret_str.get();
 }
 
-void FarEditor::chooseFileType(String* fname)
+void FarEditor::chooseFileType(UnicodeString* fname)
 {
   FileType* ftype = baseEditor->chooseFileType(fname);
   setFileType(ftype);
@@ -104,7 +104,7 @@ void FarEditor::reloadTypeSettings()
   FileType* def = hrcParser->getFileType(&DDefaultScheme);
 
   if (def == nullptr) {
-    throw Exception(CString("No 'default' file type found"));
+    throw Exception("No 'default' file type found");
   }
 
   int backparse = def->getParamValueInt(DBackparse, 2000);
@@ -120,12 +120,12 @@ void FarEditor::reloadTypeSettings()
   newback = def->getParamValueInt(DDefBack, -1);
   newback = ftype->getParamValueInt(DDefBack, newback);
 
-  const String* value;
+  const UnicodeString* value;
   value = ftype->getParamValue(DFullback);
   if (!value) {
     value = def->getParamValue(DFullback);
   }
-  if (value != nullptr && value->equals(&DNo)) {
+  if (value != nullptr && value->compare(DNo)==0) {
     fullBackground = false;
   }
 
@@ -133,7 +133,7 @@ void FarEditor::reloadTypeSettings()
   if (!value) {
     value = def->getParamValue(DCrossZorder);
   }
-  if (value != nullptr && value->equals(&DTop)) {
+  if (value != nullptr && value->compare(DTop)==0) {
     crossZOrder = 1;
   }
 
@@ -165,23 +165,23 @@ void FarEditor::setCrossState(int status, int style)
       FileType* ftype = baseEditor->getFileType();
       HRCParser* hrcParser = parserFactory->getHRCParser();
       FileType* def = hrcParser->getFileType(&DDefaultScheme);
-      const String* value;
+      const UnicodeString* value;
       value = ftype->getParamValue(DShowCross);
       if (!value) {
         value = def->getParamValue(DShowCross);
       }
 
       if (value) {
-        if (value->equals(&DNone)) {
+        if (value->compare(DNone)==0) {
           changeCrossStyle(CSTYLE_NONE);
         }
-        else if (value->equals(&DVertical)) {
+        else if (value->compare(DVertical)==0) {
           changeCrossStyle(CSTYLE_VERT);
         }
-        else if (value->equals(&DHorizontal)) {
+        else if (value->compare(DHorizontal)==0) {
           changeCrossStyle(CSTYLE_HOR);
         }
-        else if (value->equals(&DBoth)) {
+        else if (value->compare(DBoth)==0) {
           changeCrossStyle(CSTYLE_BOTH);
         }
       }
@@ -366,31 +366,33 @@ void FarEditor::selectRegion()
 void FarEditor::getNameCurrentScheme()
 {
   if (cursorRegion) {
-    SString region, scheme;
-    region.append(CString(L"Region: "));
-    scheme.append(CString(L"Scheme: "));
+    UnicodeString region, scheme;
+    region.append("Region: ");
+    scheme.append("Scheme: ");
     if (cursorRegion->region != nullptr) {
       const Region* r = cursorRegion->region;
-      region.append(r->getName());
+      region.append(*r->getName());
     }
     if (cursorRegion->scheme != nullptr) {
-      scheme.append(cursorRegion->scheme->getName());
+      scheme.append(*cursorRegion->scheme->getName());
     }
-    const wchar_t* exceptionMessage[3] = {GetMsg(mRegionName), region.getWChars(), scheme.getWChars()};
+    auto region_str = UStr::to_stdwstr(&region);
+    auto scheme_str = UStr::to_stdwstr(&scheme);
+    const wchar_t* exceptionMessage[3] = {GetMsg(mRegionName), region_str.c_str(), scheme_str.c_str()};
     info->Message(&MainGuid, &RegionName, FMSG_MB_OK | FMSG_LEFTALIGN, nullptr, &exceptionMessage[0],
                   sizeof(exceptionMessage) / sizeof(exceptionMessage[0]), 1);
   }
 }
 
-void FarEditor::getCurrentRegionInfo(SString& region, SString& scheme)
+void FarEditor::getCurrentRegionInfo(UnicodeString& region, UnicodeString& scheme)
 {
   if (cursorRegion) {
     if (cursorRegion->region != nullptr) {
       const Region* r = cursorRegion->region;
-      region.append(r->getName());
+      region.append(*r->getName());
     }
     if (cursorRegion->scheme != nullptr) {
-      scheme.append(cursorRegion->scheme->getName());
+      scheme.append(*cursorRegion->scheme->getName());
     }
   }
 }
@@ -411,13 +413,13 @@ void FarEditor::locateFunction()
 {
   // extract word
   EditorInfo ei = enterHandler();
-  String& curLine = *getLine(ei.CurLine);
+  UnicodeString& curLine = *getLine(ei.CurLine);
   int cpos = (int) ei.CurPos;
   int sword = cpos;
   int eword = cpos;
 
-  while (cpos < curLine.length() && (Character::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
-    while (Character::isLetterOrDigit(curLine[eword]) || curLine[eword] == '_') {
+  while (cpos < curLine.length() && (UStr::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
+    while (UStr::isLetterOrDigit(curLine[eword]) || curLine[eword] == '_') {
       if (eword == curLine.length() - 1) {
         break;
       }
@@ -425,7 +427,7 @@ void FarEditor::locateFunction()
       eword++;
     }
 
-    while (Character::isLetterOrDigit(curLine[sword]) || curLine[sword] == '_') {
+    while (UStr::isLetterOrDigit(curLine[sword]) || curLine[sword] == '_') {
       if (sword == 0) {
         break;
       }
@@ -433,8 +435,8 @@ void FarEditor::locateFunction()
       sword--;
     }
 
-    SString funcname(curLine, sword + 1, eword - sword - 1);
-    spdlog::debug("FC] Letter {0}", funcname.getChars());
+    UnicodeString funcname(curLine, sword + 1, eword - sword - 1);
+    spdlog::debug("FC] Letter {0}", funcname);
     baseEditor->validate(-1, false);
     EditorSetPosition esp {};
     esp.StructSize = sizeof(EditorSetPosition);
@@ -450,7 +452,7 @@ void FarEditor::locateFunction()
     for (size_t idx = 0; idx < items_num; idx++) {
       OutlineItem* item = structOutliner->getItem(idx);
 
-      if (item->token->indexOfIgnoreCase(CString(funcname)) != -1) {
+      if (item->token->toUpper().indexOf(funcname.toUpper()) != -1) {
         if (item->lno == ei.CurLine) {
           item_last = item;
         }
@@ -580,7 +582,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   }
 
   if (rdBackground == nullptr) {
-    throw Exception(CString("HRD Background region 'def:Text' not found"));
+    throw Exception("HRD Background region 'def:Text' not found");
   }
 
   EditorInfo ei = enterHandler();
@@ -610,7 +612,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     egs.StringNumber = lno;
     info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
     int llen = (int) egs.StringLength;
-    CString s = CString(egs.StringText);
+    UnicodeString s = UnicodeString(egs.StringText);
     // position previously found a column in the current row
     ecp_cl.StructSize = sizeof(EditorConvertPos);
     ecp_cl.StringNumber = lno;
@@ -860,7 +862,7 @@ void FarEditor::showOutliner(Outliner* outliner)
     for (i = 0; i < items_num; i++) {
       OutlineItem* item = outliner->getItem(i);
 
-      if (item->token->indexOfIgnoreCase(CString(filter)) != -1) {
+      if (item->token->toUpper().indexOf(UnicodeString(filter).toUpper()) != -1) {
         int treeLevel = Outliner::manageTree(treeStack, item->level);
 
         if (maxLevel < treeLevel) {
@@ -881,9 +883,9 @@ void FarEditor::showOutliner(Outliner* outliner)
             menuItem[si++] = ' ';
           }
 
-          const String* region = item->region->getName();
+          const UnicodeString* region = item->region->getName();
 
-          wchar_t cls = Character::toLowerCase((*region)[region->indexOf(':') + 1]);
+          wchar_t cls = UStr::toLowerCase((*region)[region->indexOf(':') + 1]);
 
           si += _snwprintf(menuItem + si, 255 - si, L"%c ", cls);
 
@@ -893,18 +895,18 @@ void FarEditor::showOutliner(Outliner* outliner)
             labelLength = 110;
           }
 
-          wcsncpy(menuItem + si, item->token->getWChars(), labelLength);
+          wcsncpy(menuItem + si, UStr::to_stdwstr(item->token.get()).c_str(), labelLength);
           menuItem[si + labelLength] = 0;
         }
         else {
-          String* line = getLine(item->lno);
+          UnicodeString* line = getLine(item->lno);
           size_t labelLength = line->length();
 
           if (labelLength > 110) {
             labelLength = 110;
           }
 
-          wcsncpy(menuItem, line->getWChars(), labelLength);
+          wcsncpy(menuItem, UStr::to_stdwstr(line).c_str(), labelLength);
           menuItem[labelLength] = 0;
         }
 
@@ -938,7 +940,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
     while (code != 0 && menu_size > 1 && same && plen < FILTER_SIZE) {
       plen = aflen + 1;
-      int auto_ptr = CString(menu[0].Text).indexOfIgnoreCase(CString(autofilter));
+      int auto_ptr = UnicodeString(menu[0].Text).toUpper().indexOf(UnicodeString(autofilter).toUpper());
 
       if (int(wcslen(menu[0].Text) - auto_ptr) < plen) {
         break;
@@ -948,7 +950,7 @@ void FarEditor::showOutliner(Outliner* outliner)
       prefix[plen] = 0;
 
       for (int j = 1; j < menu_size; j++) {
-        if (CString(menu[j].Text).indexOfIgnoreCase(CString(prefix)) == -1) {
+        if (UnicodeString(menu[j].Text).toUpper().indexOf(UnicodeString(prefix).toUpper()) == -1) {
           same = false;
           break;
         }
@@ -1115,9 +1117,9 @@ void FarEditor::showOutliner(Outliner* outliner)
         info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
         // insert text
         auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
-        SString str = SString(item->token.get());
+        UnicodeString str = UnicodeString(*item->token.get());
         //!! warning , after call next line  object 'item' changes
-        info->EditorControl(editor_id, ECTL_INSERTTEXT, 0, (void*) str.getWChars());
+        info->EditorControl(editor_id, ECTL_INSERTTEXT, 0, (void*) UStr::to_stdwstr(&str).c_str());
 
         // move the cursor to the end of the inserted string
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
@@ -1161,7 +1163,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         if (flen == FILTER_SIZE || code > keys_size) {
           break;
         }
-        filter[flen] = static_cast<wchar_t>(Character::toLowerCase(breakKeys[code].VirtualKeyCode));
+        filter[flen] = static_cast<wchar_t>(UStr::toLowerCase(breakKeys[code].VirtualKeyCode));
         filter[++flen] = 0;
         break;
     }
@@ -1224,11 +1226,11 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
     }
   }
 
-  if (rd == nullptr || !rd->bfore) {
+  if (rd == nullptr || !rd->isForeSet) {
     col.ForegroundColor = fore;
   }
 
-  if (rd == nullptr || !rd->bback) {
+  if (rd == nullptr || !rd->isBackSet) {
     col.BackgroundColor = back;
   }
 

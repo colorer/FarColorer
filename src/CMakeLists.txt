@@ -113,6 +113,12 @@ target_include_directories(colorer
     PUBLIC ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
     )
 
+set_target_properties(colorer PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+    )
+
 if (${CMAKE_BUILD_TYPE} MATCHES Debug)
   target_compile_options(colorer
       PUBLIC $<$<COMPILE_LANGUAGE:C>:${MAIN_FLAGS_C_DEBUG}>

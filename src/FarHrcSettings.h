@@ -3,7 +3,8 @@
 
 #include <colorer/HRCParser.h>
 #include <colorer/parsers/FileTypeImpl.h>
-#include <colorer/parsers/ParserFactory.h>
+#include <colorer/ParserFactory.h>
+#include <xercesc/dom/DOM.hpp>
 
 const wchar_t FarCatalogXml[] = L"\\base\\catalog.xml";
 const wchar_t FarProfileXml[] = L"\\bin\\hrcsettings.xml";
@@ -12,11 +13,7 @@ const wchar_t HrcSettings[] = L"HrcSettings";
 class FarHrcSettingsException : public Exception
 {
  public:
-  FarHrcSettingsException() noexcept : Exception("[FarHrcSettingsException] ") {};
-  FarHrcSettingsException(const String& msg) noexcept : FarHrcSettingsException()
-  {
-    what_str.append(msg);
-  };
+  explicit FarHrcSettingsException(const UnicodeString& msg) noexcept : Exception("[FarHrcSettingsException] " + msg) {}
 };
 
 class FarHrcSettings
@@ -28,8 +25,8 @@ class FarHrcSettings
   {
     parserFactory = _parserFactory;
   }
-  void readXML(String* file, bool userValue);
-  void readProfile(SString* plugin_path);
+  void readXML(UnicodeString* file, bool userValue);
+  void readProfile(UnicodeString* plugin_path);
   void readUserProfile();
   void writeUserProfile();
 

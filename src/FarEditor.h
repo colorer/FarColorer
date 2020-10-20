@@ -7,27 +7,27 @@
 #include "pcolorer.h"
 
 const intptr_t CurrentEditor = -1;
-extern const CString DDefaultScheme;
-extern const CString DShowCross;
-extern const CString DNone;
-extern const CString DVertical;
-extern const CString DHorizontal;
-extern const CString DBoth;
-extern const CString DCrossZorder;
-extern const CString DBottom;
-extern const CString DTop;
-extern const CString DYes;
-extern const CString DNo;
-extern const CString DTrue;
-extern const CString DFalse;
-extern const CString DBackparse;
-extern const CString DMaxLen;
-extern const CString DDefFore;
-extern const CString DDefBack;
-extern const CString DFullback;
-extern const CString DHotkey;
-extern const CString DFavorite;
-extern const CString DMaxblocksize;
+extern const UnicodeString DDefaultScheme;
+extern const UnicodeString DShowCross;
+extern const UnicodeString DNone;
+extern const UnicodeString DVertical;
+extern const UnicodeString DHorizontal;
+extern const UnicodeString DBoth;
+extern const UnicodeString DCrossZorder;
+extern const UnicodeString DBottom;
+extern const UnicodeString DTop;
+extern const UnicodeString DYes;
+extern const UnicodeString DNo;
+extern const UnicodeString DTrue;
+extern const UnicodeString DFalse;
+extern const UnicodeString DBackparse;
+extern const UnicodeString DMaxLen;
+extern const UnicodeString DDefFore;
+extern const UnicodeString DDefBack;
+extern const UnicodeString DFullback;
+extern const UnicodeString DHotkey;
+extern const UnicodeString DFavorite;
+extern const UnicodeString DMaxblocksize;
 
 #define revertRGB(x) (BYTE)(x >> 16 & 0xff) | ((BYTE)(x >> 8 & 0xff) << 8) | ((BYTE)(x & 0xff) << 16)
 
@@ -53,7 +53,7 @@ class FarEditor : public LineSource
   Returns line number "lno" from FAR interface. Line is only valid until next call of this function,
   it also should not be disposed, this function takes care of this.
   */
-  SString* getLine(size_t lno) override;
+  UnicodeString* getLine(size_t lno) override;
 
   /** Changes current assigned file type.
    */
@@ -64,7 +64,7 @@ class FarEditor : public LineSource
 
   /** Selects file type with it's extension and first lines
    */
-  void chooseFileType(String* fname);
+  void chooseFileType(UnicodeString* fname);
 
   /** Installs specified RegionMapper implementation.
   This class serves to request mapping of regions into
@@ -118,7 +118,7 @@ class FarEditor : public LineSource
   void cleanEditor();
 
   void getNameCurrentScheme();
-  void getCurrentRegionInfo(SString& region, SString& scheme);
+  void getCurrentRegionInfo(UnicodeString& region, UnicodeString& scheme);
 
   void changeCrossStyle(CROSS_STYLE newStyle);
   int getVisibleCrossState() const;
@@ -160,7 +160,7 @@ class FarEditor : public LineSource
   bool inRedraw = false;
   int idleCount = 0;
 
-  std::unique_ptr<SString> ret_str;
+  std::unique_ptr<UnicodeString> ret_str;
 
   int newfore = -1;
   int newback = -1;

@@ -1,0 +1,14 @@
+[requires]
+xerces-c/3.2.3@colorer/release
+zlib/1.2.11@colorer/release
+spdlog/1.7.0@colorer/release
+icu/67.1@colorer/release
+
+[generators]
+cmake
+
+[options]
+zlib:minizip=True
+xerces-c:shared=False
+spdlog:shared=False
+icu:shared=False
