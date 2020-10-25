@@ -1,12 +1,12 @@
 #ifndef _CHOOSE_TYPE_MENU_H_
 #define _CHOOSE_TYPE_MENU_H_
 
-#include "pcolorer.h"
 #include <colorer/FileType.h>
+#include "pcolorer.h"
 
 class ChooseTypeMenu
 {
-public:
+ public:
   ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites);
   ~ChooseTypeMenu();
   FarMenuItem* getItems() const;
@@ -31,16 +31,15 @@ public:
   void RefreshItemCaption(size_t index);
   UnicodeString* GenerateName(const FileType* fType);
 
-private:
+ private:
   size_t ItemCount;
   FarMenuItem* Item;
 
-  size_t ItemSelected; // Index of selected item
+  size_t ItemSelected;  // Index of selected item
 
   size_t AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, const FileType* UserData = nullptr, size_t PosAdd = 0x7FFFFFFF);
 
   static const size_t favorite_idx = 2;
 };
 
-
-#endif //_CHOOSE_TYPE_MENU_H_
+#endif  //_CHOOSE_TYPE_MENU_H_

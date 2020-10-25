@@ -109,7 +109,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
     }
 
     num++;
-    if (group != nullptr && !group->compare(*type->getGroup())==0) {
+    if (group != nullptr && !group->compare(*type->getGroup()) == 0) {
       num++;
     }
 
@@ -138,7 +138,7 @@ FarList* HrcSettingsForm::buildHrcList() const
       hrcList[i].Flags = LIF_SELECTED;
     }
 
-    if (group != nullptr && !group->compare(*type->getGroup())==0) {
+    if (group != nullptr && !group->compare(*type->getGroup()) == 0) {
       hrcList[i].Flags = LIF_SEPARATOR;
       i++;
     }
@@ -190,18 +190,19 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
   COORD c {0, 0};
   Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_DESCRIPTION, &c);
 
-  if (DShowCross.compare(p)==0) {
+  if (DShowCross.compare(p) == 0) {
     setCrossValueListToCombobox();
   }
   else {
-    if (DCrossZorder.compare(p)==0) {
+    if (DCrossZorder.compare(p) == 0) {
       setCrossPosValueListToCombobox();
     }
-    else if (DMaxLen.compare(p)==0 || DBackparse.compare(p)==0 || DDefFore.compare(p)==0 || DDefBack.compare(p)==0 || UnicodeString("firstlines").compare(p)==0 ||
-        UnicodeString("firstlinebytes").compare(p)==0 || DHotkey.compare(p)==0 || DMaxblocksize.compare(p)==0) {
+    else if (DMaxLen.compare(p) == 0 || DBackparse.compare(p) == 0 || DDefFore.compare(p) == 0 || DDefBack.compare(p) == 0 ||
+             UnicodeString("firstlines").compare(p) == 0 || UnicodeString("firstlinebytes").compare(p) == 0 || DHotkey.compare(p) == 0 ||
+             DMaxblocksize.compare(p) == 0) {
       setCustomListValueToCombobox(UnicodeString(List.Item.Text));
     }
-    else if (DFullback.compare(p)==0) {
+    else if (DFullback.compare(p) == 0) {
       setYNListValueToCombobox(UnicodeString(List.Item.Text));
     }
     else {
@@ -234,11 +235,11 @@ void HrcSettingsForm::SaveChangedValueParam() const
 
   const UnicodeString* value = current_filetype->getParamUserValue(p);
   const UnicodeString* def_value = getParamDefValue(current_filetype, p);
-  if (v.compare(*def_value)==0) {
+  if (v.compare(*def_value) == 0) {
     if (value != nullptr)
       current_filetype->setParamValue(p, nullptr);
   }
-  else if (!v.compare(*value)==0) {  // changed
+  else if (!v.compare(*value) == 0) {  // changed
     if (current_filetype->getParamValue(p) == nullptr) {
       current_filetype->addParam(&p);
     }
@@ -289,10 +290,10 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
     ret = 2;
   }
   else {
-    if (value->compare(DNo)==0) {
+    if (value->compare(DNo) == 0) {
       ret = 0;
     }
-    else if (value->compare(DYes)==0) {
+    else if (value->compare(DYes) == 0) {
       ret = 1;
     }
   }
@@ -321,10 +322,10 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
     ret = 2;
   }
   else {
-    if (value->compare(DFalse)==0) {
+    if (value->compare(DFalse) == 0) {
       ret = 0;
     }
-    else if (value->compare(DTrue)==0) {
+    else if (value->compare(DTrue) == 0) {
       ret = 1;
     }
   }
@@ -377,16 +378,16 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
     ret = 4;
   }
   else {
-    if (value->compare(DNone)==0) {
+    if (value->compare(DNone) == 0) {
       ret = 0;
     }
-    else if (value->compare(DVertical)==0) {
+    else if (value->compare(DVertical) == 0) {
       ret = 1;
     }
-    else if (value->compare(DHorizontal)==0) {
+    else if (value->compare(DHorizontal) == 0) {
       ret = 2;
     }
-    else if (value->compare(DBoth)==0) {
+    else if (value->compare(DBoth) == 0) {
       ret = 3;
     }
   }
@@ -415,10 +416,10 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
     ret = 2;
   }
   else {
-    if (value->compare(DBottom)==0) {
+    if (value->compare(DBottom) == 0) {
       ret = 0;
     }
-    else if (value->compare(DTop)==0) {
+    else if (value->compare(DTop) == 0) {
       ret = 1;
     }
   }

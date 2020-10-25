@@ -1,6 +1,6 @@
 #include "ChooseTypeMenu.h"
-#include <colorer/common/UStr.h>
 #include <colorer/FileType.h>
+#include <colorer/common/UStr.h>
 #include "FarEditor.h"
 
 ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites)
@@ -105,20 +105,22 @@ size_t ChooseTypeMenu::GetNext(size_t index) const
   }
   if (p < ItemCount) {
     return p;
-  } else {
-    for (p = favorite_idx; p < ItemCount && !(Item[p].Flags & MIF_SEPARATOR); p++);
+  }
+  else {
+    for (p = favorite_idx; p < ItemCount && !(Item[p].Flags & MIF_SEPARATOR); p++)
+      ;
     return p + 1;
   }
 }
 
 FileType* ChooseTypeMenu::GetFileType(size_t index) const
 {
-  return (FileType*)Item[index].UserData;
+  return (FileType*) Item[index].UserData;
 }
 
 void ChooseTypeMenu::MoveToFavorites(size_t index)
 {
-  FileType* f = (FileType*)Item[index].UserData;
+  FileType* f = (FileType*) Item[index].UserData;
   DeleteItem(index);
   size_t k = AddFavorite(f);
   SetSelected(k);
@@ -132,8 +134,9 @@ void ChooseTypeMenu::MoveToFavorites(size_t index)
 size_t ChooseTypeMenu::AddFavorite(const FileType* fType)
 {
   size_t i;
-  for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++);
-  size_t p = AddItem(fType,  i);
+  for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++)
+    ;
+  size_t p = AddItem(fType, i);
   if (ItemSelected >= p) {
     ItemSelected++;
   }
@@ -151,12 +154,13 @@ void ChooseTypeMenu::HideEmptyGroup() const
 
 void ChooseTypeMenu::DelFromFavorites(size_t index)
 {
-  FileType* f = (FileType*)Item[index].UserData;
+  FileType* f = (FileType*) Item[index].UserData;
   DeleteItem(index);
   AddItemInGroup(f);
   if (Item[index].Flags & MIF_SEPARATOR) {
     SetSelected(GetNext(index));
-  } else {
+  }
+  else {
     SetSelected(index);
   }
   f->setParamValue(DFavorite, &DFalse);
@@ -166,7 +170,9 @@ size_t ChooseTypeMenu::AddItemInGroup(FileType* fType)
 {
   size_t i;
   const UnicodeString* group = fType->getGroup();
-  for (i = favorite_idx; i < ItemCount && !((Item[i].Flags & MIF_SEPARATOR) && (group->compare(UnicodeString(Item[i].Text)) == 0)); i++);
+  for (i = favorite_idx; i < ItemCount && !((Item[i].Flags & MIF_SEPARATOR) && (group->compare(UnicodeString(Item[i].Text)) == 0)); i++) {
+    void;
+  }
   if (Item[i].Flags & MIF_HIDDEN) {
     Item[i].Flags &= ~MIF_HIDDEN;
   }
@@ -180,7 +186,8 @@ size_t ChooseTypeMenu::AddItemInGroup(FileType* fType)
 bool ChooseTypeMenu::IsFavorite(size_t index) const
 {
   size_t i;
-  for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++);
+  for (i = favorite_idx; i < ItemCount && !(Item[i].Flags & MIF_SEPARATOR); i++)
+    ;
   i = ItemCount ? i : i + 1;
   return i > index;
 }
@@ -199,14 +206,15 @@ void ChooseTypeMenu::RefreshItemCaption(size_t index)
 UnicodeString* ChooseTypeMenu::GenerateName(const FileType* fType)
 {
   const UnicodeString* v;
-  v = ((FileType*)fType)->getParamValue(DHotkey);
+  v = ((FileType*) fType)->getParamValue(DHotkey);
   UnicodeString* s = new UnicodeString;
   if (v != nullptr && v->length()) {
     s->append("&").append(*v);
-  } else {
+  }
+  else {
     s->append(" ");
   }
-  s->append(" ").append(*((FileType*)fType)->getDescription());
+  s->append(" ").append(*((FileType*) fType)->getDescription());
 
   return s;
 }

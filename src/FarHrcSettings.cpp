@@ -30,7 +30,8 @@ void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
   xercesc::DOMElement* elem = catalog->getDocumentElement();
 
   const XMLCh* tagPrototype = hrcTagPrototype;
-  const XMLCh tagHrcSettings[] = {chLatin_h, chLatin_r, chLatin_c, chDash, chLatin_s, chLatin_e, chLatin_t, chLatin_t, chLatin_i , chLatin_n, chLatin_g, chLatin_s, chNull};
+  const XMLCh tagHrcSettings[] = {chLatin_h, chLatin_r, chLatin_c, chDash,    chLatin_s, chLatin_e, chLatin_t,
+                                  chLatin_t, chLatin_i, chLatin_n, chLatin_g, chLatin_s, chNull};
 
   if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrcSettings)) {
     throw FarHrcSettingsException("main '<hrc-settings>' block not found");

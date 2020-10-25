@@ -1,8 +1,8 @@
 #ifndef _FARHRCSETTINGS_H_
 #define _FARHRCSETTINGS_H_
 
-#include <colorer/HRCParser.h>
 #include <colorer/FileType.h>
+#include <colorer/HRCParser.h>
 #include <colorer/ParserFactory.h>
 #include <xercesc/dom/DOM.hpp>
 

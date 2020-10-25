@@ -125,7 +125,7 @@ void FarEditor::reloadTypeSettings()
   if (!value) {
     value = def->getParamValue(DFullback);
   }
-  if (value != nullptr && value->compare(DNo)==0) {
+  if (value != nullptr && value->compare(DNo) == 0) {
     fullBackground = false;
   }
 
@@ -133,7 +133,7 @@ void FarEditor::reloadTypeSettings()
   if (!value) {
     value = def->getParamValue(DCrossZorder);
   }
-  if (value != nullptr && value->compare(DTop)==0) {
+  if (value != nullptr && value->compare(DTop) == 0) {
     crossZOrder = 1;
   }
 
@@ -172,16 +172,16 @@ void FarEditor::setCrossState(int status, int style)
       }
 
       if (value) {
-        if (value->compare(DNone)==0) {
+        if (value->compare(DNone) == 0) {
           changeCrossStyle(CSTYLE_NONE);
         }
-        else if (value->compare(DVertical)==0) {
+        else if (value->compare(DVertical) == 0) {
           changeCrossStyle(CSTYLE_VERT);
         }
-        else if (value->compare(DHorizontal)==0) {
+        else if (value->compare(DHorizontal) == 0) {
           changeCrossStyle(CSTYLE_HOR);
         }
-        else if (value->compare(DBoth)==0) {
+        else if (value->compare(DBoth) == 0) {
           changeCrossStyle(CSTYLE_BOTH);
         }
       }
