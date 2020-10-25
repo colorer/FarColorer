@@ -285,7 +285,7 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret;
+  size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -317,7 +317,7 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret;
+  size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -411,7 +411,7 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret;
+  size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }

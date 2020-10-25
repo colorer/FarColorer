@@ -18,10 +18,8 @@ class FarHrcSettingsException : public Exception
 
 class FarHrcSettings
 {
-  friend class FileTypeImpl;
-
  public:
-  FarHrcSettings(ParserFactory* _parserFactory)
+  explicit FarHrcSettings(ParserFactory* _parserFactory)
   {
     parserFactory = _parserFactory;
   }

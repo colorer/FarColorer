@@ -57,6 +57,7 @@ FarEditor::~FarEditor()
 
 void FarEditor::endJob(size_t lno)
 {
+  (void)lno;
   ret_str.reset();
 }
 
@@ -453,7 +454,7 @@ void FarEditor::locateFunction()
       OutlineItem* item = structOutliner->getItem(idx);
 
       if (item->token->toUpper().indexOf(funcname.toUpper()) != -1) {
-        if (item->lno == ei.CurLine) {
+        if (item->lno == (size_t)ei.CurLine) {
           item_last = item;
         }
         else {
@@ -587,7 +588,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
   EditorInfo ei = enterHandler();
 
-  baseEditor->visibleTextEvent((int) ei.TopScreenLine, ei.WindowSizeY);
+  baseEditor->visibleTextEvent((int) ei.TopScreenLine, (int) ei.WindowSizeY);
   baseEditor->lineCountEvent((int) ei.TotalLines);
 
   cursorRegion.reset();
@@ -863,10 +864,10 @@ void FarEditor::showOutliner(Outliner* outliner)
       OutlineItem* item = outliner->getItem(i);
 
       if (item->token->toUpper().indexOf(UnicodeString(filter).toUpper()) != -1) {
-        int treeLevel = Outliner::manageTree(treeStack, item->level);
+        auto treeLevel = Outliner::manageTree(treeStack, item->level);
 
         if (maxLevel < treeLevel) {
-          maxLevel = treeLevel;
+          maxLevel = (int)treeLevel;
         }
 
         if (treeLevel > visibleLevel) {

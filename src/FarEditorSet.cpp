@@ -31,7 +31,7 @@ FarEditorSet::FarEditorSet()
   setEmptyLogger();
 
   UnicodeString module(Info.ModuleName);
-  size_t pos = module.lastIndexOf('\\');
+  auto pos = module.lastIndexOf('\\');
   pos = module.lastIndexOf('\\', 0, pos);
   pluginPath = std::make_unique<UnicodeString>(UnicodeString(module, 0, pos));
 
@@ -174,7 +174,7 @@ void FarEditorSet::openMenu(int MenuId)
       spdlog::error("{0}", e.what());
       UnicodeString msg("openMenu: ");
       msg.append(e.what());
-      showExceptionMessage(UStr::to_stdwstr(&msg).c_str());
+      showExceptionMessage(&msg);
       disableColorer();
     }
   }
@@ -194,7 +194,8 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     BaseEditor baseEditor(parserFactory.get(), &textLinesStore);
     RegionMapper* regionMap;
     try {
-      regionMap = parserFactory->createStyledMapper(&DConsole, &UnicodeString(Opt.HrdName));
+      auto hrd_name = UnicodeString(Opt.HrdName);
+      regionMap = parserFactory->createStyledMapper(&DConsole, &hrd_name);
     } catch (ParserFactoryException& e) {
       spdlog::error("{0}", e.what());
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
@@ -222,7 +223,8 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     viewer.view();
     delete regionMap;
   } catch (Exception& e) {
-    showExceptionMessage(UStr::to_stdwstr(&UnicodeString(e.what())).c_str());
+    auto error_mes = UnicodeString(e.what());
+    showExceptionMessage(&error_mes);
   }
 }
 
@@ -514,7 +516,7 @@ bool FarEditorSet::configure()
 
     UnicodeString msg("configure: ");
     msg.append(UnicodeString(e.what()));
-    showExceptionMessage(UStr::to_stdwstr(&msg).c_str());
+    showExceptionMessage(&msg);
     disableColorer();
     return false;
   }
@@ -593,7 +595,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
 
     UnicodeString msg("editorEvent: ");
     msg.append(UnicodeString(e.what()));
-    showExceptionMessage(UStr::to_stdwstr(&msg).c_str());
+    showExceptionMessage(&msg);
     disableColorer();
   }
 
@@ -678,7 +680,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     }
   } catch (Exception& e) {
     spdlog::error("{0}", e.what());
-    showExceptionMessage(UStr::to_stdwstr(&UnicodeString(e.what())).c_str());
+    auto error_mes = UnicodeString(e.what());
+    showExceptionMessage(&error_mes);
     res = false;
   }
 
@@ -738,12 +741,14 @@ void FarEditorSet::ReloadBase()
 
   } catch (SettingsControlException& e) {
     spdlog::error("{0}", e.what());
-    showExceptionMessage(UStr::to_stdwstr(&UnicodeString(e.what())).c_str());
+    auto error_mes = UnicodeString(e.what());
+    showExceptionMessage(&error_mes);
     err_status = ERR_FARSETTINGS_ERROR;
     disableColorer();
   } catch (Exception& e) {
     spdlog::error("{0}", e.what());
-    showExceptionMessage(UStr::to_stdwstr(&UnicodeString(e.what())).c_str());
+    auto error_mes = UnicodeString(e.what());
+    showExceptionMessage(&error_mes);
     err_status = ERR_BASE_LOAD;
     disableColorer();
   }
@@ -790,7 +795,7 @@ UnicodeString* FarEditorSet::getCurrentFileName()
   }
 
   UnicodeString fnpath(FileName);
-  size_t slash_idx = fnpath.lastIndexOf('\\');
+  auto slash_idx = fnpath.lastIndexOf('\\');
 
   if (slash_idx == -1) {
     slash_idx = fnpath.lastIndexOf('/');
@@ -919,7 +924,8 @@ void FarEditorSet::ReadSettings()
 void FarEditorSet::applyLogSetting()
 {
   if (Opt.LogEnabled) {
-    auto level = spdlog::level::from_str(UStr::to_stdstr(&UnicodeString(Opt.logLevel)));
+    auto u_loglevel = UnicodeString(Opt.logLevel);
+    auto level = spdlog::level::from_str(UStr::to_stdstr(&u_loglevel));
     if (level != spdlog::level::off) {
       try {
         std::string file_name = "farcolorer.log";
@@ -933,7 +939,8 @@ void FarEditorSet::applyLogSetting()
         log->set_level(level);
       } catch (std::exception& e) {
         setEmptyLogger();
-        showExceptionMessage(UStr::to_stdwstr(&UnicodeString(e.what())).c_str());
+        auto error_mes = UnicodeString(e.what());
+        showExceptionMessage(&error_mes);
       }
     }
   }
@@ -1059,9 +1066,9 @@ bool FarEditorSet::configureHrc(bool call_from_editor)
   return form.Show();
 }
 
-void FarEditorSet::showExceptionMessage(const wchar_t* message)
+void FarEditorSet::showExceptionMessage(const UnicodeString* message)
 {
-  const wchar_t* exceptionMessage[3] = {GetMsg(mName), message, GetMsg(mDie)};
+  const wchar_t* exceptionMessage[3] = {GetMsg(mName), UStr::to_stdwstr(message).c_str(), GetMsg(mDie)};
   Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], std::size(exceptionMessage), 1);
 }
 
@@ -1622,6 +1629,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
 
 void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
 {
+  (void) area;
   if (!Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 

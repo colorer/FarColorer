@@ -168,7 +168,7 @@ class FarEditorSet
   /** Show logging configuration dialog*/
   bool configureLogging();
 
-  void showExceptionMessage(const wchar_t* message);
+  void showExceptionMessage(const UnicodeString* message);
   void applyLogSetting();
   size_t getEditorCount() const;
 
