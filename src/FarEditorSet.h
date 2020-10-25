@@ -175,7 +175,7 @@ class FarEditorSet
   std::unique_ptr<UnicodeString> sTempHrdName;
   std::unique_ptr<UnicodeString> sTempHrdNameTm;
 
-  SettingWindow settingWindow;
+  SettingWindow settingWindow {0};
 
  private:
   /** add current active editor and return him. */
@@ -223,14 +223,14 @@ class FarEditorSet
 
   int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // filetype "default"
-  FileType* defaultType;
+  FileType* defaultType = nullptr;
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
-  HRCParser* hrcParser;
+  HRCParser* hrcParser = nullptr;
 
   /** registry settings */
-  Options Opt;
+  Options Opt {0};
 
   /** UNC path */
   std::unique_ptr<UnicodeString> sCatalogPathExp;
@@ -238,14 +238,14 @@ class FarEditorSet
   std::unique_ptr<UnicodeString> sUserHrcPathExp;
 
   std::unique_ptr<UnicodeString> pluginPath;
-  int CurrentMenuItem;
+  int CurrentMenuItem = 0;
 
-  unsigned int err_status;
+  unsigned int err_status = ERR_NO_ERROR;
 
   std::shared_ptr<spdlog::logger> log;
 
-  HANDLE hTimer = NULL;
-  HANDLE hTimerQueue = NULL;
+  HANDLE hTimer = nullptr;
+  HANDLE hTimerQueue = nullptr;
 
   bool ignore_event = false;
 };

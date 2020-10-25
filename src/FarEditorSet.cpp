@@ -1,12 +1,10 @@
 #include "FarEditorSet.h"
-#include <colorer/ParserFactory.h>
 #include <colorer/common/UStr.h>
 #include <colorer/parsers/CatalogParser.h>
 #include <colorer/parsers/XmlTagDefs.h>
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/null_sink.h>
-#include <spdlog/spdlog.h>
 #include <farcolor.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "DlgBuilder.hpp"
@@ -17,16 +15,6 @@
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 FarEditorSet::FarEditorSet()
-    : sTempHrdName(nullptr),
-      sTempHrdNameTm(nullptr),
-      parserFactory(nullptr),
-      regionMapper(nullptr),
-      hrcParser(nullptr),
-      sCatalogPathExp(nullptr),
-      sUserHrdPathExp(nullptr),
-      sUserHrcPathExp(nullptr),
-      CurrentMenuItem(0),
-      err_status(ERR_NO_ERROR)
 {
   setEmptyLogger();
 
@@ -240,7 +228,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
       break;
     }
 
-    if (group != nullptr && !group->compare(*type->getGroup()) == 0) {
+    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
       Menu->AddGroup(UStr::to_stdwstr(type->getGroup()).c_str());
       group = type->getGroup();
     }
@@ -345,7 +333,7 @@ bool FarEditorSet::chooseType()
         const UnicodeString* v;
         v = menu.GetFileType(i)->getParamValue(DHotkey);
         if (v && v->length()) {
-          key = std::wstring(UStr::to_stdwstr(v).c_str());
+          key = std::wstring(UStr::to_stdwstr(v));
           KeyAssignDlgData[2].Data = key.c_str();
         }
 
@@ -1068,7 +1056,8 @@ bool FarEditorSet::configureHrc(bool call_from_editor)
 
 void FarEditorSet::showExceptionMessage(const UnicodeString* message)
 {
-  const wchar_t* exceptionMessage[3] = {GetMsg(mName), UStr::to_stdwstr(message).c_str(), GetMsg(mDie)};
+  auto str_mes = UStr::to_stdwstr(message);
+  const wchar_t* exceptionMessage[3] = {GetMsg(mName), str_mes.c_str(), GetMsg(mDie)};
   Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], std::size(exceptionMessage), 1);
 }
 
@@ -1242,7 +1231,7 @@ void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
     return INVALID_HANDLE_VALUE;
   }
   else if (command) {
-    if (UnicodeString("status").compare(*command.get()) == 0) {
+    if (UnicodeString("status").compare(*command) == 0) {
       if (params->Count == 1) {
         return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
       }

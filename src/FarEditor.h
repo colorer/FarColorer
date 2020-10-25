@@ -60,7 +60,7 @@ class FarEditor : public LineSource
   void setFileType(FileType* ftype);
   /** Returns currently selected file type.
    */
-  FileType* getFileType() const;
+  [[nodiscard]] FileType* getFileType() const;
 
   /** Selects file type with it's extension and first lines
    */
@@ -81,7 +81,7 @@ class FarEditor : public LineSource
   void setDrawPairs(bool drawPairs);
   void setDrawSyntax(bool drawSyntax);
   void setOutlineStyle(bool oldStyle);
-  void setTrueMod(bool _TrueMod);
+  void setTrueMod(bool TrueMod_);
 
   /** Editor action: pair matching.
    */
@@ -121,17 +121,17 @@ class FarEditor : public LineSource
   void getCurrentRegionInfo(UnicodeString& region, UnicodeString& scheme);
 
   void changeCrossStyle(CROSS_STYLE newStyle);
-  int getVisibleCrossState() const;
-  int getCrossStatus() const;
-  int getCrossStyle() const;
-  bool isDrawPairs() const;
-  bool isDrawSyntax() const;
+  [[nodiscard]] int getVisibleCrossState() const;
+  [[nodiscard]] int getCrossStatus() const;
+  [[nodiscard]] int getCrossStyle() const;
+  [[nodiscard]] bool isDrawPairs() const;
+  [[nodiscard]] bool isDrawSyntax() const;
 
   Outliner* getFunctionOutliner();
   Outliner* getErrorOutliner();
 
   int getParseProgress();
-  bool isColorerEnable() const;
+  [[nodiscard]] bool isColorerEnable() const;
 
  private:
   PluginStartupInfo* info;
@@ -175,12 +175,12 @@ class FarEditor : public LineSource
   void reloadTypeSettings();
   EditorInfo enterHandler();
   FarColor convert(const StyledRegion* rd) const;
-  bool foreDefault(const FarColor& col) const;
-  bool backDefault(const FarColor& col) const;
+  [[nodiscard]] bool foreDefault(const FarColor& col) const;
+  [[nodiscard]] bool backDefault(const FarColor& col) const;
   void showOutliner(Outliner* outliner);
   void addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor& col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
   void deleteFarColor(intptr_t lno, intptr_t s) const;
-  const wchar_t* GetMsg(int msg) const;
-  static COLORREF getSuitableColor(const COLORREF base_color, const COLORREF blend_color);
+  [[nodiscard]] const wchar_t* GetMsg(int msg) const;
+  static COLORREF getSuitableColor(COLORREF base_color, COLORREF blend_color);
 };
 #endif

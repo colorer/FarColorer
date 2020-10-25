@@ -1,6 +1,8 @@
 #include "FarEditor.h"
 #include <colorer/common/UStr.h>
 
+#include <memory>
+
 const UnicodeString DDefaultScheme("default");
 const UnicodeString DShowCross("show-cross");
 const UnicodeString DNone("none");
@@ -205,9 +207,9 @@ void FarEditor::setOutlineStyle(bool _oldStyle)
   oldOutline = _oldStyle;
 }
 
-void FarEditor::setTrueMod(bool _TrueMod)
+void FarEditor::setTrueMod(bool TrueMod_)
 {
-  this->TrueMod = _TrueMod;
+  this->TrueMod = TrueMod_;
 }
 
 void FarEditor::setRegionMapper(RegionMapper* rs)
@@ -642,7 +644,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
           lend = fullBackground ? (int) (ei.LeftPos + ei.WindowSizeX) : llen;
         }
         if (lno == ei.CurLine && (l1->start <= ei.CurPos) && (ei.CurPos <= lend)) {
-          cursorRegion.reset(new LineRegion(*l1));
+          cursorRegion = std::make_unique<LineRegion>(*l1);
         }
 
         FarColor col = convert(l1->styled());
@@ -1118,7 +1120,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
         // insert text
         auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
-        UnicodeString str = UnicodeString(*item->token.get());
+        UnicodeString str = UnicodeString(*item->token);
         //!! warning , after call next line  object 'item' changes
         info->EditorControl(editor_id, ECTL_INSERTTEXT, 0, (void*) UStr::to_stdwstr(&str).c_str());
 
