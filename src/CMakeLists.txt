@@ -95,6 +95,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_RC_FLAGS -D_WIN64)
   endif ()
 
+  add_definitions(-DNOGDI)
 endif ()
 
 # set options for target

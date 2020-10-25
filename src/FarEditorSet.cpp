@@ -1,7 +1,7 @@
 #include "FarEditorSet.h"
 #include <colorer/common/UStr.h>
 #include <colorer/parsers/CatalogParser.h>
-#include <colorer/parsers/ParserFactoryImpl.h>
+#include <colorer/ParserFactory.h>
 #include <colorer/parsers/XmlTagDefs.h>
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <spdlog/sinks/basic_file_sink.h>

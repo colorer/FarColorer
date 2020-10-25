@@ -1,6 +1,6 @@
 #include "ChooseTypeMenu.h"
 #include <colorer/common/UStr.h>
-#include <colorer/parsers/FileTypeImpl.h>
+#include <colorer/FileType.h>
 #include "FarEditor.h"
 
 ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites)

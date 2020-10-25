@@ -71,6 +71,13 @@ conan_basic_setup()
 #====================================================
 set(COLORER_INTERNAL_BUILD ON CACHE BOOL "call colorer`s CMakeLists.txt")
 set(COLORER_TOOLS_BUILD OFF CACHE BOOL "build colorer tool")
+set(COLORER_USE_CONAN ON CACHE BOOL "Use Conan for dependencies")
+if(COLORER_WIN64_BUILD)
+  set(COLORER_WINx86 OFF CACHE BOOL "Set on if building for Windows x86")
+else()
+  set(COLORER_WINx86 ON CACHE BOOL "Set on if building for Windows x86")
+endif()
+
 add_subdirectory(./libs/colorer/)
 
 #====================================================
