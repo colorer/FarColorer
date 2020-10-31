@@ -191,9 +191,9 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     baseEditor.setRegionMapper(regionMap);
     baseEditor.chooseFileType(&path);
 
-    FileType* def = hrcParser->getFileType(&DDefaultScheme);
-    int maxBlockSize = def->getParamValueInt(DMaxblocksize, 300);
-    maxBlockSize = baseEditor.getFileType()->getParamValueInt(DMaxblocksize, maxBlockSize);
+    FileType* def = hrcParser->getFileType(UnicodeString(name_DefaultScheme));
+    int maxBlockSize = def->getParamValueInt(UnicodeString(param_MaxBlockSize), 300);
+    maxBlockSize = baseEditor.getFileType()->getParamValueInt(UnicodeString(param_MaxBlockSize), maxBlockSize);
     baseEditor.setMaxBlockSize(maxBlockSize);
 
     // initial event
@@ -235,8 +235,8 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
 
     size_t i;
     const UnicodeString* v;
-    v = dynamic_cast<FileType*>(type)->getParamValue(DFavorite);
-    if (v && v->compare(DTrue) == 0) {
+    v = dynamic_cast<FileType*>(type)->getParamValue(UnicodeString(param_Favorite));
+    if (v && v->compare(UnicodeString(value_True)) == 0) {
       i = Menu->AddFavorite(type);
     }
     else {
@@ -331,7 +331,7 @@ bool FarEditorSet::chooseType()
         };
 
         const UnicodeString* v;
-        v = menu.GetFileType(i)->getParamValue(DHotkey);
+        v = menu.GetFileType(i)->getParamValue(UnicodeString(param_HotKey));
         if (v && v->length()) {
           key = std::wstring(UStr::to_stdwstr(v));
           KeyAssignDlgData[2].Data = key.c_str();
@@ -344,11 +344,11 @@ bool FarEditorSet::chooseType()
         if (res != -1) {
           KeyAssignDlgData[2].Data =
               static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr))));
-          if (menu.GetFileType(i)->getParamValue(DHotkey) == nullptr) {
-            dynamic_cast<FileType*>(menu.GetFileType(i))->addParam(&DHotkey);
+          if (menu.GetFileType(i)->getParamValue(UnicodeString(param_HotKey)) == nullptr) {
+            dynamic_cast<FileType*>(menu.GetFileType(i))->addParam(UnicodeString(param_HotKey));
           }
           UnicodeString hotkey = UnicodeString(KeyAssignDlgData[2].Data);
-          menu.GetFileType(i)->setParamValue(DHotkey, &hotkey);
+          menu.GetFileType(i)->setParamValue(UnicodeString(param_HotKey), &hotkey);
           menu.RefreshItemCaption(i);
         }
         menu.SetSelected(i);
@@ -715,7 +715,7 @@ void FarEditorSet::ReloadBase()
     FarHrcSettings p(parserFactory.get());
     p.readProfile(pluginPath.get());
     p.readUserProfile();
-    defaultType = dynamic_cast<FileType*>(hrcParser->getFileType(&DDefaultScheme));
+    defaultType = dynamic_cast<FileType*>(hrcParser->getFileType(UnicodeString(name_DefaultScheme)));
 
     try {
       regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, &hrdName));

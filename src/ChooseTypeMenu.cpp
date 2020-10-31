@@ -125,10 +125,10 @@ void ChooseTypeMenu::MoveToFavorites(size_t index)
   size_t k = AddFavorite(f);
   SetSelected(k);
   HideEmptyGroup();
-  if (f->getParamValue(DFavorite) == nullptr) {
-    f->addParam(&DFavorite);
+  if (f->getParamValue(UnicodeString(param_Favorite)) == nullptr) {
+    f->addParam(UnicodeString(param_Favorite));
   }
-  f->setParamValue(DFavorite, &DTrue);
+  f->setParamValue(UnicodeString(param_Favorite), UnicodeString(value_True));
 }
 
 size_t ChooseTypeMenu::AddFavorite(const FileType* fType)
@@ -163,7 +163,7 @@ void ChooseTypeMenu::DelFromFavorites(size_t index)
   else {
     SetSelected(index);
   }
-  f->setParamValue(DFavorite, &DFalse);
+  f->setParamValue(UnicodeString(param_Favorite), UnicodeString(value_False));
 }
 
 size_t ChooseTypeMenu::AddItemInGroup(FileType* fType)
@@ -205,7 +205,7 @@ void ChooseTypeMenu::RefreshItemCaption(size_t index)
 UnicodeString* ChooseTypeMenu::GenerateName(const FileType* fType)
 {
   const UnicodeString* v;
-  v = ((FileType*) fType)->getParamValue(DHotkey);
+  v = ((FileType*) fType)->getParamValue(UnicodeString(param_HotKey));
   UnicodeString* s = new UnicodeString;
   if (v != nullptr && v->length()) {
     s->append("&").append(*v);

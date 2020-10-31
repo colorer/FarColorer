@@ -4,30 +4,10 @@
 #include <colorer/editor/BaseEditor.h>
 #include <colorer/editor/Outliner.h>
 #include <colorer/handlers/StyledRegion.h>
+#include "const_strings.h"
 #include "pcolorer.h"
 
 const intptr_t CurrentEditor = -1;
-extern const UnicodeString DDefaultScheme;
-extern const UnicodeString DShowCross;
-extern const UnicodeString DNone;
-extern const UnicodeString DVertical;
-extern const UnicodeString DHorizontal;
-extern const UnicodeString DBoth;
-extern const UnicodeString DCrossZorder;
-extern const UnicodeString DBottom;
-extern const UnicodeString DTop;
-extern const UnicodeString DYes;
-extern const UnicodeString DNo;
-extern const UnicodeString DTrue;
-extern const UnicodeString DFalse;
-extern const UnicodeString DBackparse;
-extern const UnicodeString DMaxLen;
-extern const UnicodeString DDefFore;
-extern const UnicodeString DDefBack;
-extern const UnicodeString DFullback;
-extern const UnicodeString DHotkey;
-extern const UnicodeString DFavorite;
-extern const UnicodeString DMaxblocksize;
 
 #define revertRGB(x) (BYTE)(x >> 16 & 0xff) | ((BYTE)(x >> 8 & 0xff) << 8) | ((BYTE)(x & 0xff) << 16)
 

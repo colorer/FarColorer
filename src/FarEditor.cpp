@@ -3,28 +3,6 @@
 
 #include <memory>
 
-const UnicodeString DDefaultScheme("default");
-const UnicodeString DShowCross("show-cross");
-const UnicodeString DNone("none");
-const UnicodeString DVertical("vertical");
-const UnicodeString DHorizontal("horizontal");
-const UnicodeString DBoth("both");
-const UnicodeString DCrossZorder("cross-zorder");
-const UnicodeString DBottom("bottom");
-const UnicodeString DTop("top");
-const UnicodeString DYes("yes");
-const UnicodeString DNo("no");
-const UnicodeString DTrue("true");
-const UnicodeString DFalse("false");
-const UnicodeString DBackparse("backparse");
-const UnicodeString DMaxblocksize("maxblocksize");
-const UnicodeString DMaxLen("maxlinelength");
-const UnicodeString DDefFore("default-fore");
-const UnicodeString DDefBack("default-back");
-const UnicodeString DFullback("fullback");
-const UnicodeString DHotkey("hotkey");
-const UnicodeString DFavorite("favorite");
-
 FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled) : info(info), parserFactory(pf), colorerEnable(editorEnabled)
 {
   if (colorerEnable) {
@@ -104,46 +82,46 @@ void FarEditor::reloadTypeSettings()
 {
   FileType* ftype = baseEditor->getFileType();
   HRCParser* hrcParser = parserFactory->getHRCParser();
-  FileType* def = hrcParser->getFileType(&DDefaultScheme);
+  FileType* def = hrcParser->getFileType(UnicodeString(name_DefaultScheme));
 
   if (def == nullptr) {
     throw Exception("No 'default' file type found");
   }
 
-  int backparse = def->getParamValueInt(DBackparse, 2000);
-  backparse = ftype->getParamValueInt(DBackparse, backparse);
+  int backparse = def->getParamValueInt(UnicodeString(param_Backparse), 2000);
+  backparse = ftype->getParamValueInt(UnicodeString(param_Backparse), backparse);
   baseEditor->setBackParse(backparse);
 
-  maxLineLength = def->getParamValueInt(DMaxLen, 0);
-  maxLineLength = ftype->getParamValueInt(DMaxLen, maxLineLength);
+  maxLineLength = def->getParamValueInt(UnicodeString(param_MaxLen), 0);
+  maxLineLength = ftype->getParamValueInt(UnicodeString(param_MaxLen), maxLineLength);
 
-  newfore = def->getParamValueInt(DDefFore, -1);
-  newfore = ftype->getParamValueInt(DDefFore, newfore);
+  newfore = def->getParamValueInt(UnicodeString(param_DefFore), -1);
+  newfore = ftype->getParamValueInt(UnicodeString(param_DefFore), newfore);
 
-  newback = def->getParamValueInt(DDefBack, -1);
-  newback = ftype->getParamValueInt(DDefBack, newback);
+  newback = def->getParamValueInt(UnicodeString(param_DefBack), -1);
+  newback = ftype->getParamValueInt(UnicodeString(param_DefBack), newback);
 
   const UnicodeString* value;
-  value = ftype->getParamValue(DFullback);
+  value = ftype->getParamValue(UnicodeString(param_Fullback));
   if (!value) {
-    value = def->getParamValue(DFullback);
+    value = def->getParamValue(UnicodeString(param_Fullback));
   }
-  if (value != nullptr && value->compare(DNo) == 0) {
+  if (value != nullptr && value->compare(UnicodeString(value_No)) == 0) {
     fullBackground = false;
   }
 
-  value = ftype->getParamValue(DCrossZorder);
+  value = ftype->getParamValue(UnicodeString(param_CrossZorder));
   if (!value) {
-    value = def->getParamValue(DCrossZorder);
+    value = def->getParamValue(UnicodeString(param_CrossZorder));
   }
-  if (value != nullptr && value->compare(DTop) == 0) {
+  if (value != nullptr && value->compare(UnicodeString(value_Top)) == 0) {
     crossZOrder = 1;
   }
 
   setCrossState(crossStatus, crossStyle);
 
-  int maxBlockSize = def->getParamValueInt(DMaxblocksize, 300);
-  maxBlockSize = ftype->getParamValueInt(DMaxblocksize, maxBlockSize);
+  int maxBlockSize = def->getParamValueInt(UnicodeString(param_MaxBlockSize), 300);
+  maxBlockSize = ftype->getParamValueInt(UnicodeString(param_MaxBlockSize), maxBlockSize);
   baseEditor->setMaxBlockSize(maxBlockSize);
 }
 
@@ -167,24 +145,24 @@ void FarEditor::setCrossState(int status, int style)
     case CROSS_INSCHEME:
       FileType* ftype = baseEditor->getFileType();
       HRCParser* hrcParser = parserFactory->getHRCParser();
-      FileType* def = hrcParser->getFileType(&DDefaultScheme);
+      FileType* def = hrcParser->getFileType(UnicodeString(name_DefaultScheme));
       const UnicodeString* value;
-      value = ftype->getParamValue(DShowCross);
+      value = ftype->getParamValue(UnicodeString(param_ShowCross));
       if (!value) {
-        value = def->getParamValue(DShowCross);
+        value = def->getParamValue(UnicodeString(param_ShowCross));
       }
 
       if (value) {
-        if (value->compare(DNone) == 0) {
+        if (value->compare(UnicodeString(value_None)) == 0) {
           changeCrossStyle(CSTYLE_NONE);
         }
-        else if (value->compare(DVertical) == 0) {
+        else if (value->compare(UnicodeString(value_Vertical)) == 0) {
           changeCrossStyle(CSTYLE_VERT);
         }
-        else if (value->compare(DHorizontal) == 0) {
+        else if (value->compare(UnicodeString(value_Horizontal)) == 0) {
           changeCrossStyle(CSTYLE_HOR);
         }
-        else if (value->compare(DBoth) == 0) {
+        else if (value->compare(UnicodeString(value_Both)) == 0) {
           changeCrossStyle(CSTYLE_BOTH);
         }
       }

@@ -190,19 +190,20 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
   COORD c {0, 0};
   Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_DESCRIPTION, &c);
 
-  if (DShowCross.compare(p) == 0) {
+  if (UnicodeString(param_ShowCross).compare(p) == 0) {
     setCrossValueListToCombobox();
   }
   else {
-    if (DCrossZorder.compare(p) == 0) {
+    if (UnicodeString(param_CrossZorder).compare(p) == 0) {
       setCrossPosValueListToCombobox();
     }
-    else if (DMaxLen.compare(p) == 0 || DBackparse.compare(p) == 0 || DDefFore.compare(p) == 0 || DDefBack.compare(p) == 0 ||
-             UnicodeString("firstlines").compare(p) == 0 || UnicodeString("firstlinebytes").compare(p) == 0 || DHotkey.compare(p) == 0 ||
-             DMaxblocksize.compare(p) == 0) {
+    else if (UnicodeString(param_MaxLen).compare(p) == 0 || UnicodeString(param_Backparse).compare(p) == 0 || UnicodeString(param_DefFore).compare(p) == 0 ||
+             UnicodeString(param_DefBack).compare(p) == 0 || UnicodeString("firstlines").compare(p) == 0 ||
+             UnicodeString("firstlinebytes").compare(p) == 0 || UnicodeString(param_HotKey).compare(p) == 0 ||
+             UnicodeString(param_MaxBlockSize).compare(p) == 0) {
       setCustomListValueToCombobox(UnicodeString(List.Item.Text));
     }
-    else if (DFullback.compare(p) == 0) {
+    else if (UnicodeString(param_Fullback).compare(p) == 0) {
       setYNListValueToCombobox(UnicodeString(List.Item.Text));
     }
     else {
@@ -280,8 +281,8 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
   size_t count = 3;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(UStr::to_stdwstr(&DNo).c_str());
-  fcross[1].Text = _wcsdup(UStr::to_stdwstr(&DYes).c_str());
+  fcross[0].Text = _wcsdup(value_No);
+  fcross[1].Text = _wcsdup(value_Yes);
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
@@ -290,10 +291,10 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
     ret = 2;
   }
   else {
-    if (value->compare(DNo) == 0) {
+    if (value->compare(UnicodeString(value_No)) == 0) {
       ret = 0;
     }
-    else if (value->compare(DYes) == 0) {
+    else if (value->compare(UnicodeString(value_Yes)) == 0) {
       ret = 1;
     }
   }
@@ -312,8 +313,8 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
   size_t count = 3;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(UStr::to_stdwstr(&DFalse).c_str());
-  fcross[1].Text = _wcsdup(UStr::to_stdwstr(&DTrue).c_str());
+  fcross[0].Text = _wcsdup(value_False);
+  fcross[1].Text = _wcsdup(value_True);
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
@@ -322,10 +323,10 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
     ret = 2;
   }
   else {
-    if (value->compare(DFalse) == 0) {
+    if (value->compare(UnicodeString(value_False)) == 0) {
       ret = 0;
     }
-    else if (value->compare(DTrue) == 0) {
+    else if (value->compare(UnicodeString(value_True)) == 0) {
       ret = 1;
     }
   }
@@ -360,16 +361,16 @@ void HrcSettingsForm::setCustomListValueToCombobox(const UnicodeString& param) c
 
 void HrcSettingsForm::setCrossValueListToCombobox() const
 {
-  const UnicodeString* value = current_filetype->getParamUserValue(DShowCross);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, DShowCross);
+  const UnicodeString* value = current_filetype->getParamUserValue(UnicodeString(param_ShowCross));
+  const UnicodeString* def_value = getParamDefValue(current_filetype, UnicodeString(param_ShowCross));
 
   size_t count = 5;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(UStr::to_stdwstr(&DNone).c_str());
-  fcross[1].Text = _wcsdup(UStr::to_stdwstr(&DVertical).c_str());
-  fcross[2].Text = _wcsdup(UStr::to_stdwstr(&DHorizontal).c_str());
-  fcross[3].Text = _wcsdup(UStr::to_stdwstr(&DBoth).c_str());
+  fcross[0].Text = _wcsdup(value_None);
+  fcross[1].Text = _wcsdup(value_Vertical);
+  fcross[2].Text = _wcsdup(value_Horizontal);
+  fcross[3].Text = _wcsdup(value_Both);
   fcross[4].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
@@ -378,16 +379,16 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
     ret = 4;
   }
   else {
-    if (value->compare(DNone) == 0) {
+    if (value->compare(UnicodeString(value_None)) == 0) {
       ret = 0;
     }
-    else if (value->compare(DVertical) == 0) {
+    else if (value->compare(UnicodeString(value_Vertical)) == 0) {
       ret = 1;
     }
-    else if (value->compare(DHorizontal) == 0) {
+    else if (value->compare(UnicodeString(value_Horizontal)) == 0) {
       ret = 2;
     }
-    else if (value->compare(DBoth) == 0) {
+    else if (value->compare(UnicodeString(value_Both)) == 0) {
       ret = 3;
     }
   }
@@ -400,14 +401,14 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
 
 void HrcSettingsForm::setCrossPosValueListToCombobox() const
 {
-  const UnicodeString* value = current_filetype->getParamUserValue(DCrossZorder);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, DCrossZorder);
+  const UnicodeString* value = current_filetype->getParamUserValue(UnicodeString(param_CrossZorder));
+  const UnicodeString* def_value = getParamDefValue(current_filetype, UnicodeString(param_CrossZorder));
 
   size_t count = 3;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(UStr::to_stdwstr(&DBottom).c_str());
-  fcross[1].Text = _wcsdup(UStr::to_stdwstr(&DTop).c_str());
+  fcross[0].Text = _wcsdup(value_Bottom);
+  fcross[1].Text = _wcsdup(value_Top);
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
@@ -416,10 +417,10 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
     ret = 2;
   }
   else {
-    if (value->compare(DBottom) == 0) {
+    if (value->compare(UnicodeString(value_Bottom)) == 0) {
       ret = 0;
     }
-    else if (value->compare(DTop) == 0) {
+    else if (value->compare(UnicodeString(value_Top)) == 0) {
       ret = 1;
     }
   }

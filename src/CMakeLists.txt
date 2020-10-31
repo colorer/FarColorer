@@ -18,12 +18,12 @@ set(SRC_CPP
     HrcSettingsForm.h
     SettingsControl.cpp
     SettingsControl.h
+    const_strings.h
     pcolorer.cpp
     pcolorer.h
     pcolorer3.rc
     tools.cpp tools.h
-    version.h
-    )
+    version.h)
 
 if (MSVC)
   set(SRC_DEF pcolorer3.def)
