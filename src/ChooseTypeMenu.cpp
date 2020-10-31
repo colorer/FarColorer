@@ -1,5 +1,4 @@
 #include "ChooseTypeMenu.h"
-#include <colorer/FileType.h>
 #include <colorer/common/UStr.h>
 #include "FarEditor.h"
 
@@ -49,7 +48,7 @@ size_t ChooseTypeMenu::AddItem(const wchar_t* Text, const MENUITEMFLAGS Flags, c
   }
 
   if (!(ItemCount & 255)) {
-    FarMenuItem* NewPtr = static_cast<FarMenuItem*>(realloc(Item, sizeof(FarMenuItem) * (ItemCount + 256 + 1)));
+    auto* NewPtr = static_cast<FarMenuItem*>(realloc(Item, sizeof(FarMenuItem) * (ItemCount + 256 + 1)));
     if (!NewPtr) {
       throw Exception("ChooseTypeMenu: not enough available memory.");
     }
@@ -120,7 +119,7 @@ FileType* ChooseTypeMenu::GetFileType(size_t index) const
 
 void ChooseTypeMenu::MoveToFavorites(size_t index)
 {
-  FileType* f = (FileType*) Item[index].UserData;
+  auto* f = (FileType*) Item[index].UserData;
   DeleteItem(index);
   size_t k = AddFavorite(f);
   SetSelected(k);
@@ -154,7 +153,7 @@ void ChooseTypeMenu::HideEmptyGroup() const
 
 void ChooseTypeMenu::DelFromFavorites(size_t index)
 {
-  FileType* f = (FileType*) Item[index].UserData;
+  auto* f = (FileType*) Item[index].UserData;
   DeleteItem(index);
   AddItemInGroup(f);
   if (Item[index].Flags & MIF_SEPARATOR) {
@@ -206,7 +205,7 @@ UnicodeString* ChooseTypeMenu::GenerateName(const FileType* fType)
 {
   const UnicodeString* v;
   v = ((FileType*) fType)->getParamValue(UnicodeString(param_HotKey));
-  UnicodeString* s = new UnicodeString;
+  auto* s = new UnicodeString;
   if (v != nullptr && v->length()) {
     s->append("&").append(*v);
   }

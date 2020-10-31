@@ -35,7 +35,7 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
     return nullptr;
   }
 
-  wchar_t* new_path = nullptr;
+  wchar_t* new_path;
   // we remove quotes, if they are present, focusing on the first character
   // if he quote it away and the first and last character.
   // If the first character quote, but the latter does not - well, it's not our

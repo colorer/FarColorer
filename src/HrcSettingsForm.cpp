@@ -109,7 +109,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
     }
 
     num++;
-    if (group != nullptr && !group->compare(*type->getGroup()) == 0) {
+    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
       num++;
     }
 
@@ -138,7 +138,7 @@ FarList* HrcSettingsForm::buildHrcList() const
       hrcList[i].Flags = LIF_SELECTED;
     }
 
-    if (group != nullptr && !group->compare(*type->getGroup()) == 0) {
+    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
       hrcList[i].Flags = LIF_SEPARATOR;
       i++;
     }
@@ -148,7 +148,7 @@ FarList* HrcSettingsForm::buildHrcList() const
     std::wstring groupChars;
 
     if (group != nullptr) {
-      groupChars = std::wstring(UStr::to_stdwstr(group).c_str());
+      groupChars = UStr::to_stdwstr(group);
     }
     else {
       groupChars = std::wstring(L"<no group>");
@@ -197,10 +197,10 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
     if (UnicodeString(param_CrossZorder).compare(p) == 0) {
       setCrossPosValueListToCombobox();
     }
-    else if (UnicodeString(param_MaxLen).compare(p) == 0 || UnicodeString(param_Backparse).compare(p) == 0 || UnicodeString(param_DefFore).compare(p) == 0 ||
-             UnicodeString(param_DefBack).compare(p) == 0 || UnicodeString("firstlines").compare(p) == 0 ||
-             UnicodeString("firstlinebytes").compare(p) == 0 || UnicodeString(param_HotKey).compare(p) == 0 ||
-             UnicodeString(param_MaxBlockSize).compare(p) == 0) {
+    else if (UnicodeString(param_MaxLen).compare(p) == 0 || UnicodeString(param_Backparse).compare(p) == 0 ||
+             UnicodeString(param_DefFore).compare(p) == 0 || UnicodeString(param_DefBack).compare(p) == 0 ||
+             UnicodeString(param_Firstlines).compare(p) == 0 || UnicodeString(param_Firstlinebytes).compare(p) == 0 ||
+             UnicodeString(param_HotKey).compare(p) == 0 || UnicodeString(param_MaxBlockSize).compare(p) == 0) {
       setCustomListValueToCombobox(UnicodeString(List.Item.Text));
     }
     else if (UnicodeString(param_Fullback).compare(p) == 0) {
@@ -240,7 +240,7 @@ void HrcSettingsForm::SaveChangedValueParam() const
     if (value != nullptr)
       current_filetype->setParamValue(p, nullptr);
   }
-  else if (!v.compare(*value) == 0) {  // changed
+  else if (v.compare(*value) != 0) {  // changed
     if (current_filetype->getParamValue(p) == nullptr) {
       current_filetype->addParam(&p);
     }

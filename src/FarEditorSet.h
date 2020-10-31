@@ -50,7 +50,6 @@ const int cThreadBuildPeriodDefault = 200;
 
 const UnicodeString DConsole = UnicodeString("console");
 const UnicodeString DRgb = UnicodeString("rgb");
-const UnicodeString Ddefault = UnicodeString("<default>");
 const UnicodeString DAutodetect = UnicodeString("autodetect");
 
 enum {
@@ -67,8 +66,7 @@ enum {
 
 enum ERROR_TYPE { ERR_NO_ERROR = 0, ERR_BASE_LOAD = 1, ERR_FARSETTINGS_ERROR = 2 };
 
-LONG_PTR WINAPI SettingDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
-LONG_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
+INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 struct Options
 {
@@ -134,7 +132,7 @@ class FarEditorSet
   int editorInput(const INPUT_RECORD& Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const UnicodeString* getHRDescription(const UnicodeString& name, const UnicodeString& _hrdClass) const;
+  [[nodiscard]] const UnicodeString* getHRDescription(const UnicodeString& name, const UnicodeString& _hrdClass) const;
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -142,14 +140,14 @@ class FarEditorSet
    * trying to load the database on the specified path
    */
   enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
-  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, int full, HRC_MODE hrc_mode);
 
-  bool GetPluginStatus() const
+  [[nodiscard]] bool GetPluginStatus() const
   {
     return Opt.rEnabled;
   }
 
-  bool isEnable() const
+  [[nodiscard]] bool isEnable() const
   {
     return Opt.rEnabled;
   }
@@ -170,7 +168,7 @@ class FarEditorSet
 
   void showExceptionMessage(const UnicodeString* message);
   void applyLogSetting();
-  size_t getEditorCount() const;
+  [[nodiscard]] size_t getEditorCount() const;
 
   std::unique_ptr<UnicodeString> sTempHrdName;
   std::unique_ptr<UnicodeString> sTempHrdNameTm;
@@ -238,7 +236,6 @@ class FarEditorSet
   std::unique_ptr<UnicodeString> sUserHrcPathExp;
 
   std::unique_ptr<UnicodeString> pluginPath;
-  int CurrentMenuItem = 0;
 
   unsigned int err_status = ERR_NO_ERROR;
 
