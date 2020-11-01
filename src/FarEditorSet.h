@@ -114,7 +114,7 @@ class FarEditorSet
   ~FarEditorSet();
 
   /** Shows editor actions menu */
-  void openMenu(int MenuId = -1);
+  void openMenu();
 
   void menuConfigure();
   /** Shows plugin's configuration dialog */
@@ -123,7 +123,6 @@ class FarEditorSet
   void viewFile(const UnicodeString& path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
   HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
-  void* oldMacro(FARMACROAREA area, OpenMacroInfo* params);
   void* execMacro(FARMACROAREA area, OpenMacroInfo* params);
 
   /** Dispatch editor event in the opened editor */
@@ -140,7 +139,7 @@ class FarEditorSet
    * trying to load the database on the specified path
    */
   enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
-  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, int full, HRC_MODE hrc_mode);
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const bool full, const HRC_MODE hrc_mode);
 
   [[nodiscard]] bool GetPluginStatus() const
   {
@@ -204,6 +203,26 @@ class FarEditorSet
   void dropCurrentEditor(bool clean);
 
   void setEmptyLogger();
+
+  enum MENU_ACTION {
+    NO_ACTION = -1,
+    LIST_TYPE = 0,
+    MATCH_PAIR,
+    SELECT_BLOCK,
+    SELECT_PAIR,
+    LIST_FUNCTION,
+    FIND_ERROR,
+    SELECT_REGION,
+    CURRENT_REGION_NAME,
+    LOCATE_FUNCTION,
+    NO_ACTION2,
+    UPDATE_HIGHLIGHT,
+    RELOAD_BASE,
+    CONFIGURE
+  };
+
+  MENU_ACTION showMenu(bool full_menu);
+  void execMenuAction(MENU_ACTION action, FarEditor* editor);
 
   void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
   void* macroTypes(FARMACROAREA area, OpenMacroInfo* params);

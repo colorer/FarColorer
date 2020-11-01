@@ -121,14 +121,13 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
   if (inEventProcess)
     return 0;
 
-  int result = 0;
   inEventProcess = true;
 
   if (!editorSet) {
     editorSet = new FarEditorSet();
   }
 
-  result = editorSet->editorEvent(pInfo);
+  int result = editorSet->editorEvent(pInfo);
 
   inEventProcess = false;
   return result;
@@ -139,10 +138,12 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   if (inEventProcess)
     return 0;
 
-  int result = 0;
   inEventProcess = true;
+  if (!editorSet) {
+    editorSet = new FarEditorSet();
+  }
 
-  result = editorSet->editorInput(pInfo->Rec);
+  int result = editorSet->editorInput(pInfo->Rec);
 
   inEventProcess = false;
   return result;

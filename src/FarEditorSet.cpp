@@ -31,8 +31,6 @@ FarEditorSet::~FarEditorSet()
 {
   DeleteTimerQueue(hTimerQueue);
   dropAllEditors(false);
-  regionMapper.reset();
-  parserFactory.reset();
 }
 
 VOID CALLBACK ColorThread(PVOID /*lpParam*/, BOOLEAN /*TimerOrWaitFired*/)
@@ -80,20 +78,17 @@ void FarEditorSet::menuConfigure()
   }
 }
 
-void FarEditorSet::openMenu(int MenuId)
+FarEditorSet::MENU_ACTION FarEditorSet::showMenu(bool full_menu)
 {
-  FarEditor* editor = getCurrentEditor();
+  if (full_menu) {
+    int iMenuItems[] = {mListTypes,         mMatchPair,      mSelectBlock, mSelectPair,      mListFunctions, mFindErrors, mSelectRegion,
+                        mCurrentRegionName, mLocateFunction, -1,           mUpdateHighlight, mReloadBase,    mConfigure};
+    const size_t menu_size = std::size(iMenuItems);
+    FarMenuItem menuElements[menu_size] {};
 
-  if (MenuId < 0) {
-    const size_t menu_size = 13;
-    int iMenuItems[menu_size] = {mListTypes,         mMatchPair,      mSelectBlock, mSelectPair,      mListFunctions, mFindErrors,     mSelectRegion,
-                                 mCurrentRegionName, mLocateFunction, -1,           mUpdateHighlight, mReloadBase,    mConfigureHotkey};
-    FarMenuItem menuElements[menu_size];
-    memset(menuElements, 0, sizeof(menuElements));
-    if (Opt.rEnabled) {
-      menuElements[0].Flags = MIF_SELECTED;
-    }
-    for (int i = menu_size - 1; i >= 0; i--) {
+    menuElements[0].Flags = MIF_SELECTED;
+
+    for (int i = 0; i < menu_size; i++) {
       if (iMenuItems[i] == -1) {
         menuElements[i].Flags |= MIF_SEPARATOR;
       }
@@ -102,70 +97,85 @@ void FarEditorSet::openMenu(int MenuId)
       }
     }
 
-    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr,
-                                 Opt.rEnabled && (editor && editor->isColorerEnable()) ? menuElements : menuElements + 12,
-                                 Opt.rEnabled && (editor && editor->isColorerEnable()) ? menu_size : 1);
-    if ((!Opt.rEnabled || !editor->isColorerEnable()) && menu_id == 0) {
-      MenuId = 12;
-    }
-    else {
-      MenuId = static_cast<int>(menu_id);
-    }
+    intptr_t menu_id =
+        Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr, menuElements, menu_size);
+    if (menu_id != -1)
+      return static_cast<MENU_ACTION>(menu_id);
   }
-  if (MenuId >= 0) {
-    try {
-      if (!editor && (Opt.rEnabled || MenuId != 12)) {
-        throw Exception("Can't find current editor in array.");
-      }
+  else {
+    FarMenuItem menuElements[1] {};
+    menuElements[0].Flags = MIF_SELECTED;
+    menuElements[0].Text = GetMsg(mConfigure);
+    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr, menuElements,
+                                 std::size(menuElements));
+    if (menu_id != -1)
+      return MENU_ACTION::CONFIGURE;
+  }
+  return MENU_ACTION::NO_ACTION;
+}
 
-      switch (MenuId) {
-        case 0:
-          chooseType();
-          break;
-        case 1:
-          editor->matchPair();
-          break;
-        case 2:
-          editor->selectBlock();
-          break;
-        case 3:
-          editor->selectPair();
-          break;
-        case 4:
-          editor->listFunctions();
-          break;
-        case 5:
-          editor->listErrors();
-          break;
-        case 6:
-          editor->selectRegion();
-          break;
-        case 7:
-          editor->getNameCurrentScheme();
-          break;
-        case 8:
-          editor->locateFunction();
-          break;
-        case 10:
-          editor->updateHighlighting();
-          break;
-        case 11:
-          ReloadBase();
-          break;
-        case 12:
-          menuConfigure();
-          break;
-        default:
-          break;
-      }
-    } catch (Exception& e) {
-      spdlog::error("{0}", e.what());
-      UnicodeString msg("openMenu: ");
-      msg.append(e.what());
-      showExceptionMessage(&msg);
-      disableColorer();
-    }
+void FarEditorSet::execMenuAction(MENU_ACTION action, FarEditor* editor)
+{
+  if (!editor && action != 12) {
+    throw Exception("Can't find current editor in array.");
   }
+  try {
+    switch (action) {
+      case 0:
+        chooseType();
+        break;
+      case 1:
+        editor->matchPair();
+        break;
+      case 2:
+        editor->selectBlock();
+        break;
+      case 3:
+        editor->selectPair();
+        break;
+      case 4:
+        editor->listFunctions();
+        break;
+      case 5:
+        editor->listErrors();
+        break;
+      case 6:
+        editor->selectRegion();
+        break;
+      case 7:
+        editor->getNameCurrentScheme();
+        break;
+      case 8:
+        editor->locateFunction();
+        break;
+      case 10:
+        editor->updateHighlighting();
+        break;
+      case 11:
+        ReloadBase();
+        break;
+      case 12:
+        menuConfigure();
+        break;
+      default:
+        break;
+    }
+  } catch (Exception& e) {
+    spdlog::error("{0}", e.what());
+    UnicodeString msg("openMenu: ");
+    msg.append(e.what());
+    showExceptionMessage(&msg);
+    disableColorer();
+  }
+}
+
+void FarEditorSet::openMenu()
+{
+  FarEditor* editor = getCurrentEditor();
+
+  bool enabled = Opt.rEnabled && (editor && editor->isColorerEnable());
+  auto menu_id = showMenu(enabled);
+  execMenuAction(menu_id, editor);
 }
 
 void FarEditorSet::viewFile(const UnicodeString& path)
@@ -590,7 +600,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
   return 0;
 }
 
-bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full,
+bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const bool full,
                                 const HRC_MODE hrc_mode)
 {
   bool res = true;
@@ -726,7 +736,6 @@ void FarEditorSet::ReloadBase()
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
     CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 200, Opt.ThreadBuildPeriod, 0);
-
   } catch (SettingsControlException& e) {
     spdlog::error("{0}", e.what());
     auto error_mes = UnicodeString(e.what());
@@ -1015,7 +1024,7 @@ void FarEditorSet::LoadUserHrd(const UnicodeString* filename, ParserFactory* pf)
     for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
       if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
         auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
-        if (xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
+        if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
           auto hrd = CatalogParser::parseHRDSetsChild(subelem);
           if (hrd)
             pf->addHrd(std::move(hrd));
@@ -1096,10 +1105,7 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
 {
   auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
   auto* mi = (OpenMacroInfo*) oInfo->Data;
-  if (mi->Count == 1)
-    return oldMacro(area, mi);
-  else
-    return execMacro(area, mi);
+  return execMacro(area, mi);
 }
 
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
@@ -1205,63 +1211,6 @@ void FarEditorSet::enableColorerInEditor()
 
 #pragma region macro_functions
 
-// TODO remove in 01/01/2021
-void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
-{
-  int MenuCode = -1;
-  std::unique_ptr<UnicodeString> command = nullptr;
-  if (params->Count) {
-    switch (params->Values[0].Type) {
-      case FMVT_INTEGER:
-        MenuCode = (int) params->Values[0].Integer;
-        break;
-      case FMVT_DOUBLE:
-        MenuCode = (int) params->Values[0].Double;
-        break;
-      case FMVT_STRING:
-        command = std::make_unique<UnicodeString>(UnicodeString(params->Values[0].String));
-        break;
-      default:
-        MenuCode = -1;
-    }
-  }
-
-  if (MenuCode >= 0 && area == MACROAREA_EDITOR) {
-    openMenu(MenuCode - 1);
-    return INVALID_HANDLE_VALUE;
-  }
-  else if (command) {
-    if (UnicodeString("status").compare(*command) == 0) {
-      if (params->Count == 1) {
-        return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-      }
-      else {
-        bool new_status = false;
-        switch (params->Values[1].Type) {
-          case FMVT_BOOLEAN:
-            new_status = static_cast<bool>(params->Values[1].Boolean);
-            break;
-          case FMVT_INTEGER:
-            new_status = static_cast<bool>(params->Values[1].Integer);
-            break;
-          default:
-            new_status = true;
-        }
-
-        if (new_status) {
-          enableColorer();
-          return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        }
-        else {
-          disableColorer();
-          return !isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        }
-      }
-    }
-  }
-  return nullptr;
-}
-
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
   (void) area;
@@ -1273,7 +1222,7 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
     return configure() ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (UnicodeString("Menu").caseCompare(command, 0) == 0) {
-    openMenu(12);
+    openMenu();
     return INVALID_HANDLE_VALUE;
   }
   if (UnicodeString("Log").caseCompare(command, 0) == 0) {

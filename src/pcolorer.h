@@ -66,7 +66,7 @@ enum {
   mLocateFunction,
   mUpdateHighlight,
   mReloadBase,
-  mConfigureHotkey,
+  mConfigure,
   mTotalTypes,
   mSelectSyntax,
   mOutliner,
