@@ -240,7 +240,7 @@ void HrcSettingsForm::SaveChangedValueParam() const
     if (value != nullptr)
       current_filetype->setParamValue(p, nullptr);
   }
-  else if (v.compare(*value) != 0) {  // changed
+  else if (value == nullptr || v.compare(*value) != 0) {  // changed
     if (current_filetype->getParamValue(p) == nullptr) {
       current_filetype->addParam(&p);
     }

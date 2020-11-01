@@ -12,7 +12,7 @@ class HrcSettingsForm
   bool Show();
 
   bool showForm();
-  FarList* buildHrcList() const;
+  [[nodiscard]] FarList* buildHrcList() const;
   void OnSaveHrcParams() const;
   void OnChangeParam(intptr_t idx);
   void SaveChangedValueParam() const;
@@ -26,7 +26,7 @@ class HrcSettingsForm
   void ChangeParamValueListType(bool dropdownlist) const;
   FarList* buildParamsList(FileType* type) const;
   const UnicodeString* getParamDefValue(FileType* type, const UnicodeString& param) const;
-  size_t getCountFileTypeAndGroup() const;
+  [[nodiscard]] size_t getCountFileTypeAndGroup() const;
 
   static FarList* buildFarList(FarListItem* list, size_t count);
   static void removeFarList(FarList* list);
