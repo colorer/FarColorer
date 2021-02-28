@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "colorer",
+  "version": "1.0.0",
+  "dependencies": [
+    {
+      "name": "xerces-c",
+      "version>=": "3.2.3-1"
+    },
+    {
+      "name": "spdlog",
+      "version>=": "1.8.2"
+    },
+    "minizip",
+    {
+      "name": "icu",
+      "version>=": "68.2#1",
+      "default-features": false,
+      "features": [
+        "data-archive"
+      ]
+    }
+  ],
+  "builtin-baseline": "56136ffae69a4a7f8b9cd5452713925417d47367"
+}

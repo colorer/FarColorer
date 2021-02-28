@@ -187,7 +187,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
 
     // Creates store of text lines
     TextLinesStore textLinesStore;
-    textLinesStore.loadFile(&path, nullptr, true);
+    textLinesStore.loadFile(&path, true);
     // Base editor to make primary parse
     BaseEditor baseEditor(parserFactory.get(), &textLinesStore);
     RegionMapper* regionMap;
@@ -217,7 +217,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     }
 
     // File viewing in console window
-    TextConsoleViewer viewer(&baseEditor, &textLinesStore, background, -1);
+    TextConsoleViewer viewer(&baseEditor, &textLinesStore, background);
     viewer.view();
     delete regionMap;
   } catch (Exception& e) {

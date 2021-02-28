@@ -34,30 +34,30 @@ endif ()
 #====================================================
 # support win2k, winxp
 #====================================================
-if (MSVC)
-  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
-  set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
-  set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
-  set(MASM_DEFINES "")
-  if (${CMAKE_CL_64} STREQUAL "0")
-    find_program(MASM_EXECUTABLE ml)
-  else ()
-    find_program(MASM_EXECUTABLE ml64)
-    set(MASM_DEFINES "/DX64")
-  endif ()
-
-  add_custom_command(
-      OUTPUT ${ASM_OBJECT}
-      COMMAND ${MASM_EXECUTABLE}
-      ARGS /c ${MASM_DEFINES} /Fo ${ASM_OBJECT} ${ASM_SOURCE}
-      DEPENDS ${ASM_SOURCE}
-  )
-
-  set(SRC_CPP ${SRC_CPP}
-      ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix_impl.cpp
-      ${ASM_OBJECTS}
-      )
-endif ()
+#if (MSVC)
+#  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
+#  set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
+#  set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
+#  set(MASM_DEFINES "")
+#  if (${CMAKE_CL_64} STREQUAL "0")
+#    find_program(MASM_EXECUTABLE ml)
+#  else ()
+#    find_program(MASM_EXECUTABLE ml64)
+#    set(MASM_DEFINES "/DX64")
+#  endif ()
+#
+#  add_custom_command(
+#      OUTPUT ${ASM_OBJECT}
+#      COMMAND ${MASM_EXECUTABLE}
+#      ARGS /c ${MASM_DEFINES} /Fo ${ASM_OBJECT} ${ASM_SOURCE}
+#      DEPENDS ${ASM_SOURCE}
+#  )
+#
+#  set(SRC_CPP ${SRC_CPP}
+#      ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix_impl.cpp
+#      ${ASM_OBJECTS}
+#      )
+#endif ()
 
 #====================================================
 # common flags
@@ -111,7 +111,7 @@ set(SRC_FILES ${SRC_CPP} ${SRC_DEF})
 add_library(colorer SHARED ${SRC_FILES})
 target_link_libraries(colorer colorer_lib)
 target_include_directories(colorer
-    PUBLIC ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
+    PRIVATE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
     )
 
 set_target_properties(colorer PROPERTIES
