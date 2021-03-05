@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.15)
-project(farcolorer CXX)
-
 #====================================================
 # farcolorer
 #====================================================
@@ -35,7 +32,7 @@ endif ()
 # support win2k, winxp
 #====================================================
 #if (MSVC)
-#  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
+#  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../external/far3sdk/vc_crt_fix.asm)
 #  set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
 #  set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
 #  set(MASM_DEFINES "")
@@ -54,7 +51,7 @@ endif ()
 #  )
 #
 #  set(SRC_CPP ${SRC_CPP}
-#      ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix_impl.cpp
+#      ${PROJECT_SOURCE_DIR}/../external/far3sdk/vc_crt_fix_impl.cpp
 #      ${ASM_OBJECTS}
 #      )
 #endif ()
@@ -109,9 +106,9 @@ set(MAIN_FLAGS_C_RELEASE ${FLAGS_C_RELEASE} ${FLAGS_C_DEFAULT})
 
 set(SRC_FILES ${SRC_CPP} ${SRC_DEF})
 add_library(colorer SHARED ${SRC_FILES})
-target_link_libraries(colorer colorer_lib)
+target_link_libraries(colorer colorer::colorer_lib)
 target_include_directories(colorer
-    PRIVATE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
+    PRIVATE ${PROJECT_SOURCE_DIR}/external/far3sdk/
     )
 
 set_target_properties(colorer PROPERTIES
