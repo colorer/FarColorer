@@ -9,7 +9,7 @@
 
 const intptr_t CurrentEditor = -1;
 
-#define revertRGB(x) (BYTE)(x >> 16 & 0xff) | ((BYTE)(x >> 8 & 0xff) << 8) | ((BYTE)(x & 0xff) << 16)
+#define revertRGB(x) (BYTE)(x >> 16 & 0xff) | ((BYTE) (x >> 8 & 0xff) << 8) | ((BYTE) (x & 0xff) << 16)
 
 /** FAR Editor internal plugin structures.
     Implements text parsing and different

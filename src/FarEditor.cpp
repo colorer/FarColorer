@@ -1,8 +1,6 @@
 #include "FarEditor.h"
 #include <colorer/common/UStr.h>
 
-#include <memory>
-
 FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled) : info(info), parserFactory(pf), colorerEnable(editorEnabled)
 {
   if (colorerEnable) {
@@ -37,7 +35,7 @@ FarEditor::~FarEditor()
 
 void FarEditor::endJob(size_t lno)
 {
-  (void)lno;
+  (void) lno;
   ret_str.reset();
 }
 
@@ -434,7 +432,7 @@ void FarEditor::locateFunction()
       OutlineItem* item = structOutliner->getItem(idx);
 
       if (item->token->toUpper().indexOf(funcname.toUpper()) != -1) {
-        if (item->lno == (size_t)ei.CurLine) {
+        if (item->lno == (size_t) ei.CurLine) {
           item_last = item;
         }
         else {
@@ -847,7 +845,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         auto treeLevel = Outliner::manageTree(treeStack, item->level);
 
         if (maxLevel < treeLevel) {
-          maxLevel = (int)treeLevel;
+          maxLevel = (int) treeLevel;
         }
 
         if (treeLevel > visibleLevel) {
