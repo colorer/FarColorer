@@ -21,7 +21,7 @@ FarEditorSet::FarEditorSet()
   UnicodeString module(Info.ModuleName);
   auto pos = module.lastIndexOf('\\');
   pos = module.lastIndexOf('\\', 0, pos);
-  pluginPath = std::make_unique<UnicodeString>(UnicodeString(module, 0, pos));
+  pluginPath = std::make_unique<UnicodeString>(module, 0, pos);
 
   hTimerQueue = CreateTimerQueue();
   ReloadBase();
@@ -209,7 +209,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     // initial event
     baseEditor.lineCountEvent((int) textLinesStore.getLineCount());
     // computing background color
-    int background = 0x1F;
+    unsigned int background = 0x1F;
     const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(UnicodeString("def:Text")));
 
     if (rd != nullptr && rd->isForeSet && rd->isBackSet) {
@@ -217,7 +217,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     }
 
     // File viewing in console window
-    TextConsoleViewer viewer(&baseEditor, &textLinesStore, background);
+    TextConsoleViewer viewer(&baseEditor, &textLinesStore, (unsigned short) background);
     viewer.view();
     delete regionMap;
   } catch (Exception& e) {
@@ -1307,7 +1307,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
 
     auto* array = new FarMacroValue[type_count];
 
-    for (auto idx = 0; idx < type_count; idx++) {
+    for (size_t idx = 0; idx < type_count; idx++) {
       type = hrcParser->enumerateFileTypes(idx);
       if (type == nullptr) {
         break;
@@ -1406,7 +1406,7 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
 
     auto* array_string = new FarMacroValue[items_num];
     auto* array_numline = new FarMacroValue[items_num];
-    for (auto idx = 0; idx < items_num; idx++) {
+    for (size_t idx = 0; idx < items_num; idx++) {
       OutlineItem* item = outliner->getItem(idx);
       UnicodeString* line = editor->getLine(item->lno);
 
@@ -1451,7 +1451,7 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
 
     auto* array_string = new FarMacroValue[items_num];
     auto* array_numline = new FarMacroValue[items_num];
-    for (auto idx = 0; idx < items_num; idx++) {
+    for (size_t idx = 0; idx < items_num; idx++) {
       OutlineItem* item = outliner->getItem(idx);
       UnicodeString* line = editor->getLine(item->lno);
 

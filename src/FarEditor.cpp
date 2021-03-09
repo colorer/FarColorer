@@ -56,7 +56,7 @@ UnicodeString* FarEditor::getLine(size_t lno)
     len = 0;
   }
 
-  ret_str = std::make_unique<UnicodeString>(UnicodeString(es.StringText, 0, (int) len));
+  ret_str = std::make_unique<UnicodeString>(es.StringText, 0, (int) len);
   return ret_str.get();
 }
 
@@ -818,7 +818,7 @@ void FarEditor::showOutliner(Outliner* outliner)
   wchar_t filter[FILTER_SIZE + 1];
   int flen = 0;
   *filter = 0;
-  int maxLevel = -1;
+  size_t maxLevel = 0;
   bool stopMenu = false;
   size_t items_num = outliner->itemCount();
 
@@ -830,7 +830,7 @@ void FarEditor::showOutliner(Outliner* outliner)
   EditorInfo ei_curr = enterHandler();
 
   while (!stopMenu) {
-    int i;
+    size_t i;
     memset(menu, 0, sizeof(FarMenuItem) * items_num);
     // items in FAR's menu;
     int menu_size = 0;
@@ -857,7 +857,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         if (!oldOutline) {
           int si = _snwprintf(menuItem, 255, L"%4zd ", item->lno + 1);
 
-          for (int lIdx = 0; lIdx < treeLevel; lIdx++) {
+          for (size_t lIdx = 0; lIdx < treeLevel; lIdx++) {
             menuItem[si++] = ' ';
             menuItem[si++] = ' ';
           }
@@ -1148,7 +1148,7 @@ void FarEditor::showOutliner(Outliner* outliner)
     }
   }
 
-  for (int i = 0; i < items_num; i++) {
+  for (size_t i = 0; i < items_num; i++) {
     delete[] menu[i].Text;
   }
 

@@ -147,7 +147,7 @@ class FarEditor : public LineSource
   const StyledRegion* rdBackground = nullptr;
   std::unique_ptr<LineRegion> cursorRegion;
 
-  int visibleLevel = 100;
+  size_t visibleLevel = 100;
   std::unique_ptr<Outliner> structOutliner;
   std::unique_ptr<Outliner> errorOutliner;
   intptr_t editor_id = -1;
