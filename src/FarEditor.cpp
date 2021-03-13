@@ -841,7 +841,7 @@ void FarEditor::showOutliner(Outliner* outliner)
     for (i = 0; i < items_num; i++) {
       OutlineItem* item = outliner->getItem(i);
 
-      if (item->token->toUpper().indexOf(UnicodeString(filter).toUpper()) != -1) {
+      if (filter[0] == '\0' || item->token->toUpper().indexOf(UnicodeString(filter).toUpper()) != -1) {
         auto treeLevel = Outliner::manageTree(treeStack, item->level);
 
         if (maxLevel < treeLevel) {

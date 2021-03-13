@@ -1,4 +1,6 @@
 #include "tools.h"
+#include <colorer/common/UStr.h>
+#include "FarEditorSet.h"
 
 wchar_t* rtrim(wchar_t* str)
 {
@@ -153,4 +155,10 @@ FarMacroCall* macroReturnValues(FarMacroValue* values, int count)
   out_result->CallbackData = out_result;
 
   return out_result;
+}
+
+wchar_t* Upper(wchar_t* Ch)
+{
+  CharUpperBuffW(Ch, 1);
+  return Ch;
 }

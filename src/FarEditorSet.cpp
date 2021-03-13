@@ -258,12 +258,6 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
   }
 }
 
-inline wchar_t* __cdecl Upper(wchar_t* Ch)
-{
-  CharUpperBuffW(Ch, 1);
-  return Ch;
-}
-
 INT_PTR WINAPI KeyDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
   wchar_t wkey[2];
@@ -690,8 +684,9 @@ void FarEditorSet::ReloadBase()
 {
   ignore_event = true;
   try {
-    if (hTimer)
+    if (hTimer) {
       DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
+    }
     hTimer = nullptr;
     ReadSettings();
     applyLogSetting();
@@ -1127,6 +1122,7 @@ void FarEditorSet::setEmptyLogger()
 {
   spdlog::drop_all();
   log = spdlog::null_logger_mt("main");
+  log->set_level(spdlog::level::off);
   spdlog::set_default_logger(log);
 }
 

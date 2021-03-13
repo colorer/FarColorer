@@ -84,7 +84,6 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
       break;
     case OPEN_FROMMACRO:
       return editorSet->openFromMacro(oInfo);
-      break;
     case OPEN_LEFTDISKMENU:
     case OPEN_PLUGINSMENU:
     case OPEN_FINDLIST:
@@ -118,8 +117,9 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* /*cInfo*/)
 */
 intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
 {
-  if (inEventProcess)
+  if (inEventProcess) {
     return 0;
+  }
 
   inEventProcess = true;
 
@@ -135,8 +135,9 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
 
 intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
 {
-  if (inEventProcess)
+  if (inEventProcess) {
     return 0;
+  }
 
   inEventProcess = true;
   if (!editorSet) {
@@ -151,8 +152,9 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
 
 intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
 {
-  if (pInfo->Event != SE_COMMONSYNCHRO)
+  if (pInfo->Event != SE_COMMONSYNCHRO) {
     return 0;
+  }
   try {
     if (editorSet && editorSet->getEditorCount() > 0) {
       INPUT_RECORD ir;

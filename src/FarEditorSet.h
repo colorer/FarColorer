@@ -139,7 +139,7 @@ class FarEditorSet
    * trying to load the database on the specified path
    */
   enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
-  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const bool full, const HRC_MODE hrc_mode);
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, bool full, HRC_MODE hrc_mode);
 
   [[nodiscard]] bool GetPluginStatus() const
   {
