@@ -67,7 +67,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # xerces-c vs msxml
   add_definitions(-DNOGDI)
   # old functions
-  add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+  add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
 
 # set options for target

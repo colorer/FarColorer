@@ -1587,7 +1587,7 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
         for (auto& type_param : type_params) {
           if (defaultType->getParamValue(type_param) == nullptr) {
             array_param[count].Type = FMVT_STRING;
-            array_param[count].String = wcsdup(UStr::to_stdwstr(&type_param).c_str());
+            array_param[count].String = _wcsdup(UStr::to_stdwstr(&type_param).c_str());
 
             auto* value = file_type->getParamValue(type_param);
             if (value) {
@@ -1604,7 +1604,7 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
         std::vector<UnicodeString> default_params = defaultType->enumParams();
         for (auto& default_param : default_params) {
           array_param[count].Type = FMVT_STRING;
-          array_param[count].String = wcsdup(UStr::to_stdwstr(&default_param).c_str());
+          array_param[count].String = _wcsdup(UStr::to_stdwstr(&default_param).c_str());
 
           auto* value = file_type->getParamValue(default_param);
           if (value) {
