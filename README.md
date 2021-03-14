@@ -1,7 +1,8 @@
 FarColorer
 ==========
-  FarColorer is a syntax highlighting plugin for FAR Manager.
-  
+FarColorer is a syntax highlighting plugin for FAR Manager.
+[![build](https://github.com/colorer/FarColorer/workflows/build/badge.svg)](https://github.com/colorer/FarColorer/actions?query=workflow%3A%22build%22)
+
 Downloads
 =========
 To get the latest Colorer, install the latest [FarManager](http://www.farmanager.com/download.php?l=en).
@@ -19,25 +20,28 @@ How to build from source
 ==========
 To build plugin from source, you will need:
 
-  * Visual Studio 2017 or higher
+  * Visual Studio 2019 or higher
   * git
   * cmake 3.15 or higher
 
 Download the source from git repository:
 
-    cd src
     git clone https://github.com/colorer/FarColorer.git --recursive
 
-or update git repository:
+Setup vcpkg
 
-    git pull
-    git submodule update --recursive
-    
-From src/FarColorer/scripts call
-    
-    nmake_build.cmd
+    cd colorer-library
+    ./external/vcpkg/bootstrap-vcpkg.bat
 
-The built binaries will be in build/FarColorer/x86 or x64
+Build colorer and dependency, if they are not in the local cache:
+
+    mkdir build
+    cd build
+    cmake -S .. -G "Visual Studio 16 2019" -DCMAKE_TOOLCHAIN_FILE=../external/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_OVERLAY_PORTS=../external/vcpkg-ports -DVCPKG_FEATURE_FLAGS=versions -DCOLORER_BUILD_ARCH=x64
+    colorer.sln
+
+For x86 platform use `-DVCPKG_TARGET_TRIPLET=x86-windows-static` and `-DCOLORER_BUILD_ARCH=x86`.
+Once builded, the dependencies will be cached in the local cache.
 
 Links
 ========================
