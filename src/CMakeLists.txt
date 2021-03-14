@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.15)
-project(farcolorer CXX)
-
 #====================================================
 # farcolorer
 #====================================================
@@ -18,52 +15,24 @@ set(SRC_CPP
     HrcSettingsForm.h
     SettingsControl.cpp
     SettingsControl.h
+    const_strings.h
     pcolorer.cpp
     pcolorer.h
     pcolorer3.rc
     tools.cpp tools.h
-    version.h
-    )
+    version.h)
 
-if (MSVC)
+if(MSVC)
   set(SRC_DEF pcolorer3.def)
-else ()
+else()
   set(SRC_DEF pcolorer3.gcc.def)
-endif ()
-
-#====================================================
-# support win2k, winxp
-#====================================================
-if (MSVC)
-  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
-  set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
-  set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
-  set(MASM_DEFINES "")
-  if (${CMAKE_CL_64} STREQUAL "0")
-    find_program(MASM_EXECUTABLE ml)
-  else ()
-    find_program(MASM_EXECUTABLE ml64)
-    set(MASM_DEFINES "/DX64")
-  endif ()
-
-  add_custom_command(
-      OUTPUT ${ASM_OBJECT}
-      COMMAND ${MASM_EXECUTABLE}
-      ARGS /c ${MASM_DEFINES} /Fo ${ASM_OBJECT} ${ASM_SOURCE}
-      DEPENDS ${ASM_SOURCE}
-  )
-
-  set(SRC_CPP ${SRC_CPP}
-      ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix_impl.cpp
-      ${ASM_OBJECTS}
-      )
-endif ()
+endif()
 
 #====================================================
 # common flags
 #====================================================
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   # defaut for gcc
   # CMAKE_CXX_FLAGS=
   # CMAKE_CXX_FLAGS_DEBUG= -g
@@ -74,7 +43,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   set(CMAKE_LINK_FLAGS "-Xlinker --Map -Xlinker libcolorer.map")
   set(FLAGS_RELEASE)
   set(FLAGS_DEBUG)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # defaut for msvc
   # CMAKE_CXX_FLAGS= /DWIN32 /D_WINDOWS /GR /EHsc
   # CMAKE_CXX_FLAGS_DEBUG= /MDd /Zi /Ob0 /Od /RTC1
@@ -87,45 +56,44 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(LINK_FLAGS "/MAP /MANIFEST:NO")
 
   # build with debug info in pdb
-  if (CMAKE_BUILD_TYPE MATCHES "Release")
+  if(CMAKE_BUILD_TYPE MATCHES "Release")
     set(LINK_FLAGS "${LINK_FLAGS} /incremental:no /OPT:REF /OPT:ICF /debug /ltcg")
-  endif ()
+  endif()
 
-  if (COLORER_WIN64_BUILD)
+  if("${COLORER_BUILD_ARCH}" STREQUAL "x64")
     set(CMAKE_RC_FLAGS -D_WIN64)
-  endif ()
+  endif()
 
-endif ()
+  # xerces-c vs msxml
+  add_definitions(-DNOGDI)
+  # old functions
+  add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+endif()
 
 # set options for target
 set(MAIN_FLAGS_CXX_DEBUG ${FLAGS_CXX_DEBUG} ${FLAGS_CXX_DEFAULT})
 set(MAIN_FLAGS_CXX_RELEASE ${FLAGS_CXX_RELEASE} ${FLAGS_CXX_DEFAULT})
-set(MAIN_FLAGS_C_DEBUG ${FLAGS_C_DEBUG} ${FLAGS_C_DEFAULT})
-set(MAIN_FLAGS_C_RELEASE ${FLAGS_C_RELEASE} ${FLAGS_C_DEFAULT})
 #====================================================
 # build
 #====================================================
 
 set(SRC_FILES ${SRC_CPP} ${SRC_DEF})
 add_library(colorer SHARED ${SRC_FILES})
-target_link_libraries(colorer colorer_lib)
+target_link_libraries(colorer colorer::colorer_lib)
 target_include_directories(colorer
-    PUBLIC ${PROJECT_SOURCE_DIR}/../libs/far3sdk/
+    PRIVATE ${PROJECT_SOURCE_DIR}/external/far3sdk/
     )
 
-if (${CMAKE_BUILD_TYPE} MATCHES Debug)
-  target_compile_options(colorer
-      PUBLIC $<$<COMPILE_LANGUAGE:C>:${MAIN_FLAGS_C_DEBUG}>
-      PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_DEBUG}>
-      )
-else ()
-  target_compile_options(colorer
-      PUBLIC $<$<COMPILE_LANGUAGE:C>:${MAIN_FLAGS_C_RELEASE}>
-      PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_RELEASE}>
-      )
-endif ()
-
-set_target_properties(colorer
-    PROPERTIES
-    LINK_FLAGS "${LINK_FLAGS}"
+set_target_properties(colorer PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
     )
+
+if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+  target_compile_options(colorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_DEBUG}>)
+else()
+  target_compile_options(colorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_RELEASE}>)
+endif()
+
+set_target_properties(colorer PROPERTIES LINK_FLAGS "${LINK_FLAGS}")

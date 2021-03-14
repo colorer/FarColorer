@@ -1,5 +1,5 @@
-#define VER_FILEVERSION 1, 3, 22, 0
-#define VER_FILEVERSION_STR "1.3.22.0"
+#define VER_FILEVERSION 1, 4, 0, 0
+#define VER_FILEVERSION_STR "1.4.0.0"
 
 #ifdef _WIN64
 #define CONF " (x64)"

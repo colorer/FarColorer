@@ -1,8 +1,8 @@
 #ifndef _FAREDITORSET_H_
 #define _FAREDITORSET_H_
 
-#include <colorer/common/Colorer.h>
 #include <colorer/handlers/LineRegionsSupport.h>
+#include <colorer/parsers/HRDNode.h>
 #include <colorer/viewer/TextConsoleViewer.h>
 #include <spdlog/logger.h>
 #include "ChooseTypeMenu.h"
@@ -48,10 +48,9 @@ const int cCrossDrawDefault = 2;
 const int cCrossStyleDefault = 3;
 const int cThreadBuildPeriodDefault = 200;
 
-const CString DConsole = CString("console");
-const CString DRgb = CString("rgb");
-const CString Ddefault = CString("<default>");
-const CString DAutodetect = CString("autodetect");
+const UnicodeString DConsole = UnicodeString("console");
+const UnicodeString DRgb = UnicodeString("rgb");
+const UnicodeString DAutodetect = UnicodeString("autodetect");
 
 enum {
   IDX_CH_BOX,
@@ -67,8 +66,7 @@ enum {
 
 enum ERROR_TYPE { ERR_NO_ERROR = 0, ERR_BASE_LOAD = 1, ERR_FARSETTINGS_ERROR = 2 };
 
-LONG_PTR WINAPI SettingDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
-LONG_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2);
+INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 struct Options
 {
@@ -116,16 +114,15 @@ class FarEditorSet
   ~FarEditorSet();
 
   /** Shows editor actions menu */
-  void openMenu(int MenuId = -1);
+  void openMenu();
 
   void menuConfigure();
   /** Shows plugin's configuration dialog */
   bool configure();
   /** Views current file with internal viewer */
-  void viewFile(const String& path);
+  void viewFile(const UnicodeString& path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
   HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
-  void* oldMacro(FARMACROAREA area, OpenMacroInfo* params);
   void* execMacro(FARMACROAREA area, OpenMacroInfo* params);
 
   /** Dispatch editor event in the opened editor */
@@ -134,7 +131,7 @@ class FarEditorSet
   int editorInput(const INPUT_RECORD& Rec);
 
   /** Get the description of HRD, or parameter name if description=null */
-  const String* getHRDescription(const String& name, const CString& _hrdClass) const;
+  [[nodiscard]] const UnicodeString* getHRDescription(const UnicodeString& name, const UnicodeString& _hrdClass) const;
 
   /** Reads all registry settings into variables */
   void ReadSettings();
@@ -142,14 +139,14 @@ class FarEditorSet
    * trying to load the database on the specified path
    */
   enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
-  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, bool full, HRC_MODE hrc_mode);
 
-  bool GetPluginStatus() const
+  [[nodiscard]] bool GetPluginStatus() const
   {
     return Opt.rEnabled;
   }
 
-  bool isEnable() const
+  [[nodiscard]] bool isEnable() const
   {
     return Opt.rEnabled;
   }
@@ -159,8 +156,8 @@ class FarEditorSet
   void enableColorer();
 
   bool SetBgEditor() const;
-  void LoadUserHrd(const String* filename, ParserFactory* pf);
-  void LoadUserHrc(const String* filename, ParserFactory* pf);
+  void LoadUserHrd(const UnicodeString* filename, ParserFactory* pf);
+  void LoadUserHrc(const UnicodeString* filename, ParserFactory* pf);
 
   /** Shows hrc configuration dialog */
   bool configureHrc(bool call_from_editor);
@@ -168,14 +165,14 @@ class FarEditorSet
   /** Show logging configuration dialog*/
   bool configureLogging();
 
-  void showExceptionMessage(const wchar_t* message);
+  void showExceptionMessage(const UnicodeString* message);
   void applyLogSetting();
-  size_t getEditorCount() const;
+  [[nodiscard]] size_t getEditorCount() const;
 
-  std::unique_ptr<SString> sTempHrdName;
-  std::unique_ptr<SString> sTempHrdNameTm;
+  std::unique_ptr<UnicodeString> sTempHrdName;
+  std::unique_ptr<UnicodeString> sTempHrdNameTm;
 
-  SettingWindow settingWindow;
+  SettingWindow settingWindow {0};
 
  private:
   /** add current active editor and return him. */
@@ -207,6 +204,26 @@ class FarEditorSet
 
   void setEmptyLogger();
 
+  enum MENU_ACTION {
+    NO_ACTION = -1,
+    LIST_TYPE = 0,
+    MATCH_PAIR,
+    SELECT_BLOCK,
+    SELECT_PAIR,
+    LIST_FUNCTION,
+    FIND_ERROR,
+    SELECT_REGION,
+    CURRENT_REGION_NAME,
+    LOCATE_FUNCTION,
+    NO_ACTION2,
+    UPDATE_HIGHLIGHT,
+    RELOAD_BASE,
+    CONFIGURE
+  };
+
+  MENU_ACTION showMenu(bool full_menu);
+  void execMenuAction(MENU_ACTION action, FarEditor* editor);
+
   void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
   void* macroTypes(FARMACROAREA area, OpenMacroInfo* params);
   void* macroBrackets(FARMACROAREA area, OpenMacroInfo* params);
@@ -219,34 +236,32 @@ class FarEditorSet
   void disableColorerInEditor();
   void enableColorerInEditor();
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
-  String* getCurrentFileName();
+  UnicodeString* getCurrentFileName();
 
   int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // filetype "default"
-  FileTypeImpl* defaultType;
+  FileType* defaultType = nullptr;
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
-  HRCParser* hrcParser;
+  HRCParser* hrcParser = nullptr;
 
   /** registry settings */
-  Options Opt;
+  Options Opt {0};
 
   /** UNC path */
-  std::unique_ptr<SString> sCatalogPathExp;
-  std::unique_ptr<SString> sUserHrdPathExp;
-  std::unique_ptr<SString> sUserHrcPathExp;
+  std::unique_ptr<UnicodeString> sCatalogPathExp;
+  std::unique_ptr<UnicodeString> sUserHrdPathExp;
+  std::unique_ptr<UnicodeString> sUserHrcPathExp;
 
-  std::unique_ptr<SString> pluginPath;
-  int CurrentMenuItem;
+  std::unique_ptr<UnicodeString> pluginPath;
 
-  unsigned int err_status;
+  unsigned int err_status = ERR_NO_ERROR;
 
-  std::unique_ptr<Colorer> colorer_lib;
   std::shared_ptr<spdlog::logger> log;
 
-  HANDLE hTimer = NULL;
-  HANDLE hTimerQueue = NULL;
+  HANDLE hTimer = nullptr;
+  HANDLE hTimerQueue = nullptr;
 
   bool ignore_event = false;
 };

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "farcolorer",
+  "version": "1.3.22",
+  "dependencies": [
+    {
+      "name": "colorer",
+      "version>=": "1.1.1"
+    }
+  ],
+  "builtin-baseline": "56136ffae69a4a7f8b9cd5452713925417d47367"
+}

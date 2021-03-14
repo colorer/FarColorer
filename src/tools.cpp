@@ -1,4 +1,6 @@
 #include "tools.h"
+#include <colorer/common/UStr.h>
+#include "FarEditorSet.h"
 
 wchar_t* rtrim(wchar_t* str)
 {
@@ -35,7 +37,7 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
     return nullptr;
   }
 
-  wchar_t* new_path = nullptr;
+  wchar_t* new_path;
   // we remove quotes, if they are present, focusing on the first character
   // if he quote it away and the first and last character.
   // If the first character quote, but the latter does not - well, it's not our
@@ -84,12 +86,12 @@ wchar_t* PathToFull(const wchar_t* path, bool unc)
   return trim(new_path);
 }
 
-SString* PathToFullS(const wchar_t* path, bool unc)
+UnicodeString* PathToFullS(const wchar_t* path, bool unc)
 {
-  SString* spath = nullptr;
+  UnicodeString* spath = nullptr;
   wchar_t* t = PathToFull(path, unc);
   if (t) {
-    spath = new SString(t);
+    spath = new UnicodeString(t);
   }
   delete[] t;
   return spath;
@@ -153,4 +155,10 @@ FarMacroCall* macroReturnValues(FarMacroValue* values, int count)
   out_result->CallbackData = out_result;
 
   return out_result;
+}
+
+wchar_t* Upper(wchar_t* Ch)
+{
+  CharUpperBuffW(Ch, 1);
+  return Ch;
 }

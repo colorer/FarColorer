@@ -38,11 +38,7 @@ class SettingsControl
 class SettingsControlException : public Exception
 {
  public:
-  SettingsControlException() noexcept : Exception("[SettingsControl] ") {};
-  explicit SettingsControlException(const String& msg) noexcept : SettingsControlException()
-  {
-    what_str.append(msg);
-  }
+  explicit SettingsControlException(const UnicodeString& msg) noexcept : Exception("[SettingsControl] " + msg) {}
 };
 
 #endif

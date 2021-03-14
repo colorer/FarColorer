@@ -1,4 +1,5 @@
 #include "HrcSettingsForm.h"
+#include <colorer/common/UStr.h>
 #include "tools.h"
 
 HrcSettingsForm::HrcSettingsForm(FarEditorSet* _farEditorSet, FileType* filetype)
@@ -97,7 +98,7 @@ bool HrcSettingsForm::showForm()
 size_t HrcSettingsForm::getCountFileTypeAndGroup() const
 {
   size_t num = 0;
-  const String* group = nullptr;
+  const UnicodeString* group = nullptr;
   FileType* type;
 
   for (int idx = 0;; idx++) {
@@ -108,7 +109,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
     }
 
     num++;
-    if (group != nullptr && !group->equals(type->getGroup())) {
+    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
       num++;
     }
 
@@ -120,7 +121,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
 FarList* HrcSettingsForm::buildHrcList() const
 {
   size_t num = getCountFileTypeAndGroup();
-  const String* group = nullptr;
+  const UnicodeString* group = nullptr;
   FileType* type;
 
   auto* hrcList = new FarListItem[num];
@@ -137,24 +138,24 @@ FarList* HrcSettingsForm::buildHrcList() const
       hrcList[i].Flags = LIF_SELECTED;
     }
 
-    if (group != nullptr && !group->equals(type->getGroup())) {
+    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
       hrcList[i].Flags = LIF_SEPARATOR;
       i++;
     }
 
     group = type->getGroup();
 
-    const wchar_t* groupChars;
+    std::wstring groupChars;
 
     if (group != nullptr) {
-      groupChars = group->getWChars();
+      groupChars = UStr::to_stdwstr(group);
     }
     else {
-      groupChars = L"<no group>";
+      groupChars = std::wstring(L"<no group>");
     }
 
     hrcList[i].Text = new wchar_t[255];
-    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars, type->getDescription()->getWChars());
+    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars.c_str(), UStr::to_stdwstr(type->getDescription()).c_str());
     hrcList[i].UserData = (intptr_t) type;
   }
 
@@ -174,37 +175,39 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
     return;
 
   menuid = idx;
-  CString p = CString(List.Item.Text);
+  UnicodeString p = UnicodeString(List.Item.Text);
 
-  const String* value;
+  const UnicodeString* value;
   value = current_filetype->getParamDescription(p);
   if (value == nullptr) {
     value = farEditorSet->defaultType->getParamDescription(p);
   }
   if (value != nullptr) {
-    Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_CH_DESCRIPTION, (void*) value->getWChars());
+    Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_CH_DESCRIPTION, (void*) UStr::to_stdwstr(value).c_str());
   }
 
   // set visible begin of text
   COORD c {0, 0};
   Info.SendDlgMessage(hDlg, DM_SETCURSORPOS, IDX_CH_DESCRIPTION, &c);
 
-  if (DShowCross.equals(&p)) {
+  if (UnicodeString(param_ShowCross).compare(p) == 0) {
     setCrossValueListToCombobox();
   }
   else {
-    if (DCrossZorder.equals(&p)) {
+    if (UnicodeString(param_CrossZorder).compare(p) == 0) {
       setCrossPosValueListToCombobox();
     }
-    else if (DMaxLen.equals(&p) || DBackparse.equals(&p) || DDefFore.equals(&p) || DDefBack.equals(&p) || CString("firstlines").equals(&p) ||
-             CString("firstlinebytes").equals(&p) || DHotkey.equals(&p) || DMaxblocksize.equals(&p)) {
-      setCustomListValueToCombobox(CString(List.Item.Text));
+    else if (UnicodeString(param_MaxLen).compare(p) == 0 || UnicodeString(param_Backparse).compare(p) == 0 ||
+             UnicodeString(param_DefFore).compare(p) == 0 || UnicodeString(param_DefBack).compare(p) == 0 ||
+             UnicodeString(param_Firstlines).compare(p) == 0 || UnicodeString(param_Firstlinebytes).compare(p) == 0 ||
+             UnicodeString(param_HotKey).compare(p) == 0 || UnicodeString(param_MaxBlockSize).compare(p) == 0) {
+      setCustomListValueToCombobox(UnicodeString(List.Item.Text));
     }
-    else if (DFullback.equals(&p)) {
-      setYNListValueToCombobox(CString(List.Item.Text));
+    else if (UnicodeString(param_Fullback).compare(p) == 0) {
+      setYNListValueToCombobox(UnicodeString(List.Item.Text));
     }
     else {
-      setTFListValueToCombobox(CString(List.Item.Text));
+      setTFListValueToCombobox(UnicodeString(List.Item.Text));
     }
   }
 }
@@ -227,17 +230,17 @@ void HrcSettingsForm::SaveChangedValueParam() const
     return;
 
   // param name
-  CString p = CString(List.Item.Text);
+  UnicodeString p = UnicodeString(List.Item.Text);
   // param value
-  CString v = CString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
+  UnicodeString v = UnicodeString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
 
-  const String* value = current_filetype->getParamUserValue(p);
-  const String* def_value = getParamDefValue(current_filetype, p);
-  if (v.equals(def_value)) {
+  const UnicodeString* value = current_filetype->getParamUserValue(p);
+  const UnicodeString* def_value = getParamDefValue(current_filetype, p);
+  if (v.compare(*def_value) == 0) {
     if (value != nullptr)
       current_filetype->setParamValue(p, nullptr);
   }
-  else if (!v.equals(value)) {  // changed
+  else if (value == nullptr || v.compare(*value) != 0) {  // changed
     if (current_filetype->getParamValue(p) == nullptr) {
       current_filetype->addParam(&p);
     }
@@ -254,7 +257,7 @@ void HrcSettingsForm::getCurrentTypeInDialog()
   f.ItemIndex = k;
   bool res = Info.SendDlgMessage(hDlg, DM_LISTGETITEM, IDX_CH_SCHEMAS, (void*) &f);
   if (res)
-    current_filetype = (FileTypeImpl*) f.Item.UserData;
+    current_filetype = (FileType*) f.Item.UserData;
 }
 
 void HrcSettingsForm::OnChangeHrc()
@@ -270,28 +273,28 @@ void HrcSettingsForm::OnChangeHrc()
   OnChangeParam(0);
 }
 
-void HrcSettingsForm::setYNListValueToCombobox(const CString& param) const
+void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
 {
-  const String* value = current_filetype->getParamUserValue(param);
-  const String* def_value = getParamDefValue(current_filetype, param);
+  const UnicodeString* value = current_filetype->getParamUserValue(param);
+  const UnicodeString* def_value = getParamDefValue(current_filetype, param);
 
   size_t count = 3;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(DNo.getWChars());
-  fcross[1].Text = _wcsdup(DYes.getWChars());
-  fcross[2].Text = _wcsdup(def_value->getWChars());
+  fcross[0].Text = _wcsdup(value_No);
+  fcross[1].Text = _wcsdup(value_Yes);
+  fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret;
+  size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
   else {
-    if (value->equals(&DNo)) {
+    if (value->compare(UnicodeString(value_No)) == 0) {
       ret = 0;
     }
-    else if (value->equals(&DYes)) {
+    else if (value->compare(UnicodeString(value_Yes)) == 0) {
       ret = 1;
     }
   }
@@ -302,28 +305,28 @@ void HrcSettingsForm::setYNListValueToCombobox(const CString& param) const
   removeFarList(lcross);
 }
 
-void HrcSettingsForm::setTFListValueToCombobox(const CString& param) const
+void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
 {
-  const String* value = current_filetype->getParamUserValue(param);
-  const String* def_value = getParamDefValue(current_filetype, param);
+  const UnicodeString* value = current_filetype->getParamUserValue(param);
+  const UnicodeString* def_value = getParamDefValue(current_filetype, param);
 
   size_t count = 3;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(DFalse.getWChars());
-  fcross[1].Text = _wcsdup(DTrue.getWChars());
-  fcross[2].Text = _wcsdup(def_value->getWChars());
+  fcross[0].Text = _wcsdup(value_False);
+  fcross[1].Text = _wcsdup(value_True);
+  fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret;
+  size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
   else {
-    if (value->equals(&DFalse)) {
+    if (value->compare(UnicodeString(value_False)) == 0) {
       ret = 0;
     }
-    else if (value->equals(&DTrue)) {
+    else if (value->compare(UnicodeString(value_True)) == 0) {
       ret = 1;
     }
   }
@@ -334,15 +337,15 @@ void HrcSettingsForm::setTFListValueToCombobox(const CString& param) const
   removeFarList(lcross);
 }
 
-void HrcSettingsForm::setCustomListValueToCombobox(const CString& param) const
+void HrcSettingsForm::setCustomListValueToCombobox(const UnicodeString& param) const
 {
-  const String* value = current_filetype->getParamUserValue(param);
-  const String* def_value = getParamDefValue(current_filetype, param);
+  const UnicodeString* value = current_filetype->getParamUserValue(param);
+  const UnicodeString* def_value = getParamDefValue(current_filetype, param);
 
   size_t count = 1;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(def_value->getWChars());
+  fcross[0].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
   fcross[0].Flags = LIF_SELECTED;
@@ -351,24 +354,24 @@ void HrcSettingsForm::setCustomListValueToCombobox(const CString& param) const
   Info.SendDlgMessage(hDlg, DM_LISTSET, IDX_CH_PARAM_VALUE_LIST, lcross);
 
   if (value != nullptr) {
-    Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_CH_PARAM_VALUE_LIST, (void*) value->getWChars());
+    Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_CH_PARAM_VALUE_LIST, (void*) UStr::to_stdwstr(value).c_str());
   }
   removeFarList(lcross);
 }
 
 void HrcSettingsForm::setCrossValueListToCombobox() const
 {
-  const String* value = current_filetype->getParamUserValue(DShowCross);
-  const String* def_value = getParamDefValue(current_filetype, DShowCross);
+  const UnicodeString* value = current_filetype->getParamUserValue(UnicodeString(param_ShowCross));
+  const UnicodeString* def_value = getParamDefValue(current_filetype, UnicodeString(param_ShowCross));
 
   size_t count = 5;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(DNone.getWChars());
-  fcross[1].Text = _wcsdup(DVertical.getWChars());
-  fcross[2].Text = _wcsdup(DHorizontal.getWChars());
-  fcross[3].Text = _wcsdup(DBoth.getWChars());
-  fcross[4].Text = _wcsdup(def_value->getWChars());
+  fcross[0].Text = _wcsdup(value_None);
+  fcross[1].Text = _wcsdup(value_Vertical);
+  fcross[2].Text = _wcsdup(value_Horizontal);
+  fcross[3].Text = _wcsdup(value_Both);
+  fcross[4].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
   size_t ret = 0;
@@ -376,16 +379,16 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
     ret = 4;
   }
   else {
-    if (value->equals(&DNone)) {
+    if (value->compare(UnicodeString(value_None)) == 0) {
       ret = 0;
     }
-    else if (value->equals(&DVertical)) {
+    else if (value->compare(UnicodeString(value_Vertical)) == 0) {
       ret = 1;
     }
-    else if (value->equals(&DHorizontal)) {
+    else if (value->compare(UnicodeString(value_Horizontal)) == 0) {
       ret = 2;
     }
-    else if (value->equals(&DBoth)) {
+    else if (value->compare(UnicodeString(value_Both)) == 0) {
       ret = 3;
     }
   }
@@ -398,26 +401,26 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
 
 void HrcSettingsForm::setCrossPosValueListToCombobox() const
 {
-  const String* value = current_filetype->getParamUserValue(DCrossZorder);
-  const String* def_value = getParamDefValue(current_filetype, DCrossZorder);
+  const UnicodeString* value = current_filetype->getParamUserValue(UnicodeString(param_CrossZorder));
+  const UnicodeString* def_value = getParamDefValue(current_filetype, UnicodeString(param_CrossZorder));
 
   size_t count = 3;
   auto* fcross = new FarListItem[count];
   memset(fcross, 0, sizeof(FarListItem) * (count));
-  fcross[0].Text = _wcsdup(DBottom.getWChars());
-  fcross[1].Text = _wcsdup(DTop.getWChars());
-  fcross[2].Text = _wcsdup(def_value->getWChars());
+  fcross[0].Text = _wcsdup(value_Bottom);
+  fcross[1].Text = _wcsdup(value_Top);
+  fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret;
+  size_t ret = 2;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
   else {
-    if (value->equals(&DBottom)) {
+    if (value->compare(UnicodeString(value_Bottom)) == 0) {
       ret = 0;
     }
-    else if (value->equals(&DTop)) {
+    else if (value->compare(UnicodeString(value_Top)) == 0) {
       ret = 1;
     }
   }
@@ -428,25 +431,25 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
   removeFarList(lcross);
 }
 
-const String* HrcSettingsForm::getParamDefValue(FileTypeImpl* type, const SString& param) const
+const UnicodeString* HrcSettingsForm::getParamDefValue(FileType* type, const UnicodeString& param) const
 {
-  const String* value;
+  const UnicodeString* value;
   value = type->getParamDefaultValue(param);
   if (value == nullptr) {
     value = farEditorSet->defaultType->getParamValue(param);
   }
   if (value == nullptr) {
-    return new SString("<default->");
+    return new UnicodeString("<default->");
   }
   else {
-    auto* p = new SString("<default-");
-    p->append(CString(value));
-    p->append(CString(">"));
+    auto* p = new UnicodeString("<default-");
+    p->append(UnicodeString(*value));
+    p->append(UnicodeString(">"));
     return p;
   }
 }
 
-FarList* HrcSettingsForm::buildParamsList(FileTypeImpl* type) const
+FarList* HrcSettingsForm::buildParamsList(FileType* type) const
 {
   // max count params
   size_t size = type->getParamCount() + farEditorSet->defaultType->getParamCount();
@@ -454,15 +457,15 @@ FarList* HrcSettingsForm::buildParamsList(FileTypeImpl* type) const
   memset(fparam, 0, sizeof(FarListItem) * (size));
 
   size_t count = 0;
-  std::vector<SString> type_params = type->enumParams();
+  std::vector<UnicodeString> type_params = type->enumParams();
   for (auto& type_param : type_params) {
     if (farEditorSet->defaultType->getParamValue(type_param) == nullptr) {
-      fparam[count++].Text = _wcsdup(type_param.getWChars());
+      fparam[count++].Text = _wcsdup(UStr::to_stdwstr(&type_param).c_str());
     }
   }
-  std::vector<SString> default_params = farEditorSet->defaultType->enumParams();
+  std::vector<UnicodeString> default_params = farEditorSet->defaultType->enumParams();
   for (auto& default_param : default_params) {
-    fparam[count++].Text = _wcsdup(default_param.getWChars());
+    fparam[count++].Text = _wcsdup(UStr::to_stdwstr(&default_param).c_str());
   }
 
   fparam[0].Flags = LIF_SELECTED;

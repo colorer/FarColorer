@@ -1,38 +1,39 @@
 #include "FarHrcSettings.h"
-#include <colorer/parsers/ParserFactoryException.h>
+#include <colorer/common/UStr.h>
+#include <colorer/parsers/XmlTagDefs.h>
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "SettingsControl.h"
 
-void FarHrcSettings::readProfile(SString* plugin_path)
+void FarHrcSettings::readProfile(UnicodeString* plugin_path)
 {
-  auto* path = new SString(plugin_path);
-  path->append(CString(FarProfileXml));
+  auto* path = new UnicodeString(*plugin_path);
+  path->append(UnicodeString(FarProfileXml));
   readXML(path, false);
 
   delete path;
 }
 
-void FarHrcSettings::readXML(String* file, bool userValue)
+void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
 {
   xercesc::XercesDOMParser xml_parser;
   XmlParserErrorHandler error_handler;
   xml_parser.setErrorHandler(&error_handler);
   xml_parser.setLoadExternalDTD(false);
   xml_parser.setSkipDTDValidation(true);
-  uXmlInputSource config = XmlInputSource::newInstance(file->getWChars(), static_cast<XMLCh*>(nullptr));
+  uXmlInputSource config = XmlInputSource::newInstance(UStr::to_xmlch(file).get(), static_cast<XMLCh*>(nullptr));
   xml_parser.parse(*config->getInputSource());
   if (error_handler.getSawErrors()) {
-    throw ParserFactoryException(CString("Error reading hrcsettings.xml."));
+    throw ParserFactoryException("Error reading hrcsettings.xml.");
   }
   xercesc::DOMDocument* catalog = xml_parser.getDocument();
   xercesc::DOMElement* elem = catalog->getDocumentElement();
 
-  const XMLCh* tagPrototype = L"prototype";
-  const XMLCh* tagHrcSettings = L"hrc-settings";
+  const XMLCh* tagPrototype = hrcTagPrototype;
+  const char16_t tagHrcSettings[] = u"hrc-settings\0";
 
   if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrcSettings)) {
-    throw FarHrcSettingsException(CString("main '<hrc-settings>' block not found"));
+    throw FarHrcSettingsException("main '<hrc-settings>' block not found");
   }
   for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
     if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
@@ -46,18 +47,18 @@ void FarHrcSettings::readXML(String* file, bool userValue)
 
 void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
 {
-  const XMLCh* tagProtoAttrParamName = L"name";
-  const XMLCh* tagParam = L"param";
-  const XMLCh* tagParamAttrParamName = L"name";
-  const XMLCh* tagParamAttrParamValue = L"value";
-  const XMLCh* tagParamAttrParamDescription = L"description";
+  const XMLCh* tagProtoAttrParamName = catHrdAttrName;
+  const XMLCh* tagParam = hrcTagParam;
+  const XMLCh* tagParamAttrParamName = catHrdAttrName;
+  const XMLCh* tagParamAttrParamValue = hrcParamAttrValue;
+  const XMLCh* tagParamAttrParamDescription = hrcParamAttrDescription;
   const XMLCh* typeName = elem->getAttribute(tagProtoAttrParamName);
   if (typeName == nullptr) {
     return;
   }
   HRCParser* hrcParser = parserFactory->getHRCParser();
-  CString typenamed = CString(typeName);
-  auto* type = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&typenamed));
+  UnicodeString typenamed = UnicodeString(typeName);
+  auto* type = hrcParser->getFileType(&typenamed);
   if (type == nullptr) {
     return;
   }
@@ -74,9 +75,9 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
           continue;
         }
 
-        CString cname = CString(name);
-        CString cvalue = CString(value);
-        CString cdescr = CString(descr);
+        UnicodeString cname = UnicodeString(name);
+        UnicodeString cvalue = UnicodeString(value);
+        UnicodeString cdescr = UnicodeString(descr);
         if (type->getParamValue(cname) == nullptr) {
           type->addParam(&cname);
         }
@@ -114,8 +115,8 @@ void FarHrcSettings::readProfileFromRegistry()
     for (size_t i = 0; i < fse.Count; i++) {
       if (fse.Items[i].Type == FST_SUBKEY) {
         // check whether we have such a scheme
-        CString named = CString(fse.Items[i].Name);
-        auto* type = dynamic_cast<FileTypeImpl*>(hrcParser->getFileType(&named));
+        UnicodeString named = UnicodeString(fse.Items[i].Name);
+        auto* type = hrcParser->getFileType(&named);
         if (type) {
           // enum all params in the section
           size_t type_subkey;
@@ -125,14 +126,14 @@ void FarHrcSettings::readProfileFromRegistry()
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
-                CString name_fse = CString(type_fse.Items[j].Name);
+                UnicodeString name_fse = UnicodeString(type_fse.Items[j].Name);
                 if (type->getParamValue(name_fse) == nullptr) {
                   type->addParam(&name_fse);
                 }
                 const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
                 if (p) {
-                  CString dp = CString(p);
-                  type->setParamValue(CString(type_fse.Items[j].Name), &dp);
+                  UnicodeString dp = UnicodeString(p);
+                  type->setParamValue(UnicodeString(type_fse.Items[j].Name), &dp);
                 }
               }
             }
@@ -151,7 +152,7 @@ void FarHrcSettings::writeUserProfile()
 void FarHrcSettings::writeProfileToRegistry()
 {
   HRCParser* hrcParser = parserFactory->getHRCParser();
-  FileTypeImpl* type;
+  FileType* type;
 
   SettingsControl ColorerSettings;
   ColorerSettings.rDeleteSubKey(0, HrcSettings);
@@ -160,25 +161,25 @@ void FarHrcSettings::writeProfileToRegistry()
 
   // enum all FileTypes
   for (int idx = 0;; idx++) {
-    type = dynamic_cast<FileTypeImpl*>(hrcParser->enumerateFileTypes(idx));
+    type = hrcParser->enumerateFileTypes(idx);
 
     if (!type) {
       break;
     }
 
     if (type->getParamCount()) {  // params>0 and user values >0
-      size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, type->getName()->getWChars());
+      size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, UStr::to_stdwstr(type->getName()).c_str());
       // enum all params
-      std::vector<SString> type_params = type->enumParams();
+      std::vector<UnicodeString> type_params = type->enumParams();
       for (auto& type_param : type_params) {
-        const String* v = type->getParamUserValue(type_param);
+        const UnicodeString* v = type->getParamUserValue(type_param);
         if (v != nullptr) {
-          ColorerSettings.Set(type_subkey, type_param.getWChars(), v->getWChars());
+          ColorerSettings.Set(type_subkey, UStr::to_stdwstr(&type_param).c_str(), UStr::to_stdwstr(v).c_str());
         }
         else {
-          auto val = ColorerSettings.Get(type_subkey, type_param.getWChars(), nullptr);
+          auto val = ColorerSettings.Get(type_subkey, UStr::to_stdwstr(&type_param).c_str(), nullptr);
           if (val) {
-            ColorerSettings.rDeleteSubKey(type_subkey, type_param.getWChars());
+            ColorerSettings.rDeleteSubKey(type_subkey, UStr::to_stdwstr(&type_param).c_str());
           }
         }
       }

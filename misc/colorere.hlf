@@ -13,7 +13,6 @@ $^#FarColorer
 
     ~Using a plugin in macros:~@MacroCallPlugin@
       ~Macro functions.~@MacroCall@
-      ~Old macro functions.~@MacroCallOld@
       ~Plugin Guids.~@PluginGuids
 
     ~About authors.~@author@
@@ -235,7 +234,6 @@ $# Using a plugin in macros
           different parameters
 
      ~Macro functions.~@MacroCall@
-     ~Old macro functions.~@MacroCallOld@
 
 @MacroCall
 $# Macro functions
@@ -343,39 +341,6 @@ $# Macro functions
          Если задан, то изменяется текущее значение и возвращает предыдущее значение
          Если не задан, возвращает текущее значение для данного редактора
         "Progress" - возвращает процент парсинга текущего файла в редакторе. Целочисленное значение.
-
-@MacroCallOld
-$# Old macro functions
- #This are macro functions will be removed from the plugin in 2020#
-
-       #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<Параметры>,...)#
-       #<Params>#
-          The first parameter can be a number, which corresponds to the following commands:
-
-            1 - List types
-            2 - Match pair
-            3 - Select block
-            4 - Select pair
-            5 - Outliner List
-            6 - Errors List
-            7 - Select region
-            8 - Region info
-            9 - Find function
-            11 - Update highlight
-            12 - Reload schema library
-            13 - Configuration
-
-           For example, list the types available:
-           Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5",1)
-
-         Or a string value:
-           "status" - work with the plug-in status.
-             plugin.call (Guid, "status")
-             If the second parameter is missing, it returns the status of the plugin activity.
-            
-             plugin.call (Guid, "status", new_status)
-             If the second parameter is true/false, or it corresponds to an integer value, the plugin will be transferred to the specified status.
-             Return Value true/false indicates success of the command.
 
 @hrd
 $# Color style selection

@@ -1,5 +1,4 @@
 #include "SettingsControl.h"
-#include <colorer/unicode/CString.h>
 
 SettingsControl::SettingsControl()
 {
@@ -8,9 +7,10 @@ SettingsControl::SettingsControl()
   fsc.StructSize = sizeof(FarSettingsCreate);
   if (Info.SettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, PSL_ROAMING, &fsc)) {
     farSettingHandle = fsc.Handle;
-  } else {
+  }
+  else {
     farSettingHandle = INVALID_HANDLE_VALUE;
-    throw SettingsControlException(CString("Access error to the FarSettings."));
+    throw SettingsControlException("Access error to the FarSettings.");
   }
 }
 
