@@ -30,7 +30,7 @@ Download the source from git repository:
 
 Setup vcpkg
 
-    cd colorer-library
+    cd FarColorer
     ./external/vcpkg/bootstrap-vcpkg.bat
 
 Build colorer and dependency, if they are not in the local cache:
