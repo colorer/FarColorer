@@ -63,5 +63,10 @@ endif
 HOOK InitializeCriticalSectionEx            , 12, :dword, :dword, :dword
 HOOK CompareStringEx                        , 36, :dword, :dword, :dword, :dword, :dword, :dword, :dword, :dword, :dword
 HOOK LCMapStringEx                          , 36, :dword, :dword, :dword, :dword, :dword, :dword, :dword, :dword, :dword
+HOOK InitializeSRWLock                      ,  4, :dword
+HOOK AcquireSRWLockExclusive                ,  4, :dword
+HOOK AcquireSRWLockShared                   ,  4, :dword
+HOOK ReleaseSRWLockExclusive                ,  4, :dword
+HOOK ReleaseSRWLockShared                   ,  4, :dword
 
 end

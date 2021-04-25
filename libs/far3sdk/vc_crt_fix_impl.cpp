@@ -31,9 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <utility>
-
 #include <windows.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -469,6 +470,228 @@ extern "C" int WINAPI LCMapStringExWrapper(LPCWSTR LocaleName, DWORD MapFlags, L
 
 	CREATE_FUNCTION_POINTER(modules::kernel32, CompareStringEx);
 	return Function(LocaleName, MapFlags, SrcStr, SrcCount, DestStr, DestCount, VersionInformation, Reserved, SortHandle);
+}
+
+namespace RWLock {
+  typedef struct _RTL_RWLOCK
+  {
+    RTL_CRITICAL_SECTION rtlCS;
+
+    HANDLE hSharedReleaseSemaphore;
+    UINT uSharedWaiters;
+
+    HANDLE hExclusiveReleaseSemaphore;
+    UINT uExclusiveWaiters;
+
+    INT iNumberActive;
+    HANDLE hOwningThreadId;
+    DWORD dwTimeoutBoost;
+    PVOID pDebugInfo;
+  } RTL_RWLOCK, *LPRTL_RWLOCK;
+
+  typedef void(__stdcall* RtlManagePtr)(LPRTL_RWLOCK);
+  typedef BYTE(__stdcall* RtlOperatePtr)(LPRTL_RWLOCK, BYTE);
+
+  struct elem_arr
+  {
+    PSRWLOCK psrwlock;
+    RTL_RWLOCK rwlock;
+  };
+
+  class RWLockXP  // Implementation for Windows XP
+  {
+   public:
+    RWLockXP()
+        : hGetProcIDDLL(nullptr),
+          RtlInitializeResource_func(nullptr),
+          RtlDeleteResource_func(nullptr),
+          RtlReleaseResource_func(nullptr),
+          RtlAcquireResourceExclusive_func(nullptr),
+          RtlAcquireResourceShared_func(nullptr)
+    {
+      wchar_t path[MAX_PATH] = {0};
+      GetSystemDirectoryW(path, sizeof(path));
+      std::wstring dllPath = std::wstring(path) + L"\\ntdll.dll";
+      HINSTANCE hGetProcIDDLL = LoadLibraryW(dllPath.c_str());
+      if (hGetProcIDDLL) {
+        RtlDeleteResource_func = (RtlManagePtr) GetProcAddress(hGetProcIDDLL, "RtlDeleteResource");
+        if (!RtlDeleteResource_func) {
+          return;
+        }
+        RtlReleaseResource_func = (RtlManagePtr) GetProcAddress(hGetProcIDDLL, "RtlReleaseResource");
+        if (!RtlReleaseResource_func) {
+          return;
+        }
+        RtlAcquireResourceExclusive_func = (RtlOperatePtr) GetProcAddress(hGetProcIDDLL, "RtlAcquireResourceExclusive");
+        if (!RtlAcquireResourceExclusive_func) {
+          return;
+        }
+        RtlAcquireResourceShared_func = (RtlOperatePtr) GetProcAddress(hGetProcIDDLL, "RtlAcquireResourceShared");
+        if (!RtlAcquireResourceShared_func) {
+          return;
+        }
+
+        RtlInitializeResource_func = (RtlManagePtr) GetProcAddress(hGetProcIDDLL, "RtlInitializeResource");
+        if (!RtlInitializeResource_func) {
+          return;
+        }
+      }
+    }
+
+    ~RWLockXP()
+    {
+      if (RtlDeleteResource_func) {
+        for (auto a : array) {
+          RtlDeleteResource_func(&a.rwlock);
+        }
+      }
+      if (hGetProcIDDLL) {
+        FreeLibrary(hGetProcIDDLL);
+      }
+    }
+
+    void InitializeSRWLock(PSRWLOCK& SRWLock)
+    {
+      if (RtlInitializeResource_func) {
+        elem_arr a {};
+        a.psrwlock = SRWLock;
+
+        RtlInitializeResource_func(&a.rwlock);
+        array.push_back(a);
+      }
+    }
+
+    void readLock(PSRWLOCK& SRWLock)
+    {
+      if (RtlAcquireResourceShared_func) {
+        for (auto a : array) {
+          if (a.psrwlock == SRWLock) {
+            RtlAcquireResourceShared_func(&a.rwlock, TRUE);
+          }
+        }
+      }
+    }
+
+    void readUnLock(PSRWLOCK& SRWLock)
+    {
+      if (RtlReleaseResource_func) {
+        for (auto a : array) {
+          if (a.psrwlock == SRWLock) {
+            RtlReleaseResource_func(&a.rwlock);
+          }
+        }
+      }
+    }
+
+    void writeLock(PSRWLOCK& SRWLock)
+    {
+      if (RtlAcquireResourceExclusive_func) {
+        for (auto a : array) {
+          if (a.psrwlock == SRWLock) {
+            RtlAcquireResourceExclusive_func(&a.rwlock, TRUE);
+          }
+        }
+      }
+    }
+
+    void writeUnLock(PSRWLOCK& SRWLock)
+    {
+      if (RtlReleaseResource_func) {
+        for (auto a : array) {
+          if (a.psrwlock == SRWLock) {
+            RtlReleaseResource_func(&a.rwlock);
+          }
+        }
+      }
+    }
+
+   private:
+    HINSTANCE hGetProcIDDLL;
+    RtlManagePtr RtlInitializeResource_func;
+    RtlManagePtr RtlDeleteResource_func;
+    RtlManagePtr RtlReleaseResource_func;
+    RtlOperatePtr RtlAcquireResourceExclusive_func;
+    RtlOperatePtr RtlAcquireResourceShared_func;
+
+    std::vector<elem_arr> array;
+  };
+
+static RWLockXP locks;
+}  // namespace RWLock
+
+extern "C" void WINAPI InitializeSRWLockWrapper(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static void WINAPI InitializeSRWLock(PSRWLOCK SRWLock)
+    {
+      using namespace RWLock;
+      locks.InitializeSRWLock(SRWLock);
+    }
+  };
+
+  CREATE_FUNCTION_POINTER(modules::kernel32, InitializeSRWLock);
+  return Function(SRWLock);
+}
+
+extern "C" void WINAPI AcquireSRWLockExclusiveWrapper(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static void WINAPI AcquireSRWLockExclusive(PSRWLOCK SRWLock)
+    {
+      using namespace RWLock;
+      locks.writeLock(SRWLock);
+    }
+  };
+
+  CREATE_FUNCTION_POINTER(modules::kernel32, AcquireSRWLockExclusive);
+  return Function(SRWLock);
+}
+
+extern "C" void WINAPI AcquireSRWLockSharedWrapper(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static void WINAPI AcquireSRWLockShared(PSRWLOCK SRWLock)
+    {
+      using namespace RWLock;
+      locks.readLock(SRWLock);
+    }
+  };
+
+  CREATE_FUNCTION_POINTER(modules::kernel32, AcquireSRWLockShared);
+  return Function(SRWLock);
+}
+
+extern "C" void WINAPI ReleaseSRWLockExclusiveWrapper(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static void WINAPI ReleaseSRWLockExclusive(PSRWLOCK SRWLock)
+    {
+      using namespace RWLock;
+      locks.writeUnLock(SRWLock);
+    }
+  };
+
+  CREATE_FUNCTION_POINTER(modules::kernel32, ReleaseSRWLockExclusive);
+  return Function(SRWLock);
+}
+
+extern "C" void WINAPI ReleaseSRWLockSharedWrapper(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static void WINAPI ReleaseSRWLockShared(PSRWLOCK SRWLock)
+    {
+      using namespace RWLock;
+      locks.readUnLock(SRWLock);
+    }
+  };
+
+  CREATE_FUNCTION_POINTER(modules::kernel32, ReleaseSRWLockShared);
+  return Function(SRWLock);
 }
 
 

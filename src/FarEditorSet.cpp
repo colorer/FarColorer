@@ -15,9 +15,7 @@
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
 FarEditorSet::FarEditorSet()
-    : sTempHrdName(nullptr),
-      sTempHrdNameTm(nullptr),
-      parserFactory(nullptr),
+    : parserFactory(nullptr),
       regionMapper(nullptr),
       hrcParser(nullptr),
       sCatalogPathExp(nullptr),
@@ -80,7 +78,8 @@ void FarEditorSet::menuConfigure()
         configureLogging();
         break;
       case 4:
-        TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, true, Opt.TrueModOn ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
+        TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, &CString(Opt.HrdName), &CString(Opt.HrdNameTm), true,
+                     Opt.TrueModOn ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
         break;
       default:
         return;
@@ -408,7 +407,11 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
     const auto* userhrc = static_cast<const wchar_t*>(
         trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrcEdit, nullptr))));
 
-    return !fes->TestLoadBase(temp, userhrd, userhrc, false, FarEditorSet::HRCM_BOTH);
+    int CurPosCons = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr);
+    int CurPosTm = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr);
+
+    return !fes->TestLoadBase(temp, userhrd, userhrc, &fes->hrd_con_instances.at(CurPosCons)->hrd_name, &fes->hrd_rgb_instances.at(CurPosTm)->hrd_name,
+                              false, FarEditorSet::HRCM_BOTH);
   }
 
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -433,7 +436,6 @@ bool FarEditorSet::configure()
 
     Builder.StartColumns();
 
-    std::vector<const HRDNode*> hrd_con_instances;
     std::vector<const wchar_t*> console_style;
     unsigned long flag_disable = 0;
     int current_style;
@@ -448,10 +450,10 @@ bool FarEditorSet::configure()
     }
     Builder.AddText(mHRDName);
     Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
+    settingWindow.hrdCons = Builder.GetLastID();
 
     Builder.AddCheckbox(mTrueMod, &Opt.TrueModOn);
 
-    std::vector<const HRDNode*> hrd_rgb_instances;
     std::vector<const wchar_t*> rgb_style;
     flag_disable = 0;
     int current_rstyle;
@@ -466,6 +468,7 @@ bool FarEditorSet::configure()
     }
     Builder.AddText(mHRDNameTrueMod);
     Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
+    settingWindow.hrdTM = Builder.GetLastID();
 
     Builder.ColumnBreak();
 
@@ -597,8 +600,8 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
   return 0;
 }
 
-bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full,
-                                const HRC_MODE hrc_mode)
+bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const String* hrdCons,
+                                const String* hrdTm, const int full, const HRC_MODE hrc_mode)
 {
   bool res = true;
   const wchar_t* marr[2] = {GetMsg(mName), GetMsg(mReloading)};
@@ -633,7 +636,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
     if (hrc_mode == HRCM_CONSOLE || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName.get()));
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, hrdCons));
       } catch (ParserFactoryException& e) {
         spdlog::error("{0}", e.what());
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, nullptr));
@@ -642,7 +645,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
     if (hrc_mode == HRCM_RGB || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm.get()));
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, hrdTm));
       } catch (ParserFactoryException& e) {
         spdlog::error("{0}", e.what());
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, nullptr));
@@ -1096,10 +1099,9 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
 {
   auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
   auto* mi = (OpenMacroInfo*) oInfo->Data;
-  if (mi->Count == 1)
-    return oldMacro(area, mi);
-  else
+  if (mi->Count == 2)
     return execMacro(area, mi);
+  return nullptr;
 }
 
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
@@ -1204,63 +1206,6 @@ void FarEditorSet::enableColorerInEditor()
 }
 
 #pragma region macro_functions
-
-// TODO remove in 01/01/2021
-void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
-{
-  int MenuCode = -1;
-  std::unique_ptr<SString> command = nullptr;
-  if (params->Count) {
-    switch (params->Values[0].Type) {
-      case FMVT_INTEGER:
-        MenuCode = (int) params->Values[0].Integer;
-        break;
-      case FMVT_DOUBLE:
-        MenuCode = (int) params->Values[0].Double;
-        break;
-      case FMVT_STRING:
-        command = std::make_unique<SString>(CString(params->Values[0].String));
-        break;
-      default:
-        MenuCode = -1;
-    }
-  }
-
-  if (MenuCode >= 0 && area == MACROAREA_EDITOR) {
-    openMenu(MenuCode - 1);
-    return INVALID_HANDLE_VALUE;
-  }
-  else if (command) {
-    if (CString("status").equals(command.get())) {
-      if (params->Count == 1) {
-        return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-      }
-      else {
-        bool new_status = false;
-        switch (params->Values[1].Type) {
-          case FMVT_BOOLEAN:
-            new_status = static_cast<bool>(params->Values[1].Boolean);
-            break;
-          case FMVT_INTEGER:
-            new_status = static_cast<bool>(params->Values[1].Integer);
-            break;
-          default:
-            new_status = true;
-        }
-
-        if (new_status) {
-          enableColorer();
-          return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        }
-        else {
-          disableColorer();
-          return !isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        }
-      }
-    }
-  }
-  return nullptr;
-}
 
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
