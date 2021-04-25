@@ -1096,10 +1096,9 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
 {
   auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
   auto* mi = (OpenMacroInfo*) oInfo->Data;
-  if (mi->Count == 1)
-    return oldMacro(area, mi);
-  else
+  if (mi->Count == 2)
     return execMacro(area, mi);
+  return nullptr;
 }
 
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
@@ -1204,63 +1203,6 @@ void FarEditorSet::enableColorerInEditor()
 }
 
 #pragma region macro_functions
-
-// TODO remove in 01/01/2021
-void* FarEditorSet::oldMacro(FARMACROAREA area, OpenMacroInfo* params)
-{
-  int MenuCode = -1;
-  std::unique_ptr<SString> command = nullptr;
-  if (params->Count) {
-    switch (params->Values[0].Type) {
-      case FMVT_INTEGER:
-        MenuCode = (int) params->Values[0].Integer;
-        break;
-      case FMVT_DOUBLE:
-        MenuCode = (int) params->Values[0].Double;
-        break;
-      case FMVT_STRING:
-        command = std::make_unique<SString>(CString(params->Values[0].String));
-        break;
-      default:
-        MenuCode = -1;
-    }
-  }
-
-  if (MenuCode >= 0 && area == MACROAREA_EDITOR) {
-    openMenu(MenuCode - 1);
-    return INVALID_HANDLE_VALUE;
-  }
-  else if (command) {
-    if (CString("status").equals(command.get())) {
-      if (params->Count == 1) {
-        return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-      }
-      else {
-        bool new_status = false;
-        switch (params->Values[1].Type) {
-          case FMVT_BOOLEAN:
-            new_status = static_cast<bool>(params->Values[1].Boolean);
-            break;
-          case FMVT_INTEGER:
-            new_status = static_cast<bool>(params->Values[1].Integer);
-            break;
-          default:
-            new_status = true;
-        }
-
-        if (new_status) {
-          enableColorer();
-          return isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        }
-        else {
-          disableColorer();
-          return !isEnable() ? INVALID_HANDLE_VALUE : nullptr;
-        }
-      }
-    }
-  }
-  return nullptr;
-}
 
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {

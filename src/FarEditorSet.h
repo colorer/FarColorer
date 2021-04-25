@@ -125,7 +125,6 @@ class FarEditorSet
   void viewFile(const String& path);
   HANDLE openFromMacro(const struct OpenInfo* oInfo);
   HANDLE openFromCommandLine(const struct OpenInfo* oInfo);
-  void* oldMacro(FARMACROAREA area, OpenMacroInfo* params);
   void* execMacro(FARMACROAREA area, OpenMacroInfo* params);
 
   /** Dispatch editor event in the opened editor */
