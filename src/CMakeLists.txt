@@ -34,7 +34,7 @@ endif ()
 #====================================================
 # support win2k, winxp
 #====================================================
-if (MSVC)
+if (COLORER_WINXP_SUPPORT)
   set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/../libs/far3sdk/vc_crt_fix.asm)
   set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
   set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
