@@ -19,31 +19,17 @@ set(SRC_CPP
     pcolorer.cpp
     pcolorer.h
     pcolorer3.rc
-    tools.cpp tools.h
+    tools.cpp
+    tools.h
     version.h)
 
-if(MSVC)
-  set(SRC_DEF pcolorer3.def)
-else()
-  set(SRC_DEF pcolorer3.gcc.def)
-endif()
+set(SRC_DEF pcolorer3.def)
 
 #====================================================
 # common flags
 #====================================================
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-  # defaut for gcc
-  # CMAKE_CXX_FLAGS=
-  # CMAKE_CXX_FLAGS_DEBUG= -g
-  # CMAKE_CXX_FLAGS_RELEASE= -O3 -DNDEBUG
-
-  # set only new flags
-  set(FLAGS_CXX_DEFAULT -fpermissive -Wall)
-  set(CMAKE_LINK_FLAGS "-Xlinker --Map -Xlinker libcolorer.map")
-  set(FLAGS_RELEASE)
-  set(FLAGS_DEBUG)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # defaut for msvc
   # CMAKE_CXX_FLAGS= /DWIN32 /D_WINDOWS /GR /EHsc
   # CMAKE_CXX_FLAGS_DEBUG= /MDd /Zi /Ob0 /Od /RTC1

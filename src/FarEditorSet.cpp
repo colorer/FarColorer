@@ -67,7 +67,8 @@ void FarEditorSet::menuConfigure()
         configureLogging();
         break;
       case 4:
-        TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, true, Opt.TrueModOn ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
+        TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, Opt.HrdName, Opt.HrdNameTm, true,
+                     Opt.TrueModOn ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
         break;
       default:
         return;
@@ -405,7 +406,11 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
     const auto* userhrc = static_cast<const wchar_t*>(
         trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrcEdit, nullptr))));
 
-    return !fes->TestLoadBase(temp, userhrd, userhrc, false, FarEditorSet::HRCM_BOTH);
+    int CurPosCons = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr);
+    int CurPosTm = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr);
+
+    return !fes->TestLoadBase(temp, userhrd, userhrc, UStr::to_stdwstr(&fes->hrd_con_instances.at(CurPosCons)->hrd_name).c_str(),
+                              UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false, FarEditorSet::HRCM_BOTH);
   }
 
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -430,7 +435,6 @@ bool FarEditorSet::configure()
 
     Builder.StartColumns();
 
-    std::vector<const HRDNode*> hrd_con_instances;
     std::vector<const wchar_t*> console_style;
     unsigned long flag_disable = 0;
     int current_style;
@@ -445,10 +449,10 @@ bool FarEditorSet::configure()
     }
     Builder.AddText(mHRDName);
     Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
+    settingWindow.hrdCons = Builder.GetLastID();
 
     Builder.AddCheckbox(mTrueMod, &Opt.TrueModOn);
 
-    std::vector<const HRDNode*> hrd_rgb_instances;
     std::vector<const wchar_t*> rgb_style;
     flag_disable = 0;
     int current_rstyle;
@@ -463,6 +467,7 @@ bool FarEditorSet::configure()
     }
     Builder.AddText(mHRDNameTrueMod);
     Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
+    settingWindow.hrdTM = Builder.GetLastID();
 
     Builder.ColumnBreak();
 
@@ -594,8 +599,8 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
   return 0;
 }
 
-bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const bool full,
-                                const HRC_MODE hrc_mode)
+bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons,
+                                const wchar_t* hrdTm, const bool full, const HRC_MODE hrc_mode)
 {
   bool res = true;
   const wchar_t* marr[2] = {GetMsg(mName), GetMsg(mReloading)};
@@ -630,7 +635,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
     if (hrc_mode == HRCM_CONSOLE || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, sTempHrdName.get()));
+        auto uhrdCons = UnicodeString(hrdCons);
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, &uhrdCons));
       } catch (ParserFactoryException& e) {
         spdlog::error("{0}", e.what());
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, nullptr));
@@ -639,7 +645,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
     if (hrc_mode == HRCM_RGB || hrc_mode == HRCM_BOTH) {
       try {
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, sTempHrdNameTm.get()));
+        auto uhrdTm = UnicodeString(hrdTm);
+        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, &uhrdTm));
       } catch (ParserFactoryException& e) {
         spdlog::error("{0}", e.what());
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, nullptr));
@@ -1304,7 +1311,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     auto* array = new FarMacroValue[type_count];
 
     for (size_t idx = 0; idx < type_count; idx++) {
-      type = hrcParser->enumerateFileTypes(idx);
+      type = hrcParser->enumerateFileTypes((unsigned int) idx);
       if (type == nullptr) {
         break;
       }
