@@ -97,6 +97,8 @@ struct SettingWindow
   int catalogEdit;
   int hrcEdit;
   int hrdEdit;
+  int hrdCons;
+  int hrdTM;
 };
 
 class HrcSettingsForm;
@@ -141,7 +143,8 @@ class FarEditorSet
    * trying to load the database on the specified path
    */
   enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
-  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const int full, const HRC_MODE hrc_mode);
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const String* hrdCons, const String* hrdTm,
+                    const int full, const HRC_MODE hrc_mode);
 
   bool GetPluginStatus() const
   {
@@ -171,10 +174,10 @@ class FarEditorSet
   void applyLogSetting();
   size_t getEditorCount() const;
 
-  std::unique_ptr<SString> sTempHrdName;
-  std::unique_ptr<SString> sTempHrdNameTm;
-
   SettingWindow settingWindow;
+
+  std::vector<const HRDNode*> hrd_con_instances;
+  std::vector<const HRDNode*> hrd_rgb_instances;
 
  private:
   /** add current active editor and return him. */
