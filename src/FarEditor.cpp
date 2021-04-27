@@ -556,7 +556,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     return 0;
   }
   // ignore event
-  if (event != EE_REDRAW || (event == EE_REDRAW && param == EEREDRAW_ALL && inRedraw)) {
+  if (event != EE_REDRAW || (param == EEREDRAW_ALL && inRedraw)) {
     return 0;
   }
 

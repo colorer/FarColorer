@@ -23,26 +23,26 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
     case DN_INITDIALOG: {
       fes->menuid = -1;
       fes->OnChangeHrc();
-      return false;
+      return false;  //-V601
     }
     case DN_BTNCLICK:
       if (IDX_CH_OK == Param1) {
         fes->OnSaveHrcParams();
-        return false;
+        return false;  //-V601
       }
       break;
     case DN_EDITCHANGE:
       if (IDX_CH_SCHEMAS == Param1) {
         fes->menuid = -1;
         fes->OnChangeHrc();
-        return true;
+        return true;  //-V601
       }
 
       break;
     case DN_LISTCHANGE:
       if (IDX_CH_PARAM_LIST == Param1) {
         fes->OnChangeParam(reinterpret_cast<intptr_t>(Param2));
-        return true;
+        return true;  //-V601
       }
       break;
     default:
@@ -286,7 +286,7 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret = 2;
+  size_t ret;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -296,6 +296,9 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
     }
     else if (value->compare(UnicodeString(value_Yes)) == 0) {
       ret = 1;
+    }
+    else {
+      ret = 2;
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
@@ -318,7 +321,7 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret = 2;
+  size_t ret;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -328,6 +331,9 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
     }
     else if (value->compare(UnicodeString(value_True)) == 0) {
       ret = 1;
+    }
+    else {
+      ret = 2;
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
@@ -412,7 +418,7 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
   delete def_value;
 
-  size_t ret = 2;
+  size_t ret;
   if (value == nullptr || !value->length()) {
     ret = 2;
   }
@@ -422,6 +428,9 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
     }
     else if (value->compare(UnicodeString(value_Top)) == 0) {
       ret = 1;
+    }
+    else {
+      ret = 2;
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
