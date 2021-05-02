@@ -1210,26 +1210,27 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
   int fore = (newfore != -1) ? newfore : rdBackground->fore;
   int back = (newback != -1) ? newback : rdBackground->back;
 
+  col.ForegroundColor = fore;
+  col.BackgroundColor = back;
+
   if (rd != nullptr) {
-    col.ForegroundColor = rd->fore;
-    col.BackgroundColor = rd->back;
-    if (rd->style & StyledRegion::RD_BOLD) {
-      col.Flags |= FCF_FG_BOLD;
+    if (rd->bfore) {
+      col.ForegroundColor = rd->fore;
     }
-    if (rd->style & StyledRegion::RD_ITALIC) {
-      col.Flags |= FCF_FG_ITALIC;
+    if (rd->bback) {
+      col.BackgroundColor = rd->back;
     }
-    if (rd->style & StyledRegion::RD_UNDERLINE) {
-      col.Flags |= FCF_FG_UNDERLINE;
+    if (TrueMod) {
+      if (rd->style & StyledRegion::RD_BOLD) {
+        col.Flags |= FCF_FG_BOLD;
+      }
+      if (rd->style & StyledRegion::RD_ITALIC) {
+        col.Flags |= FCF_FG_ITALIC;
+      }
+      if (rd->style & StyledRegion::RD_UNDERLINE) {
+        col.Flags |= FCF_FG_UNDERLINE;
+      }
     }
-  }
-
-  if (rd == nullptr || !rd->bfore) {
-    col.ForegroundColor = fore;
-  }
-
-  if (rd == nullptr || !rd->bback) {
-    col.BackgroundColor = back;
   }
 
   if (!TrueMod) {
@@ -1238,6 +1239,8 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
   else {
     col.ForegroundColor = revertRGB(col.ForegroundColor);
     col.BackgroundColor = revertRGB(col.BackgroundColor);
+    col.BackgroundRGBA.a = 0xFF;
+    col.ForegroundRGBA.a = 0xFF;
   }
 
   return col;
