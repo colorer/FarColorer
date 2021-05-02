@@ -1100,7 +1100,7 @@ HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
 {
   auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
   auto* mi = (OpenMacroInfo*) oInfo->Data;
-  if (mi->Count == 2)
+  if (mi->Count > 1)
     return execMacro(area, mi);
   return nullptr;
 }
