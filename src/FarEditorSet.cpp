@@ -990,13 +990,14 @@ bool FarEditorSet::SetBgEditor() const
       fc.Flags = 0;
       fc.BackgroundColor = revertRGB(def_text->back);
       fc.ForegroundColor = revertRGB(def_text->fore);
+      fc.BackgroundRGBA.a = 0xFF;
+      fc.ForegroundRGBA.a = 0xFF;
     }
     else {
       fc.Flags = FCF_4BITMASK;
       fc.BackgroundColor = def_text->back;
       fc.ForegroundColor = def_text->fore;
     }
-    fc.Reserved = nullptr;
     fsc.Colors = &fc;
     return Info.AdvControl(&MainGuid, ACTL_SETARRAYCOLOR, 0, &fsc) != 0;
   }
