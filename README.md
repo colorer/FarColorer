@@ -15,7 +15,13 @@ Check F9 - Options - Plugins configuration - FarColorer
 It only works for (F4)Edit, (F3)View is not supported, as there is no API. 
 but you can type in the console `clr:name_of_file` 
 This launches the built-in viewer colorer.
-  
+
+Branches
+==========
+There is two main branches:
+  * master - current fully supported version. Only actual platforms, as Win10 and VC2019
+  * v1.3.x / build-from-far - version with Windows XP support, is built on Visual Studio 2017 and some old 2019.
+
 How to build from source
 ==========
 To build plugin from source, you will need:
