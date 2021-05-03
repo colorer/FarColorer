@@ -2,6 +2,7 @@
 #define _PCOLORER_H_
 
 #include <initguid.h>
+#include <rpc.h>
 #include <plugin.hpp>
 // Dialog Guid
 // {D2F36B62-A470-418d-83A3-ED7A3710E5B5}

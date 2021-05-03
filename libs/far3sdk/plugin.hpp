@@ -49,7 +49,6 @@ other possible license with no implications from the above license on them.
 
 #ifndef RC_INVOKED
 
-#include <rpc.h>
 #include <stdint.h>
 #include <windows.h>
 
