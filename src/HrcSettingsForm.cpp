@@ -70,15 +70,15 @@ bool HrcSettingsForm::showForm()
       {DI_BUTTON, 45, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},                  // IDX_CH_CANCEL,
   };
 
-  fdi[IDX_CH_BOX].Data = farEditorSet->GetMsg(mUserHrcSettingDialog);
-  fdi[IDX_CH_CAPTIONLIST].Data = farEditorSet->GetMsg(mListSyntax);
+  fdi[IDX_CH_BOX].Data = FarEditorSet::GetMsg(mUserHrcSettingDialog);
+  fdi[IDX_CH_CAPTIONLIST].Data = FarEditorSet::GetMsg(mListSyntax);
   FarList* l = buildHrcList();
   fdi[IDX_CH_SCHEMAS].ListItems = l;
   fdi[IDX_CH_SCHEMAS].Flags = DIF_LISTWRAPMODE | DIF_DROPDOWNLIST;
-  fdi[IDX_CH_OK].Data = farEditorSet->GetMsg(mOk);
-  fdi[IDX_CH_CANCEL].Data = farEditorSet->GetMsg(mCancel);
-  fdi[IDX_CH_PARAM_LIST].Data = farEditorSet->GetMsg(mParamList);
-  fdi[IDX_CH_PARAM_VALUE_CAPTION].Data = farEditorSet->GetMsg(mParamValue);
+  fdi[IDX_CH_OK].Data = FarEditorSet::GetMsg(mOk);
+  fdi[IDX_CH_CANCEL].Data = FarEditorSet::GetMsg(mCancel);
+  fdi[IDX_CH_PARAM_LIST].Data = FarEditorSet::GetMsg(mParamList);
+  fdi[IDX_CH_PARAM_VALUE_CAPTION].Data = FarEditorSet::GetMsg(mParamValue);
   fdi[IDX_CH_DESCRIPTION].Flags = DIF_READONLY;
 
   fdi[IDX_CH_PARAM_LIST].Flags = DIF_LISTWRAPMODE | DIF_LISTNOCLOSE;

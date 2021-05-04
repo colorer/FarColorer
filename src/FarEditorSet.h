@@ -142,7 +142,7 @@ class FarEditorSet
    */
   enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons, const wchar_t* hrdTm,
-                    const bool full, const HRC_MODE hrc_mode);
+                    bool full, HRC_MODE hrc_mode);
 
   [[nodiscard]] bool GetPluginStatus() const
   {
@@ -193,7 +193,7 @@ class FarEditorSet
   /** Shows dialog of file type selection */
   bool chooseType();
   /** FAR localized messages */
-  const wchar_t* GetMsg(int msg);
+  static const wchar_t* GetMsg(int msg);
   /** Applies the current settings for editors*/
   void ApplySettingsToEditors();
   /** writes settings in the registry*/

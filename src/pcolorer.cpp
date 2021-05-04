@@ -22,9 +22,9 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo* gInfo)
 {
   gInfo->StructSize = sizeof(GlobalInfo);
   gInfo->MinFarVersion = MAKEFARVERSION(3, 0, 0, 3371, VS_RELEASE);
-  gInfo->Version = MAKEFARVERSION(VER_FILEVERSION, VS_RELEASE);
+  gInfo->Version = MAKEFARVERSION(PLUGIN_VER_MAJOR, PLUGIN_VER_MINOR, PLUGIN_VER_PATCH, 0, VS_RELEASE);
   gInfo->Guid = MainGuid;
-  gInfo->Title = L"FarColorer";
+  gInfo->Title = PLUGIN_NAME;
   gInfo->Description = L"Syntax highlighting in Far editor";
   gInfo->Author = L"Igor Ruskih, Dobrunov Aleksey, Eugene Efremov";
 }

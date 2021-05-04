@@ -4,28 +4,30 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION VER_FILEVERSION
- PRODUCTVERSION VER_PRODUCTVERSION
- FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS 0
+
 #ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
+| VS_FF_PRERELEASE | VS_FF_DEBUG
 #endif
- FILEOS VOS_NT_WINDOWS32
- FILETYPE VFT_APP
+
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+
+FILEVERSION PLUGIN_VER_MAJOR,PLUGIN_VER_MINOR,PLUGIN_VER_PATCH,0
+PRODUCTVERSION PLUGIN_VER_MAJOR,PLUGIN_VER_MINOR,PLUGIN_VER_PATCH,0
+
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription", FILE_DESCRIPTION
-            VALUE "FileVersion", VER_FILEVERSION_STR
-            VALUE "InternalName", "FarColorer"
-            VALUE "LegalCopyright", "(c) 1999-2009 Igor Russkih, (c) Aleksey Dobrunov 2009-2020"
-            VALUE "OriginalFilename", "colorer.dll"
-            VALUE "ProductName", "FarColorer library"
-            VALUE "ProductVersion", VER_PRODUCTVERSION_STR
+            VALUE "FileDescription", PLUGIN_DESC
+            VALUE "FileVersion", PLUGIN_VERSION
+            VALUE "LegalCopyright", PLUGIN_COPYRIGHT
+            VALUE "OriginalFilename", PLUGIN_FILENAME
+            VALUE "ProductName", PLUGIN_NAME
+            VALUE "ProductVersion", PLUGIN_VERSION
         END
     END
     BLOCK "VarFileInfo"

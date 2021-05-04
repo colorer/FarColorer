@@ -1,6 +1,5 @@
 #include "tools.h"
 #include <colorer/common/UStr.h>
-#include "FarEditorSet.h"
 
 wchar_t* rtrim(wchar_t* str)
 {
