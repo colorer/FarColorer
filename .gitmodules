@@ -1,3 +1,7 @@
 [submodule "external/vcpkg"]
 	path = external/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
+[submodule "external/colorer"]
+	path = external/colorer
+	url = https://github.com/colorer/Colorer-library
+	branch = master

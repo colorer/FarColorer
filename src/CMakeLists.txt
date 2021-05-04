@@ -64,22 +64,23 @@ set(MAIN_FLAGS_CXX_RELEASE ${FLAGS_CXX_RELEASE} ${FLAGS_CXX_DEFAULT})
 #====================================================
 
 set(SRC_FILES ${SRC_CPP} ${SRC_DEF})
-add_library(colorer SHARED ${SRC_FILES})
-target_link_libraries(colorer colorer::colorer_lib)
-target_include_directories(colorer
+add_library(farcolorer SHARED ${SRC_FILES})
+target_link_libraries(farcolorer colorer_lib)
+target_include_directories(farcolorer
     PRIVATE ${PROJECT_SOURCE_DIR}/external/far3sdk/
     )
 
-set_target_properties(colorer PROPERTIES
+set_target_properties(farcolorer PROPERTIES OUTPUT_NAME "colorer")
+set_target_properties(farcolorer PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
     )
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
-  target_compile_options(colorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_DEBUG}>)
+  target_compile_options(farcolorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_DEBUG}>)
 else()
-  target_compile_options(colorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_RELEASE}>)
+  target_compile_options(farcolorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_RELEASE}>)
 endif()
 
-set_target_properties(colorer PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
+set_target_properties(farcolorer PROPERTIES LINK_FLAGS "${LINK_FLAGS}")

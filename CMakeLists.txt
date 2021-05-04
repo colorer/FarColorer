@@ -45,7 +45,21 @@ endif()
 #====================================================
 # find dependences
 #====================================================
-find_package(colorer CONFIG REQUIRED)
+# core library
+find_package(ICU COMPONENTS uc data REQUIRED)
+find_package(XercesC REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+if(COLORER_USE_JARINPUTSOURCE)
+  find_package(ZLIB REQUIRED)
+  find_package(minizip REQUIRED)
+endif()
+
+#====================================================
+# colorer
+#====================================================
+set(COLORER_BUILD_TOOLS OFF CACHE BOOL "Build colorer tools")
+add_subdirectory(./external/colorer)
 
 #====================================================
 # farcolorer
@@ -55,7 +69,7 @@ add_subdirectory(./src)
 #====================================================
 # install
 #====================================================
-install(TARGETS colorer RUNTIME DESTINATION bin)
+install(TARGETS farcolorer RUNTIME DESTINATION bin)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/misc/ DESTINATION bin)
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/src/colorer.map
