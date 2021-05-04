@@ -1104,13 +1104,6 @@ bool FarEditorSet::configureLogging()
   return true;
 }
 
-HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
-{
-  auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
-  auto* mi = (OpenMacroInfo*) oInfo->Data;
-  return execMacro(area, mi);
-}
-
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
 {
   auto* ocli = (OpenCommandLineInfo*) oInfo->Data;
@@ -1215,18 +1208,84 @@ void FarEditorSet::enableColorerInEditor()
 
 #pragma region macro_functions
 
+HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
+{
+  auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
+  auto* mi = (OpenMacroInfo*) oInfo->Data;
+  return execMacro(area, mi);
+}
+
+void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (params->Values[0].Type != FMVT_STRING) {
+    return nullptr;
+  }
+
+  UnicodeString command_type = UnicodeString(params->Values[0].String);
+
+  if (UnicodeString("Settings").caseCompare(command_type, 0) == 0) {
+    return macroSettings(area, params);
+  }
+
+  if (UnicodeString("Menu").caseCompare(command_type, 0) == 0) {
+    return macroMenu(area, params);
+  }
+
+  // one parameter functions only up here
+  if (params->Count == 1) {
+    return nullptr;
+  }
+
+  if (UnicodeString("Types").caseCompare(command_type, 0) == 0) {
+    return macroTypes(area, params);
+  }
+
+  if (UnicodeString("Brackets").caseCompare(command_type, 0) == 0) {
+    return macroBrackets(area, params);
+  }
+
+  if (UnicodeString("Region").caseCompare(command_type, 0) == 0) {
+    return macroRegion(area, params);
+  }
+
+  if (UnicodeString("Functions").caseCompare(command_type, 0) == 0) {
+    return macroFunctions(area, params);
+  }
+
+  if (UnicodeString("Errors").caseCompare(command_type, 0) == 0) {
+    return macroErrors(area, params);
+  }
+
+  if (UnicodeString("Editor").caseCompare(command_type, 0) == 0) {
+    return macroEditor(area, params);
+  }
+
+  if (UnicodeString("ParamsOfType").caseCompare(command_type, 0) == 0) {
+    return macroParams(area, params);
+  }
+
+  return nullptr;
+}
+
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
   (void) area;
-  if (FMVT_STRING != params->Values[1].Type)
+
+  if (params->Count == 1) {
+    menuConfigure();
+    return INVALID_HANDLE_VALUE;
+  }
+
+  if (FMVT_STRING != params->Values[1].Type) {
     return nullptr;
+  }
   UnicodeString command = UnicodeString(params->Values[1].String);
 
   if (UnicodeString("Main").caseCompare(command, 0) == 0) {
     return configure() ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (UnicodeString("Menu").caseCompare(command, 0) == 0) {
-    openMenu();
+    menuConfigure();
     return INVALID_HANDLE_VALUE;
   }
   if (UnicodeString("Log").caseCompare(command, 0) == 0) {
@@ -1256,6 +1315,18 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
     SaveLogSettings();
     FarHrcSettings p(parserFactory.get());
     p.writeUserProfile();
+    return INVALID_HANDLE_VALUE;
+  }
+  return nullptr;
+}
+
+void* FarEditorSet::macroMenu(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR)
+    return nullptr;
+
+  if (params->Count == 1) {
+    openMenu();
     return INVALID_HANDLE_VALUE;
   }
   return nullptr;
@@ -1687,46 +1758,4 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
 
   return nullptr;
 }
-
-void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
-{
-  if (params->Count < 2 || params->Values[0].Type != FMVT_STRING)
-    return nullptr;
-
-  UnicodeString command_type = UnicodeString(params->Values[0].String);
-  if (UnicodeString("Settings").caseCompare(command_type, 0) == 0) {
-    return macroSettings(area, params);
-  }
-
-  if (UnicodeString("Types").caseCompare(command_type, 0) == 0) {
-    return macroTypes(area, params);
-  }
-
-  if (UnicodeString("Brackets").caseCompare(command_type, 0) == 0) {
-    return macroBrackets(area, params);
-  }
-
-  if (UnicodeString("Region").caseCompare(command_type, 0) == 0) {
-    return macroRegion(area, params);
-  }
-
-  if (UnicodeString("Functions").caseCompare(command_type, 0) == 0) {
-    return macroFunctions(area, params);
-  }
-
-  if (UnicodeString("Errors").caseCompare(command_type, 0) == 0) {
-    return macroErrors(area, params);
-  }
-
-  if (UnicodeString("Editor").caseCompare(command_type, 0) == 0) {
-    return macroEditor(area, params);
-  }
-
-  if (UnicodeString("ParamsOfType").caseCompare(command_type, 0) == 0) {
-    return macroParams(area, params);
-  }
-
-  return nullptr;
-}
-
 #pragma endregion macro_functions
