@@ -44,7 +44,7 @@ Build colorer and dependency, if they are not in the local cache:
     mkdir build
     cd build
     cmake -S .. -G "Visual Studio 16 2019" -DCMAKE_TOOLCHAIN_FILE=../external/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_OVERLAY_PORTS=../external/vcpkg-ports -DVCPKG_FEATURE_FLAGS=versions -DCOLORER_BUILD_ARCH=x64
-    colorer.sln
+    farcolorer.sln
 
 For x86 platform use `-DVCPKG_TARGET_TRIPLET=x86-windows-static` and `-DCOLORER_BUILD_ARCH=x86`.
 Once builded, the dependencies will be cached in the local cache.
