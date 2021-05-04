@@ -18,9 +18,6 @@ FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnab
     // subscribe for event change text
     EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
     info->EditorControl(editor_id, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
-
-    horzCrossColor = FarColor();
-    vertCrossColor = FarColor();
   }
 }
 
@@ -43,7 +40,7 @@ UnicodeString* FarEditor::getLine(size_t lno)
 {
   EditorGetString es {};
   es.StructSize = sizeof(EditorGetString);
-  es.StringNumber = lno;
+  es.StringNumber = (intptr_t) lno;
 
   intptr_t len = 0;
   if (info->EditorControl(editor_id, ECTL_GETSTRING, 0, &es)) {
@@ -51,13 +48,12 @@ UnicodeString* FarEditor::getLine(size_t lno)
     if (len > maxLineLength && maxLineLength > 0) {
       len = maxLineLength;
     }
+    ret_str = std::make_unique<UnicodeString>(es.StringText, 0, (int) len);
+    return ret_str.get();
   }
   else {
-    len = 0;
+    return nullptr;
   }
-
-  ret_str = std::make_unique<UnicodeString>(es.StringText, 0, (int) len);
-  return ret_str.get();
 }
 
 void FarEditor::chooseFileType(UnicodeString* fname)
@@ -195,7 +191,6 @@ void FarEditor::setRegionMapper(RegionMapper* rs)
   horzCrossColor = convert(StyledRegion::cast(baseEditor->rd_def_HorzCross));
   vertCrossColor = convert(StyledRegion::cast(baseEditor->rd_def_VertCross));
 
-  // TODO
   if (!horzCrossColor.BackgroundColor && !horzCrossColor.ForegroundColor) {
     horzCrossColor.ForegroundColor = 0xE;
   }
@@ -206,8 +201,6 @@ void FarEditor::setRegionMapper(RegionMapper* rs)
 
 void FarEditor::matchPair()
 {
-  EditorSetPosition esp {};
-  esp.StructSize = sizeof(EditorSetPosition);
   EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair((int) ei.CurLine, (int) ei.CurPos);
 
@@ -216,6 +209,8 @@ void FarEditor::matchPair()
     return;
   }
 
+  EditorSetPosition esp {};
+  esp.StructSize = sizeof(EditorSetPosition);
   esp.CurTabPos = -1;
   esp.LeftPos = -1;
   esp.Overtype = -1;
@@ -243,9 +238,6 @@ void FarEditor::matchPair()
 
 void FarEditor::selectPair()
 {
-  EditorSelect es {};
-  es.StructSize = sizeof(EditorSelect);
-  int X1, X2, Y1, Y2;
   EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair((int) ei.CurLine, (int) ei.CurPos);
 
@@ -254,6 +246,7 @@ void FarEditor::selectPair()
     return;
   }
 
+  int X1, X2, Y1, Y2;
   if (pm->topPosition) {
     X1 = pm->start->end;
     X2 = pm->end->start - 1;
@@ -267,6 +260,8 @@ void FarEditor::selectPair()
     Y1 = pm->eline;
   }
 
+  EditorSelect es {};
+  es.StructSize = sizeof(EditorSelect);
   es.BlockType = BTYPE_STREAM;
   es.BlockStartLine = Y1;
   es.BlockStartPos = X1;
@@ -280,9 +275,6 @@ void FarEditor::selectPair()
 
 void FarEditor::selectBlock()
 {
-  EditorSelect es {};
-  es.StructSize = sizeof(EditorSelect);
-  int X1, X2, Y1, Y2;
   EditorInfo ei = enterHandler();
   PairMatch* pm = baseEditor->searchGlobalPair((int) ei.CurLine, (int) ei.CurPos);
 
@@ -291,6 +283,7 @@ void FarEditor::selectBlock()
     return;
   }
 
+  int X1, X2, Y1, Y2;
   if (pm->topPosition) {
     X1 = pm->start->start;
     X2 = pm->end->end - 1;
@@ -304,6 +297,8 @@ void FarEditor::selectBlock()
     Y1 = pm->eline;
   }
 
+  EditorSelect es {};
+  es.StructSize = sizeof(EditorSelect);
   es.BlockType = BTYPE_STREAM;
   es.BlockStartLine = Y1;
   es.BlockStartPos = X1;
@@ -317,13 +312,14 @@ void FarEditor::selectBlock()
 
 void FarEditor::selectRegion()
 {
-  EditorSelect es {};
-  es.StructSize = sizeof(EditorSelect);
+  EditorInfo ei = enterHandler();
   EditorGetString egs {};
   egs.StructSize = sizeof(EditorGetString);
-  EditorInfo ei = enterHandler();
   egs.StringNumber = ei.CurLine;
   info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
+
+  EditorSelect es {};
+  es.StructSize = sizeof(EditorSelect);
   if (cursorRegion != nullptr) {
     intptr_t end = cursorRegion->end;
 
@@ -450,7 +446,7 @@ void FarEditor::locateFunction()
     }
 
     esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
-    esp.CurLine = item_found->lno;
+    esp.CurLine = (intptr_t) item_found->lno;
     esp.CurPos = item_found->pos;
     esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
 
@@ -982,7 +978,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
         auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
-        esp.CurLine = item->lno;
+        esp.CurLine = (intptr_t) item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
 
@@ -1031,7 +1027,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
         auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
-        esp.CurLine = item->lno;
+        esp.CurLine = (intptr_t) item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
 
@@ -1058,7 +1054,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
         esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
         auto* item = reinterpret_cast<OutlineItem*>(menu[sel].UserData);
-        esp.CurLine = item->lno;
+        esp.CurLine = (intptr_t) item->lno;
         esp.CurPos = item->pos;
         esp.TopScreenLine = esp.CurLine - ei.WindowSizeY / 2;
 

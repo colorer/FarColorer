@@ -129,8 +129,8 @@ class FarEditor : public LineSource
   bool showVerticalCross = false;
   bool showHorizontalCross = false;
   int crossZOrder = 0;
-  FarColor horzCrossColor;
-  FarColor vertCrossColor;
+  FarColor horzCrossColor{};
+  FarColor vertCrossColor{};
 
   bool drawPairs = true;
   bool drawSyntax = true;
