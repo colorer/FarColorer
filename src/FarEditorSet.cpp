@@ -1582,23 +1582,23 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     auto cur_status = editor->getCrossStatus();
 
     if (params->Count > 2) {
-      // change style
+      // change status
       int val = static_cast<int>(macroGetValue(params->Values + 2));
-      if (val >= FarEditor::CROSS_STYLE::CSTYLE_VERT && val <= FarEditor::CROSS_STYLE::CSTYLE_BOTH)
-        editor->setCrossStyle(val);
+      if (val >= FarEditor::CROSS_STATUS::CROSS_OFF && val <= FarEditor::CROSS_STATUS::CROSS_INSCHEME)
+        editor->setCrossState(val, Opt.CrossStyle);
     }
     if (params->Count > 3) {
-      // change status
+      // change style
       int val = static_cast<int>(macroGetValue(params->Values + 3));
-      if (val >= FarEditor::CROSS_STATUS::CROSS_OFF && val <= FarEditor::CROSS_STATUS::CROSS_INSCHEME)
-        editor->setCrossStatus(val);
+      if (val >= FarEditor::CROSS_STYLE::CSTYLE_VERT && val <= FarEditor::CROSS_STYLE::CSTYLE_BOTH)
+        editor->setCrossStyle(val);
     }
 
     auto* out_params = new FarMacroValue[2];
     out_params[0].Type = FMVT_INTEGER;
-    out_params[0].Integer = cur_style;
+    out_params[0].Integer = cur_status;
     out_params[1].Type = FMVT_INTEGER;
-    out_params[1].Integer = cur_status;
+    out_params[1].Integer = cur_style;
 
     return macroReturnValues(out_params, 2);
   }
