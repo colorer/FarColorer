@@ -410,8 +410,8 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
     int CurPosCons = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr);
     int CurPosTm = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr);
 
-    return !fes->TestLoadBase(temp, userhrd, userhrc, &fes->hrd_con_instances.at(CurPosCons)->hrd_name, &fes->hrd_rgb_instances.at(CurPosTm)->hrd_name,
-                              false, FarEditorSet::HRCM_BOTH);
+    return !fes->TestLoadBase(temp, userhrd, userhrc, &fes->hrd_con_instances.at(CurPosCons)->hrd_name,
+                              &fes->hrd_rgb_instances.at(CurPosTm)->hrd_name, false, FarEditorSet::HRCM_BOTH);
   }
 
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -1096,15 +1096,6 @@ bool FarEditorSet::configureLogging()
   return true;
 }
 
-HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
-{
-  auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
-  auto* mi = (OpenMacroInfo*) oInfo->Data;
-  if (mi->Count > 1)
-    return execMacro(area, mi);
-  return nullptr;
-}
-
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
 {
   auto* ocli = (OpenCommandLineInfo*) oInfo->Data;
@@ -1208,18 +1199,82 @@ void FarEditorSet::enableColorerInEditor()
 
 #pragma region macro_functions
 
+HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
+{
+  auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
+  auto* mi = (OpenMacroInfo*) oInfo->Data;
+  return execMacro(area, mi);
+}
+
+void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (params->Values[0].Type != FMVT_STRING) {
+    return nullptr;
+  }
+
+  SString command_type = SString(CString(params->Values[0].String));
+  if (CString("Settings").equalsIgnoreCase(&command_type)) {
+    return macroSettings(area, params);
+  }
+
+  if (CString("Menu").equalsIgnoreCase(&command_type)) {
+    return macroMenu(area, params);
+  }
+
+  // one parameter functions only up here
+  if (params->Count == 1) {
+    return nullptr;
+  }
+
+  if (CString("Types").equalsIgnoreCase(&command_type)) {
+    return macroTypes(area, params);
+  }
+
+  if (CString("Brackets").equalsIgnoreCase(&command_type)) {
+    return macroBrackets(area, params);
+  }
+
+  if (CString("Region").equalsIgnoreCase(&command_type)) {
+    return macroRegion(area, params);
+  }
+
+  if (CString("Functions").equalsIgnoreCase(&command_type)) {
+    return macroFunctions(area, params);
+  }
+
+  if (CString("Errors").equalsIgnoreCase(&command_type)) {
+    return macroErrors(area, params);
+  }
+
+  if (CString("Editor").equalsIgnoreCase(&command_type)) {
+    return macroEditor(area, params);
+  }
+
+  if (CString("ParamsOfType").equalsIgnoreCase(&command_type)) {
+    return macroParams(area, params);
+  }
+
+  return nullptr;
+}
+
 void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
 {
   (void) area;
-  if (FMVT_STRING != params->Values[1].Type)
+  if (params->Count == 1) {
+    menuConfigure();
+    return INVALID_HANDLE_VALUE;
+  }
+
+  if (FMVT_STRING != params->Values[1].Type) {
     return nullptr;
+  }
   SString command = SString(CString(params->Values[1].String));
 
   if (CString("Main").equalsIgnoreCase(&command)) {
     return configure() ? INVALID_HANDLE_VALUE : nullptr;
   }
   if (CString("Menu").equalsIgnoreCase(&command)) {
-    openMenu(12);
+    menuConfigure();
     return INVALID_HANDLE_VALUE;
   }
   if (CString("Log").equalsIgnoreCase(&command)) {
@@ -1249,6 +1304,18 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
     SaveLogSettings();
     FarHrcSettings p(parserFactory.get());
     p.writeUserProfile();
+    return INVALID_HANDLE_VALUE;
+  }
+  return nullptr;
+}
+
+void* FarEditorSet::macroMenu(FARMACROAREA area, OpenMacroInfo* params)
+{
+  if (area != MACROAREA_EDITOR)
+    return nullptr;
+
+  if (params->Count == 1) {
+    openMenu();
     return INVALID_HANDLE_VALUE;
   }
   return nullptr;
@@ -1504,23 +1571,23 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     auto cur_status = editor->getCrossStatus();
 
     if (params->Count > 2) {
-      // change style
+      // change status
       int val = static_cast<int>(macroGetValue(params->Values + 2));
-      if (val >= FarEditor::CROSS_STYLE::CSTYLE_VERT && val <= FarEditor::CROSS_STYLE::CSTYLE_BOTH)
-        editor->setCrossStyle(val);
+      if (val >= FarEditor::CROSS_STATUS::CROSS_OFF && val <= FarEditor::CROSS_STATUS::CROSS_INSCHEME)
+        editor->setCrossState(val, Opt.CrossStyle);
     }
     if (params->Count > 3) {
-      // change status
+      // change style
       int val = static_cast<int>(macroGetValue(params->Values + 3));
-      if (val >= FarEditor::CROSS_STATUS::CROSS_OFF && val <= FarEditor::CROSS_STATUS::CROSS_INSCHEME)
-        editor->setCrossStatus(val);
+      if (val >= FarEditor::CROSS_STYLE::CSTYLE_VERT && val <= FarEditor::CROSS_STYLE::CSTYLE_BOTH)
+        editor->setCrossStyle(val);
     }
 
     auto* out_params = new FarMacroValue[2];
     out_params[0].Type = FMVT_INTEGER;
-    out_params[0].Integer = cur_style;
+    out_params[0].Integer = cur_status;
     out_params[1].Type = FMVT_INTEGER;
-    out_params[1].Integer = cur_status;
+    out_params[1].Integer = cur_style;
 
     return macroReturnValues(out_params, 2);
   }
@@ -1679,46 +1746,4 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
 
   return nullptr;
 }
-
-void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
-{
-  if (params->Count < 2 || params->Values[0].Type != FMVT_STRING)
-    return nullptr;
-
-  SString command_type = SString(CString(params->Values[0].String));
-  if (CString("Settings").equalsIgnoreCase(&command_type)) {
-    return macroSettings(area, params);
-  }
-
-  if (CString("Types").equalsIgnoreCase(&command_type)) {
-    return macroTypes(area, params);
-  }
-
-  if (CString("Brackets").equalsIgnoreCase(&command_type)) {
-    return macroBrackets(area, params);
-  }
-
-  if (CString("Region").equalsIgnoreCase(&command_type)) {
-    return macroRegion(area, params);
-  }
-
-  if (CString("Functions").equalsIgnoreCase(&command_type)) {
-    return macroFunctions(area, params);
-  }
-
-  if (CString("Errors").equalsIgnoreCase(&command_type)) {
-    return macroErrors(area, params);
-  }
-
-  if (CString("Editor").equalsIgnoreCase(&command_type)) {
-    return macroEditor(area, params);
-  }
-
-  if (CString("ParamsOfType").equalsIgnoreCase(&command_type)) {
-    return macroParams(area, params);
-  }
-
-  return nullptr;
-}
-
 #pragma endregion macro_functions

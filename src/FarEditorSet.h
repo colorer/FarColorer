@@ -210,6 +210,7 @@ class FarEditorSet
   void setEmptyLogger();
 
   void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroMenu(FARMACROAREA area, OpenMacroInfo* params);
   void* macroTypes(FARMACROAREA area, OpenMacroInfo* params);
   void* macroBrackets(FARMACROAREA area, OpenMacroInfo* params);
   void* macroRegion(FARMACROAREA area, OpenMacroInfo* params);
