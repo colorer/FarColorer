@@ -228,6 +228,7 @@ class FarEditorSet
   void execMenuAction(MENU_ACTION action, FarEditor* editor);
 
   void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroMenu(FARMACROAREA area, OpenMacroInfo* params);
   void* macroTypes(FARMACROAREA area, OpenMacroInfo* params);
   void* macroBrackets(FARMACROAREA area, OpenMacroInfo* params);
   void* macroRegion(FARMACROAREA area, OpenMacroInfo* params);
