@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  create-release:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Create release
+        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version"
+        env:
+          GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
+
+  windows:
+    needs: [ create-release ]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, x86]
+        include:
+          - arch: x64
+            triplet: x64-windows-static
+          - arch: x86
+            triplet: x86-windows-static
+
+    env:
+      BUILD_TYPE: Release
+      VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
+
+    runs-on: windows-2019
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Add C++ build tools to PATH
+        uses: ilammy/msvc-dev-cmd@v1.5.0
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Install vcpkg
+        run: |
+          cd external\vcpkg
+          .\bootstrap-vcpkg.bat
+
+      - name: Setup NuGet Credentials for vpckg cache
+        shell: bash
+        run: >
+          `$VCPKG_INSTALLATION_ROOT/vcpkg fetch nuget | tail -n 1`
+          sources add
+          -source "https://nuget.pkg.github.com/colorer/index.json"
+          -storepasswordincleartext
+          -name "GitHub"
+          -username "${{ secrets.PACKAGES_GITHUB_USER }}"
+          -password "${{ secrets.PACKAGES_GITHUB_TOKEN }}"
+
+      - name: Create Build forlder
+        run: cmake -E make_directory build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: build
+        run: >
+          cmake $GITHUB_WORKSPACE -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCOLORER_BUILD_ARCH=${{ matrix.arch }}
+          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/vcpkg-ports
+          -DVCPKG_FEATURE_FLAGS=versions -DCMAKE_INSTALL_PREFIX=./install/FarColorer
+
+      - name: Build
+        working-directory: build
+        shell: bash
+        run: cmake --build . --config $BUILD_TYPE
+
+      - name: Install
+        working-directory: build
+        shell: bash
+        run: cmake --install . --config $BUILD_TYPE
+
+      - name: Download scheme
+        working-directory: build
+        shell: bash
+        run: |
+          curl -s https://api.github.com/repos/colorer/Colorer-schemes/releases/latest | grep -o "https://.*colorer-base\.packed.*.zip" | xargs curl -fsLJO
+          zipfilename="$(find . -name "colorer-base*.zip")"
+          7z x $zipfilename -o./install/FarColorer/base
+
+      - name: Set the pack file name
+        shell: bash
+        run: |
+          echo "farcolorer_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
+          echo "farcolorer_pdb_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
+
+      - name: pack plugin
+        working-directory: build
+        shell: bash
+        run: |
+          7z a ${{ env.farcolorer_name }} ./install/FarColorer/*
+          7z a ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
+
+      - name: Publish artifact
+        run: |
+          gh release upload ${{ steps.get_version.outputs.version }} ./build/${{ env.farcolorer_name }}
+          gh release upload ${{ steps.get_version.outputs.version }} ./build/${{ env.farcolorer_pdb_name }}
+        env:
+          GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}

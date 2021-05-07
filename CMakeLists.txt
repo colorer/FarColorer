@@ -59,6 +59,7 @@ endif()
 # colorer
 #====================================================
 set(COLORER_BUILD_TOOLS OFF CACHE BOOL "Build colorer tools")
+set(COLORER_BUILD_INSTALL OFF CACHE BOOL "Make targets for install")
 add_subdirectory(./external/colorer)
 
 #====================================================
