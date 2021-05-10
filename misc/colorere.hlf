@@ -2,7 +2,7 @@
 .PluginContents=FarColorer
 
 @contents
-$^#FarColorer
+$# FarColorer
 
     ~Settings menu.~@settingsmenu@
     ~Plugin setup.~@config@
@@ -18,7 +18,7 @@ $^#FarColorer
     ~About authors.~@author@
 
 @settingsmenu
-$#Settings
+$# Settings
 
   #Main settings#
     Open dialog for main settings.
@@ -27,57 +27,46 @@ $#Settings
     Open dialog for shemes settings. The dialog does not work if the plugin is disabled.
 
   #Logging settings#
-    Open dialog for log settings
-    
+    Open dialog for log settings.
+
   #Test schema library#
     Tests ability to load all the language of schemes, taking the path to catalog.xml from the settings window.
 
-
 @config
-$^#FarColorer's settings.#
+$# FarColorer's settings
 
   #Enabled#
      Enable/Disable FarColorer.
 
   #catalog.xml file:#
-     Full file path sets default catalog file for FarColorer.
-     If this field is empty FarColorer trying to find the file automatically
-     in a subfolder of "base" parent directory plugin.
+     Full file path sets default catalog file for FarColorer. If this field is empty FarColorer trying to find the file automatically in a subfolder of "base" parent directory plugin.
 
   #Users file of schemes#
-     Full file path sets the users file of schemes
+     Full file path sets the users file of schemes.
 
   #Users file of color styles#
-     Full file path sets the users file of color styles
+     Full file path sets the users file of color styles.
 
   #Color style:#
-     Choose a color style, which will be used for coloring text.
-     The choice does not work if the plugin is disabled.
+     Choose a color style, which will be used for coloring text. The choice does not work if the plugin is disabled.
 
   #TrueMod Enabled#
      Enable/Disable TrueMod in plugin.
 
   #TrueMod color style:#
-     Choose a color style, which will be used for coloring text in TrueMod.
-     The choice does not work if the plugin is disabled.
+     Choose a color style, which will be used for coloring text in TrueMod. The choice does not work if the plugin is disabled.
 
   #Pairs#
-     Allocate or not paired language elements (brackets, quotes)
+     Allocate or not paired language elements (brackets, quotes).
 
   #Syntax#
      Turns on display of syntax
 
   #Classic outline style#
-     In classic style displays only the name of the function. Otherwise show
-     the beginning of the line number, then the first letter in the function
-     and the function name itself.
+     In classic style displays only the name of the function. Otherwise show the beginning of the line number, then the first letter in the function and the function name itself.
 
   #Change background editor#
-     In the set condition, FarColorer set in System Preferences color of
-     "Plain Text" color group "editor" such as and the default color for
-     the color scheme FarColorer.
-     The effect is visible on the files, the number of rows in less than window height
-     editor.
+     In the set condition, FarColorer set in System Preferences color of "Plain Text" color group "editor" such as and the default color for the color scheme FarColorer. The effect is visible on the files, the number of rows in less than window height editor.
 
   #Cross#
      [ ] Do not show ever
@@ -85,99 +74,82 @@ $^#FarColorer's settings.#
      [x] Always Show.
 
   #Cross style#
-     Cross style shown when "[x] Cross"
+     Cross style shown when "[x] Cross".
 
   #Period for build#
-     The frequency, in milliseconds, at which Far call "background" parsing of the file in Colorer. The lower value -
-     the faster large file is drawn, but the responsiveness of the screen drops.
+     The frequency, in milliseconds, at which Far call "background" parsing of the file in Colorer. The lower value - the faster large file is drawn, but the responsiveness of the screen drops.
 
   #{ Ok }#
      Closes dialog and save settings.
 
 @confighrc
-$^#Schemes settings#
-    For each of the selected schemes, a list of parameters that affect the mapping
-coloring.
-    Parameter value - the value set for this parameter.
-Values of the form <default-znach.> shows that the parameter is "znach." It is set
-in the system (non-user) settings of the scheme or scheme is taken from default.
-    Save all the changes occurs after clicking "OK" button.
-	
+$# Schemes settings
+    For each of the selected schemes, a list of parameters that affect the mapping coloring. Parameter value - the value set for this parameter. Values of the form <default-znach.> shows that the parameter is "znach." It is set in the system (non-user) settings of the scheme or scheme is taken from default. Save all the changes occurs after clicking "OK" button.
+
 @configlog
-$^#Logging settings#
+$# Logging settings
 
   #Enable logging#
-    Enable/Disable logging
+    Enable/Disable logging.
 
   #Logging level#
-    Log level from list
+    Log level from list.
 
   #Log path#
-    Path to folder where log files will be stored
+    Path to folder where log files will be stored.
 
 @cmdline
 $# Command line support
-    You can use the plugin from FAR's command line with prefix 'clr:'
-to view files with syntax highlighting in FarColorer's internal viewer.
-To view file you have to specify file name after the 'clr:' prefix
-in FAR's command line. This function is equal to #colorer.exe# program
-features, but doesn't load HRC database each time, so it works faster.
+    You can use the plugin from FAR's command line with prefix 'clr:' to view files with syntax highlighting in FarColorer's internal viewer. To view file you have to specify file name after the 'clr:' prefix in FAR's command line.
+    This function is equal to #colorer.exe# program features, but doesn't load HRC database each time, so it works faster.
 
 @add
 $# Outliner
-    Here you can see a list of all functions or syntax errors found.
-Choose any item to go to corresponding line in text.
+    Here you can see a list of all functions or syntax errors found. Choose any item to go to corresponding line in text.
 
     You can use keyboard filter to quickly search for required items:
 
     #Ctrl-Left/Right#
-      Expand-Collapse level of Outliner
+      Expand-Collapse level of Outliner.
 
     #Ctrl-Up/Down#
-      Move to next/previous item both in outliner and in source code
+      Move to next/previous item both in outliner and in source code.
 
     #Ctrl-Enter#
-      Close the outliner and insert current item into the cursor position
+      Close the outliner and insert current item into the cursor position.
 
     #Enter#
-      Close the outliner and jump to the selected item
+      Close the outliner and jump to the selected item.
 
     #Tab#
-      Complementing filter symbols, written after '?' in the field of display filter
+      Complementing filter symbols, written after '?' in the field of display filter.
 
     #Symbol keys [0-9a-z;:-_]#
-      Filter out the outliner items against entered filter
+      Filter out the outliner items against entered filter.
 
 @menu
-$#FarColorer operation
+$# FarColorer operation
 
   #1 List types#
-    Lists all supported file types. You can choose any of them to use
-with current editor.
+    Lists all supported file types. You can choose any of them to use with current editor.
 
   #2 Match pair#
-    Searches paired bracket (or any other pair structure) of the
-current region under cursor and jumps there.
+    Searches paired bracket (or any other pair structure) of the current region under cursor and jumps there.
 
   #3 Select block#
-    Moves cursor to start of block and selects it all. You can call this
-function as on block limits as inside it. In second case FarColorer will find
-start and end of nearest block automatically.
+    Moves cursor to start of block and selects it all. You can call this function as on block limits as inside it. In second case FarColorer will find start and end of nearest block automatically.
 
   #4 Select pair#
     Selects pair block - but don't selects pair structures at start and end.
 
   #5 Outliner List#
-    Shows all outlined regions in current file.
-There you can choose and jump into any of them, also you can use there any
-alphabetic symbols to create filters.
+    Shows all outlined regions in current file. There you can choose and jump into any of them, also you can use there any alphabetic symbols to create filters.
 
   #6 Errors List#
     As previous - but shows all errors in the text.
 
-  #*# All these features are depend on the content of language scheme.
-    All information is taken from syntax regions analysis.
-	
+  #*# All these features are depend on the content of language scheme. All information is taken from syntax regions analysis.
+
   #7 Select region#
     Selects region under cursor.
 
@@ -236,55 +208,65 @@ $# Using a plugin in macros
      ~Macro functions.~@MacroCall@
 
 @MacroCall
-$# Macro functions
+$# Macro Functions
 
  #Работа с макросами.#
    Формат вызова функций #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<FUNCTION>... )#, либо #Plugin.SyncCall#.
    Вызов всех функций регистро-независимый.
-   Возвращаемое значение, если не указано отдельно, true - успешно, false - ошибка.
+   Возвращаемое значение, если не указано отдельно, "true" - успешно, "false" - ошибка.
 
  #Работа с глобальными настройками#
    Ограничений на макрорегионы не установлено.
+
    #...,"Settings",<Name>, <Param>)#
-     <Name>: принимает следующие значения
+
+     <Name> - принимает следующие значения:
+
         "Menu" - Открывает меню настроек. Значение по умолчанию если <Name> пустой.
         "Main" - Открывает окно главных настроек
         "Log" - Открывает окно настроек логирования
         "Hrc" - Открывает окно настроек параметров схем
         "Reload" - Перезагружает все настройки плагина и открытых редакторов. Включая библиотеку схему.
-        "Status" - Статус активности плагина
-          <Param> - Число: 0 - выключен; 1 - включен; Либо boolean: false -выкл, true - вкл.
-          Если задан то применяется новый статус с перезагрузкой всех настроек. Возвращает предыдущее значение
-          Если не задан, возвращает текущее значение
+        "Status" - статус активности плагина.
+          <Param> - number:
+             0 - disable;
+             1 - enable;
+             Либо boolean: "false" -disable, "true" - enable.
+          Если задан то применяется новый статус с перезагрузкой всех настроек. Возвращает предыдущее значение. Если не задан возвращает текущее значение.
         "SaveSettings" - Сохраняет настройки плагина.
 
  #Работа с меню#
    Работает только в MACROAREA_EDITOR.
+
    #...,"Menu")#
-     Открывает меню плагина в редакторе
+     Открывает меню плагина в редакторе.
 
  #Работа с типами файлов#
    Работает только в MACROAREA_EDITOR.
+
    #...,"Types",<Action>, <Param>)#
-     <Action>: принимает следующие значения
-        "Menu" - Открывает меню выбора типа файлов
-        "List" - Возвращает массив названий всех доступных типов файлов
-        "Get" - Возвращает текущий тип (первый параметр) и группу файла (второй параметр)
-        "Set" - Устанавливает для файла открытого в редакторе, указанный тип
-          <Param> - Строка: тип файла
+
+     <Action> - принимает следующие значения:
+
+        "Menu" - Открывает меню выбора типа файлов.
+        "List" - Возвращает массив названий всех доступных типов файлов.
+        "Get" - Возвращает текущий тип (первый параметр) и группу файла (второй параметр).
+        "Set" - Устанавливает для файла открытого в редакторе указанный тип.
+          <Param> - строка, тип файла
 
  #Работа с параметрами типов файлов#
-   Ограничений на макрорегионы не установлено.
-   Все изменения применяются только для текущего сеанса плагина. Для сохранения изменений необходимо вызывать "SaveSettings", для сброса "Reload".
+   Ограничений на макрорегионы не установлено. Все изменения применяются только для текущего сеанса плагина. Для сохранения изменений необходимо вызывать "SaveSettings", для сброса "Reload".
+
    #...,"ParamsOfType",<Action>, <Param1>,...)#
+
         "List" - Список параметров типа
            <Param1> - название типа. Строка. Регистро-зависимо.
           Возвращает
            <OutParam1> - массив названий параметров.
-           <OutParam2> - массив значений этих параметров. В случае отсутсвия значения у параметра возвращается nil.
+           <OutParam2> - массив значений этих параметров. В случае отсутствия значения у параметра возвращается "nil".
         "Get" - Возвращает значение параметра. Тип - всегда строка.
            <Param1> - название типа. Строка. Регистро-зависимо.
-           <Param2> - название параметра. Строка. Регистро-зависимо. В случае отсутсвия значения возвращается nil.
+           <Param2> - название параметра. Строка. Регистро-зависимо. В случае отсутствия значения возвращается "nil".
         "Set" - Устанавливает значение для параметра или удаляет его.
            <Param1> - название типа. Строка. Регистро-зависимо.
            <Param2> - название параметра. Строка. Регистро-зависимо.
@@ -292,59 +274,94 @@ $# Macro functions
 
  #Работа с скобками#
    Работает только в MACROAREA_EDITOR.
+
    #...,"Brackets",<Action>)#
-     <Action>: принимает следующие значения.
+
+     <Action> - принимает следующие значения:
+
         "Match" - Найти парную скобку.
         "SelectAll" - Выделить блок со скобками.
         "SelectIn" - Выделить блок между скобок.
 
  #Работа с регионами#
    Работает только в MACROAREA_EDITOR.
+
    #...,"Region",<Action>)#
-     <Action>: принимает следующие значения.
+
+     <Action> - принимает следующие значения:
+
         "Select" - Выбрать текущий регион.
         "Show" - Показать окно с данными региона.
         "List" - Возвращает описание региона. Первый параметр регион, второй схема.
 
  #Работа с функциями#
    Работает только в MACROAREA_EDITOR.
+
    #...,"Functions",<Action>)#
-     <Action>: принимает следующие значения
-        "Show" - Показать окно со списком функций
-        "Find" - Найти функцию, на которой стоит курсор
+
+     <Action> - принимает следующие значения:
+
+        "Show" - Показать окно со списком функций.
+        "Find" - Найти функцию, на которой стоит курсор.
         "List" - Возвращает массив всех найденных функций и массив номеров строк в которых они объявлены.
 
  #Работа с ошибками#
    Работает только в MACROAREA_EDITOR.
+
    #...,"Errors",<Action>)#
-     <Action>: принимает следующие значения
+
+     <Action> - принимает следующие значения:
+
         "Show" - Показать окно со списком ошибок
         "List" - Возвращает массив всех найденных ошибок и массив номеров строк в которых они найдены.
 
  #Работа с параметрами текущего редактора#
-   При закрытии редактора данные параметры не сохраняются. Работает только в MACROAREA_EDITOR.
+   При закрытии редактора данные параметры не сохраняются.
+   Работает только в MACROAREA_EDITOR.
+
    #...,"Editor",<Action>,<Param1>,...)#
-     <Action>: принимает следующие значения
-       "Refresh" - обновляет раскраску
-       "Status" - Статус активности плагина для текущего редактора
-         <Param1> - Число: 0 - выключен; 1 - включен;
-         Если задан то изменяется текущее и возвращает предыдущее значение.
-         Если не задан, возвращает текущее значение для данного редактора
-       "CrossVisible" - Видимость и тип креста в редакторе
-         Возвращает текущий стиль креста и правила отображения для данного редактора.
-          <OutParam1> Число: 0 - выключен; 1 - включен; 2 - согласно параметрам схемы
-          <OutParam2> Число: 0 - не отображается; 1 - вертикальный; 2 - горизонтальный; 3 - полный крест
-         Если указаны дополнительные параметры то изменяет стиль и правила отображения.
-          <Param1> - Число: 0 - выключен; 1 - включен; 2 - согласно параметрам схемы
-          <Param2> - Необязательный. Число: 1 - вертикальный; 2 - горизонтальный; 3 - полный крест
-       "Pair" - Статус отображения парных элементов
-         <Param1> - Число: 0 - выключен; 1 - включен;
-         Если задан то изменяется текущее и возвращает предыдущее значение.
-         Если не задан, возвращает текущее значение для данного редактора
-       "Syntax" - Статус отображения синтаксиса
-         <Param1> - Число: 0 - выключен; 1 - включен;
-         Если задан то изменяется текущее и возвращает предыдущее значение.
-         Если не задан, то возвращает текущее значение для данного редактора
+
+     <Action> - принимает следующие значения:
+
+        "Refresh" - обновляет раскраску.
+        "Status" - Статус активности плагина для текущего редактора:
+           <Param1> - number:
+              0 - disable;
+              1 - enable;
+          Если задан то изменяется текущее и возвращает предыдущее значение.
+          Если не задан, возвращает текущее значение для данного редактора
+        "CrossVisible" - Видимость и тип креста в редакторе:
+          Возвращает текущий стиль креста и правила отображения для данного редактора.
+          <OutParam1> - number:
+             0 - disable;
+             1 - enable;
+             2 - согласно параметрам схемы.
+          <OutParam2> - number:
+             0 - not displayed;
+             1 - vertical;
+             2 - horizontal;
+             3 - полный крест.
+          Если указаны дополнительные параметры то изменяет стиль и правила отображения.
+          <Param1> - number:
+             0 - disable;
+             1 - enable;
+             2 - согласно параметрам схемы
+          <Param2> - необязательный, number:
+             1 - vertical;
+             2 - horizontal;
+             3 - полный крест.
+        "Pair" - Статус отображения парных элементов:
+          <Param1> - number:
+             0 - disable;
+             1 - enable;
+          Если задан то изменяется текущее и возвращает предыдущее значение.
+          Если не задан, возвращает текущее значение для данного редактора.
+        "Syntax" - статус отображения синтаксиса:
+          <Param1> - number:
+             0 - disable;
+             1 - enable;
+          Если задан то изменяется текущее и возвращает предыдущее значение.
+          Если не задан, то возвращает текущее значение для данного редактора.
         "Progress" - возвращает процент парсинга текущего файла в редакторе. Целочисленное значение.
 
 @hrd
@@ -353,35 +370,26 @@ $# Color style selection
 
 @exception
 $# Exception occured
-    Exception happened while FarColorer work.
-All further processing would be disabled. You can re-enable
-FarColorer from it's settings menu after locating and removing
-exception cause. All extended information in FarColorer logging
-file (colorer.log by default)
+    Exception happened while FarColorer work. All further processing would be disabled. You can re-enable FarColorer from it's settings menu after locating and removing exception cause. All extended information in FarColorer logging file (colorer.log by default)
 
 @filetypechoose
 $# List types
-    The list contains all of the supported file types. By choosing any, you force
-the type of coloring the current file.
+    The list contains all of the supported file types. By choosing any, you force the type of coloring the current file.
 
     #Automatic detection# - select the type of file produced plugin built rules.
-    #Favorites# - The list of chosen types. Add to "Favorites" is produced by
-pressing the Ins, delete - Delete.
-    #Hot keys# - to assign a hot key to the file type you need to press F4, and
-in the dialog box to specify the key.
+    #Favorites# - The list of chosen types. Add to "Favorites" is produced by pressing the Ins, delete - Delete.
+    #Hot keys# - to assign a hot key to the file type you need to press F4, and in the dialog box to specify the key.
 
-    Hot keys and being in the group "Favorites" can also be customized through the
-~Schemes settings.~@confighrc@ These are the parameters 'hotkey' and 'favorite' for
-any of the schemes.
+    Hot keys and being in the group "Favorites" can also be customized through the ~Schemes settings.~@confighrc@ These are the parameters 'hotkey' and 'favorite' for any of the schemes.
 
 @keyassign
 $# Define key
     Keys 0-9, A-Z
 
 @author
-$^#FarColorer is a syntax highlighting plugin for FAR Manager.
+$# FarColorer is a syntax highlighting plugin for FAR Manager.
     #Plugin home site#
-           http://colorer.sf.net
+           http://colorer.sf.net/
 
     #Igor Ruskih# (Cail Lomecb) Copyright (c) 1999-2009
            email  : irusskih at gmail dot com
@@ -390,6 +398,6 @@ $^#FarColorer is a syntax highlighting plugin for FAR Manager.
     #Eugene Efremov#
            email  : 4mirror at mail dot ru
 
-    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2020
+    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2021
            email  : ctapmex at gmail dot com
            web    : http://dobrunov.ru
