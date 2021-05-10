@@ -1,26 +1,22 @@
 FarColorer
 ==========
-FarColorer is a syntax highlighting plugin for FAR Manager.
+FarColorer is a syntax highlighting plugin for Far Manager.
 [![build](https://github.com/colorer/FarColorer/workflows/build/badge.svg)](https://github.com/colorer/FarColorer/actions?query=workflow%3A%22build%22)
+
+It only works for (F4)Edit file. (F3)View is not supported, as there is no API.
+But you can type in the console `clr:name_of_file`. This launches the built-in viewer colorer.
 
 Downloads
 =========
-To get the latest Colorer, install the latest [FarManager](http://www.farmanager.com/download.php?l=en).
-Nightly builds of FarManager have night build of FarColorer.
+FarColorer is included in Far Manager since 2013 year (about Far build 3.0.3200). So just update [Far Manager](http://www.farmanager.com/download.php?l=en) to get latest stable release of plugin.
 
-FarColorer is included in FAR Manager since about build 3200, so just update FAR Manager to get latest releases.
-  
-Check F9 - Options - Plugins configuration - FarColorer
+Other version you must find in [Releases](https://github.com/colorer/FarColorer/releases) on github. New release is auto-created after create tag in git. 
 
-It only works for (F4)Edit, (F3)View is not supported, as there is no API. 
-but you can type in the console `clr:name_of_file` 
-This launches the built-in viewer colorer.
+FarColorer has two main verions:
+ * 1.3.x - version with Windows XP support. Latest version included in Far Manager 1.3.26 in Far Manager 3.0.5796 (2021.05.09). This version has partial support. See in branch v1.3.x.
+ * 1.4.x and higher - current fully supported version, worked only on actual platforms. It included in Far Manager since 3.0.5797 (2021.05.10).
 
-Branches
-==========
-There is two main branches:
-  * master - current fully supported version. Only actual platforms, as Win10 and VC2019
-  * v1.3.x / build-from-far - version with Windows XP support, is built on Visual Studio 2017 and some old 2019.
+For checking installed version press F9 - Options - Plugins configuration, select FarColorer and press F3.
 
 How to build from source
 ==========
