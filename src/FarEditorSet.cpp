@@ -1019,7 +1019,7 @@ void FarEditorSet::LoadUserHrd(const UnicodeString* filename, ParserFactory* pf)
     }
     xercesc::DOMDocument* catalog = xml_parser.getDocument();
     xercesc::DOMElement* elem = catalog->getDocumentElement();
-    const XMLCh* tagHrdSets = catTagHrcSets;
+    const XMLCh* tagHrdSets = catTagHrdSets;
     const XMLCh* tagHrd = catTagHrd;
     if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
       throw Exception("main '<hrd-sets>' block not found");
