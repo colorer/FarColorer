@@ -9,7 +9,7 @@
     },
     {
       "name": "spdlog",
-      "version>=": "1.8.2"
+      "version>=": "1.8.5"
     },
     "minizip",
     {
@@ -21,5 +21,5 @@
       ]
     }
   ],
-  "builtin-baseline": "56136ffae69a4a7f8b9cd5452713925417d47367"
+  "builtin-baseline": "a3db16a4475b963cacf0260068c497fb72c8f3c0"
 }
