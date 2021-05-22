@@ -10,6 +10,7 @@ on:
       - master
 
 env:
+  X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
   BUILD_TYPE: Release
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
