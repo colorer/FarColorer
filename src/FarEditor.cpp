@@ -1360,3 +1360,10 @@ bool FarEditor::isColorerEnable() const
 {
   return colorerEnable;
 }
+
+boolean FarEditor::hasWork()
+{
+  auto invalid_line = baseEditor->getInvalidLine();
+  EditorInfo ei = enterHandler();
+  return ei.TotalLines - invalid_line > 0;
+}

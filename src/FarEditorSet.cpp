@@ -521,12 +521,17 @@ bool FarEditorSet::configure()
 
 int FarEditorSet::editorInput(const INPUT_RECORD& Rec)
 {
-  if (ignore_event)
+  if (ignore_event || Rec.EventType != KEY_EVENT)
     return 0;
   if (Opt.rEnabled) {
     FarEditor* editor = getCurrentEditor();
     if (editor && editor->isColorerEnable()) {
-      return editor->editorInput(Rec);
+      auto res = editor->editorInput(Rec);
+      if (editor->hasWork())
+        addEventTimer();
+      else
+        removeEventTimer();
+      return res;
     }
   }
   return 0;
@@ -555,7 +560,12 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
           editor = addCurrentEditor();
         }
         if (editor && editor->isColorerEnable()) {
-          return editor->editorEvent(pInfo->Event, pInfo->Param);
+          auto res = editor->editorEvent(pInfo->Event, pInfo->Param);
+          if (editor->hasWork())
+            addEventTimer();
+          else
+            removeEventTimer();
+          return res;
         }
         return 0;
       } break;
@@ -563,7 +573,12 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         //запрещено вызывать EditorControl (getCurrentEditor)
         auto it_editor = farEditorInstances.find(pInfo->EditorID);
         if (it_editor != farEditorInstances.end() && it_editor->second->isColorerEnable()) {
-          return it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
+          auto res = it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
+          if (editor->hasWork())
+            addEventTimer();
+          else
+            removeEventTimer();
+          return res;
         }
         else {
           return 0;
@@ -581,7 +596,16 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         if (it_editor != farEditorInstances.end()) {
           delete it_editor->second;
           farEditorInstances.erase(pInfo->EditorID);
+          removeEventTimer();
         }
+        return 0;
+      } break;
+      case EE_GOTFOCUS: {
+        addEventTimer();
+        return 0;
+      } break;
+      case EE_KILLFOCUS: {
+        removeEventTimer();
         return 0;
       } break;
       default:
@@ -691,10 +715,7 @@ void FarEditorSet::ReloadBase()
 {
   ignore_event = true;
   try {
-    if (hTimer) {
-      DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
-    }
-    hTimer = nullptr;
+    removeEventTimer();
     ReadSettings();
     applyLogSetting();
     if (!Opt.rEnabled) {
@@ -737,7 +758,7 @@ void FarEditorSet::ReloadBase()
     }
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
-    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 200, Opt.ThreadBuildPeriod, 0);
+    addEventTimer();
   } catch (SettingsControlException& e) {
     spdlog::error("{0}", e.what());
     auto error_mes = UnicodeString(e.what());
@@ -832,9 +853,7 @@ void FarEditorSet::disableColorer()
     SettingsControl ColorerSettings;
     ColorerSettings.Set(0, cRegEnabled, Opt.rEnabled);
   }
-  if (hTimer)
-    DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
-  hTimer = nullptr;
+  removeEventTimer();
 
   dropCurrentEditor(true);
 
@@ -1204,6 +1223,20 @@ void FarEditorSet::enableColorerInEditor()
 
   auto* new_editor = addCurrentEditor();
   new_editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
+}
+
+void FarEditorSet::addEventTimer()
+{
+  if (!hTimer) {
+    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 200, Opt.ThreadBuildPeriod, 0);
+  }
+}
+
+void FarEditorSet::removeEventTimer()
+{
+  if (hTimer)
+    DeleteTimerQueueTimer(hTimerQueue, hTimer, nullptr);
+  hTimer = nullptr;
 }
 
 #pragma region macro_functions

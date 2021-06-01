@@ -207,6 +207,9 @@ class FarEditorSet
 
   void setEmptyLogger();
 
+  void addEventTimer();
+  void removeEventTimer();
+
   enum MENU_ACTION {
     NO_ACTION = -1,
     LIST_TYPE = 0,
