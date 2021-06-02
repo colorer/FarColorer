@@ -574,7 +574,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         auto it_editor = farEditorInstances.find(pInfo->EditorID);
         if (it_editor != farEditorInstances.end() && it_editor->second->isColorerEnable()) {
           auto res = it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
-          if (editor->hasWork())
+          if (it_editor->second->hasWork())
             addEventTimer();
           else
             removeEventTimer();
