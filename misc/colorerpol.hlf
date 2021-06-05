@@ -230,13 +230,13 @@ $# Używanie wtyczki w makrach
            Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5",1)
 
          Or a string value:
-           "status" - work with the plug-in status.
-             plugin.call (Guid, "status")
-             If the second parameter is missing, it returns the status of the plugin activity.
-            
-             plugin.call (Guid, "status", new_status)
-             If the second parameter is true/false, or it corresponds to an integer value, the plugin will be transferred to the specified status.
-             Return Value true/false indicates success of the command.
+            "status" - work with the plug-in status.
+                plugin.call (Guid, "status")
+                If the second parameter is missing, it returns the status of the plugin activity.
+
+                plugin.call (Guid, "status", new_status)
+                If the second parameter is true/false, or it corresponds to an integer value, the plugin will be transferred to the specified status.
+                Return Value true/false indicates success of the command.
 
 @hrd
 $# Wybór stylu koloru
@@ -272,7 +272,7 @@ $# Definiowanie klawiszy
 @author
 $^#FarColorer jest wtyczką podswietlającą składnię podczas edycji plików w FAR Manager.
     #Strona domowa wtyczki#
-           http://colorer.sf.net
+           http://colorer.sf.net/
 
     #Igor Ruskih# (Cail Lomecb) Copyright (c) 1999-2009
            email  : irusskih at gmail dot com
@@ -281,6 +281,6 @@ $^#FarColorer jest wtyczką podswietlającą składnię podczas edycji plików w
     #Eugene Efremov#
            email  : 4mirror at mail dot ru
 
-    #Sonar# (Dobrunov Aleksey)
+    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2021
            email  : ctapmex at gmail dot com
-           web    : http://dobrih.net
+           web    : http://dobrunov.ru
