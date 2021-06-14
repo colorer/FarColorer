@@ -1219,9 +1219,7 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
     col.ForegroundColor = revertRGB(col.ForegroundColor);
     col.BackgroundColor = revertRGB(col.BackgroundColor);
   }
-  // set transparency to off
-  col.BackgroundRGBA.a = 0xFF;
-  col.ForegroundRGBA.a = 0xFF;
+
   return col;
 }
 
@@ -1256,6 +1254,8 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   ec.Owner = MainGuid;
   ec.Priority = 0;
   ec.Color = col;
+  MAKE_OPAQUE(ec.Color.BackgroundColor);
+  MAKE_OPAQUE(ec.Color.ForegroundColor);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
 }
 
