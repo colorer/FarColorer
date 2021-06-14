@@ -659,7 +659,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
             addFARColor(lno, start, end, col1);
           }
 
-          // ?? ?????? ???? ??? EOL
+          // don`t change color for EOL
           if (end > llen && show_eol) {
             FarColor col2 = col1;
             col2.ForegroundColor = rdBackground->fore;
@@ -1216,10 +1216,10 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
   else {
     col.ForegroundColor = revertRGB(col.ForegroundColor);
     col.BackgroundColor = revertRGB(col.BackgroundColor);
-    col.BackgroundRGBA.a = 0xFF;
-    col.ForegroundRGBA.a = 0xFF;
   }
-
+  // set transparency to off
+  col.BackgroundRGBA.a = 0xFF;
+  col.ForegroundRGBA.a = 0xFF;
   return col;
 }
 
