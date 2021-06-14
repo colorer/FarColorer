@@ -132,6 +132,7 @@ class FarEditor : public LineSource
 
   int getParseProgress();
   bool isColorerEnable() const;
+  bool hasWork();
 
  private:
   PluginStartupInfo* info;

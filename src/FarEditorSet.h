@@ -208,6 +208,8 @@ class FarEditorSet
   void dropCurrentEditor(bool clean);
 
   void setEmptyLogger();
+  void addEventTimer();
+  void removeEventTimer();
 
   void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
   void* macroMenu(FARMACROAREA area, OpenMacroInfo* params);
