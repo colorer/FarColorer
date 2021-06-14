@@ -1220,16 +1220,18 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
     if (rd->bback) {
       col.BackgroundColor = rd->back;
     }
-    if (TrueMod) {
-      if (rd->style & StyledRegion::RD_BOLD) {
-        col.Flags |= FCF_FG_BOLD;
-      }
-      if (rd->style & StyledRegion::RD_ITALIC) {
-        col.Flags |= FCF_FG_ITALIC;
-      }
-      if (rd->style & StyledRegion::RD_UNDERLINE) {
-        col.Flags |= FCF_FG_UNDERLINE;
-      }
+
+    if (rd->style & StyledRegion::RD_BOLD) {
+      col.Flags |= FCF_FG_BOLD;
+    }
+    if (rd->style & StyledRegion::RD_ITALIC) {
+      col.Flags |= FCF_FG_ITALIC;
+    }
+    if (rd->style & StyledRegion::RD_UNDERLINE) {
+      col.Flags |= FCF_FG_UNDERLINE;
+    }
+    if (rd->style & StyledRegion::RD_STRIKEOUT) {
+      col.Flags |= FCF_FG_UNDERLINE;
     }
   }
 
