@@ -1,8 +1,10 @@
 # Clion project files
 /.idea
 /cmake-build*
+/.PVS-Studio
 
 # build
 /bin
 /build
 /out
+

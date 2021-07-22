@@ -7,11 +7,9 @@
 
 void FarHrcSettings::readProfile(UnicodeString* plugin_path)
 {
-  auto* path = new UnicodeString(*plugin_path);
-  path->append(UnicodeString(FarProfileXml));
-  readXML(path, false);
-
-  delete path;
+  auto path = UnicodeString(*plugin_path);
+  path.append(UnicodeString(FarProfileXml));
+  readXML(&path, false);
 }
 
 void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
