@@ -19,7 +19,7 @@ void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
   xml_parser.setErrorHandler(&error_handler);
   xml_parser.setLoadExternalDTD(false);
   xml_parser.setSkipDTDValidation(true);
-  uXmlInputSource config = XmlInputSource::newInstance(UStr::to_xmlch(file).get(), static_cast<XMLCh*>(nullptr));
+  uXmlInputSource config = XmlInputSource::newInstance(file);
   xml_parser.parse(*config->getInputSource());
   if (error_handler.getSawErrors()) {
     throw ParserFactoryException("Error reading hrcsettings.xml.");

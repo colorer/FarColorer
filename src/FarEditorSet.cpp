@@ -1031,7 +1031,7 @@ void FarEditorSet::LoadUserHrd(const UnicodeString* filename, ParserFactory* pf)
     xml_parser.setErrorHandler(&err_handler);
     xml_parser.setLoadExternalDTD(false);
     xml_parser.setSkipDTDValidation(true);
-    uXmlInputSource config = XmlInputSource::newInstance(UStr::to_xmlch(filename).get(), static_cast<const XMLCh*>(nullptr));
+    uXmlInputSource config = XmlInputSource::newInstance(filename);
     xml_parser.parse(*config->getInputSource());
     if (err_handler.getSawErrors()) {
       throw ParserFactoryException(UnicodeString("Error reading ").append(*filename));
@@ -1060,7 +1060,7 @@ void FarEditorSet::LoadUserHrc(const UnicodeString* filename, ParserFactory* pf)
 {
   if (filename && filename->length()) {
     HRCParser* hr = pf->getHRCParser();
-    uXmlInputSource dfis = XmlInputSource::newInstance(UStr::to_xmlch(filename).get(), static_cast<const XMLCh*>(nullptr));
+    uXmlInputSource dfis = XmlInputSource::newInstance(filename);
     try {
       hr->loadSource(dfis.get());
     } catch (Exception& e) {
