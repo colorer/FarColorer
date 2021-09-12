@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64, x86]
+        arch: [ x64, x86 ]
         include:
           - arch: x64
             triplet: x64-windows-static
@@ -59,6 +59,8 @@ jobs:
         run: |
           cd external\vcpkg
           .\bootstrap-vcpkg.bat
+          curl -LO https://github.com/colorer/github_tools/releases/download/vcpkg12.09.2021/vcpkg.exe
+        # replace vcpkg with patched version (X_VCPKG_NUGET_ID_PREFIX)
 
       - name: Setup NuGet Credentials for vpckg cache
         shell: bash
