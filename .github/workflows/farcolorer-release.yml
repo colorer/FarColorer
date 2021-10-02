@@ -126,6 +126,6 @@ jobs:
           name: result
 
       - name: Create release
-        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version" ./*.7z
+        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version" ./build/*.7z
         env:
           GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
