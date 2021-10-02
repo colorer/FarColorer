@@ -1,6 +1,6 @@
 #include "FarHrcSettings.h"
 #include <colorer/common/UStr.h>
-#include <colorer/parsers/XmlTagDefs.h>
+#include <colorer/base/XmlTagDefs.h>
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "SettingsControl.h"
