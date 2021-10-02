@@ -6,24 +6,8 @@ on:
       - "v*"
 
 jobs:
-  create-release:
-    runs-on: ubuntu-20.04
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-
-      - name: Get version
-        id: get_version
-        uses: battila7/get-version-action@v2
-
-      - name: Create release
-        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version"
-        env:
-          GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
-
-  windows:
-    needs: [ create-release ]
+  build-artifacts:
     strategy:
       fail-fast: false
       matrix:
@@ -117,9 +101,31 @@ jobs:
           7z a ${{ env.farcolorer_name }} ./install/FarColorer/*
           7z a ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
-      - name: Publish artifact
-        run: |
-          gh release upload ${{ steps.get_version.outputs.version }} ./build/${{ env.farcolorer_name }}
-          gh release upload ${{ steps.get_version.outputs.version }} ./build/${{ env.farcolorer_pdb_name }}
+      - name: Upload result to cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: result
+          path: ./build/*.7z
+          retention-days: 1
+
+  create-release:
+    needs: [build-artifacts]
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Download result
+        uses: actions/download-artifact@v2
+        with:
+          name: result
+
+      - name: Create release
+        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version" ./*.7z
         env:
           GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
