@@ -93,12 +93,14 @@ jobs:
         run: |
           echo "farcolorer_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
           echo "farcolorer_pdb_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
+          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
 
       - name: pack plugin
         working-directory: build
         shell: bash
         run: |
           7z a ${{ env.farcolorer_name }} ./install/FarColorer/*
+          7z a ${{ env.farcolorer_withoutbase_name }} ./install/FarColorer/* -x!./install/FarColorer/base/*
           7z a ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
       - name: Upload result to cache
