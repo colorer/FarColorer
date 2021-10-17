@@ -84,7 +84,7 @@ jobs:
         working-directory: build
         shell: bash
         run: |
-          curl -s https://api.github.com/repos/colorer/Colorer-schemes/releases/latest | grep -o "https://.*colorer-base\.packed.*.zip" | xargs curl -fsLJO
+          curl -s https://api.github.com/repos/colorer/Colorer-schemes/releases/latest | grep -o "https://.*colorer-base\.allpacked.*.zip" | xargs curl -fsLJO
           zipfilename="$(find . -name "colorer-base*.zip")"
           7z x $zipfilename -o./install/FarColorer/base
 
