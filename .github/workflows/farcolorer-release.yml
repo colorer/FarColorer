@@ -100,7 +100,7 @@ jobs:
         shell: bash
         run: |
           7z a ${{ env.farcolorer_name }} ./install/FarColorer/*
-          7z a ${{ env.farcolorer_withoutbase_name }} ./install/FarColorer/* -x!./install/FarColorer/base/*
+          7z a ${{ env.farcolorer_withoutbase_name }} ./install/FarColorer/* -x!./install/FarColorer/base
           7z a ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
       - name: Upload result to cache
