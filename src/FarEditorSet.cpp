@@ -418,6 +418,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
 
 bool FarEditorSet::configure()
 {
+  //TODO  refactor this
   try {
     PluginDialogBuilder Builder(Info, MainGuid, PluginConfig, mSetup, L"config", SettingDialogProc, this);
     Builder.AddCheckbox(mTurnOff, &Opt.rEnabled);
@@ -438,11 +439,15 @@ bool FarEditorSet::configure()
     std::vector<const wchar_t*> console_style;
     unsigned long flag_disable = 0;
     int current_style;
+    std::unique_ptr<HRDNode> cons, rgb;
     if (Opt.rEnabled) {
       hrd_con_instances = parserFactory->enumHRDInstances(DConsole);
       current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
     }
     else {
+      cons = std::make_unique<HRDNode>();
+      cons->hrd_name= UnicodeString (Opt.HrdName);
+      hrd_con_instances.push_back(cons.get());
       console_style.push_back(Opt.HrdName);
       current_style = 0;
       flag_disable = DIF_DISABLE;
@@ -461,6 +466,9 @@ bool FarEditorSet::configure()
       current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
     }
     else {
+      rgb = std::make_unique<HRDNode>();
+      rgb->hrd_name= UnicodeString (Opt.HrdName);
+      hrd_rgb_instances.push_back(rgb.get());
       rgb_style.push_back(Opt.HrdNameTm);
       current_rstyle = 0;
       flag_disable = DIF_DISABLE;
