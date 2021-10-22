@@ -418,7 +418,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
 
 bool FarEditorSet::configure()
 {
-  //TODO  refactor this
+  // TODO  refactor this
   try {
     PluginDialogBuilder Builder(Info, MainGuid, PluginConfig, mSetup, L"config", SettingDialogProc, this);
     Builder.AddCheckbox(mTurnOff, &Opt.rEnabled);
@@ -446,7 +446,7 @@ bool FarEditorSet::configure()
     }
     else {
       cons = std::make_unique<HRDNode>();
-      cons->hrd_name= UnicodeString (Opt.HrdName);
+      cons->hrd_name = UnicodeString(Opt.HrdName);
       hrd_con_instances.push_back(cons.get());
       console_style.push_back(Opt.HrdName);
       current_style = 0;
@@ -467,7 +467,7 @@ bool FarEditorSet::configure()
     }
     else {
       rgb = std::make_unique<HRDNode>();
-      rgb->hrd_name= UnicodeString (Opt.HrdName);
+      rgb->hrd_name = UnicodeString(Opt.HrdName);
       hrd_rgb_instances.push_back(rgb.get());
       rgb_style.push_back(Opt.HrdNameTm);
       current_rstyle = 0;
@@ -1066,14 +1066,8 @@ void FarEditorSet::LoadUserHrd(const UnicodeString* filename, ParserFactory* pf)
 
 void FarEditorSet::LoadUserHrc(const UnicodeString* filename, ParserFactory* pf)
 {
-  if (filename && filename->length()) {
-    HRCParser* hr = pf->getHRCParser();
-    uXmlInputSource dfis = XmlInputSource::newInstance(filename);
-    try {
-      hr->loadSource(dfis.get());
-    } catch (Exception& e) {
-      throw Exception(e);
-    }
+  if (filename && !filename->isEmpty()) {
+    pf->loadHrcPath(*filename);
   }
 }
 
