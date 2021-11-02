@@ -1,0 +1,71 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "description": "Sets generator, build and install directory, vcpkg",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/external/vcpkg-ports",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}/far/plugins/FarColorer"
+      },
+      "environment": {
+        "VCPKG_FEATURE_FLAGS": "manifests,versions"
+      }
+    },
+    {
+      "name": "x64-debug",
+      "description": "Sets x64 arch, compilers, build type",
+      "inherits": [
+        "base"
+      ],
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "cl",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "COLORER_BUILD_ARCH": "x64"
+      }
+    },
+    {
+      "name": "x86-debug",
+      "description": "Sets x86 arch, compilers, build type",
+      "inherits": [
+        "base"
+      ],
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "cl",
+        "VCPKG_TARGET_TRIPLET": "x86-windows-static",
+        "COLORER_BUILD_ARCH": "x86"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64",
+      "configurePreset": "x64-debug",
+      "inheritConfigureEnvironment": true
+    },
+    {
+      "name": "x86",
+      "configurePreset": "x86-debug",
+      "inheritConfigureEnvironment": true
+    }
+  ]
+}

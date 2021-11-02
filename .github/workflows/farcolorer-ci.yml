@@ -19,57 +19,60 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64, x86]
+        arch: [ x64, x86 ]
         include:
           - arch: x64
             triplet: x64-windows-static
           - arch: x86
             triplet: x86-windows-static
-        
+
     runs-on: windows-2019
 
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v2
-      with:
-        submodules: recursive
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - name: Install vcpkg
-      run: |
+      - name: Install vcpkg
+        run: |
           cd external\vcpkg
           .\bootstrap-vcpkg.bat
-    
-    - name: Add C++ build tools to PATH
-      uses: ilammy/msvc-dev-cmd@v1.5.0
-      with:
-        arch: ${{ matrix.arch }}
+          curl -LO https://github.com/colorer/github_tools/releases/download/vcpkg12.09.2021/vcpkg.exe
+        # replace vcpkg with patched version (X_VCPKG_NUGET_ID_PREFIX)
 
-    - name: Setup NuGet Credentials for cache
-      shell: bash
-      run: >
-        `$VCPKG_INSTALLATION_ROOT/vcpkg fetch nuget | tail -n 1`
-        sources add
-        -source "https://nuget.pkg.github.com/colorer/index.json"
-        -storepasswordincleartext
-        -name "GitHub"
-        -username "${{ secrets.PACKAGES_GITHUB_USER }}"
-        -password "${{ secrets.PACKAGES_GITHUB_TOKEN }}"
-    
-    - name: Create Build forlder
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      - name: Add C++ build tools to PATH
+        uses: ilammy/msvc-dev-cmd@v1.5.0
+        with:
+          arch: ${{ matrix.arch }}
 
-    - name: Configure CMake
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: >
-        cmake $GITHUB_WORKSPACE -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-        -DCOLORER_BUILD_ARCH=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/vcpkg/scripts/buildsystems/vcpkg.cmake
-        -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/vcpkg-ports
-        -DVCPKG_FEATURE_FLAGS=versions
+      - name: Setup NuGet Credentials for cache
+        shell: bash
+        run: >
+          `$VCPKG_INSTALLATION_ROOT/vcpkg fetch nuget | tail -n 1`
+          sources add
+          -source "https://nuget.pkg.github.com/colorer/index.json"
+          -storepasswordincleartext
+          -name "GitHub"
+          -username "${{ secrets.PACKAGES_GITHUB_USER }}"
+          -password "${{ secrets.PACKAGES_GITHUB_TOKEN }}"
 
-    - name: Build
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      - name: Create Build forlder
+        run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: >
+          cmake $GITHUB_WORKSPACE -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          -DCOLORER_BUILD_ARCH=${{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/vcpkg-ports
+          -DVCPKG_FEATURE_FLAGS=versions
+
+      - name: Build
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: cmake --build . --config $BUILD_TYPE
       
       

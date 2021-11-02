@@ -1,17 +1,15 @@
 #include "FarHrcSettings.h"
 #include <colorer/common/UStr.h>
-#include <colorer/parsers/XmlTagDefs.h>
+#include <colorer/base/XmlTagDefs.h>
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "SettingsControl.h"
 
 void FarHrcSettings::readProfile(UnicodeString* plugin_path)
 {
-  auto* path = new UnicodeString(*plugin_path);
-  path->append(UnicodeString(FarProfileXml));
-  readXML(path, false);
-
-  delete path;
+  auto path = UnicodeString(*plugin_path);
+  path.append(UnicodeString(FarProfileXml));
+  readXML(&path, false);
 }
 
 void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
@@ -21,7 +19,7 @@ void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
   xml_parser.setErrorHandler(&error_handler);
   xml_parser.setLoadExternalDTD(false);
   xml_parser.setSkipDTDValidation(true);
-  uXmlInputSource config = XmlInputSource::newInstance(UStr::to_xmlch(file).get(), static_cast<XMLCh*>(nullptr));
+  uXmlInputSource config = XmlInputSource::newInstance(file);
   xml_parser.parse(*config->getInputSource());
   if (error_handler.getSawErrors()) {
     throw ParserFactoryException("Error reading hrcsettings.xml.");

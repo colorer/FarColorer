@@ -6,28 +6,12 @@ on:
       - "v*"
 
 jobs:
-  create-release:
-    runs-on: ubuntu-20.04
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-
-      - name: Get version
-        id: get_version
-        uses: battila7/get-version-action@v2
-
-      - name: Create release
-        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version"
-        env:
-          GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
-
-  windows:
-    needs: [ create-release ]
+  build-artifacts:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64, x86]
+        arch: [ x64, x86 ]
         include:
           - arch: x64
             triplet: x64-windows-static
@@ -45,6 +29,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Get version
         id: get_version
@@ -59,6 +44,8 @@ jobs:
         run: |
           cd external\vcpkg
           .\bootstrap-vcpkg.bat
+          curl -LO https://github.com/colorer/github_tools/releases/download/vcpkg12.09.2021/vcpkg.exe
+        # replace vcpkg with patched version (X_VCPKG_NUGET_ID_PREFIX)
 
       - name: Setup NuGet Credentials for vpckg cache
         shell: bash
@@ -97,7 +84,7 @@ jobs:
         working-directory: build
         shell: bash
         run: |
-          curl -s https://api.github.com/repos/colorer/Colorer-schemes/releases/latest | grep -o "https://.*colorer-base\.packed.*.zip" | xargs curl -fsLJO
+          curl -s https://api.github.com/repos/colorer/Colorer-schemes/releases/latest | grep -o "https://.*colorer-base\.allpacked.*.zip" | xargs curl -fsLJO
           zipfilename="$(find . -name "colorer-base*.zip")"
           7z x $zipfilename -o./install/FarColorer/base
 
@@ -106,17 +93,42 @@ jobs:
         run: |
           echo "farcolorer_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
           echo "farcolorer_pdb_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
+          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
 
       - name: pack plugin
         working-directory: build
         shell: bash
         run: |
           7z a ${{ env.farcolorer_name }} ./install/FarColorer/*
+          7z a ${{ env.farcolorer_withoutbase_name }} ./install/FarColorer/* -x!./install/FarColorer/base
           7z a ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
-      - name: Publish artifact
-        run: |
-          gh release upload ${{ steps.get_version.outputs.version }} ./build/${{ env.farcolorer_name }}
-          gh release upload ${{ steps.get_version.outputs.version }} ./build/${{ env.farcolorer_pdb_name }}
+      - name: Upload result to cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: result
+          path: ./build/*.7z
+          retention-days: 1
+
+  create-release:
+    needs: [build-artifacts]
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Download result
+        uses: actions/download-artifact@v2
+        with:
+          name: result
+
+      - name: Create release
+        shell: bash
+        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version" ./*.7z
         env:
           GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}

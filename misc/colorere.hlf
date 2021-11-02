@@ -42,7 +42,7 @@ $# FarColorer's settings
      Full file path sets default catalog file for FarColorer. If this field is empty FarColorer trying to find the file automatically in a subfolder of "base" parent directory plugin.
 
   #Users file of schemes#
-     Full file path sets the users file of schemes.
+     Full file path in this field specifies a file analogous to proto.hrc, or a directory with files containing with user schemes. If a directory is specified, only * .hrc files are processed.
 
   #Users file of color styles#
      Full file path sets the users file of color styles.

@@ -659,7 +659,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
             addFARColor(lno, start, end, col1);
           }
 
-          // ?? ?????? ???? ??? EOL
+          // don`t change color for EOL
           if (end > llen && show_eol) {
             FarColor col2 = col1;
             col2.ForegroundColor = rdBackground->fore;
@@ -1197,16 +1197,18 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
     if (rd->isBackSet) {
       col.BackgroundColor = rd->back;
     }
-    if (TrueMod) {
-      if (rd->style & StyledRegion::RD_BOLD) {
-        col.Flags |= FCF_FG_BOLD;
-      }
-      if (rd->style & StyledRegion::RD_ITALIC) {
-        col.Flags |= FCF_FG_ITALIC;
-      }
-      if (rd->style & StyledRegion::RD_UNDERLINE) {
-        col.Flags |= FCF_FG_UNDERLINE;
-      }
+
+    if (rd->style & StyledRegion::RD_BOLD) {
+      col.Flags |= FCF_FG_BOLD;
+    }
+    if (rd->style & StyledRegion::RD_ITALIC) {
+      col.Flags |= FCF_FG_ITALIC;
+    }
+    if (rd->style & StyledRegion::RD_UNDERLINE) {
+      col.Flags |= FCF_FG_UNDERLINE;
+    }
+    if (rd->style & StyledRegion::RD_STRIKEOUT) {
+      col.Flags |= FCF_FG_STRIKEOUT;
     }
   }
 
@@ -1216,8 +1218,6 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
   else {
     col.ForegroundColor = revertRGB(col.ForegroundColor);
     col.BackgroundColor = revertRGB(col.BackgroundColor);
-    col.BackgroundRGBA.a = 0xFF;
-    col.ForegroundRGBA.a = 0xFF;
   }
 
   return col;
@@ -1254,6 +1254,8 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   ec.Owner = MainGuid;
   ec.Priority = 0;
   ec.Color = col;
+  MAKE_OPAQUE(ec.Color.BackgroundColor);
+  MAKE_OPAQUE(ec.Color.ForegroundColor);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
 }
 
