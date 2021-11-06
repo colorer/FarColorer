@@ -42,7 +42,7 @@ jobs:
 
       - name: Install vcpkg
         run: |
-          cd external\vcpkg
+          cd external\colorer\external\vcpkg
           .\bootstrap-vcpkg.bat
 
       - name: Setup NuGet Credentials for vpckg cache
