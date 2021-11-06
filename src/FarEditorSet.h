@@ -140,7 +140,7 @@ class FarEditorSet
   /**
    * trying to load the database on the specified path
    */
-  enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
+  enum class HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons, const wchar_t* hrdTm,
                     bool full, HRC_MODE hrc_mode);
 
@@ -210,7 +210,7 @@ class FarEditorSet
   void addEventTimer();
   void removeEventTimer();
 
-  enum MENU_ACTION {
+  enum class MENU_ACTION {
     NO_ACTION = -1,
     LIST_TYPE = 0,
     MATCH_PAIR,
@@ -221,8 +221,7 @@ class FarEditorSet
     SELECT_REGION,
     CURRENT_REGION_NAME,
     LOCATE_FUNCTION,
-    NO_ACTION2,
-    UPDATE_HIGHLIGHT,
+    UPDATE_HIGHLIGHT = LOCATE_FUNCTION + 2,
     RELOAD_BASE,
     CONFIGURE
   };

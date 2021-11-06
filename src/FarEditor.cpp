@@ -129,14 +129,14 @@ void FarEditor::setCrossState(int status, int style)
   crossStatus = status;
   crossStyle = style;
 
-  switch (crossStatus) {
-    case CROSS_OFF:
-      changeCrossStyle(CSTYLE_NONE);
+  switch (static_cast<CROSS_STATUS>(crossStatus)) {
+    case CROSS_STATUS::CROSS_OFF:
+      changeCrossStyle(CROSS_STYLE::CSTYLE_NONE);
       break;
-    case CROSS_ON:
+    case CROSS_STATUS::CROSS_ON:
       changeCrossStyle((CROSS_STYLE) crossStyle);
       break;
-    case CROSS_INSCHEME:
+    case CROSS_STATUS::CROSS_INSCHEME:
       FileType* ftype = baseEditor->getFileType();
       HrcLibrary* hrcLibrary = parserFactory->getHrcLibrary();
       FileType* def = hrcLibrary->getFileType(UnicodeString(name_DefaultScheme));
@@ -148,16 +148,16 @@ void FarEditor::setCrossState(int status, int style)
 
       if (value) {
         if (value->compare(UnicodeString(value_None)) == 0) {
-          changeCrossStyle(CSTYLE_NONE);
+          changeCrossStyle(CROSS_STYLE::CSTYLE_NONE);
         }
         else if (value->compare(UnicodeString(value_Vertical)) == 0) {
-          changeCrossStyle(CSTYLE_VERT);
+          changeCrossStyle(CROSS_STYLE::CSTYLE_VERT);
         }
         else if (value->compare(UnicodeString(value_Horizontal)) == 0) {
-          changeCrossStyle(CSTYLE_HOR);
+          changeCrossStyle(CROSS_STYLE::CSTYLE_HOR);
         }
         else if (value->compare(UnicodeString(value_Both)) == 0) {
-          changeCrossStyle(CSTYLE_BOTH);
+          changeCrossStyle(CROSS_STYLE::CSTYLE_BOTH);
         }
       }
       break;
@@ -1272,36 +1272,36 @@ void FarEditor::cleanEditor()
   }
 }
 
-int FarEditor::getVisibleCrossState() const
+FarEditor::CROSS_STYLE FarEditor::getVisibleCrossState() const
 {
   if (!showHorizontalCross && !showVerticalCross)
-    return CSTYLE_NONE;
+    return CROSS_STYLE::CSTYLE_NONE;
   if (showHorizontalCross && showVerticalCross)
-    return CSTYLE_BOTH;
+    return CROSS_STYLE::CSTYLE_BOTH;
   if (!showHorizontalCross && showVerticalCross)
-    return CSTYLE_VERT;
+    return CROSS_STYLE::CSTYLE_VERT;
   if (showHorizontalCross && !showVerticalCross)
-    return CSTYLE_HOR;
+    return CROSS_STYLE::CSTYLE_HOR;
 
-  return CSTYLE_NONE;
+  return CROSS_STYLE::CSTYLE_NONE;
 }
 
 void FarEditor::changeCrossStyle(FarEditor::CROSS_STYLE newStyle)
 {
   switch (newStyle) {
-    case CSTYLE_NONE:
+    case CROSS_STYLE::CSTYLE_NONE:
       showHorizontalCross = false;
       showVerticalCross = false;
       break;
-    case CSTYLE_BOTH:
+    case CROSS_STYLE::CSTYLE_BOTH:
       showHorizontalCross = true;
       showVerticalCross = true;
       break;
-    case CSTYLE_VERT:
+    case CROSS_STYLE::CSTYLE_VERT:
       showHorizontalCross = false;
       showVerticalCross = true;
       break;
-    case CSTYLE_HOR:
+    case CROSS_STYLE::CSTYLE_HOR:
       showHorizontalCross = true;
       showVerticalCross = false;
       break;

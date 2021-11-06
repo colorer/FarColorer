@@ -68,7 +68,7 @@ void FarEditorSet::menuConfigure()
         break;
       case 4:
         TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, Opt.HrdName, Opt.HrdNameTm, true,
-                     Opt.TrueModOn ? FarEditorSet::HRCM_BOTH : FarEditorSet::HRCM_CONSOLE);
+                     Opt.TrueModOn ? HRC_MODE::HRCM_BOTH : HRC_MODE::HRCM_CONSOLE);
         break;
       default:
         return;
@@ -117,45 +117,45 @@ FarEditorSet::MENU_ACTION FarEditorSet::showMenu(bool full_menu)
 
 void FarEditorSet::execMenuAction(MENU_ACTION action, FarEditor* editor)
 {
-  if (!editor && action != 12) {
+  if (!editor && action != MENU_ACTION::CONFIGURE) {
     throw Exception("Can't find current editor in array.");
   }
   try {
     switch (action) {
-      case 0:
+      case MENU_ACTION::LIST_TYPE:
         chooseType();
         break;
-      case 1:
+      case MENU_ACTION::MATCH_PAIR:
         editor->matchPair();
         break;
-      case 2:
+      case MENU_ACTION::SELECT_BLOCK:
         editor->selectBlock();
         break;
-      case 3:
+      case MENU_ACTION::SELECT_PAIR:
         editor->selectPair();
         break;
-      case 4:
+      case MENU_ACTION::LIST_FUNCTION:
         editor->listFunctions();
         break;
-      case 5:
+      case MENU_ACTION::FIND_ERROR:
         editor->listErrors();
         break;
-      case 6:
+      case MENU_ACTION::SELECT_REGION:
         editor->selectRegion();
         break;
-      case 7:
+      case MENU_ACTION::CURRENT_REGION_NAME:
         editor->getNameCurrentScheme();
         break;
-      case 8:
+      case MENU_ACTION::LOCATE_FUNCTION:
         editor->locateFunction();
         break;
-      case 10:
+      case MENU_ACTION::UPDATE_HIGHLIGHT:
         editor->updateHighlighting();
         break;
-      case 11:
+      case MENU_ACTION::RELOAD_BASE:
         ReloadBase();
         break;
-      case 12:
+      case MENU_ACTION::CONFIGURE:
         menuConfigure();
         break;
       default:
@@ -410,7 +410,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
     int CurPosTm = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr);
 
     return !fes->TestLoadBase(temp, userhrd, userhrc, UStr::to_stdwstr(&fes->hrd_con_instances.at(CurPosCons)->hrd_name).c_str(),
-                              UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false, FarEditorSet::HRCM_BOTH);
+                              UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false, FarEditorSet::HRC_MODE::HRCM_BOTH);
   }
 
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -665,7 +665,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     p.readProfile(pluginPath.get());
     p.readUserProfile();
 
-    if (hrc_mode == HRCM_CONSOLE || hrc_mode == HRCM_BOTH) {
+    if (hrc_mode == HRC_MODE::HRCM_CONSOLE || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
         auto uhrdCons = UnicodeString(hrdCons);
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, &uhrdCons));
@@ -675,7 +675,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       }
     }
 
-    if (hrc_mode == HRCM_RGB || hrc_mode == HRCM_BOTH) {
+    if (hrc_mode == HRC_MODE::HRCM_RGB || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
         auto uhrdTm = UnicodeString(hrdTm);
         regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, &uhrdTm));
@@ -1619,13 +1619,13 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     if (params->Count > 2) {
       // change status
       int val = static_cast<int>(macroGetValue(params->Values + 2));
-      if (val >= FarEditor::CROSS_STATUS::CROSS_OFF && val <= FarEditor::CROSS_STATUS::CROSS_INSCHEME)
+      if (val >= static_cast<int>(FarEditor::CROSS_STATUS::CROSS_OFF) && val <= static_cast<int>(FarEditor::CROSS_STATUS::CROSS_INSCHEME))
         editor->setCrossState(val, Opt.CrossStyle);
     }
     if (params->Count > 3) {
       // change style
       int val = static_cast<int>(macroGetValue(params->Values + 3));
-      if (val >= FarEditor::CROSS_STYLE::CSTYLE_VERT && val <= FarEditor::CROSS_STYLE::CSTYLE_BOTH)
+      if (val >= static_cast<int>(FarEditor::CROSS_STYLE::CSTYLE_VERT) && val <= static_cast<int>(FarEditor::CROSS_STYLE::CSTYLE_BOTH))
         editor->setCrossStyle(val);
     }
 
@@ -1633,7 +1633,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     out_params[0].Type = FMVT_INTEGER;
     out_params[0].Integer = cur_status;
     out_params[1].Type = FMVT_INTEGER;
-    out_params[1].Integer = cur_style;
+    out_params[1].Integer = static_cast<int>(cur_style);
 
     return macroReturnValues(out_params, 2);
   }

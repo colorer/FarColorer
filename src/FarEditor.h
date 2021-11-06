@@ -19,8 +19,8 @@ const intptr_t CurrentEditor = -1;
 class FarEditor : public LineSource
 {
  public:
-  enum CROSS_STATUS { CROSS_OFF = 0, CROSS_ON = 1, CROSS_INSCHEME = 2 };
-  enum CROSS_STYLE { CSTYLE_NONE = 0, CSTYLE_VERT = 1, CSTYLE_HOR = 2, CSTYLE_BOTH = 3 };
+  enum class CROSS_STATUS { CROSS_OFF = 0, CROSS_ON = 1, CROSS_INSCHEME = 2 };
+  enum class CROSS_STYLE { CSTYLE_NONE = 0, CSTYLE_VERT = 1, CSTYLE_HOR = 2, CSTYLE_BOTH = 3 };
 
   /** Creates FAR editor instance.
    */
@@ -101,7 +101,7 @@ class FarEditor : public LineSource
   void getCurrentRegionInfo(UnicodeString& region, UnicodeString& scheme);
 
   void changeCrossStyle(CROSS_STYLE newStyle);
-  [[nodiscard]] int getVisibleCrossState() const;
+  [[nodiscard]] CROSS_STYLE getVisibleCrossState() const;
   [[nodiscard]] int getCrossStatus() const;
   [[nodiscard]] int getCrossStyle() const;
   [[nodiscard]] bool isDrawPairs() const;
