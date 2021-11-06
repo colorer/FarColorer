@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'version4far.txt'
+      - 'README.md'
   pull_request:
     branches:
       - master
