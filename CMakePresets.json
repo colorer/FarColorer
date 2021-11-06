@@ -13,8 +13,8 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/external/vcpkg-ports",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/external/colorer/external/vcpkg-ports",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}/far/plugins/FarColorer"
       },
       "environment": {

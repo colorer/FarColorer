@@ -36,7 +36,7 @@ jobs:
         uses: battila7/get-version-action@v2
 
       - name: Add C++ build tools to PATH
-        uses: ilammy/msvc-dev-cmd@v1.5.0
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
 
@@ -44,8 +44,6 @@ jobs:
         run: |
           cd external\vcpkg
           .\bootstrap-vcpkg.bat
-          curl -LO https://github.com/colorer/github_tools/releases/download/vcpkg12.09.2021/vcpkg.exe
-        # replace vcpkg with patched version (X_VCPKG_NUGET_ID_PREFIX)
 
       - name: Setup NuGet Credentials for vpckg cache
         shell: bash
@@ -65,10 +63,14 @@ jobs:
         shell: bash
         working-directory: build
         run: >
-          cmake $GITHUB_WORKSPACE -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCOLORER_BUILD_ARCH=${{ matrix.arch }}
-          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/vcpkg/scripts/buildsystems/vcpkg.cmake
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/vcpkg-ports
-          -DVCPKG_FEATURE_FLAGS=versions -DCMAKE_INSTALL_PREFIX=./install/FarColorer
+          cmake $GITHUB_WORKSPACE -G "Ninja"
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          -DCOLORER_BUILD_ARCH=${{ matrix.arch }}
+          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+          -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-ports
+          -DVCPKG_FEATURE_FLAGS=manifests,versions
+          -DCMAKE_INSTALL_PREFIX=./install/FarColorer
 
       - name: Build
         working-directory: build
