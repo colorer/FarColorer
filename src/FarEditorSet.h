@@ -251,7 +251,7 @@ class FarEditorSet
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
-  HRCParser* hrcParser = nullptr;
+  HrcLibrary* hrcLibrary = nullptr;
 
   /** registry settings */
   Options Opt {0};

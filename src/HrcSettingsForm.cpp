@@ -102,7 +102,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
   FileType* type;
 
   for (int idx = 0;; idx++) {
-    type = farEditorSet->hrcParser->enumerateFileTypes(idx);
+    type = farEditorSet->hrcLibrary->enumerateFileTypes(idx);
 
     if (type == nullptr) {
       break;
@@ -128,7 +128,7 @@ FarList* HrcSettingsForm::buildHrcList() const
   memset(hrcList, 0, sizeof(FarListItem) * (num));
 
   for (int idx = 0, i = 0;; idx++, i++) {
-    type = farEditorSet->hrcParser->enumerateFileTypes(idx);
+    type = farEditorSet->hrcLibrary->enumerateFileTypes(idx);
 
     if (type == nullptr) {
       break;

@@ -54,9 +54,9 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
   if (typeName == nullptr) {
     return;
   }
-  HRCParser* hrcParser = parserFactory->getHRCParser();
+  HrcLibrary* hrcLibrary = parserFactory->getHrcLibrary();
   UnicodeString typenamed = UnicodeString(typeName);
-  auto* type = hrcParser->getFileType(&typenamed);
+  auto* type = hrcLibrary->getFileType(&typenamed);
   if (type == nullptr) {
     return;
   }
@@ -101,7 +101,7 @@ void FarHrcSettings::readUserProfile()
 
 void FarHrcSettings::readProfileFromRegistry()
 {
-  HRCParser* hrcParser = parserFactory->getHRCParser();
+  HrcLibrary* hrcLibrary = parserFactory->getHrcLibrary();
 
   SettingsControl ColorerSettings;
   size_t hrc_subkey;
@@ -114,7 +114,7 @@ void FarHrcSettings::readProfileFromRegistry()
       if (fse.Items[i].Type == FST_SUBKEY) {
         // check whether we have such a scheme
         UnicodeString named = UnicodeString(fse.Items[i].Name);
-        auto* type = hrcParser->getFileType(&named);
+        auto* type = hrcLibrary->getFileType(&named);
         if (type) {
           // enum all params in the section
           size_t type_subkey;
@@ -149,7 +149,7 @@ void FarHrcSettings::writeUserProfile()
 
 void FarHrcSettings::writeProfileToRegistry()
 {
-  HRCParser* hrcParser = parserFactory->getHRCParser();
+  HrcLibrary* hrcLibrary = parserFactory->getHrcLibrary();
   FileType* type;
 
   SettingsControl ColorerSettings;
@@ -159,7 +159,7 @@ void FarHrcSettings::writeProfileToRegistry()
 
   // enum all FileTypes
   for (int idx = 0;; idx++) {
-    type = hrcParser->enumerateFileTypes(idx);
+    type = hrcLibrary->enumerateFileTypes(idx);
 
     if (!type) {
       break;
