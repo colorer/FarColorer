@@ -3,6 +3,8 @@
 
 #ifdef _WIN64
 #define PLATFORM " x64"
+#elif defined _M_ARM64
+#define PLATFORM " ARM64"
 #elif defined _WIN32
 #define PLATFORM " x86"
 #else
