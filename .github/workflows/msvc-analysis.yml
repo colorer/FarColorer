@@ -1,0 +1,92 @@
+name: Microsoft C++ Code Analysis
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '00 22 * * 5'
+
+env:
+  # Path to the CMake build directory.
+  BUILD_TYPE: Release
+  X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
+  VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          # fetch all for vcpkg versions functionality
+          fetch-depth: 0
+
+      - name: Install vcpkg
+        run: |
+          cd external\colorer\external\vcpkg
+          .\bootstrap-vcpkg.bat
+
+      - name: Add C++ build tools to PATH
+        uses: ilammy/msvc-dev-cmd@v1.5.0
+        with:
+          arch: amd64
+
+      - name: Setup NuGet Credentials for cache
+        shell: bash
+        run: >
+          `$VCPKG_INSTALLATION_ROOT/vcpkg fetch nuget | tail -n 1`
+          sources add
+          -source "https://nuget.pkg.github.com/colorer/index.json"
+          -storepasswordincleartext
+          -name "GitHub"
+          -username "${{ secrets.PACKAGES_GITHUB_USER }}"
+          -password "${{ secrets.PACKAGES_GITHUB_TOKEN }}"
+
+      - name: Create Build forlder
+        run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: >
+          cmake $GITHUB_WORKSPACE -G "Ninja"
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          -DCOLORER_BUILD_ARCH=x64
+          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static-rel
+          -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-ports
+          -DVCPKG_OVERLAY_TRIPLETS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-triplets
+          -DVCPKG_FEATURE_FLAGS=manifests,versions
+
+
+      # Build is not required unless generated source files are used
+      # - name: Build CMake
+      #   run: cmake --build ${{ env.build }}
+
+      - name: Initialize MSVC Code Analysis
+        uses: microsoft/msvc-code-analysis-action@v0.1.0
+        # Provide a unique ID to access the sarif output path
+        id: run-analysis
+        with:
+          cmakeBuildDirectory: ${{runner.workspace}}/build
+          # Ruleset file that will determine what checks will be run
+          ruleset: NativeRecommendedRules.ruleset
+          ignoredPaths: ${{ github.workspace }}/external
+
+      # Upload SARIF file to GitHub Code Scanning Alerts
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.run-analysis.outputs.sarif }}
+
+      # Upload SARIF file as an Artifact to download and view
+      # - name: Upload SARIF as an Artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: sarif-file
+      #     path: ${{ steps.run-analysis.outputs.sarif }}
