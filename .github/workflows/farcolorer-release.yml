@@ -18,8 +18,8 @@ jobs:
           - { build: ARM64,  arch: amd64_arm64, triplet: arm64-windows-static-rel, }
 
     env:
-      X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
       BUILD_TYPE: Release
+      X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
       VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
     runs-on: windows-2019
@@ -112,8 +112,8 @@ jobs:
           path: ./build/*.7z
           retention-days: 1
 
-  create-release:
-    needs: [build-artifacts]
+  publish-release:
+    needs: [ build-artifacts ]
     runs-on: windows-2019
 
     steps:

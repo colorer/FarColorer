@@ -1,4 +1,4 @@
-name: build
+name: Build
 
 on:
   workflow_dispatch:
@@ -10,12 +10,12 @@ on:
       - master
 
 env:
-  X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
   BUILD_TYPE: Release
+  X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
 jobs:
-  windows-vc:
+  build:
     strategy:
       fail-fast: false
       matrix:
