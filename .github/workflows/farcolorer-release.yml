@@ -11,12 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x64, x86 ]
+        build: [ x64, x86 , ARM64 ]
         include:
-          - arch: x64
-            triplet: x64-windows-static
-          - arch: x86
-            triplet: x86-windows-static
+          - { build: x64,    arch: amd64,       triplet: x64-windows-static-rel, }
+          - { build: x86,    arch: amd64_x86,   triplet: x86-windows-static-rel, }
+          - { build: ARM64,  arch: amd64_arm64, triplet: arm64-windows-static-rel, }
 
     env:
       X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
@@ -65,7 +64,7 @@ jobs:
         run: >
           cmake $GITHUB_WORKSPACE -G "Ninja"
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-          -DCOLORER_BUILD_ARCH=${{ matrix.arch }}
+          -DCOLORER_BUILD_ARCH=${{ matrix.build }}
           -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
           -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-ports
@@ -93,9 +92,9 @@ jobs:
       - name: Set the pack file name
         shell: bash
         run: |
-          echo "farcolorer_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
-          echo "farcolorer_pdb_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
-          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
+          echo "farcolorer_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
+          echo "farcolorer_pdb_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
+          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
 
       - name: pack plugin
         working-directory: build
