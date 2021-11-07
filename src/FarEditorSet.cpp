@@ -191,7 +191,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     textLinesStore.loadFile(&path, true);
     // Base editor to make primary parse
     BaseEditor baseEditor(parserFactory.get(), &textLinesStore);
-    RegionMapper* regionMap;
+    std::unique_ptr<StyledHRDMapper> regionMap;
     try {
       auto hrd_name = UnicodeString(Opt.HrdName);
       regionMap = parserFactory->createStyledMapper(&DConsole, &hrd_name);
@@ -199,10 +199,10 @@ void FarEditorSet::viewFile(const UnicodeString& path)
       spdlog::error("{0}", e.what());
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
     }
-    baseEditor.setRegionMapper(regionMap);
+    baseEditor.setRegionMapper(regionMap.get());
     baseEditor.chooseFileType(&path);
 
-    FileType* def = hrcLibrary->getFileType(UnicodeString(name_DefaultScheme));
+    FileType* def = parserFactory->getHrcLibrary().getFileType(UnicodeString(name_DefaultScheme));
     int maxBlockSize = def->getParamValueInt(UnicodeString(param_MaxBlockSize), 300);
     maxBlockSize = baseEditor.getFileType()->getParamValueInt(UnicodeString(param_MaxBlockSize), maxBlockSize);
     baseEditor.setMaxBlockSize(maxBlockSize);
@@ -220,7 +220,6 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     // File viewing in console window
     TextConsoleViewer viewer(&baseEditor, &textLinesStore, (unsigned short) background);
     viewer.view();
-    delete regionMap;
   } catch (Exception& e) {
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
@@ -231,9 +230,10 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
 {
   const UnicodeString* group = &DAutodetect;
   FileType* type = nullptr;
+  HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
 
   for (int idx = 0;; idx++) {
-    type = hrcLibrary->enumerateFileTypes(idx);
+    type = hrcLibrary.enumerateFileTypes(idx);
 
     if (type == nullptr) {
       break;
@@ -299,7 +299,7 @@ bool FarEditorSet::chooseType()
 
   wchar_t bottom[20];
   std::wstring key;
-  _snwprintf(bottom, 20, GetMsg(mTotalTypes), hrcLibrary->getFileTypesCount());
+  _snwprintf(bottom, 20, GetMsg(mTotalTypes), parserFactory->getHrcLibrary().getFileTypesCount());
   struct FarKey BreakKeys[3] = {VK_INSERT, 0, VK_DELETE, 0, VK_F4, 0};
   intptr_t BreakCode;
   while (true) {
@@ -384,7 +384,7 @@ const UnicodeString* FarEditorSet::getHRDescription(const UnicodeString& name, c
 {
   const UnicodeString* descr = nullptr;
   if (parserFactory != nullptr) {
-    descr = &parserFactory->getHRDNode(_hrdClass, name)->hrd_description;
+    descr = &parserFactory->getHrdNode(_hrdClass, name).hrd_description;
   }
 
   if (descr == nullptr) {
@@ -439,13 +439,13 @@ bool FarEditorSet::configure()
     std::vector<const wchar_t*> console_style;
     unsigned long flag_disable = 0;
     int current_style;
-    std::unique_ptr<HRDNode> cons, rgb;
+    std::unique_ptr<HrdNode> cons, rgb;
     if (Opt.rEnabled) {
-      hrd_con_instances = parserFactory->enumHRDInstances(DConsole);
+      hrd_con_instances = parserFactory->enumHrdInstances(DConsole);
       current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
     }
     else {
-      cons = std::make_unique<HRDNode>();
+      cons = std::make_unique<HrdNode>();
       cons->hrd_name = UnicodeString(Opt.HrdName);
       hrd_con_instances.push_back(cons.get());
       console_style.push_back(Opt.HrdName);
@@ -462,11 +462,11 @@ bool FarEditorSet::configure()
     flag_disable = 0;
     int current_rstyle;
     if (Opt.rEnabled) {
-      hrd_rgb_instances = parserFactory->enumHRDInstances(DRgb);
+      hrd_rgb_instances = parserFactory->enumHrdInstances(DRgb);
       current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
     }
     else {
-      rgb = std::make_unique<HRDNode>();
+      rgb = std::make_unique<HrdNode>();
       rgb->hrd_name = UnicodeString(Opt.HrdName);
       hrd_rgb_instances.push_back(rgb.get());
       rgb_style.push_back(Opt.HrdNameTm);
@@ -658,7 +658,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
   try {
     parserFactoryLocal = std::make_unique<ParserFactory>();
     parserFactoryLocal->loadCatalog(tpath.get());
-    HrcLibrary* hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
+    auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
     LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
     LoadUserHrc(userHrcPathS.get(), parserFactoryLocal.get());
     FarHrcSettings p(parserFactoryLocal.get());
@@ -668,26 +668,26 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     if (hrc_mode == HRC_MODE::HRCM_CONSOLE || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
         auto uhrdCons = UnicodeString(hrdCons);
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, &uhrdCons));
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, &uhrdCons);
       } catch (ParserFactoryException& e) {
         spdlog::error("{0}", e.what());
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DConsole, nullptr));
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, nullptr);
       }
     }
 
     if (hrc_mode == HRC_MODE::HRCM_RGB || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
         auto uhrdTm = UnicodeString(hrdTm);
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, &uhrdTm));
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, &uhrdTm);
       } catch (ParserFactoryException& e) {
         spdlog::error("{0}", e.what());
-        regionMapperLocal.reset(parserFactoryLocal->createStyledMapper(&DRgb, nullptr));
+        regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, nullptr);
       }
     }
 
     if (full) {
       for (int idx = 0;; idx++) {
-        FileType* type = hrcLibraryLocal->enumerateFileTypes(idx);
+        FileType* type = hrcLibraryLocal.enumerateFileTypes(idx);
 
         if (type == nullptr) {
           break;
@@ -750,19 +750,19 @@ void FarEditorSet::ReloadBase()
 
     parserFactory = std::make_unique<ParserFactory>();
     parserFactory->loadCatalog(sCatalogPathExp.get());
-    hrcLibrary = parserFactory->getHrcLibrary();
+    HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
     LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
     LoadUserHrc(sUserHrcPathExp.get(), parserFactory.get());
     FarHrcSettings p(parserFactory.get());
     p.readProfile(pluginPath.get());
     p.readUserProfile();
-    defaultType = dynamic_cast<FileType*>(hrcLibrary->getFileType(UnicodeString(name_DefaultScheme)));
+    defaultType = dynamic_cast<FileType*>(hrcLibrary.getFileType(UnicodeString(name_DefaultScheme)));
 
     try {
-      regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, &hrdName));
+      regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
     } catch (ParserFactoryException& e) {
       spdlog::error("{0}", e.what());
-      regionMapper.reset(parserFactory->createStyledMapper(&hrdClass, nullptr));
+      regionMapper = parserFactory->createStyledMapper(&hrdClass, nullptr);
     }
     //устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
@@ -1148,7 +1148,7 @@ void FarEditorSet::setEmptyLogger()
   spdlog::set_default_logger(log);
 }
 
-int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array)
+int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array)
 {
   size_t hrd_count = hrd_instances->size();
   auto current_style = 0;
@@ -1173,7 +1173,7 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
   });
 
   for (size_t i = 0; i < hrd_count; i++) {
-    const HRDNode* hrd_node = hrd_instances->at(i);
+    const HrdNode* hrd_node = hrd_instances->at(i);
 
     if (hrd_node->hrd_description.length() != 0) {
       out_array->push_back(_wcsdup(UStr::to_stdwstr(&hrd_node->hrd_description).c_str()));
@@ -1376,6 +1376,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
   if (UnicodeString("Menu").caseCompare(command, 0) == 0) {
     return chooseType() ? INVALID_HANDLE_VALUE : nullptr;
   }
+  HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
   if (UnicodeString("Set").caseCompare(command, 0) == 0) {
     if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
       UnicodeString new_type = UnicodeString(params->Values[2].String);
@@ -1383,7 +1384,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
       if (!editor || !editor->isColorerEnable())
         return nullptr;
 
-      auto file_type = hrcLibrary->getFileType(&new_type);
+      auto file_type = hrcLibrary.getFileType(&new_type);
       if (file_type) {
         editor->setFileType(file_type);
         return INVALID_HANDLE_VALUE;
@@ -1412,13 +1413,13 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
       return nullptr;
   }
   if (UnicodeString("List").caseCompare(command, 0) == 0) {
-    auto type_count = hrcLibrary->getFileTypesCount();
+    auto type_count = hrcLibrary.getFileTypesCount();
     FileType* type = nullptr;
 
     auto* array = new FarMacroValue[type_count];
 
     for (size_t idx = 0; idx < type_count; idx++) {
-      type = hrcLibrary->enumerateFileTypes((unsigned int) idx);
+      type = hrcLibrary.enumerateFileTypes((unsigned int) idx);
       if (type == nullptr) {
         break;
       }
@@ -1681,11 +1682,12 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
   if (!Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
+  HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
   UnicodeString command = UnicodeString(params->Values[1].String);
   if (UnicodeString("List").caseCompare(command, 0) == 0) {
     if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
-      auto* file_type = dynamic_cast<FileType*>(hrcLibrary->getFileType(&type));
+      auto* file_type = dynamic_cast<FileType*>(hrcLibrary.getFileType(&type));
       if (file_type) {
         // max count params
         size_t size = file_type->getParamCount() + defaultType->getParamCount();
@@ -1747,7 +1749,7 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
       UnicodeString type = UnicodeString(params->Values[2].String);
       UnicodeString param_name = UnicodeString(params->Values[3].String);
 
-      auto file_type = hrcLibrary->getFileType(&type);
+      auto file_type = hrcLibrary.getFileType(&type);
       if (file_type) {
         auto* value = file_type->getParamValue(param_name);
         auto* out_params = new FarMacroValue[1];
@@ -1769,7 +1771,7 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
     if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
       UnicodeString param_name = UnicodeString(params->Values[3].String);
-      auto* file_type = hrcLibrary->getFileType(&type);
+      auto* file_type = hrcLibrary.getFileType(&type);
       if (file_type) {
         if (params->Count > 4 && FMVT_STRING == params->Values[4].Type) {
           // replace value

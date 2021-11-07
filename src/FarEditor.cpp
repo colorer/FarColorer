@@ -7,8 +7,8 @@ FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnab
     UnicodeString def_out = UnicodeString("def:Outlined");
     UnicodeString def_err = UnicodeString("def:Error");
     baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
-    const Region* def_Outlined = pf->getHrcLibrary()->getRegion(&def_out);
-    const Region* def_Error = pf->getHrcLibrary()->getRegion(&def_err);
+    const Region* def_Outlined = pf->getHrcLibrary().getRegion(&def_out);
+    const Region* def_Error = pf->getHrcLibrary().getRegion(&def_err);
     structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
     errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
 
@@ -75,8 +75,8 @@ void FarEditor::setFileType(FileType* ftype)
 void FarEditor::reloadTypeSettings()
 {
   FileType* ftype = baseEditor->getFileType();
-  HrcLibrary* hrcLibrary = parserFactory->getHrcLibrary();
-  FileType* def = hrcLibrary->getFileType(UnicodeString(name_DefaultScheme));
+  auto& hrcLibrary = parserFactory->getHrcLibrary();
+  FileType* def = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
 
   if (def == nullptr) {
     throw Exception("No 'default' file type found");
@@ -138,8 +138,8 @@ void FarEditor::setCrossState(int status, int style)
       break;
     case CROSS_STATUS::CROSS_INSCHEME:
       FileType* ftype = baseEditor->getFileType();
-      HrcLibrary* hrcLibrary = parserFactory->getHrcLibrary();
-      FileType* def = hrcLibrary->getFileType(UnicodeString(name_DefaultScheme));
+      auto& hrcLibrary = parserFactory->getHrcLibrary();
+      FileType* def = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
       const UnicodeString* value;
       value = ftype->getParamValue(UnicodeString(param_ShowCross));
       if (!value) {

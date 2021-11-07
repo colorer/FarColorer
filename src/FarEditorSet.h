@@ -174,8 +174,8 @@ class FarEditorSet
 
   SettingWindow settingWindow {0};
 
-  std::vector<const HRDNode*> hrd_con_instances;
-  std::vector<const HRDNode*> hrd_rgb_instances;
+  std::vector<const HrdNode*> hrd_con_instances;
+  std::vector<const HrdNode*> hrd_rgb_instances;
 
  private:
   /** add current active editor and return him. */
@@ -244,13 +244,12 @@ class FarEditorSet
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   UnicodeString* getCurrentFileName();
 
-  int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
+  int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // filetype "default"
   FileType* defaultType = nullptr;
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
-  HrcLibrary* hrcLibrary = nullptr;
 
   /** registry settings */
   Options Opt {0};
