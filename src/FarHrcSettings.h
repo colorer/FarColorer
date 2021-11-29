@@ -2,7 +2,7 @@
 #define _FARHRCSETTINGS_H_
 
 #include <colorer/FileType.h>
-#include <colorer/HRCParser.h>
+#include <colorer/HrcLibrary.h>
 #include <colorer/ParserFactory.h>
 #include <xercesc/dom/DOM.hpp>
 

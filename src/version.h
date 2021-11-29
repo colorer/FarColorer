@@ -3,6 +3,8 @@
 
 #ifdef _WIN64
 #define PLATFORM " x64"
+#elif defined _M_ARM64
+#define PLATFORM " ARM64"
 #elif defined _WIN32
 #define PLATFORM " x86"
 #else
@@ -11,7 +13,7 @@
 
 #define PLUGIN_VER_MAJOR 1
 #define PLUGIN_VER_MINOR 4
-#define PLUGIN_VER_PATCH 12
+#define PLUGIN_VER_PATCH 14
 #define PLUGIN_DESC L"FarColorer - Syntax Highlighting for Far Manager 3" PLATFORM
 #define PLUGIN_NAME L"FarColorer"
 #define PLUGIN_FILENAME L"colorer.dll"

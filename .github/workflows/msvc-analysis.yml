@@ -1,40 +1,29 @@
-name: Build
+name: Microsoft C++ Code Analysis
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - 'version4far.txt'
-      - 'README.md'
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
+  schedule:
+    - cron: '00 22 * * 5'
 
 env:
+  # Path to the CMake build directory.
   BUILD_TYPE: Release
   X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        build: [ x64, x86 , ARM64 ]
-        include:
-          - { build: x64,    arch: amd64,       triplet: x64-windows-static-rel, }
-          - { build: x86,    arch: amd64_x86,   triplet: x86-windows-static-rel, }
-          - { build: ARM64,  arch: amd64_arm64, triplet: arm64-windows-static-rel, }
-
-    runs-on: windows-2019
+  analyze:
+    name: Analyze
+    runs-on: windows-latest
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
         with:
           submodules: recursive
+          # fetch all for vcpkg versions functionality
           fetch-depth: 0
 
       - name: Install vcpkg
@@ -43,9 +32,9 @@ jobs:
           .\bootstrap-vcpkg.bat
 
       - name: Add C++ build tools to PATH
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@v1.5.0
         with:
-          arch: ${{ matrix.arch }}
+          arch: amd64
 
       - name: Setup NuGet Credentials for cache
         shell: bash
@@ -67,16 +56,37 @@ jobs:
         run: >
           cmake $GITHUB_WORKSPACE -G "Ninja"
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-          -DCOLORER_BUILD_ARCH=${{ matrix.build }}
+          -DCOLORER_BUILD_ARCH=x64
           -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static-rel
           -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-ports
           -DVCPKG_OVERLAY_TRIPLETS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-triplets
           -DVCPKG_FEATURE_FLAGS=manifests,versions
 
-      - name: Build
-        working-directory: ${{runner.workspace}}/build
-        shell: bash
-        run: cmake --build . --config $BUILD_TYPE
-      
-      
+
+      # Build is not required unless generated source files are used
+      # - name: Build CMake
+      #   run: cmake --build ${{ env.build }}
+
+      - name: Initialize MSVC Code Analysis
+        uses: microsoft/msvc-code-analysis-action@v0.1.0
+        # Provide a unique ID to access the sarif output path
+        id: run-analysis
+        with:
+          cmakeBuildDirectory: ${{runner.workspace}}/build
+          # Ruleset file that will determine what checks will be run
+          ruleset: NativeRecommendedRules.ruleset
+          ignoredPaths: ${{ github.workspace }}/external
+
+      # Upload SARIF file to GitHub Code Scanning Alerts
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.run-analysis.outputs.sarif }}
+
+      # Upload SARIF file as an Artifact to download and view
+      # - name: Upload SARIF as an Artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: sarif-file
+      #     path: ${{ steps.run-analysis.outputs.sarif }}

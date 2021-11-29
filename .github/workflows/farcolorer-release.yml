@@ -11,16 +11,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x64, x86 ]
+        build: [ x64, x86 , ARM64 ]
         include:
-          - arch: x64
-            triplet: x64-windows-static
-          - arch: x86
-            triplet: x86-windows-static
+          - { build: x64,    arch: amd64,       triplet: x64-windows-static-rel, }
+          - { build: x86,    arch: amd64_x86,   triplet: x86-windows-static-rel, }
+          - { build: ARM64,  arch: amd64_arm64, triplet: arm64-windows-static-rel, }
 
     env:
-      X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
       BUILD_TYPE: Release
+      X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
       VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
     runs-on: windows-2019
@@ -36,16 +35,14 @@ jobs:
         uses: battila7/get-version-action@v2
 
       - name: Add C++ build tools to PATH
-        uses: ilammy/msvc-dev-cmd@v1.5.0
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
 
       - name: Install vcpkg
         run: |
-          cd external\vcpkg
+          cd external\colorer\external\vcpkg
           .\bootstrap-vcpkg.bat
-          curl -LO https://github.com/colorer/github_tools/releases/download/vcpkg12.09.2021/vcpkg.exe
-        # replace vcpkg with patched version (X_VCPKG_NUGET_ID_PREFIX)
 
       - name: Setup NuGet Credentials for vpckg cache
         shell: bash
@@ -65,10 +62,15 @@ jobs:
         shell: bash
         working-directory: build
         run: >
-          cmake $GITHUB_WORKSPACE -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCOLORER_BUILD_ARCH=${{ matrix.arch }}
-          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/vcpkg/scripts/buildsystems/vcpkg.cmake
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/vcpkg-ports
-          -DVCPKG_FEATURE_FLAGS=versions -DCMAKE_INSTALL_PREFIX=./install/FarColorer
+          cmake $GITHUB_WORKSPACE -G "Ninja"
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          -DCOLORER_BUILD_ARCH=${{ matrix.build }}
+          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+          -DVCPKG_OVERLAY_PORTS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-ports
+          -DVCPKG_OVERLAY_TRIPLETS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-triplets
+          -DVCPKG_FEATURE_FLAGS=manifests,versions
+          -DCMAKE_INSTALL_PREFIX=./install/FarColorer
 
       - name: Build
         working-directory: build
@@ -91,9 +93,9 @@ jobs:
       - name: Set the pack file name
         shell: bash
         run: |
-          echo "farcolorer_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
-          echo "farcolorer_pdb_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
-          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.arch }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
+          echo "farcolorer_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
+          echo "farcolorer_pdb_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
+          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
 
       - name: pack plugin
         working-directory: build
@@ -110,8 +112,8 @@ jobs:
           path: ./build/*.7z
           retention-days: 1
 
-  create-release:
-    needs: [build-artifacts]
+  publish-release:
+    needs: [ build-artifacts ]
     runs-on: windows-2019
 
     steps:

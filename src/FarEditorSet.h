@@ -140,7 +140,7 @@ class FarEditorSet
   /**
    * trying to load the database on the specified path
    */
-  enum HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
+  enum class HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons, const wchar_t* hrdTm,
                     bool full, HRC_MODE hrc_mode);
 
@@ -174,8 +174,8 @@ class FarEditorSet
 
   SettingWindow settingWindow {0};
 
-  std::vector<const HRDNode*> hrd_con_instances;
-  std::vector<const HRDNode*> hrd_rgb_instances;
+  std::vector<const HrdNode*> hrd_con_instances;
+  std::vector<const HrdNode*> hrd_rgb_instances;
 
  private:
   /** add current active editor and return him. */
@@ -210,7 +210,7 @@ class FarEditorSet
   void addEventTimer();
   void removeEventTimer();
 
-  enum MENU_ACTION {
+  enum class MENU_ACTION {
     NO_ACTION = -1,
     LIST_TYPE = 0,
     MATCH_PAIR,
@@ -221,8 +221,7 @@ class FarEditorSet
     SELECT_REGION,
     CURRENT_REGION_NAME,
     LOCATE_FUNCTION,
-    NO_ACTION2,
-    UPDATE_HIGHLIGHT,
+    UPDATE_HIGHLIGHT = LOCATE_FUNCTION + 2,
     RELOAD_BASE,
     CONFIGURE
   };
@@ -245,13 +244,12 @@ class FarEditorSet
   void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
   UnicodeString* getCurrentFileName();
 
-  int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HRDNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
+  int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // filetype "default"
   FileType* defaultType = nullptr;
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
-  HRCParser* hrcParser = nullptr;
 
   /** registry settings */
   Options Opt {0};
