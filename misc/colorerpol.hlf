@@ -2,277 +2,432 @@
 .PluginContents=FarColorer
 
 @contents
-$^#FarColorer
+$ # FarColorer#
 
-    ~Konfiguracja wtyczki.~@config@
+    ~Menu ustawień~@settingsmenu@
+    ~Konfiguracja wtyczki~@config@
+    ~Ustawienia schematów~@confighrc@
+    ~Ustawienia logowania~@configlog@
+    ~Obsługa linii poleceń~@cmdline@
+    ~Menu wtyczki~@menu@
 
-    ~Ustawienia schematów.~@confighrc@
+    ~Używanie wtyczki w makrach~@MacroCallPlugin@
+      ~Funkcje makropoleceń~@MacroCall@
+      ~GUID'y wtyczek~@PluginGuids
 
-    ~Obsługa linii poleceń.~@cmdline@
+    ~O autorach~@author@
 
-    ~Menu wtyczki.~@menu@
+@settingsmenu
+$ # Ustawienia#
 
-    ~Używanie wtyczki w markach.~@MacroCallPlugin@
+  #Ustawienia główne#
+    Otwiera okno głównych ustawień.
 
-    ~GUID'y wtyczki.~@PluginGuids
+  #Ustawienia schematów#
+    Otwiera okno ustawień schematów kolorowania. Okno nie działa, jeżeli wtyczka jest wyłączona.
 
-    ~O autorach.~@author@
+  #Ustawienia logowania#
+    Otwiera okno ustawień dziennika zdarzeń.
+
+  #Sprawdź bibliotekę schematów#
+    Sprawdza możliwość załadowania wszystkich schematów językowych, pobierając
+ścieżkę do pliku catalog.xml z okna ustawień.
 
 @config
-$^#Ustawienia FarColorer.#
+$ # Ustawienia FarColorer#
 
   #Włącz#
      Włącza/Wyłącza FarColorer.
+
+  #Plik catalog.xml:#
+     Pełna ścieżka do pliku ustawień FarColorer. Jeżeli pole jest puste, FarColorer próbuje znaleźć
+plik automatycznie w podfolderze "base" głównego folderu wtyczki.
+
+  #Pliki schematów użytkownika#
+     Pełna ścieżka pliku w tym polu, określa plik analogiczny do proto.hrc, lub folder z plikami
+zawierającymi schematy użytkownika. Jeżeli podany jest folder, to przetwarzane są tylko pliki *.hrc.
+
+  #Pliki stylów kolorów użytkownika#
+     Pełna ścieżka do pliku ustawień stylów kolorów użytkownika.
+
+  #Styl koloru:#
+     Wybór stylu koloru, jaki będzie użyty do kolorowania tekstu. Wybór nie ma znaczenia jeżeli
+wtyczka jest wyłączona.
+
+  #Włącz TrueMod#
+     Włącza/Wyłącza tryb TrueMod we wtyczce.
+
+  #Styl koloru TrueMod:#
+     Wybierz styl koloru, który zostanie użyty do kolorowania w trybie TrueMod. Wybór nie ma znaczenia,
+jeżeli wtyczka jest wyłączona.
+
+  #Pary#
+     Lokalizuje (lub nie) pary elementów języka (nawiasy, cytaty).
+
+  #Składnia#
+     Włącza wyświetlanie składni.
+
+  #Klasyczny styl obramowania#
+     W klasycznym stylu wyświetlana jest tylko nazwa funkcji. W nowym stylu wyświetlany jest początek
+numeru linii, pierwsza litera funkcji i sama nazwa funkcji.
+
+  #Zmień tło edytora#
+     W ustawionym warunku, FarColorer ustawia w Ustawieniach systemowych kolor "Normalnego tekstu"
+w grupie "Edytor" taki sam jak domyślny kolor dla schematu wybranego w FarColorer.
+Efekt jest widoczny w plikach, gdzie liczba wierszy jest mniejsza niż wysokość okna edytora.
 
   #Krzyż#
      [ ] Nigdy nie pokazuj
      [?] Pokazuj, jeżeli włączony w schemacie.
      [x] Zawsze pokazuj.
 
-  #Styl krzyża#
-     Styl krzyża pokazywanego gdy "Krzyż" jest włączony.
+  #Styl ramek#
+     Styl ramek pokazywanych, gdy "Krzyż" jest włączony.
 
-  #Pary#
-     Lokalizuje lub nie pary elementów języka (nawiasy, cytaty).
+  #Czas odświeżania#
+     Częstotliwość (w milisekundach), przy której Far wywołuje kolorowanie "w tle". Im niższa wartość - tym szybciej
+wyświetlane są wielkie pliki, ale spada recesywność (czas reakcji) ekranu.
 
-  #Składnia#
-     Włącza wyświetlanie składni
-
-  #Classic outline style#
-     In classic style displays only the name of the function. Otherwise show
-     the beginning of the line number, then the first letter in the function
-     and the function name itself.
-
-  #Change background editor#
-     In the set condition, FarColorer set in System Preferences color of
-     "Plain Text" color group "editor" such as and the default color for
-     the color scheme FarColorer.
-     The effect is visible on the files, the number of rows in less than window height
-     editor.
-
-  #Styl koloru:#
-     Choose a color style, which will be used for coloring text.
-     The choice does not work if the plugin is disabled.
-
-  #plik catalog.xml:#
-     Pełna ścieżka do pliku ustawień FarColorer.
-     Jeżeli pole jest puste, FarColorer próbuje znaleźć plik automatycznie
-     w podfolderze "base" głównego folderu wtyczki.
-
-  #Pliki schematów użytkownika#
-     Pełna ścieżka do plików schematów użytkownika
-
-  #Users file of color styles#
-     Full file path sets the users file of color styles
-
-  #Log file#
-     Full path in this field specifies the file that will store diagnostic messages
-
-  #--------------------------Ustawienia TrueMod----------------------#
-  #Włączony#
-     Włącza/Wyłącza tryb TrueMod we wtyczce.
-
-  #Styl koloru:#
-     Choose a color style, which will be used for coloring text in TrueMod.
-     The choice does not work if the plugin is disabled.
-  #------------------------------------------------------------------#
-
-  #[ Test schema library ]#
-     Tests ability to load all the language of schemes, taking the path to
-     catalog.xml from the settings window.
-
-  #[ Schemes settings ]#
-    Open dialog for shemes settings. The dialog does not work if the plugin is disabled.
-
-  #[ Ok ]#
-     Zamyka dialog i zapisuje ustawienia.
+  #{ Ok }#
+     Zamyka okno i zapisuje ustawienia.
 
 @confighrc
-$^#Ustawienia schematu#
-    For each of the selected schemes, a list of parameters that affect the mapping
-coloring.
-    Parameter value - the value set for this parameter.
-Values of the form <default-znach.> shows that the parameter is "znach." It is set
-in the system (non-user) settings of the scheme or scheme is taken from default.
-    Save all the changes occurs after clicking "OK" button.
+$ # Ustawienia schematu#
+    Dla każdego z wybranych schematów wyświetlana jest lista parametrów, które mają wpływ
+na kolorystykę schematu.
+    Wartość parametru - wartość ustawiona dla tego parametru.
+    Wartość <domyślna-wartość> oznacza, że parametr jest równy "wartości", która jest ustawiona
+w ustawieniach schematu systemowego (nie użytkownika) lub pobrana ze schematu domyślnego. Wszystkie
+zmiany są zapisywane po naciśnięciu przycisku "OK".
+
+@configlog
+$ # Ustawienia logowania#
+
+  #Włącz logowanie#
+    Włącza/Wyłącza logowanie zdarzeń.
+
+  #Poziom logowania#
+    Lista wyboru poziomu logowania.
+
+  #Ścieżka dziennika#
+    Ścieżka do folderu, gdzie zapisywane będą dzienniki zdarzeń.
 
 @cmdline
-$# Obsługa linii poleceń
-    You can use the plugin from FAR's command line with prefix 'clr:'
-to view files with syntax highlighting in FarColorer's internal viewer.
-To view file you have to specify file name after the 'clr:' prefix
-in FAR's command line. This function is equal to #colorer.exe# program
-features, but doesn't load HRC database each time, so it works faster.
+$ # Obsługa linii poleceń#
+    Można wywołać wtyczkę z wiersza poleceń Far stosując przedrostek 'clr:' i wpisując nazwę pliku,
+aby otworzyć podgląd plików z kolorowaniem w wewnętrznej przeglądarce Far.
+    Funkcjonalność ta jest podobna do użycia programu #colorer.exe#, z tą różnicą, że wtyczka nie musi
+ładować za każdym razem bazy HRC, dzięki czemu pracuje ona szybciej.
 
 @add
-$# Outliner
-    Here you can see a list of all functions or syntax errors found.
-Choose any item to go to corresponding line in text.
+$ # Rozdziały#
+    W tym miejscu można zobaczyć listę wszystkich znalezionych funkcji lub błędów składni.
+Wybierz dowolny element, aby przejść do odpowiedniej linii w pliku.
 
-    You can use keyboard filter to quickly search for required items:
+    Można użyć skrótów klawiszowych, aby szybko przejść do wybranego elementu:
 
-    #Ctrl-Left/Right#
-      Expand-Collapse level of Outliner
+    #Ctrl-Lewy/Prawy#
+      Rozwiń-Zwiń poziom kontekstu.
 
-    #Ctrl-Up/Down#
-      Move to next/previous item both in outliner and in source code
+    #Ctrl-Góra/Dół#
+      Przejdź do następnego/poprzedniego elementu zarówno w kontekście jak i w pliku źródłowym.
 
     #Ctrl-Enter#
-      Close the outliner and insert current item into the cursor position
+      Zamknij konspekt i wstaw bieżący element do pozycji kursora.
 
     #Enter#
-      Close the outliner and jump to the selected item
+      Zamknij listę rozdziałów i przejdź do wybranego elementu.
 
     #Tab#
-      Complementing filter symbols, written after '?' in the field of display filter
+      Symbole filtrów uzupełniających zapisane po znaku '?' w polu wyświetlanego filtra.
 
-    #Symbol keys [0-9a-z;:-_]#
-      Filter out the outliner items against entered filter
+    #Klawisze zwykłe [0-9a-z;:-_]#
+      Filtrowanie elementów kontekstu wg wprowadzonych znaków.
 
 @menu
-$#Operacje FarColorer
+$ # Operacje FarColorer#
+  #1 Lista typów#
+    Lists wszystkich obsługiwanych typów. Można wybrać dowolny z nich do pracy z bieżącą sesją edytora.
 
-  #1 Lista typów#         ~Alt-L~
-    Lists all supported file types. You can choose any of them to use
-with current editor.
+  #2 Znajdź parę#
+    Wyszukiwanie par nawiasów (lub dowolnej innej struktury par) w bieżącym tekście i przeskakuje do niego.
 
-  #2 Match pair#          ~Alt-[~
-    Searches paired bracket (or any other pair structure) of the
-current region under cursor and jumps there.
+  #3 Zaznacz blok#
+    Przesuw kursor na początek bloku i zaznacza go w całości. Można wywołać tę funkcje zarówno
+na końcach jak i wewnątrz bloku. W drugim przypadku FarColorer automatycznie znajduje początek
+i koniec najbliższego bloku.
 
-  #3 Zaznacz blok#        ~Alt-]~
-    Moves cursor to start of block and selects it all. You can call this
-function as on block limits as inside it. In second case FarColorer will find
-start and end of nearest block automatically.
+  #4 Zaznacz parę#
+    Zaznacza blok par - ale nie wybiera struktur pary na początku i na końcu.
 
-  #4 Zaznacz parę#         ~Alt-P~
-    Selects pair block - but don't selects pair structures at start and end.
+  #5 Lista rozdziałów#
+    Wyświetla wszystkie obrysowane regiony w bieżącym pliku. Można wybrać i przejść do dowolnego
+z nich, a także użyć dowolnych znaków alfabetycznych do utworzenia filtrów.
 
-  #5 Outliner List#      ~Alt-;~
-    Shows all outlined regions in current file.
-There you can choose and jump into any of them, also you can use there any
-alphabetic symbols to create filters.
+  #6 Lista błędów#
+    Jak poprzednio - ale pokazuje wszystkie błędy w tekście.
 
-  #6 Lista błędów#         ~Alt-'~
-    As previous - but shows all errors in the text.
+  #*# Wszystkie te cechy zależą od zawartości schematu językowego. Wszystkie informacje pochodzą
+z analizy składniowej schematów.
 
-  #7 Select region#       ~Alt-K~
-    Selects region under cursor.
+  #7 Wybierz zakres#
+    Zaznacza fragment tekstu pod kursorem.
 
-  #Region info#
-    Displays the name of the region and the scheme under the cursor.
+  #A Info o zakresie#
+    Wyświetla nazwę regionu i schematu dla tekstu pod kursorem.
 
-  #*# All these features are depend on the content of language scheme.
-All information is taken from syntax regions analysis.
+  #8 Znajdź funkcję#
+    Znajduje funkcję o spod kursora i przechodzi do niej.
 
-  #8 Find function#       ~Alt-O~
-    Searches function name under cursor in outliner view, and jumps there.
+  #9 Uaktualnij kolorowanie#
+    Aktualizuje kolorowanie składni w bieżącym edytorze. Należy użyć tej funkcji, jeżeli wystąpią
+problemy z bieżącą składnią.
 
-  #9 Update highlight#
-    Updates syntax highlighting in current editor. Use it, if
-some problems occurs in current syntax.
+  #S Przeładuj bibliotekę schematów#
+    Przeładowuje konfigurację wtyczki i bibliotekę schematów.
 
-  #R Reload schema library#
-    Reload the configuration plugin and library schemes.
-
-  #C Konfiguracja#
-    Calls FarColorer ~configuration menu~@config@.
+  #K Konfiguruj#
+    Wywołuje ~menu konfiguracyjne~@settingsmenu@ FarColorer.
 
 @PluginGuids
-$# GUID'y wtyczek
+$ # GUID'y wtyczek#
    GUID wtyczki - {D2F36B62-A470-418d-83A3-ED7A3710E5B5}
 
    #Dialog#
-    Ustawienia - {87C92249-430D-4334-AC33-05E7423286E9}
-    Ustawienia schematu - {0497F43A-A8B9-4af1-A3A4-FA568F455707}
+    Ustawienia główne - {87C92249-430D-4334-AC33-05E7423286E9}
+    Ustawienia schematu - {0497F43A-A8B9-4AF1-A3A4-FA568F455707}
+    Ustawienia logowania - {3D1031EA-B67A-451C-9FC6-081320D3A139}
     Ustawienie klawisza skrótu - {C6BE56D8-A80A-4f7d-A331-A711435F2665}
 
    #Menu#
-    Główne menu w edytorze - {45453CAC-499D-4b37-82B8-0A77F7BD087C}
+    Główne menu w edytorze - {45453CAC-499D-4B37-82B8-0A77F7BD087C}
+    Ustawienia - {63E396BA-8E7F-4E38-A7A8-CBB7E9AC1E6D}
     Wybór składni - {46921647-DB52-44CA-8D8B-F34EA8B02E5D}
-    Style kolorów - {18A6F7DF-375D-4d3d-8137-DC50AC52B71E}
-    Outliner/error list - {A8A298BA-AD5A-4094-8E24-F65BF38E6C1F}
+    Style kolorów - {18A6F7DF-375D-4D3D-8137-DC50AC52B71E}
+    Lista rozdziałów/błędów - {A8A298BA-AD5A-4094-8E24-F65BF38E6C1F}
 
-   #Komunikaty#
+   #Komunikat#
     Błąd - {0C954AC8-2B69-4c74-94C8-7AB10324A005}
-    Przeładuj bazę - {DEE3B49D-4A55-48a8-9DC8-D11DA04CBF37}
+    Przeładuj bazę - {DEE3B49D-4A55-48A8-9DC8-D11DA04CBF37}
     Nie znaleziono - {AB214DCE-450B-4389-9E3B-533C7A6D786C}
-    Nazwa regionalna - {70656884-B7BD-4440-A8FF-6CE781C7DC6A}
+    Nazwa zakresu - {70656884-B7BD-4440-A8FF-6CE781C7DC6A}
 
 @MacroCallPlugin
-$# Używanie wtyczki w makrach
-    The plugin can be called from a macro using the macro function Plugin.Call(GUID,[param]).
-    Call format:
+$ # Używanie wtyczki w makropoleceniach#
+    Wtyczkę można wywołać z makropolecenia używając funkcji Plugin.Call(GUID,[parametry]).
+    Format wywołania:
 
-       #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<Paramerty>)#
+       #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<parametry>)#
 
-    Here:
+    Tutaj:
        #D2F36B62-A470-418d-83A3-ED7A3710E5B5#
-          ~Guid of the plugin~@PluginGuids@
+          ~Guid wtyczki~@PluginGuids@
 
-       #<Parametry>#
-          The first parameter can be a number, which corresponds to the following commands:
+       #<parametry>#
+          Różne parametry opisane poniżej
 
-            1 - List types
-            2 - Match pair
-            3 - Select block
-            4 - Select pair
-            5 - Outliner List
-            6 - Errors List
-            7 - Select region
-            8 - Region info
-            9 - Find function
-            11 - Update highlight
-            12 - Reload schema library
-            13 - Configuration
+     ~Funkcje makropoleceń~@MacroCall@
 
-           For example, list the types available:
-           Plugin.Call("D2F36B62-A470-418D-83A3-ED7A3710E5B5",1)
+@MacroCall
+$ # Makropolecenia
 
-         Or a string value:
-            "status" - work with the plug-in status.
-                plugin.call (Guid, "status")
-                If the second parameter is missing, it returns the status of the plugin activity.
+ #Praca z makropoleceniami#
+   Format wywołania wtyczki #Plugin.Call("D2F36B62-A470-418d-83A3-ED7A3710E5B5",<FUNKCJA>... )#, lub #Plugin.SyncCall#.
+   Wywołanie wszystkich funkcji jest niezależne.
+   Wartość zwracana, jeżeli nie została określona osobo to "true" - prawda/sukces, "false" - fałsz/błąd.
 
-                plugin.call (Guid, "status", new_status)
-                If the second parameter is true/false, or it corresponds to an integer value, the plugin will be transferred to the specified status.
-                Return Value true/false indicates success of the command.
+ #Pracuj z ustawieniami globalnymi#
+   Nie ma ograniczeń dot. makroregionów.
+
+   #...,"Settings",<Nazwa>, <Parametr>)#
+
+     <Nazwa> - przyjmuje następujące wartości:
+
+        "Menu" - Otwiera menu ustawień. Wartość domyślna, jeżeli pole <Nazwa> jest puste.
+        "Main" - Otwiera główne okno ustawień.
+        "Log" - Otwiera okno ustawień dziennika zdarzeń.
+        "Hrc" - Otwiera okno ustawień schematu.
+        "Reload" - Powoduje ponowne załadowanie wszystkich ustawień wtyczki i otwartych edytorów.
+Włącza bibliotekę schematów.
+        "Status" - Status aktywności wtyczki.
+          <Parametr> - Liczba:
+             0 - wyłączona;
+             1 - włączona;
+             lub wartość logiczna: "false" - wyłączona, "true" - włączona.
+          Jeśli wartość zostanie ustawiona, nowa wartość jest stosowana z jednoczesnym zresetowaniem
+wszystkich ustawień. Jeśli nie jest ustawiona - zwraca bieżącą wartość.
+        "SaveSettings" - Zapisuje ustawienia wtyczki.
+
+ #Praca z menu#
+   Działa tylko w MACROAREA_EDITOR.
+
+   #...,"Menu")#
+     Otwiera menu wtyczki w edytorze.
+
+ #Praca z typami plików#
+   Działa tylko w MACROAREA_EDITOR.
+
+   #...,"Types",<Akcja>, <Parametr>)#
+
+     <Akcja> - przyjmuje następujące wartości:
+
+        "Menu" - Otwiera menu wyboru typu pliku.
+        "List" - Zwraca tablicę z nazwami wszystkich dostępnych typów plików.
+        "Get" - Zwraca bieżący typ pliku (pierwszy parametr) i grupę plików (drugi parametr).
+        "Set" - Ustawie określony typ dla pliku otwartego w edytorze.
+          <Parametr> - Ciąg znaków, typ pliku.
+
+ #Obsługa parametrów typu pliku#
+   Nie ma ograniczeń dot. makroregionów. Wszystkie zmiany obowiązują tylko w bieżącej sesji wtyczki.
+Aby zapisać zmiany należy wywołać polecenie "SaveSettings", aby zresetować należy użyć "Reload".
+
+   #...,"ParamsOfType",<Akcja>, <Parametr1>,...)#
+
+        "List" - Lista parametrów typu
+           <Parametr1> - nazwa typu. Łańcuch tekstowy. Rozróżniana wielkość znaków.
+          Wynik funkcji:
+           <ParametrWyj1> - Tablica nazw parametrów.
+           <ParametrWyj2> - Tablica wartości tych parametrów. W przypadku braku wartości zwracane jest "nil" (nic).
+        "Get" - Zwraca wartość parametru. Typ - łańcuch znaków.
+           <Parametr1> - Nazwa typu. Łańcuch tekstowy. Rozróżniana wielkość znaków.
+           <Parametr2> - Nazwa parametru. Łańcuch tekstowy. Rozróżniana wielkość znaków. W przypadku
+braku wartości zwracane jest "nil".
+        "Set" - Ustawia wartość parametru lub ją usuwa.
+           <Parametr1> - Nazwa typu. Łańcuch tekstowy. Rozróżniana wielkość znaków.
+           <Parametr2> - Nazwa parametru. Łańcuch tekstowy. Zależne od rejestru.
+           <Parametr3> - Wartość parametru. Łańcuch tekstowy. Jeżeli nie zostanie przekazany,
+to wartość parametru użytkownika zostanie usunięta. Jeżeli przekazany zostanie pusty łańcuch,
+to zostanie on przypisany jako wartość.
+
+ #Obsługa nawiasów#
+   Działa tylko z programem MACROAREA_EDITOR.
+
+   #...,"Brackets",<Akcja>)#
+
+     <Akcja> - Przyjmuje następujące wartości:
+
+        "Match" - Znajdź sparowany nawias.
+        "SelectAll" - Zaznaczenie bloku z nawiasami.
+        "SelectIn" - Zaznaczenie bloku pomiędzy nawiasami.
+
+ #Praca z rozdziałami#
+   Działa tylko z programem MACROAREA_EDITOR.
+
+   #...,"Region",<Akcja>)#
+
+     <Akcja> - Przyjmuje następujące wartości:
+
+        "Select" - Wybór bieżącego rozdziału.
+        "Show" - Wyświetlenie okna danych rozdziału.
+        "List" - Zwraca opis rozdziału. Pierwszym parametrem jest rozdział, drugim - schemat.
+
+ #Praca z funkcjami#
+   Działa tylko z programem MACROAREA_EDITOR.
+
+   #...,"Functions",<Akcja>)#
+
+     <Akcja> - Przyjmuje następujące wartości:
+
+        "Show" - Wyświetlenie okna z listą funkcji.
+        "Find" - Znajdź funkcję, na której znajduje się kursor.
+        "List" - Zwraca tablicę wszystkich znalezionych funkcji oraz tablicę numerów wierszy,
+w których zostały zadeklarowane.
+
+ #Praca z błędami#
+   Działa tylko z programem MACROAREA_EDITOR.
+
+   #...,"Errors",<Akcja>)#
+
+     <Akcja> - Przyjmuje następujące wartości:
+
+        "Show" - Wyświetla okno z listą błędów.
+        "List" - Zwraca tablicę wszystkich znalezionych błędów oraz tablicę numerów wierszy,
+w których je znaleziono.
+
+ #Obsługa parametrów bieżącego edytora#
+   Parametry te nie są zapisywane po zamknięciu edytora.
+   Działa tylko z programem MACROAREA_EDITOR.
+
+   #...,"Editor",<Akcja>,<Parametr1>,...)#
+
+     <Akcja> - Przyjmuje następujące wartości:
+
+        "Refresh" - aktualizuje kolorowanie składni.
+        "Status" - Status aktywności wtyczki dla bieżącej sesji edytora:
+           <Parametr1> - Liczba:
+              0 - wyłączony;
+              1 - włączony;
+          Jeżeli jest ustawiony, zmienia wartość bieżącą i zwraca wartość poprzednią.
+          Jeżeli nie jest ustawiony, zwraca wartość bieżącą dla obecnej sesji edytora.
+        "CrossVisible" - Widoczność i typ krzyża w edytorze:
+          Zwraca bieżący styl krzyża i reguły wyświetlania w bieżącej sesji edytora.
+          <ParametrWyj1> - Liczba:
+             0 - wyłączony;
+             1 - włączony;
+             2 - zgodnie z parametrami schematu.
+          <ParametrWyj2> - Liczba:
+             0 - nie jest wyświetlany;
+             1 - pionowa linia;
+             2 - pozioma linia;
+             3 - pełny krzyż.
+          Jeżeli zostaną określone dodatkowe parametry, spowoduje to zmianę stylu i zasad
+wyświetlania.
+          <Parametr1> - Liczba:
+             0 - wyłączony;
+             1 - włączony;
+             2 - zgodnie z parametrami schematu.
+          <Parametr2> - opcjonalny, liczba:
+             1 - pionowa linia;
+             2 - pozioma linia;
+             3 - pełny krzyż.
+        "Pair" - Status wyświetlania parowania:
+          <Parametr1> - Liczba:
+             0 - wyłączone;
+             1 - włączone;
+          Jeżeli jest ustawiony, zmienia bieżącą wartość i zwraca poprzednią wartość.
+          Jeżeli nie jest ustawiony, zwraca bieżącą wartość dla danej sesji edytora.
+        "Syntax" - Status kolorowania składni:
+          <Parametr1> - Liczba:
+             0 - wyłączony;
+             1 - włączony;
+          Jeżeli jest ustawiony, zmienia bieżącą wartość i zwraca poprzednią wartość.
+          Jeżeli nie jest ustawiony, zwraca bieżącą wartość dla danej sesji edytora.
+        "Progress" - Zwraca procentową zawartość bieżącego pliku przetworzonego w edytorze.
+Liczba całkowita.
 
 @hrd
-$# Wybór stylu koloru
+$ # Wybór stylu koloru#
     Lista wszystkich dostępnych schematów kolorów. Można wybrać dowolny z nich.
 
 @exception
-$# Wystąpił wyjątek
-    Exception happened while FarColorer work.
-All further processing would be disabled. You can re-enable
-FarColorer from it's settings menu after locating and removing
-exception cause. All extended information in FarColorer logging
-file (colorer.log by default)
+$ # Wystąpił wyjątek#
+    Podczas pracy z FarColorer wystąpił wyjątek. Wszystkie dalsze procesy zostaną wyłączone.
+Można ponownie włączyć FarColorer z jego menu ustawień po zlokalizowaniu i usunięciu przyczyny wyjątku.
+Wszystkie rozszerzone informacje znajdują się w pliku dziennika FarColorer (domyślnie colorer.log).
 
 @filetypechoose
-$# Lista typów
-    The list contains all of the supported file types. By choosing any, you force
-the type of coloring the current file.
+$ # Lista typów#
+    Lista zawiera wszystkie obsługiwane typy plików. Wybierając dowolny z nich, wymuszasz
+typ kolorowanie bieżącego pliku.
 
-    #Automatic detection# - select the type of file produced plugin built rules.
-    #Favorites# - The list of chosen types. Add to "Favorites" is produced by
-pressing the Ins, delete - Delete.
-    #Hot keys# - to assign a hot key to the file type you need to press F4, and
-in the dialog box to specify the key.
+    #Automatyczne wykrywanie# - wybór typu pliku przetwarzanego przez wbudowane reguły wtyczki.
+    #Ulubione# - lista wybranych typów. Dodanie do "Ulubionych" następuje po wciśnięciu Ins,
+usunięcie po wciśnięciu Del.
+    #Klawisze skrótu# - aby przypisać klawisz skrótu do wybranego typu, należy wcisnąć F4,
+a w oknie dialogowym podać wybrany klawisz.
 
-    Hot keys and being in the group "Favorites" can also be customized through the
-~Schemes settings.~@confighrc@ These are the parameters 'hotkey' and 'favorite' for
-any of the schemes.
+    Klawisze skrótu i przynależność do grupy "Ulubione" można ustawić również
+w ~Ustawieniach schematu~@confighrc@. Są to parametry "hotkey" (klawisz skrótu) i "favorite"
+(ulubione) dla każdego ze schematów.
 
 @keyassign
-$# Definiowanie klawiszy
+$ # Definiowanie klawiszy skrótu#
     Klawisze 0-9, A-Z
 
 @author
-$^#FarColorer jest wtyczką podswietlającą składnię podczas edycji plików w FAR Manager.
+$ # FarColorer jest wtyczką podświetlającą składnię podczas edycji plików w FAR Manager#
     #Strona domowa wtyczki#
-           http://colorer.sf.net/
+           https://colorer.sf.net/
 
     #Igor Ruskih# (Cail Lomecb) Copyright (c) 1999-2009
            email  : irusskih at gmail dot com
