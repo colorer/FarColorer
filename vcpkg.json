@@ -1,24 +1,24 @@
 {
   "name": "farcolorer",
-  "version": "1.3.22",
+  "version": "1.4.16",
   "dependencies": [
     {
       "name": "xerces-c",
-      "version>=": "3.2.3#3"
+      "version>=": "3.2.4#2"
     },
     {
       "name": "spdlog",
-      "version>=": "1.9.2"
+      "version>=": "1.11.0"
     },
     "minizip",
     {
       "name": "icu",
-      "version>=": "69.1.1#1",
+      "version>=": "72.1#1",
       "default-features": false,
       "features": [
         "data-archive"
       ]
     }
   ],
-  "builtin-baseline": "7375bb408f2278d2f1875c259beef93332697ba7"
+  "builtin-baseline": "d10d511f25620ca0f315cd83dcef6485efc63010"
 }
