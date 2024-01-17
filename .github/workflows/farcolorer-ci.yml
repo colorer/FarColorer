@@ -28,7 +28,7 @@ jobs:
           - { build: x86,    arch: amd64_x86,   triplet: x86-windows-static-rel, }
           - { build: ARM64,  arch: amd64_arm64, triplet: arm64-windows-static-rel, }
 
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
       - name: Checkout source

@@ -22,7 +22,7 @@ jobs:
       X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
       VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -101,9 +101,9 @@ jobs:
         working-directory: build
         shell: bash
         run: |
-          7z a ${{ env.farcolorer_name }} ./install/FarColorer/*
-          7z a ${{ env.farcolorer_withoutbase_name }} ./install/FarColorer/* -x!./install/FarColorer/base
-          7z a ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
+          7z a -m0=LZMA -mf=BCJ2 -mx9 ${{ env.farcolorer_name }} ./install/FarColorer/*
+          7z a -m0=LZMA -mf=BCJ2 -mx9 ${{ env.farcolorer_withoutbase_name }} ./install/FarColorer/* -x!./install/FarColorer/base
+          7z a -m0=LZMA -mf=off -mx9 ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
       - name: Upload result to cache
         uses: actions/upload-artifact@v3
