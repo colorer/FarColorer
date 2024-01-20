@@ -32,7 +32,7 @@ jobs:
           .\bootstrap-vcpkg.bat
 
       - name: Add C++ build tools to PATH
-        uses: ilammy/msvc-dev-cmd@v1.12.1
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: amd64
 

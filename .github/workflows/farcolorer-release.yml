@@ -25,14 +25,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
-
-      - name: Get version
-        id: get_version
-        uses: battila7/get-version-action@v2
 
       - name: Add C++ build tools to PATH
         uses: ilammy/msvc-dev-cmd@v1
@@ -93,9 +89,9 @@ jobs:
       - name: Set the pack file name
         shell: bash
         run: |
-          echo "farcolorer_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.7z" >> $GITHUB_ENV
-          echo "farcolorer_pdb_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.pdb.7z" >> $GITHUB_ENV
-          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.build }}.${{ steps.get_version.outputs.version }}.wobase.7z" >> $GITHUB_ENV
+          echo "farcolorer_name=FarColorer.${{ matrix.build }}.${{ github.ref_name }}.7z" >> $GITHUB_ENV
+          echo "farcolorer_pdb_name=FarColorer.${{ matrix.build }}.${{ github.ref_name }}.pdb.7z" >> $GITHUB_ENV
+          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.build }}.${{ github.ref_name }}.wobase.7z" >> $GITHUB_ENV
 
       - name: pack plugin
         working-directory: build
@@ -106,7 +102,7 @@ jobs:
           7z a -m0=LZMA -mf=off -mx9 ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
       - name: Upload result to cache
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: result
           path: ./build/*.7z
@@ -114,23 +110,21 @@ jobs:
 
   publish-release:
     needs: [ build-artifacts ]
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Get version
-        id: get_version
-        uses: battila7/get-version-action@v2
+        uses: actions/checkout@v4
 
       - name: Download result
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: result
+          path: result
+          pattern: result-*
+          merge-multiple: true
 
       - name: Create release
         shell: bash
-        run: gh release create ${{ steps.get_version.outputs.version }} -t "FarColorer ${{ steps.get_version.outputs.version }}" -n "New version" ./*.7z
+        run: gh release create ${{ github.ref_name }} -t "FarColorer ${{ github.ref_name }}" -n "New version" result/*.7z
         env:
           GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
