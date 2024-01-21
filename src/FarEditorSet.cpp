@@ -200,7 +200,8 @@ void FarEditorSet::viewFile(const UnicodeString& path)
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
     }
     baseEditor.setRegionMapper(regionMap.get());
-    baseEditor.chooseFileType(&path);
+    auto type = baseEditor.chooseFileType(&path);
+    baseEditor.setFileType(type);
 
     FileType* def = parserFactory->getHrcLibrary().getFileType(UnicodeString(name_DefaultScheme));
     int maxBlockSize = def->getParamValueInt(UnicodeString(param_MaxBlockSize), 300);
