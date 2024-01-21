@@ -96,7 +96,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     case OPEN_LUAMACRO:
       break;
   }
-  return editorSet;
+  return nullptr;
 }
 
 /**
