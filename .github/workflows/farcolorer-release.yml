@@ -104,7 +104,7 @@ jobs:
       - name: Upload result to cache
         uses: actions/upload-artifact@v4
         with:
-          name: result
+          name: result-${{ matrix.arch }}
           path: ./build/*.7z
           retention-days: 1
 
