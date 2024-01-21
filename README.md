@@ -1,7 +1,7 @@
 FarColorer
 ==========
 FarColorer is a syntax highlighting plugin for Far Manager.
-[![build](https://github.com/colorer/FarColorer/workflows/build/badge.svg)](https://github.com/colorer/FarColorer/actions?query=workflow%3A%22build%22)
+[![Build](https://github.com/colorer/FarColorer/actions/workflows/farcolorer-ci.yml/badge.svg)](https://github.com/colorer/FarColorer/actions/workflows/farcolorer-ci.yml)
 
 It only works for (F4)Edit file. (F3)View is not supported, as there is no API.
 But you can type in the console `clr:name_of_file`. This launches the built-in viewer colorer.
@@ -33,7 +33,7 @@ Download the source from git repository:
 Setup vcpkg
 
     cd FarColorer
-    ./external/vcpkg/bootstrap-vcpkg.bat
+    ./external/colorer/external/vcpkg/bootstrap-vcpkg.bat
 
 Build colorer and dependency, if they are not in the local cache:
 
