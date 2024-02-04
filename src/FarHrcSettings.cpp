@@ -77,17 +77,13 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
         UnicodeString cvalue = UnicodeString(value);
         UnicodeString cdescr = UnicodeString(descr);
         if (type->getParamValue(cname) == nullptr) {
-          type->addParam(&cname);
+          type->addParam(cname, cvalue);
         }
         if (descr != nullptr) {
           type->setParamDescription(cname, &cdescr);
         }
         if (userValue) {
           type->setParamValue(cname, &cvalue);
-        }
-        else {
-          delete type->getParamDefaultValue(cname);
-          type->setParamDefaultValue(cname, &cvalue);
         }
       }
     }
@@ -125,13 +121,10 @@ void FarHrcSettings::readProfileFromRegistry()
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
                 UnicodeString name_fse = UnicodeString(type_fse.Items[j].Name);
-                if (type->getParamValue(name_fse) == nullptr) {
-                  type->addParam(&name_fse);
-                }
                 const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
                 if (p) {
                   UnicodeString dp = UnicodeString(p);
-                  type->setParamValue(UnicodeString(type_fse.Items[j].Name), &dp);
+                  farEditorSet->addParamAndValue(type, name_fse, dp);
                 }
               }
             }

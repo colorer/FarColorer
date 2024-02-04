@@ -346,7 +346,7 @@ void FarEditor::getNameCurrentScheme()
     scheme.append("Scheme: ");
     if (cursorRegion->region != nullptr) {
       const Region* r = cursorRegion->region;
-      region.append(*r->getName());
+      region.append(r->getName());
     }
     if (cursorRegion->scheme != nullptr) {
       scheme.append(*cursorRegion->scheme->getName());
@@ -364,7 +364,7 @@ void FarEditor::getCurrentRegionInfo(UnicodeString& region, UnicodeString& schem
   if (cursorRegion) {
     if (cursorRegion->region != nullptr) {
       const Region* r = cursorRegion->region;
-      region.append(*r->getName());
+      region.append(r->getName());
     }
     if (cursorRegion->scheme != nullptr) {
       scheme.append(*cursorRegion->scheme->getName());
@@ -858,9 +858,9 @@ void FarEditor::showOutliner(Outliner* outliner)
             menuItem[si++] = ' ';
           }
 
-          const UnicodeString* region = item->region->getName();
+          auto region = item->region->getName();
 
-          wchar_t cls = UStr::toLowerCase((*region)[region->indexOf(':') + 1]);
+          wchar_t cls = UStr::toLowerCase((region)[region.indexOf(':') + 1]);
 
           si += _snwprintf(menuItem + si, 255 - si, L"%c ", cls);
 

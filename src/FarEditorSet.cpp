@@ -9,6 +9,7 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "DlgBuilder.hpp"
 #include "HrcSettingsForm.h"
+#include "FarHrcSettings.h"
 #include "SettingsControl.h"
 #include "tools.h"
 
@@ -229,7 +230,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
 
 void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const
 {
-  const UnicodeString* group = &DAutodetect;
+  UnicodeString group = DAutodetect;
   FileType* type = nullptr;
   HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
 
@@ -240,7 +241,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
       break;
     }
 
-    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
+    if (group.compare(type->getGroup()) != 0) {
       Menu->AddGroup(UStr::to_stdwstr(type->getGroup()).c_str());
       group = type->getGroup();
     }
@@ -310,7 +311,9 @@ bool FarEditorSet::chooseType()
     if (i >= 0) {
       if (BreakCode == 0) {
         if (i != 0 && !menu.IsFavorite(i)) {
+          auto f = menu.GetFileType(i);
           menu.MoveToFavorites(i);
+          addParamAndValue(f, UnicodeString(param_Favorite), UnicodeString(value_True));
         }
         else {
           menu.SetSelected(i);
@@ -350,11 +353,10 @@ bool FarEditorSet::chooseType()
         if (res != -1) {
           KeyAssignDlgData[2].Data =
               static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr))));
-          if (menu.GetFileType(i)->getParamValue(UnicodeString(param_HotKey)) == nullptr) {
-            dynamic_cast<FileType*>(menu.GetFileType(i))->addParam(UnicodeString(param_HotKey));
-          }
-          UnicodeString hotkey = UnicodeString(KeyAssignDlgData[2].Data);
-          menu.GetFileType(i)->setParamValue(UnicodeString(param_HotKey), &hotkey);
+          auto ftype = menu.GetFileType(i);
+          auto param_name = UnicodeString(param_HotKey);
+          auto hotkey = UnicodeString(KeyAssignDlgData[2].Data);
+          addParamAndValue(ftype, param_name, hotkey);
           menu.RefreshItemCaption(i);
         }
         menu.SetSelected(i);
@@ -376,7 +378,7 @@ bool FarEditorSet::chooseType()
     }
   }
 
-  FarHrcSettings p(parserFactory.get());
+  FarHrcSettings p(this, parserFactory.get());
   p.writeUserProfile();
   return true;
 }
@@ -662,7 +664,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
     LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
     LoadUserHrc(userHrcPathS.get(), parserFactoryLocal.get());
-    FarHrcSettings p(parserFactoryLocal.get());
+    FarHrcSettings p(this, parserFactoryLocal.get());
     p.readProfile(pluginPath.get());
     p.readUserProfile();
 
@@ -697,11 +699,11 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         UnicodeString tname;
 
         if (type->getGroup() != nullptr) {
-          tname.append(*type->getGroup());
+          tname.append(type->getGroup());
           tname.append(": ");
         }
 
-        tname.append(*type->getDescription());
+        tname.append(type->getDescription());
         std::wstring str_message = UStr::to_stdwstr(&tname);
         marr[1] = str_message.c_str();
         Info.Message(&MainGuid, &ReloadBaseMessage, 0, nullptr, &marr[0], 2, 0);
@@ -752,12 +754,12 @@ void FarEditorSet::ReloadBase()
     parserFactory = std::make_unique<ParserFactory>();
     parserFactory->loadCatalog(sCatalogPathExp.get());
     HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
+    defaultType = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
     LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
     LoadUserHrc(sUserHrcPathExp.get(), parserFactory.get());
-    FarHrcSettings p(parserFactory.get());
+    FarHrcSettings p(this, parserFactory.get());
     p.readProfile(pluginPath.get());
     p.readUserProfile();
-    defaultType = dynamic_cast<FileType*>(hrcLibrary.getFileType(UnicodeString(name_DefaultScheme)));
 
     try {
       regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
@@ -1242,6 +1244,15 @@ void FarEditorSet::removeEventTimer()
   hTimer = nullptr;
 }
 
+void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value)
+{
+  if (filetype->getParamValue(name) == nullptr) {
+    auto default_value = defaultType->getParamValue(name);
+    filetype->addParam(name, *default_value);
+  }
+  filetype->setParamValue(name, &value);
+}
+
 #pragma region macro_functions
 
 HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
@@ -1349,7 +1360,7 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
   if (UnicodeString("SaveSettings").caseCompare(command, 0) == 0) {
     SaveSettings();
     SaveLogSettings();
-    FarHrcSettings p(parserFactory.get());
+    FarHrcSettings p(this, parserFactory.get());
     p.writeUserProfile();
     return INVALID_HANDLE_VALUE;
   }
@@ -1771,16 +1782,13 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
   if (UnicodeString("Set").caseCompare(command, 0) == 0) {
     if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
-      UnicodeString param_name = UnicodeString(params->Values[3].String);
       auto* file_type = hrcLibrary.getFileType(&type);
       if (file_type) {
+        UnicodeString param_name = UnicodeString(params->Values[3].String);
         if (params->Count > 4 && FMVT_STRING == params->Values[4].Type) {
           // replace value
           UnicodeString param_value = UnicodeString(params->Values[4].String);
-          if (file_type->getParamValue(param_value) == nullptr) {
-            file_type->addParam(&param_value);
-          }
-          file_type->setParamValue(param_name, &param_value);
+          addParamAndValue(file_type, param_name, param_value);
         }
         else if (params->Count == 4) {
           // remove value

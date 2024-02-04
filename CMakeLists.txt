@@ -52,7 +52,7 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 if(COLORER_USE_JARINPUTSOURCE)
   find_package(ZLIB REQUIRED)
-  find_package(minizip REQUIRED)
+  find_package(unofficial-minizip REQUIRED)
 endif()
 
 #====================================================

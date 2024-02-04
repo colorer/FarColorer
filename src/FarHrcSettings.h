@@ -5,6 +5,7 @@
 #include <colorer/HrcLibrary.h>
 #include <colorer/ParserFactory.h>
 #include <xercesc/dom/DOM.hpp>
+#include "FarEditorSet.h"
 
 const wchar_t FarCatalogXml[] = L"\\base\\catalog.xml";
 const wchar_t FarProfileXml[] = L"\\bin\\hrcsettings.xml";
@@ -19,9 +20,10 @@ class FarHrcSettingsException : public Exception
 class FarHrcSettings
 {
  public:
-  explicit FarHrcSettings(ParserFactory* _parserFactory)
+  explicit FarHrcSettings(FarEditorSet* _farEditorSet, ParserFactory* _parserFactory)
   {
     parserFactory = _parserFactory;
+    farEditorSet = _farEditorSet;
   }
   void readXML(UnicodeString* file, bool userValue);
   void readProfile(UnicodeString* plugin_path);
@@ -34,6 +36,7 @@ class FarHrcSettings
   void writeProfileToRegistry();
 
   ParserFactory* parserFactory;
+  FarEditorSet* farEditorSet;
 };
 
 #endif

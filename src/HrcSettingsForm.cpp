@@ -1,4 +1,5 @@
 #include "HrcSettingsForm.h"
+#include "FarHrcSettings.h"
 #include <colorer/common/UStr.h>
 #include "tools.h"
 
@@ -98,7 +99,7 @@ bool HrcSettingsForm::showForm()
 size_t HrcSettingsForm::getCountFileTypeAndGroup() const
 {
   size_t num = 0;
-  const UnicodeString* group = nullptr;
+  UnicodeString group;
   FileType* type;
 
   for (int idx = 0;; idx++) {
@@ -109,7 +110,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
     }
 
     num++;
-    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
+    if (group.compare(type->getGroup()) != 0) {
       num++;
     }
 
@@ -121,7 +122,7 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
 FarList* HrcSettingsForm::buildHrcList() const
 {
   size_t num = getCountFileTypeAndGroup();
-  const UnicodeString* group = nullptr;
+  UnicodeString group;
   FileType* type;
 
   auto* hrcList = new FarListItem[num];
@@ -139,7 +140,7 @@ FarList* HrcSettingsForm::buildHrcList() const
       hrcList[i].Flags = LIF_SELECTED;
     }
 
-    if (group != nullptr && group->compare(*type->getGroup()) != 0) {
+    if (group.compare(type->getGroup()) != 0) {
       hrcList[i].Flags = LIF_SEPARATOR;
       i++;
     }
@@ -216,7 +217,7 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
 void HrcSettingsForm::OnSaveHrcParams() const
 {
   SaveChangedValueParam();
-  FarHrcSettings p(farEditorSet->parserFactory.get());
+  FarHrcSettings p(farEditorSet, farEditorSet->parserFactory.get());
   p.writeUserProfile();
 }
 
@@ -242,10 +243,7 @@ void HrcSettingsForm::SaveChangedValueParam() const
       current_filetype->setParamValue(p, nullptr);
   }
   else if (value == nullptr || v.compare(*value) != 0) {  // changed
-    if (current_filetype->getParamValue(p) == nullptr) {
-      current_filetype->addParam(&p);
-    }
-    current_filetype->setParamValue(p, &v);
+    farEditorSet->addParamAndValue(current_filetype, p, v);
   }
   delete def_value;
 }
