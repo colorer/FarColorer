@@ -1,11 +1,11 @@
-#ifndef FARCOLOR_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
+﻿#ifndef FARCOLOR_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
 #define FARCOLOR_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
 #pragma once
 
 /*
 farcolor.hpp
 
-Colors Index for FAR Manager 3.0 build 5578
+Colors Index for FAR Manager 3.0.6250.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -23,7 +23,7 @@ are met:
 3. The name of the authors may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -38,7 +38,6 @@ EXCEPTION:
 Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
-
 
 
 enum PaletteColors

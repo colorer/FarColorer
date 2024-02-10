@@ -1205,7 +1205,7 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
       col.Flags |= FCF_FG_ITALIC;
     }
     if (rd->style & StyledRegion::RD_UNDERLINE) {
-      col.Flags |= FCF_FG_UNDERLINE;
+      col.Flags |= FCF_FG_U_DATA0;
     }
     if (rd->style & StyledRegion::RD_STRIKEOUT) {
       col.Flags |= FCF_FG_STRIKEOUT;
