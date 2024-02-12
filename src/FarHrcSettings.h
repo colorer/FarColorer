@@ -25,15 +25,13 @@ class FarHrcSettings
     parserFactory = _parserFactory;
     farEditorSet = _farEditorSet;
   }
-  void readXML(UnicodeString* file, bool userValue);
-  void readProfile(UnicodeString* plugin_path);
+  void readXML(UnicodeString* file);
+  void readPluginHrcSettings(UnicodeString* plugin_path);
   void readUserProfile();
   void writeUserProfile();
 
  private:
-  void UpdatePrototype(xercesc::DOMElement* elem, bool userValue);
-  void readProfileFromRegistry();
-  void writeProfileToRegistry();
+  void UpdatePrototype(xercesc::DOMElement* elem);
 
   ParserFactory* parserFactory;
   FarEditorSet* farEditorSet;

@@ -665,7 +665,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
     LoadUserHrc(userHrcPathS.get(), parserFactoryLocal.get());
     FarHrcSettings p(this, parserFactoryLocal.get());
-    p.readProfile(pluginPath.get());
+    p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile();
 
     if (hrc_mode == HRC_MODE::HRCM_CONSOLE || hrc_mode == HRC_MODE::HRCM_BOTH) {
@@ -758,7 +758,7 @@ void FarEditorSet::ReloadBase()
     LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
     LoadUserHrc(sUserHrcPathExp.get(), parserFactory.get());
     FarHrcSettings p(this, parserFactory.get());
-    p.readProfile(pluginPath.get());
+    p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile();
 
     try {

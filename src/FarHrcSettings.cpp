@@ -5,20 +5,21 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "SettingsControl.h"
 
-void FarHrcSettings::readProfile(UnicodeString* plugin_path)
+void FarHrcSettings::readPluginHrcSettings(UnicodeString* plugin_path)
 {
   auto path = UnicodeString(*plugin_path);
   path.append(UnicodeString(FarProfileXml));
-  readXML(&path, false);
+  readXML(&path);
 }
 
-void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
+void FarHrcSettings::readXML(UnicodeString* file)
 {
   xercesc::XercesDOMParser xml_parser;
   XmlParserErrorHandler error_handler;
   xml_parser.setErrorHandler(&error_handler);
   xml_parser.setLoadExternalDTD(false);
   xml_parser.setSkipDTDValidation(true);
+  xml_parser.setDisableDefaultEntityResolution(true);
   uXmlInputSource config = XmlInputSource::newInstance(file);
   xml_parser.parse(*config->getInputSource());
   if (error_handler.getSawErrors()) {
@@ -37,20 +38,15 @@ void FarHrcSettings::readXML(UnicodeString* file, bool userValue)
     if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
       auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
       if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagPrototype)) {
-        UpdatePrototype(subelem, userValue);
+        UpdatePrototype(subelem);
       }
     }
   }
 }
 
-void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
+void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem)
 {
-  const XMLCh* tagProtoAttrParamName = catHrdAttrName;
-  const XMLCh* tagParam = hrcTagParam;
-  const XMLCh* tagParamAttrParamName = catHrdAttrName;
-  const XMLCh* tagParamAttrParamValue = hrcParamAttrValue;
-  const XMLCh* tagParamAttrParamDescription = hrcParamAttrDescription;
-  const XMLCh* typeName = elem->getAttribute(tagProtoAttrParamName);
+  auto typeName = elem->getAttribute(hrcPrototypeAttrName);
   if (typeName == nullptr) {
     return;
   }
@@ -64,12 +60,12 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
   for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
     if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
       auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
-      if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagParam)) {
-        const XMLCh* name = subelem->getAttribute(tagParamAttrParamName);
-        const XMLCh* value = subelem->getAttribute(tagParamAttrParamValue);
-        const XMLCh* descr = subelem->getAttribute(tagParamAttrParamDescription);
+      if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), hrcTagParam)) {
+        auto name = subelem->getAttribute(hrcParamAttrName);
+        auto value = subelem->getAttribute(hrcParamAttrValue);
+        auto descr = subelem->getAttribute(hrcParamAttrDescription);
 
-        if (*name == '\0') {
+        if (UStr::isEmpty(name)) {
           continue;
         }
 
@@ -79,11 +75,11 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
         if (type->getParamValue(cname) == nullptr) {
           type->addParam(cname, cvalue);
         }
+        else {
+          type->setParamDefaultValue(cname, &cvalue);
+        }
         if (descr != nullptr) {
           type->setParamDescription(cname, &cdescr);
-        }
-        if (userValue) {
-          type->setParamValue(cname, &cvalue);
         }
       }
     }
@@ -92,18 +88,12 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem, bool userValue)
 
 void FarHrcSettings::readUserProfile()
 {
-  readProfileFromRegistry();
-}
-
-void FarHrcSettings::readProfileFromRegistry()
-{
   auto& hrcLibrary = parserFactory->getHrcLibrary();
 
   SettingsControl ColorerSettings;
-  size_t hrc_subkey;
-  hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
-  FarSettingsEnum fse {};
-  fse.StructSize = sizeof(FarSettingsEnum);
+  auto hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
+  FarSettingsEnum fse {sizeof(FarSettingsEnum)};
+
   // enum all the sections in HrcSettings
   if (ColorerSettings.rEnum(hrc_subkey, &fse)) {
     for (size_t i = 0; i < fse.Count; i++) {
@@ -113,10 +103,8 @@ void FarHrcSettings::readProfileFromRegistry()
         auto* type = hrcLibrary.getFileType(&named);
         if (type) {
           // enum all params in the section
-          size_t type_subkey;
-          type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, fse.Items[i].Name);
-          FarSettingsEnum type_fse {};
-          type_fse.StructSize = sizeof(FarSettingsEnum);
+          auto type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, fse.Items[i].Name);
+          FarSettingsEnum type_fse {sizeof(FarSettingsEnum)};
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
@@ -137,29 +125,21 @@ void FarHrcSettings::readProfileFromRegistry()
 
 void FarHrcSettings::writeUserProfile()
 {
-  writeProfileToRegistry();
-}
-
-void FarHrcSettings::writeProfileToRegistry()
-{
   auto& hrcLibrary = parserFactory->getHrcLibrary();
-  FileType* type;
 
   SettingsControl ColorerSettings;
-  ColorerSettings.rDeleteSubKey(0, HrcSettings);
-  size_t hrc_subkey;
-  hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
+  auto hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
 
   // enum all FileTypes
   for (int idx = 0;; idx++) {
-    type = hrcLibrary.enumerateFileTypes(idx);
+    auto type = hrcLibrary.enumerateFileTypes(idx);
 
     if (!type) {
       break;
     }
 
-    if (type->getParamCount()) {  // params>0 and user values >0
-      size_t type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, UStr::to_stdwstr(type->getName()).c_str());
+    if (type->getParamCount()) {  // params>0
+      auto type_subkey = ColorerSettings.rGetSubKey(hrc_subkey, UStr::to_stdwstr(type->getName()).c_str());
       // enum all params
       std::vector<UnicodeString> type_params = type->enumParams();
       for (auto& type_param : type_params) {
@@ -168,10 +148,7 @@ void FarHrcSettings::writeProfileToRegistry()
           ColorerSettings.Set(type_subkey, UStr::to_stdwstr(&type_param).c_str(), UStr::to_stdwstr(v).c_str());
         }
         else {
-          auto val = ColorerSettings.Get(type_subkey, UStr::to_stdwstr(&type_param).c_str(), nullptr);
-          if (val) {
-            ColorerSettings.rDeleteSubKey(type_subkey, UStr::to_stdwstr(&type_param).c_str());
-          }
+          ColorerSettings.rDeleteSubKey(type_subkey, UStr::to_stdwstr(&type_param).c_str());
         }
       }
     }
