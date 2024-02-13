@@ -23,7 +23,7 @@ class HrcSettingsForm
   void setYNListValueToCombobox(const UnicodeString& param) const;
   void setCrossPosValueListToCombobox() const;
   void setCrossValueListToCombobox() const;
-  void ChangeParamValueListType(bool dropdownlist) const;
+  void ChangeParamValueList(FarList* items, bool dropdownlist) const;
   FarList* buildParamsList(FileType* type) const;
   const UnicodeString* getParamDefValue(FileType* type, const UnicodeString& param) const;
   [[nodiscard]] size_t getCountFileTypeAndGroup() const;
