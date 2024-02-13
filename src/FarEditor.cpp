@@ -568,10 +568,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   cursorRegion.reset();
 
   // Position the cursor on the screen
-  EditorConvertPos ecp {}, ecp_cl {};
-  ecp.StructSize = sizeof(EditorConvertPos);
-  ecp.StringNumber = -1;
-  ecp.SrcPos = ei.CurPos;
+  EditorConvertPos ecp {sizeof(EditorConvertPos), -1, ei.CurPos};
   info->EditorControl(editor_id, ECTL_REALTOTAB, 0, &ecp);
 
   bool show_whitespase = (ei.Options & EOPT_SHOWWHITESPACE) != 0;
@@ -582,22 +579,18 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     deleteFarColor(lno, -1);
 
     // length current string
-    EditorGetString egs {};
-    egs.StructSize = sizeof(EditorGetString);
-    egs.StringNumber = lno;
+    EditorGetString egs {sizeof(FarListGetItem), lno};
     info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
     int llen = (int) egs.StringLength;
     UnicodeString s = UnicodeString(egs.StringText);
     // position previously found a column in the current row
-    ecp_cl.StructSize = sizeof(EditorConvertPos);
-    ecp_cl.StringNumber = lno;
-    ecp_cl.SrcPos = ecp.DestPos;
+    EditorConvertPos ecp_cl {sizeof(EditorConvertPos), lno, ecp.DestPos};
     info->EditorControl(editor_id, ECTL_TABTOREAL, 0, &ecp_cl);
 
     if (drawSyntax) {
       LineRegion* l1 = baseEditor->getLineRegions((int) lno);
-
-      for (; l1; l1 = l1->next) {
+      if (l1) {
+        for (; l1; l1 = l1->next) {
         if (l1->special) {
           continue;
         }
@@ -683,16 +676,14 @@ int FarEditor::editorEvent(intptr_t event, void* param)
           }
           j = end;
         }
+        }
+      }
+      else {
+        drawCross(ei, lno, ecp_cl);
       }
     }
     else {
-      // cross at the show is off the drawSyntax
-      if (lno == ei.CurLine && showHorizontalCross) {
-        addFARColor(lno, 0, ei.LeftPos + ei.WindowSizeX, horzCrossColor);
-      }
-      if (showVerticalCross) {
-        addFARColor(lno, ecp_cl.DestPos, ecp_cl.DestPos + 1, vertCrossColor);
-      }
+      drawCross(ei, lno, ecp_cl);
     }
   }
 
@@ -747,6 +738,16 @@ int FarEditor::editorEvent(intptr_t event, void* param)
   }
 
   return 1;
+}
+
+void FarEditor::drawCross(const EditorInfo& ei, intptr_t lno, const EditorConvertPos& ecp_cl) const
+{
+  if (lno == ei.CurLine && showHorizontalCross) {
+    addFARColor(lno, 0, ei.LeftPos + ei.WindowSizeX, horzCrossColor);
+  }
+  if (showVerticalCross) {
+    addFARColor(lno, ecp_cl.DestPos, ecp_cl.DestPos + 1, vertCrossColor);
+  }
 }
 
 void FarEditor::showOutliner(Outliner* outliner)

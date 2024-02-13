@@ -163,5 +163,6 @@ class FarEditor : public LineSource
   void deleteFarColor(intptr_t lno, intptr_t s) const;
   [[nodiscard]] const wchar_t* GetMsg(int msg) const;
   static COLORREF getSuitableColor(COLORREF base_color, COLORREF blend_color);
+  void drawCross(const EditorInfo& ei, intptr_t lno, const EditorConvertPos& ecp_cl) const;
 };
 #endif
