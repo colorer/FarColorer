@@ -793,8 +793,7 @@ size_t FarEditorSet::getEditorCount() const
 
 FarEditor* FarEditorSet::addCurrentEditor()
 {
-  EditorInfo ei {};
-  ei.StructSize = sizeof(EditorInfo);
+  EditorInfo ei {sizeof(EditorInfo)};
   if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
     return nullptr;
   }
@@ -838,8 +837,7 @@ UnicodeString* FarEditorSet::getCurrentFileName()
 
 FarEditor* FarEditorSet::getCurrentEditor()
 {
-  EditorInfo ei {};
-  ei.StructSize = sizeof(EditorInfo);
+  EditorInfo ei {sizeof(EditorInfo)};
   if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
     return nullptr;
   }
@@ -892,8 +890,7 @@ void FarEditorSet::ApplySettingsToEditors()
 
 void FarEditorSet::dropCurrentEditor(bool clean)
 {
-  EditorInfo ei {};
-  ei.StructSize = sizeof(EditorInfo);
+  EditorInfo ei {sizeof(EditorInfo)};
   Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei);
   auto it_editor = farEditorInstances.find(ei.EditorID);
   if (it_editor != farEditorInstances.end()) {
@@ -1010,12 +1007,7 @@ bool FarEditorSet::SetBgEditor() const
   if (Opt.rEnabled && Opt.ChangeBgEditor) {
     const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(UnicodeString("def:Text")));
 
-    FarSetColors fsc {};
     FarColor fc {};
-    fsc.StructSize = sizeof(FarSetColors);
-    fsc.Flags = FSETCLR_REDRAW;
-    fsc.ColorsCount = 1;
-    fsc.StartIndex = COL_EDITORTEXT;
     if (Opt.TrueModOn) {
       fc.Flags = 0;
       fc.BackgroundColor = revertRGB(def_text->back);
@@ -1028,7 +1020,7 @@ bool FarEditorSet::SetBgEditor() const
       fc.BackgroundColor = def_text->back;
       fc.ForegroundColor = def_text->fore;
     }
-    fsc.Colors = &fc;
+    FarSetColors fsc {sizeof(FarSetColors), FSETCLR_REDRAW, COL_EDITORTEXT, 1, &fc};
     return Info.AdvControl(&MainGuid, ACTL_SETARRAYCOLOR, 0, &fsc) != 0;
   }
   return false;
@@ -1195,8 +1187,7 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
 
 void FarEditorSet::disableColorerInEditor()
 {
-  EditorInfo ei {};
-  ei.StructSize = sizeof(EditorInfo);
+  EditorInfo ei {sizeof(EditorInfo)};
   if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
     return;
   }
@@ -1214,8 +1205,7 @@ void FarEditorSet::disableColorerInEditor()
 
 void FarEditorSet::enableColorerInEditor()
 {
-  EditorInfo ei {};
-  ei.StructSize = sizeof(EditorInfo);
+  EditorInfo ei {sizeof(EditorInfo)};
   if (!Info.EditorControl(CurrentEditor, ECTL_GETINFO, 0, &ei)) {
     return;
   }

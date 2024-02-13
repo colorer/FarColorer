@@ -156,8 +156,6 @@ class FarEditor : public LineSource
   void reloadTypeSettings();
   EditorInfo enterHandler();
   FarColor convert(const StyledRegion* rd) const;
-  [[nodiscard]] bool foreDefault(const FarColor& col) const;
-  [[nodiscard]] bool backDefault(const FarColor& col) const;
   void showOutliner(Outliner* outliner);
   void addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor& col, EDITORCOLORFLAGS TabMarkStyle = 0) const;
   void deleteFarColor(intptr_t lno, intptr_t s) const;
