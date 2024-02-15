@@ -552,7 +552,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     deleteFarColor(lno, -1);
 
     // length current string
-    EditorGetString egs {sizeof(FarListGetItem), lno};
+    EditorGetString egs {sizeof(EditorGetString), lno};
     info->EditorControl(editor_id, ECTL_GETSTRING, 0, &egs);
     int llen = (int) egs.StringLength;
     UnicodeString s = UnicodeString(egs.StringText);
