@@ -4,8 +4,8 @@
 FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled) : info(info), parserFactory(pf), colorerEnable(editorEnabled)
 {
   if (colorerEnable) {
-    UnicodeString def_out = UnicodeString("def:Outlined");
-    UnicodeString def_err = UnicodeString("def:Error");
+    UnicodeString def_out = UnicodeString(region_DefOutlined);
+    UnicodeString def_err = UnicodeString(region_DefError);
     baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
     const Region* def_Outlined = pf->getHrcLibrary().getRegion(&def_out);
     const Region* def_Error = pf->getHrcLibrary().getRegion(&def_err);
@@ -387,7 +387,6 @@ void FarEditor::locateFunction()
     UnicodeString funcname(curLine, sword + 1, eword - sword - 1);
     spdlog::debug("FC] Letter {0}", funcname);
     baseEditor->validate(-1, false);
-    EditorSetPosition esp {sizeof(EditorSetPosition)};
     OutlineItem* item_found = nullptr;
     OutlineItem* item_last = nullptr;
     size_t items_num = structOutliner->itemCount();
@@ -418,6 +417,7 @@ void FarEditor::locateFunction()
       break;
     }
 
+    EditorSetPosition esp {sizeof(EditorSetPosition)};
     esp.CurTabPos = esp.LeftPos = esp.Overtype = esp.TopScreenLine = -1;
     esp.CurLine = (intptr_t) item_found->lno;
     esp.CurPos = item_found->pos;
@@ -429,7 +429,6 @@ void FarEditor::locateFunction()
 
     info->EditorControl(editor_id, ECTL_SETPOSITION, 0, &esp);
     info->EditorControl(editor_id, ECTL_REDRAW, 0, nullptr);
-    info->EditorControl(editor_id, ECTL_GETINFO, 0, &ei);
     return;  //-V612
   }
 

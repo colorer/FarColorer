@@ -213,7 +213,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     baseEditor.lineCountEvent((int) textLinesStore.getLineCount());
     // computing background color
     unsigned int background = 0x1F;
-    const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(UnicodeString("def:Text")));
+    const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(UnicodeString(region_DefText)));
 
     if (rd != nullptr && rd->isForeSet && rd->isBackSet) {
       background = rd->fore + (rd->back << 4);
@@ -1005,7 +1005,7 @@ void FarEditorSet::SaveLogSettings() const
 bool FarEditorSet::SetBgEditor() const
 {
   if (Opt.rEnabled && Opt.ChangeBgEditor) {
-    const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(UnicodeString("def:Text")));
+    const StyledRegion* def_text = StyledRegion::cast(regionMapper->getRegionDefine(UnicodeString(region_DefText)));
 
     FarColor fc {};
     if (Opt.TrueModOn) {

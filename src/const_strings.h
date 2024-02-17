@@ -24,5 +24,8 @@ static const wchar_t param_HotKey[] = L"hotkey";
 static const wchar_t param_Favorite[] = L"favorite";
 static const wchar_t param_Firstlines[] = L"firstlines";
 static const wchar_t param_Firstlinebytes[] = L"firstlinebytes";
+static const wchar_t region_DefOutlined[] = L"def:Outlined";
+static const wchar_t region_DefError[] = L"def:Error";
+static const wchar_t region_DefText[] = L"def:Text";
 
 #endif  // _PARAMNAMES_H
