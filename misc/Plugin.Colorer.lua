@@ -104,7 +104,7 @@ Macro {
     return Plugin.Exist(ColorerGUID)
   end;
   action = function()
-    Plugin.Call(ColorerGUID, "Brackets", "SelectAll")
+    Plugin.Call(ColorerGUID, "Brackets", "Match")
   end;
 }
 
