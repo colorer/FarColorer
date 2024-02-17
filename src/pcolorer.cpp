@@ -71,6 +71,7 @@ void WINAPI ExitFARW(const struct ExitInfo* /*eInfo*/)
 */
 HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
 {
+  HANDLE result = 0;
   if (!editorSet) {
     editorSet = new FarEditorSet();
   }
@@ -83,7 +84,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
       editorSet->openFromCommandLine(oInfo);
       break;
     case OPEN_FROMMACRO:
-      return editorSet->openFromMacro(oInfo);
+      result = editorSet->openFromMacro(oInfo);
     case OPEN_LEFTDISKMENU:
     case OPEN_PLUGINSMENU:
     case OPEN_FINDLIST:
@@ -96,7 +97,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
     case OPEN_LUAMACRO:
       break;
   }
-  return nullptr;
+
+  spdlog::default_logger()->flush();
+  return result;
 }
 
 /**
@@ -108,6 +111,7 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* /*cInfo*/)
     editorSet = new FarEditorSet();
   }
   editorSet->menuConfigure();
+  spdlog::default_logger()->flush();
   return 1;
 }
 
@@ -130,6 +134,7 @@ intptr_t WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo* pInfo)
   int result = editorSet->editorEvent(pInfo);
 
   inEventProcess = false;
+  spdlog::default_logger()->flush();
   return result;
 }
 
@@ -147,6 +152,7 @@ intptr_t WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo* pInfo)
   int result = editorSet->editorInput(pInfo->Rec);
 
   inEventProcess = false;
+  spdlog::default_logger()->flush();
   return result;
 }
 
@@ -160,7 +166,9 @@ intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* pInfo)
       INPUT_RECORD ir;
       ir.EventType = KEY_EVENT;
       ir.Event.KeyEvent.wVirtualKeyCode = 0;
-      return editorSet->editorInput(ir);
+      int result = editorSet->editorInput(ir);
+      spdlog::default_logger()->flush();
+      return result;
     }
   } catch (...) {
   }
