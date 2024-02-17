@@ -506,7 +506,7 @@ bool FarEditorSet::configure()
         wcsncpy(Opt.HrdName, UStr::to_stdwstr(&hrd_con_instances.at(current_style)->hrd_name).c_str(), std::size(Opt.HrdName));
         wcsncpy(Opt.HrdNameTm, UStr::to_stdwstr(&hrd_rgb_instances.at(current_rstyle)->hrd_name).c_str(), std::size(Opt.HrdNameTm));
       }
-      if (cross_style_id != Opt.CrossStyle)
+      if (cross_style_id + 1 != Opt.CrossStyle)
         Opt.CrossStyle = cross_style_id + 1;
       SaveSettings();
       if (Opt.rEnabled) {
