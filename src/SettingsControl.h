@@ -1,5 +1,5 @@
-#ifndef _SETTINGSCONTROL_H_
-#define _SETTINGSCONTROL_H_
+#ifndef FARCOLORER_SETTINGSCONTROL_H
+#define FARCOLORER_SETTINGSCONTROL_H
 
 #include <colorer/Exception.h>
 #include "pcolorer.h"
@@ -41,4 +41,4 @@ class SettingsControlException : public Exception
   explicit SettingsControlException(const UnicodeString& msg) noexcept : Exception("[SettingsControl] " + msg) {}
 };
 
-#endif
+#endif // FARCOLORER_SETTINGSCONTROL_H

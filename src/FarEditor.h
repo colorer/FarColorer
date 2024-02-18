@@ -1,5 +1,5 @@
-#ifndef _FAREDITOR_H_
-#define _FAREDITOR_H_
+#ifndef FARCOLORER_FAREDITOR_H
+#define FARCOLORER_FAREDITOR_H
 
 #include <colorer/editor/BaseEditor.h>
 #include <colorer/editor/Outliner.h>
@@ -163,4 +163,4 @@ class FarEditor : public LineSource
   static COLORREF getSuitableColor(COLORREF base_color, COLORREF blend_color);
   void drawCross(const EditorInfo& ei, intptr_t lno, const EditorConvertPos& ecp_cl) const;
 };
-#endif
+#endif // FARCOLORER_FAREDITOR_H

@@ -1,5 +1,5 @@
-#ifndef _PCOLORER_H_
-#define _PCOLORER_H_
+#ifndef FARCOLORER_PCOLORER_H
+#define FARCOLORER_PCOLORER_H
 
 #include <initguid.h>
 #include <plugin.hpp>
@@ -105,4 +105,4 @@ enum {
   mBuildPeriod
 };
 
-#endif
+#endif // FARCOLORER_PCOLORER_H

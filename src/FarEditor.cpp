@@ -570,7 +570,7 @@ int FarEditor::editorEvent(intptr_t event, void* param)
             break;
           }
 
-          int lend = l1->end;
+          intptr_t lend = l1->end;
           if (lend == -1) {
             if (fullBackground){
               lend = ei.LeftPos + ei.WindowSizeX *2;
@@ -584,12 +584,12 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
           FarColor col = convert(l1->styled());
           // remove the front in color whitespaces to display correctly in the far hidden characters (tab, space)
-          int j = l1->start;
+          intptr_t j = l1->start;
           bool whitespace = false;
           while (j < lend) {
             FarColor col1 = col;
-            int start = j;
-            int end = lend;
+            intptr_t start = j;
+            intptr_t end = lend;
             if (show_whitespase) {
               if (egs.StringText[j] == L' ' || egs.StringText[j] == L'\t') {
                 while ((j <= llen) && (j < lend) && (egs.StringText[j] == L' ' || egs.StringText[j] == L'\t')) {

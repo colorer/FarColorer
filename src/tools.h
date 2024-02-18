@@ -1,5 +1,5 @@
-#ifndef _TOOLS_H_
-#define _TOOLS_H_
+#ifndef FARCOLORER_TOOLS_H
+#define FARCOLORER_TOOLS_H
 
 #include <colorer/Common.h>
 #include "pcolorer.h"
@@ -16,4 +16,4 @@ intptr_t macroGetValue(FarMacroValue* value, intptr_t def = 0);
 FarMacroCall* macroReturnInt(long long int value);
 FarMacroCall* macroReturnValues(FarMacroValue* values, int count);
 void WINAPI MacroCallback(void* CallbackData, FarMacroValue* Values, size_t Count);
-#endif
+#endif //FARCOLORER_TOOLS_H

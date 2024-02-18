@@ -1,5 +1,5 @@
-#ifndef _CHOOSE_TYPE_MENU_H_
-#define _CHOOSE_TYPE_MENU_H_
+#ifndef FARCOLORER_CHOOSE_TYPE_MENU_H
+#define FARCOLORER_CHOOSE_TYPE_MENU_H
 
 #include <colorer/FileType.h>
 #include "pcolorer.h"
@@ -29,7 +29,7 @@ class ChooseTypeMenu
   void DelFromFavorites(size_t index);
   [[nodiscard]] bool IsFavorite(size_t index) const;
   void RefreshItemCaption(size_t index);
-  UnicodeString* GenerateName(const FileType* fType);
+  static UnicodeString* GenerateName(const FileType* fType);
 
  private:
   size_t ItemCount;
@@ -42,4 +42,4 @@ class ChooseTypeMenu
   static const size_t favorite_idx = 2;
 };
 
-#endif  //_CHOOSE_TYPE_MENU_H_
+#endif  //FARCOLORER_CHOOSE_TYPE_MENU_H

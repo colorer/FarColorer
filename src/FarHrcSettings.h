@@ -1,5 +1,5 @@
-#ifndef _FARHRCSETTINGS_H_
-#define _FARHRCSETTINGS_H_
+#ifndef FARCOLORER_FARHRCSETTINGS_H
+#define FARCOLORER_FARHRCSETTINGS_H
 
 #include <colorer/FileType.h>
 #include <colorer/HrcLibrary.h>
@@ -37,4 +37,4 @@ class FarHrcSettings
   FarEditorSet* farEditorSet;
 };
 
-#endif
+#endif // FARCOLORER_FARHRCSETTINGS_H

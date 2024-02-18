@@ -71,7 +71,7 @@ void WINAPI ExitFARW(const struct ExitInfo* /*eInfo*/)
 */
 HANDLE WINAPI OpenW(const struct OpenInfo* oInfo)
 {
-  HANDLE result = 0;
+  HANDLE result = nullptr;
   if (!editorSet) {
     editorSet = new FarEditorSet();
   }

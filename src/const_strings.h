@@ -1,5 +1,5 @@
-#ifndef _PARAMNAMES_H
-#define _PARAMNAMES_H
+#ifndef FARCOLORER_PARAMNAMES_H
+#define FARCOLORER_PARAMNAMES_H
 
 static const wchar_t name_DefaultScheme[] = L"default";
 static const wchar_t param_ShowCross[] = L"show-cross";
@@ -28,4 +28,4 @@ static const wchar_t region_DefOutlined[] = L"def:Outlined";
 static const wchar_t region_DefError[] = L"def:Error";
 static const wchar_t region_DefText[] = L"def:Text";
 
-#endif  // _PARAMNAMES_H
+#endif  // FARCOLORER_PARAMNAMES_H

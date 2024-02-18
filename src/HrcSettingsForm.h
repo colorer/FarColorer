@@ -1,5 +1,5 @@
-#ifndef _HRCSETTINGSFORM_H_
-#define _HRCSETTINGSFORM_H_
+#ifndef FARCOLORER_HRCSETTINGSFORM_H
+#define FARCOLORER_HRCSETTINGSFORM_H
 
 #include "FarEditorSet.h"
 
@@ -38,4 +38,4 @@ class HrcSettingsForm
   HANDLE hDlg {};
 };
 
-#endif  // _HRCSETTINGSFORM_H_
+#endif  // FARCOLORER_HRCSETTINGSFORM_H
