@@ -572,7 +572,11 @@ int FarEditor::editorEvent(intptr_t event, void* param)
 
           int lend = l1->end;
           if (lend == -1) {
-            lend = fullBackground ? (int) (ei.LeftPos + ei.WindowSizeX) : llen;
+            if (fullBackground){
+              lend = ei.LeftPos + ei.WindowSizeX *2;
+            }else{
+              lend=llen;
+            }
           }
           if (lno == ei.CurLine && (l1->start <= ei.CurPos) && (ei.CurPos <= lend)) {
             cursorRegion = std::make_unique<LineRegion>(*l1);
@@ -1200,6 +1204,7 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   MAKE_OPAQUE(ec.Color.BackgroundColor);
   MAKE_OPAQUE(ec.Color.ForegroundColor);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
+  //spdlog::debug("line:{0}, start:{1}, end:{2}", lno,s,e-1);
 }
 
 const wchar_t* FarEditor::GetMsg(int msg) const
