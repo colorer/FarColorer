@@ -1,6 +1,6 @@
 {
   "name": "farcolorer",
-  "version": "1.4.24",
+  "version": "1.4.25",
   "dependencies": [
     {
       "name": "xerces-c",
