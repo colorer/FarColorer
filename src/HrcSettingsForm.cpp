@@ -444,24 +444,20 @@ const UnicodeString* HrcSettingsForm::getParamDefValue(FileType* type, const Uni
 
 FarList* HrcSettingsForm::buildParamsList(FileType* type) const
 {
-  // max count params
-  size_t size = type->getParamCount() + farEditorSet->defaultType->getParamCount();
-  auto* fparam = new FarListItem[size] {};
+  auto type_params = type->enumParams();
+  auto default_params = farEditorSet->defaultType->enumParams();
+  type_params.insert(type_params.end(), default_params.begin(),default_params.end());
+  std::sort(type_params.begin(), type_params.end());
+  auto last = std::unique(type_params.begin(), type_params.end());
+  type_params.erase(last, type_params.end());
 
   size_t count = 0;
-  auto type_params = type->enumParams();
-  for (auto& type_param : type_params) {
-    if (farEditorSet->defaultType->getParamValue(type_param) == nullptr) {
-      fparam[count++].Text = _wcsdup(UStr::to_stdwstr(&type_param).c_str());
-    }
+  auto* fparam = new FarListItem[type_params.size()] {};
+  for (const auto& param : type_params) {
+    fparam[count++].Text = _wcsdup(UStr::to_stdwstr(&param).c_str());
   }
-  auto default_params = farEditorSet->defaultType->enumParams();
-  for (auto& default_param : default_params) {
-    fparam[count++].Text = _wcsdup(UStr::to_stdwstr(&default_param).c_str());
-  }
-
   fparam[0].Flags = LIF_SELECTED;
-  return buildFarList(fparam, count);
+  return buildFarList(fparam, type_params.size());
 }
 
 void HrcSettingsForm::ChangeParamValueList(FarList* items, bool dropdownlist) const
