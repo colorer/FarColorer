@@ -90,6 +90,7 @@ struct Options
 
 struct SettingWindow
 {
+  int turnOff;
   int okButtonConfig;
   int catalogEdit;
   int hrcEdit;

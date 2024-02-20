@@ -412,6 +412,12 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
     int CurPosCons = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr);
     int CurPosTm = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr);
 
+    int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, fes->settingWindow.turnOff, nullptr));
+
+    if (k == BSTATE_UNCHECKED) {
+      // не проверяем настройки у отключенного плагина
+      return false;
+    }
     return !fes->TestLoadBase(temp, userhrd, userhrc, UStr::to_stdwstr(&fes->hrd_con_instances.at(CurPosCons)->hrd_name).c_str(),
                               UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false, FarEditorSet::HRC_MODE::HRCM_BOTH);
   }
@@ -425,6 +431,7 @@ bool FarEditorSet::configure()
   try {
     PluginDialogBuilder Builder(Info, MainGuid, PluginConfig, mSetup, L"config", SettingDialogProc, this);
     Builder.AddCheckbox(mTurnOff, &Opt.rEnabled);
+    settingWindow.turnOff = Builder.GetLastID();
     Builder.AddSeparator();
     Builder.AddText(mCatalogFile);
     Builder.AddEditField(Opt.CatalogPath, MAX_PATH, 65, L"catalog");
@@ -443,6 +450,7 @@ bool FarEditorSet::configure()
     unsigned long flag_disable = 0;
     int current_style;
     std::unique_ptr<HrdNode> cons, rgb;
+    hrd_con_instances.clear();
     if (Opt.rEnabled) {
       hrd_con_instances = parserFactory->enumHrdInstances(DConsole);
       current_style = getHrdArrayWithCurrent(Opt.HrdName, &hrd_con_instances, &console_style);
@@ -464,6 +472,7 @@ bool FarEditorSet::configure()
     std::vector<const wchar_t*> rgb_style;
     flag_disable = 0;
     int current_rstyle;
+    hrd_rgb_instances.clear();
     if (Opt.rEnabled) {
       hrd_rgb_instances = parserFactory->enumHrdInstances(DRgb);
       current_rstyle = getHrdArrayWithCurrent(Opt.HrdNameTm, &hrd_rgb_instances, &rgb_style);
@@ -515,6 +524,8 @@ bool FarEditorSet::configure()
       else {
         disableColorer();
       }
+      hrd_rgb_instances.clear();
+      hrd_con_instances.clear();
     }
 
     Info.EditorControl(CurrentEditor, ECTL_REDRAW, 0, nullptr);
