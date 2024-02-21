@@ -427,7 +427,6 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
 
 bool FarEditorSet::configure()
 {
-  // TODO  refactor this
   try {
     PluginDialogBuilder Builder(Info, MainGuid, PluginConfig, mSetup, L"config", SettingDialogProc, this);
     Builder.AddCheckbox(mTurnOff, &Opt.rEnabled);

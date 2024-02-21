@@ -111,9 +111,9 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
     num++;
     if (group.compare(type->getGroup()) != 0) {
       num++;
+      group = type->getGroup();
     }
 
-    group = type->getGroup();
   }
   return num;
 }
