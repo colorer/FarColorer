@@ -1,12 +1,8 @@
 #include "FarEditorSet.h"
 #include <colorer/common/UStr.h>
-#include <colorer/parsers/CatalogParser.h>
-#include <colorer/base/XmlTagDefs.h>
-#include <colorer/xml/XmlParserErrorHandler.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/null_sink.h>
 #include <farcolor.hpp>
-#include <xercesc/parsers/XercesDOMParser.hpp>
 #include "DlgBuilder.hpp"
 #include "HrcSettingsForm.h"
 #include "FarHrcSettings.h"
@@ -672,9 +668,9 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     parserFactoryLocal = std::make_unique<ParserFactory>();
     parserFactoryLocal->loadCatalog(tpath.get());
     auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
-    LoadUserHrd(userHrdPathS.get(), parserFactoryLocal.get());
-    LoadUserHrc(userHrcPathS.get(), parserFactoryLocal.get());
     FarHrcSettings p(this, parserFactoryLocal.get());
+    p.loadUserHrd(userHrdPathS.get());
+    p.loadUserHrc(userHrdPathS.get());
     p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile();
 
@@ -765,9 +761,9 @@ void FarEditorSet::ReloadBase()
     parserFactory->loadCatalog(sCatalogPathExp.get());
     HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
     defaultType = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
-    LoadUserHrd(sUserHrdPathExp.get(), parserFactory.get());
-    LoadUserHrc(sUserHrcPathExp.get(), parserFactory.get());
     FarHrcSettings p(this, parserFactory.get());
+    p.loadUserHrd(sUserHrdPathExp.get());
+    p.loadUserHrc(sUserHrcPathExp.get());
     p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile();
 
@@ -1034,46 +1030,6 @@ bool FarEditorSet::SetBgEditor() const
     return Info.AdvControl(&MainGuid, ACTL_SETARRAYCOLOR, 0, &fsc) != 0;
   }
   return false;
-}
-
-void FarEditorSet::LoadUserHrd(const UnicodeString* filename, ParserFactory* pf)
-{
-  if (filename && filename->length()) {
-    xercesc::XercesDOMParser xml_parser;
-    XmlParserErrorHandler err_handler;
-    xml_parser.setErrorHandler(&err_handler);
-    xml_parser.setLoadExternalDTD(false);
-    xml_parser.setSkipDTDValidation(true);
-    uXmlInputSource config = XmlInputSource::newInstance(filename);
-    xml_parser.parse(*config->getInputSource());
-    if (err_handler.getSawErrors()) {
-      throw ParserFactoryException(UnicodeString("Error reading ").append(*filename));
-    }
-    xercesc::DOMDocument* catalog = xml_parser.getDocument();
-    xercesc::DOMElement* elem = catalog->getDocumentElement();
-    const XMLCh* tagHrdSets = catTagHrdSets;
-    const XMLCh* tagHrd = catTagHrd;
-    if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
-      throw Exception("main '<hrd-sets>' block not found");
-    }
-    for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
-      if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-        auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
-        if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
-          auto hrd = CatalogParser::parseHRDSetsChild(subelem);
-          if (hrd)
-            pf->addHrd(std::move(hrd));
-        }
-      }
-    }
-  }
-}
-
-void FarEditorSet::LoadUserHrc(const UnicodeString* filename, ParserFactory* pf)
-{
-  if (filename && !filename->isEmpty()) {
-    pf->loadHrcPath(*filename);
-  }
 }
 
 bool FarEditorSet::configureHrc(bool call_from_editor)

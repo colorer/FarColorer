@@ -4,15 +4,58 @@
 #include <colorer/xml/XmlParserErrorHandler.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "SettingsControl.h"
+#include "colorer/parsers/CatalogParser.h"
 
-void FarHrcSettings::readPluginHrcSettings(UnicodeString* plugin_path)
+void FarHrcSettings::loadUserHrc(const UnicodeString* filename)
+{
+  if (filename && !filename->isEmpty()) {
+    parserFactory->loadHrcPath(*filename);
+  }
+}
+
+void FarHrcSettings::loadUserHrd(const UnicodeString* filename)
+{
+  if (!filename || filename->isEmpty()) {
+    return;
+  }
+
+  xercesc::XercesDOMParser xml_parser;
+  XmlParserErrorHandler err_handler;
+  xml_parser.setErrorHandler(&err_handler);
+  xml_parser.setLoadExternalDTD(false);
+  xml_parser.setSkipDTDValidation(true);
+  uXmlInputSource config = XmlInputSource::newInstance(filename);
+  xml_parser.parse(*config->getInputSource());
+  if (err_handler.getSawErrors()) {
+    throw ParserFactoryException(UnicodeString("Error reading ").append(*filename));
+  }
+  xercesc::DOMDocument* catalog = xml_parser.getDocument();
+  xercesc::DOMElement* elem = catalog->getDocumentElement();
+  const XMLCh* tagHrdSets = catTagHrdSets;
+  const XMLCh* tagHrd = catTagHrd;
+  if (elem == nullptr || !xercesc::XMLString::equals(elem->getNodeName(), tagHrdSets)) {
+    throw Exception("main '<hrd-sets>' block not found");
+  }
+  for (xercesc::DOMNode* node = elem->getFirstChild(); node != nullptr; node = node->getNextSibling()) {
+    if (node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
+      auto* subelem = dynamic_cast<xercesc::DOMElement*>(node);
+      if (subelem && xercesc::XMLString::equals(subelem->getNodeName(), tagHrd)) {
+        auto hrd = CatalogParser::parseHRDSetsChild(subelem);
+        if (hrd)
+          parserFactory->addHrd(std::move(hrd));
+      }
+    }
+  }
+}
+
+void FarHrcSettings::readPluginHrcSettings(const UnicodeString* plugin_path)
 {
   auto path = UnicodeString(*plugin_path);
   path.append(UnicodeString(FarProfileXml));
   readXML(&path);
 }
 
-void FarHrcSettings::readXML(UnicodeString* file)
+void FarHrcSettings::readXML(const UnicodeString* file)
 {
   xercesc::XercesDOMParser xml_parser;
   XmlParserErrorHandler error_handler;

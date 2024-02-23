@@ -161,8 +161,6 @@ class FarEditorSet
   void enableColorer();
 
   bool SetBgEditor() const;
-  void LoadUserHrd(const UnicodeString* filename, ParserFactory* pf);
-  void LoadUserHrc(const UnicodeString* filename, ParserFactory* pf);
 
   /** Shows hrc configuration dialog */
   bool configureHrc(bool call_from_editor);

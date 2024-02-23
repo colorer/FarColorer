@@ -1,8 +1,6 @@
 #ifndef FARCOLORER_FARHRCSETTINGS_H
 #define FARCOLORER_FARHRCSETTINGS_H
 
-#include <colorer/FileType.h>
-#include <colorer/HrcLibrary.h>
 #include <colorer/ParserFactory.h>
 #include <xercesc/dom/DOM.hpp>
 #include "FarEditorSet.h"
@@ -25,10 +23,12 @@ class FarHrcSettings
     parserFactory = _parserFactory;
     farEditorSet = _farEditorSet;
   }
-  void readXML(UnicodeString* file);
-  void readPluginHrcSettings(UnicodeString* plugin_path);
+  void readXML(const UnicodeString* file);
+  void readPluginHrcSettings(const UnicodeString* plugin_path);
   void readUserProfile();
   void writeUserProfile();
+  void loadUserHrc(const UnicodeString* filename);
+  void loadUserHrd(const UnicodeString* filename);
 
  private:
   void UpdatePrototype(xercesc::DOMElement* elem);
