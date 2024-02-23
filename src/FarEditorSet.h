@@ -189,8 +189,8 @@ class FarEditorSet
   bool chooseType();
   /** FAR localized messages */
   static const wchar_t* GetMsg(int msg);
-  /** Applies the current settings for editors*/
-  void ApplySettingsToEditors();
+  /** Applies the current settings for editor*/
+  void applySettingsToEditor(FarEditor* editor);
   /** writes settings in the registry*/
   void SaveSettings() const;
   void SaveLogSettings() const;
@@ -221,7 +221,7 @@ class FarEditorSet
     CONFIGURE
   };
 
-  static MENU_ACTION showMenu(bool full_menu);
+  static FarEditorSet::MENU_ACTION showMenu(bool plugin_enabled, bool editor_enabled);
   void execMenuAction(MENU_ACTION action, FarEditor* editor);
 
   void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);

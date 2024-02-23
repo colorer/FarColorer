@@ -7,7 +7,7 @@
 class ChooseTypeMenu
 {
  public:
-  ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites);
+  ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites, const wchar_t* Disable);
   ~ChooseTypeMenu();
   [[nodiscard]] FarMenuItem* getItems() const;
   [[nodiscard]] size_t getItemsCount() const
@@ -39,7 +39,7 @@ class ChooseTypeMenu
 
   size_t AddItem(const wchar_t* Text, MENUITEMFLAGS Flags, const FileType* UserData = nullptr, size_t PosAdd = 0x7FFFFFFF);
 
-  static const size_t favorite_idx = 2;
+  static const size_t favorite_idx = 3;
 };
 
 #endif  //FARCOLORER_CHOOSE_TYPE_MENU_H

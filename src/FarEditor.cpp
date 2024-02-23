@@ -1,33 +1,42 @@
 #include "FarEditor.h"
 #include <colorer/common/UStr.h>
 
-FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled) : info(info), parserFactory(pf), colorerEnable(editorEnabled)
+FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, const UnicodeString* file_name) : info(info), parserFactory(pf)
 {
-  if (colorerEnable) {
-    UnicodeString def_out = UnicodeString(region_DefOutlined);
-    UnicodeString def_err = UnicodeString(region_DefError);
-    baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
-    const Region* def_Outlined = pf->getHrcLibrary().getRegion(&def_out);
-    const Region* def_Error = pf->getHrcLibrary().getRegion(&def_err);
-    structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
-    errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
-
-    auto eh = getEditorInfo();
-    editor_id = eh.EditorID;
-
-    // subscribe for event change text
-    EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
-    info->EditorControl(editor_id, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
-  }
+  auto eh = getEditorInfo();
+  editor_id = eh.EditorID;
+  chooseFileType(file_name);
 }
 
 FarEditor::~FarEditor()
 {
-  if (colorerEnable) {
-    // destroy subscribe
-    EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
-    info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
-  }
+  destroy();
+}
+
+void FarEditor::init()
+{
+  baseEditor = std::make_unique<BaseEditor>(parserFactory, this);
+
+  UnicodeString def_out = UnicodeString(region_DefOutlined);
+  UnicodeString def_err = UnicodeString(region_DefError);
+  const Region* def_Outlined = parserFactory->getHrcLibrary().getRegion(&def_out);
+  const Region* def_Error = parserFactory->getHrcLibrary().getRegion(&def_err);
+  structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
+  errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
+
+  // subscribe for event change text
+  EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
+  info->EditorControl(editor_id, ECTL_SUBSCRIBECHANGEEVENT, 0, &esce);
+}
+
+void FarEditor::destroy()
+{
+  structOutliner.reset();
+  errorOutliner.reset();
+  baseEditor.reset();
+  // destroy subscribe
+  EditorSubscribeChangeEvent esce = {sizeof(EditorSubscribeChangeEvent), MainGuid};
+  info->EditorControl(editor_id, ECTL_UNSUBSCRIBECHANGEEVENT, 0, &esce);
 }
 
 void FarEditor::endJob(size_t lno)
@@ -54,20 +63,56 @@ UnicodeString* FarEditor::getLine(size_t lno)
   }
 }
 
-void FarEditor::chooseFileType(UnicodeString* fname)
+void FarEditor::chooseFileType(const UnicodeString* fname)
 {
-  FileType* ftype = baseEditor->chooseFileType(fname);
+  auto base_editor = std::make_unique<BaseEditor>(parserFactory, this);
+  FileType* ftype = base_editor->chooseFileType(fname);
+  if (UnicodeString(name_DefaultScheme).compare(ftype->getName()) != 0) {
+    // это не default тип
+    auto value_disabled = ftype->getParamValue(UnicodeString("disabled"));
+    if (value_disabled && value_disabled->compare(UnicodeString(value_True)) == 0) {
+      // тип заблокирован
+      FileType* def = parserFactory->getHrcLibrary().getFileType(UnicodeString(name_DefaultScheme));
+      if (!def) {
+        throw Exception("No 'default' file type found");
+      }
+      auto value_used = ftype->getParamValue(UnicodeString("use-default"));
+      auto def_value_used = def->getParamValue(UnicodeString("use-default"));
+      if ((value_used && value_used->compare(UnicodeString(value_True)) == 0) ||
+          (!value_used && def_value_used && def_value_used->compare(UnicodeString(value_True)) == 0)) {
+        // используем default
+        ftype = def;
+      }
+      else {
+        // отключаем
+        ftype = nullptr;
+      }
+    }
+  }
+
   setFileType(ftype);
 }
 
 void FarEditor::setFileType(FileType* ftype)
 {
-  baseEditor->setFileType(ftype);
-  // clear Outliner
-  structOutliner->modifyEvent(0);
-  errorOutliner->modifyEvent(0);
+  if (ftype) {
+    if (!baseEditor) {
+      init();
+    }
 
-  reloadTypeSettings();
+    baseEditor->setFileType(ftype);
+    // clear Outliner
+    structOutliner->modifyEvent(0);
+    errorOutliner->modifyEvent(0);
+
+    reloadTypeSettings();
+  }
+  else {
+    if (baseEditor) {
+      cleanEditor();
+      destroy();
+    }
+  }
 }
 
 void FarEditor::reloadTypeSettings()
@@ -119,7 +164,12 @@ void FarEditor::reloadTypeSettings()
 
 FileType* FarEditor::getFileType() const
 {
-  return baseEditor->getFileType();
+  if (baseEditor) {
+    return baseEditor->getFileType();
+  }
+  else {
+    return nullptr;
+  }
 }
 
 void FarEditor::setCrossState(int status, int style)
@@ -1205,7 +1255,8 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   MAKE_OPAQUE(ec.Color.BackgroundColor);
   MAKE_OPAQUE(ec.Color.ForegroundColor);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
-  spdlog::debug("line:{0}, start:{1}, end:{2}", lno,s,e-1);
+  spdlog::debug("editor:{0}, line:{1}, start:{2}, end:{3}, color_bg:{4}, color_fg:{5}", editor_id, lno, s, e - 1, col.BackgroundColor,
+                col.ForegroundColor);
 }
 
 const wchar_t* FarEditor::GetMsg(int msg) const
@@ -1309,7 +1360,7 @@ int FarEditor::getParseProgress()
 
 bool FarEditor::isColorerEnable() const
 {
-  return colorerEnable;
+  return baseEditor != nullptr;
 }
 
 boolean FarEditor::hasWork()

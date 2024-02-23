@@ -2,16 +2,15 @@
 #include <colorer/common/UStr.h>
 #include "FarEditor.h"
 
-ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites)
+ChooseTypeMenu::ChooseTypeMenu(const wchar_t* AutoDetect, const wchar_t* Favorites, const wchar_t* Disable)
 {
   ItemCount = 0;
   Item = nullptr;
   ItemSelected = 0;
 
-  UnicodeString s;
-  s.append("&A ").append(AutoDetect);
-  AddItem(UStr::to_stdwstr(&s).c_str(), 0, nullptr, 0);
-  AddItem(Favorites, MIF_SEPARATOR, nullptr, 1);
+  AddItem(AutoDetect, 0, nullptr, 0);
+  AddItem(Disable, 0, nullptr, 1);
+  AddItem(Favorites, MIF_SEPARATOR, nullptr, 2);
 }
 
 ChooseTypeMenu::~ChooseTypeMenu()

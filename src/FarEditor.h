@@ -24,7 +24,7 @@ class FarEditor : public LineSource
 
   /** Creates FAR editor instance.
    */
-  FarEditor(PluginStartupInfo* info, ParserFactory* pf, bool editorEnabled);
+  FarEditor(PluginStartupInfo* info, ParserFactory* pf, const UnicodeString* file_name);
   /** Drops this editor */
   ~FarEditor() override;
 
@@ -44,7 +44,7 @@ class FarEditor : public LineSource
 
   /** Selects file type with it's extension and first lines
    */
-  void chooseFileType(UnicodeString* fname);
+  void chooseFileType(const UnicodeString* fname);
 
   /** Installs specified RegionMapper implementation.
   This class serves to request mapping of regions into
@@ -116,11 +116,13 @@ class FarEditor : public LineSource
 
  private:
   PluginStartupInfo* info;
-
   ParserFactory* parserFactory;
+
+  void init();
+  void destroy();
+
   std::unique_ptr<BaseEditor> baseEditor;
 
-  bool colorerEnable = true;
   int maxLineLength = 0;
   bool fullBackground = true;
 

@@ -85,6 +85,7 @@ enum {
   mParamValue,
   mAutoDetect,
   mFavorites,
+  mDisable,
   mKeyAssignDialogTitle,
   mKeyAssignTextTitle,
   mRegionName,
