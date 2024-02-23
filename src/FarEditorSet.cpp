@@ -1182,8 +1182,9 @@ void FarEditorSet::enableColorerInEditor()
     farEditorInstances.erase(it_editor);
   }
 
-  auto* new_editor = addCurrentEditor();
-  new_editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
+  if (auto* new_editor = addCurrentEditor()) {
+    new_editor->editorEvent(EE_REDRAW, EEREDRAW_ALL);
+  }
 }
 
 void FarEditorSet::addEventTimer()
@@ -1715,10 +1716,10 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
   if (UnicodeString("Get").caseCompare(command, 0) == 0) {
     if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
-      UnicodeString param_name = UnicodeString(params->Values[3].String);
 
       auto file_type = hrcLibrary.getFileType(&type);
       if (file_type) {
+        UnicodeString param_name = UnicodeString(params->Values[3].String);
         auto* value = file_type->getParamValue(param_name);
         auto* out_params = new FarMacroValue[1];
         if (value) {

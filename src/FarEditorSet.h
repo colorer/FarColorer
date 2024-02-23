@@ -146,11 +146,6 @@ class FarEditorSet
   bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons, const wchar_t* hrdTm,
                     bool full, HRC_MODE hrc_mode);
 
-  [[nodiscard]] bool GetPluginStatus() const
-  {
-    return Opt.rEnabled;
-  }
-
   [[nodiscard]] bool isEnable() const
   {
     return Opt.rEnabled;

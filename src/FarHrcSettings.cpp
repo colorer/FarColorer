@@ -151,9 +151,9 @@ void FarHrcSettings::readUserProfile()
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
-                UnicodeString name_fse = UnicodeString(type_fse.Items[j].Name);
                 const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
                 if (p) {
+                  UnicodeString name_fse = UnicodeString(type_fse.Items[j].Name);
                   UnicodeString dp = UnicodeString(p);
                   farEditorSet->addParamAndValue(type, name_fse, dp);
                 }
