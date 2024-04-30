@@ -696,11 +696,12 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     parserFactoryLocal = std::make_unique<ParserFactory>();
     parserFactoryLocal->loadCatalog(tpath.get());
     auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
+    auto def_type = hrcLibraryLocal.getFileType(UnicodeString(name_DefaultScheme));
     FarHrcSettings p(this, parserFactoryLocal.get());
     p.loadUserHrd(userHrdPathS.get());
     p.loadUserHrc(userHrdPathS.get());
     p.readPluginHrcSettings(pluginPath.get());
-    p.readUserProfile();
+    p.readUserProfile(def_type);
 
     if (hrc_mode == HRC_MODE::HRCM_CONSOLE || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
@@ -1222,10 +1223,15 @@ void FarEditorSet::removeEventTimer()
   hTimer = nullptr;
 }
 
-void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value)
+void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value, const FileType* def_filetype)
 {
   if (filetype->getParamValue(name) == nullptr) {
-    auto default_value = defaultType->getParamValue(name);
+    const UnicodeString* default_value;
+    if (def_filetype) {
+      default_value = def_filetype->getParamValue(name);
+    }else {
+      default_value = defaultType->getParamValue(name);
+    }
     filetype->addParam(name, *default_value);
   }
   filetype->setParamValue(name, &value);

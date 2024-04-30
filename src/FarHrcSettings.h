@@ -25,7 +25,7 @@ class FarHrcSettings
   }
   void readXML(const UnicodeString* file);
   void readPluginHrcSettings(const UnicodeString* plugin_path);
-  void readUserProfile();
+  void readUserProfile(const FileType* def_filetype = nullptr);
   void writeUserProfile();
   void loadUserHrc(const UnicodeString* filename);
   void loadUserHrd(const UnicodeString* filename);

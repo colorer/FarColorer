@@ -128,7 +128,7 @@ void FarHrcSettings::UpdatePrototype(xercesc::DOMElement* elem)
   }
 }
 
-void FarHrcSettings::readUserProfile()
+void FarHrcSettings::readUserProfile(const FileType* def_filetype)
 {
   auto& hrcLibrary = parserFactory->getHrcLibrary();
 
@@ -154,7 +154,7 @@ void FarHrcSettings::readUserProfile()
                 if (p) {
                   UnicodeString name_fse = UnicodeString(type_fse.Items[j].Name);
                   UnicodeString dp = UnicodeString(p);
-                  farEditorSet->addParamAndValue(type, name_fse, dp);
+                  farEditorSet->addParamAndValue(type, name_fse, dp, def_filetype);
                 }
               }
             }
