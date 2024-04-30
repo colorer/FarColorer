@@ -260,7 +260,6 @@ class FarEditorSet
 
   unsigned int err_status = ERR_NO_ERROR;
 
-  std::shared_ptr<spdlog::logger> log;
 
   HANDLE hTimer = nullptr;
   HANDLE hTimerQueue = nullptr;

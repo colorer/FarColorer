@@ -1,6 +1,5 @@
 #include "HrcSettingsForm.h"
 #include "FarHrcSettings.h"
-#include <colorer/common/UStr.h>
 #include "tools.h"
 
 HrcSettingsForm::HrcSettingsForm(FarEditorSet* _farEditorSet, FileType* filetype)

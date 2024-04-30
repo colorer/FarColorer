@@ -1,5 +1,4 @@
 #include "FarEditor.h"
-#include <colorer/common/UStr.h>
 
 FarEditor::FarEditor(PluginStartupInfo* info, ParserFactory* pf, const UnicodeString* file_name) : info(info), parserFactory(pf)
 {
@@ -417,8 +416,8 @@ void FarEditor::locateFunction()
   int sword = cpos;
   int eword = cpos;
 
-  while (cpos < curLine.length() && (UStr::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
-    while (UStr::isLetterOrDigit(curLine[eword]) || curLine[eword] == '_') {
+  while (cpos < curLine.length() && (Character::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
+    while (Character::isLetterOrDigit(curLine[eword]) || curLine[eword] == '_') {
       if (eword == curLine.length() - 1) {
         break;
       }
@@ -426,7 +425,7 @@ void FarEditor::locateFunction()
       eword++;
     }
 
-    while (UStr::isLetterOrDigit(curLine[sword]) || curLine[sword] == '_') {
+    while (Character::isLetterOrDigit(curLine[sword]) || curLine[sword] == '_') {
       if (sword == 0) {
         break;
       }
@@ -881,7 +880,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
           auto region = item->region->getName();
 
-          wchar_t cls = UStr::toLowerCase((region)[region.indexOf(':') + 1]);
+          wchar_t cls = Character::toLowerCase((region)[region.indexOf(':') + 1]);
 
           si += _snwprintf(menuItem + si, 255 - si, L"%c ", cls);
 
@@ -1159,7 +1158,7 @@ void FarEditor::showOutliner(Outliner* outliner)
         if (flen == FILTER_SIZE || code > keys_size) {
           break;
         }
-        filter[flen] = static_cast<wchar_t>(UStr::toLowerCase(breakKeys[code].VirtualKeyCode));
+        filter[flen] = static_cast<wchar_t>(Character::toLowerCase(breakKeys[code].VirtualKeyCode));
         filter[++flen] = 0;
         break;
     }

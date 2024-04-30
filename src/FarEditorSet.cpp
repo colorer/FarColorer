@@ -1,13 +1,15 @@
 #include "FarEditorSet.h"
-#include <colorer/common/UStr.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/null_sink.h>
+#include <spdlog/spdlog.h>
 #include <farcolor.hpp>
 #include "DlgBuilder.hpp"
 #include "HrcSettingsForm.h"
 #include "FarHrcSettings.h"
 #include "SettingsControl.h"
 #include "tools.h"
+
+std::shared_ptr<spdlog::logger> logger;
 
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
@@ -986,9 +988,9 @@ void FarEditorSet::applyLogSetting()
           file_name = std::string(UStr::to_stdstr(&sLogPathExp)).append("\\").append(file_name);
         }
         spdlog::drop_all();
-        log = spdlog::basic_logger_mt("main", file_name);
-        spdlog::set_default_logger(log);
-        log->set_level(level);
+        logger = spdlog::basic_logger_mt("main", file_name);
+        spdlog::set_default_logger(logger);
+        logger->set_level(level);
       } catch (std::exception& e) {
         setEmptyLogger();
         auto error_mes = UnicodeString(e.what());
@@ -1124,9 +1126,9 @@ HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
 void FarEditorSet::setEmptyLogger()
 {
   spdlog::drop_all();
-  log = spdlog::null_logger_mt("main");
-  log->set_level(spdlog::level::off);
-  spdlog::set_default_logger(log);
+  logger = spdlog::null_logger_mt("main");
+  logger->set_level(spdlog::level::off);
+  spdlog::set_default_logger(logger);
 }
 
 int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array)
