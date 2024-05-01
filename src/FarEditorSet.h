@@ -4,7 +4,6 @@
 #include <colorer/handlers/LineRegionsSupport.h>
 #include <colorer/parsers/HRDNode.h>
 #include <colorer/viewer/TextConsoleViewer.h>
-#include <spdlog/logger.h>
 #include "ChooseTypeMenu.h"
 #include "FarEditor.h"
 #include "pcolorer.h"

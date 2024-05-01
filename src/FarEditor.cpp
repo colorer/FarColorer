@@ -434,7 +434,7 @@ void FarEditor::locateFunction()
     }
 
     UnicodeString funcname(curLine, sword + 1, eword - sword - 1);
-    spdlog::debug("FC] Letter {0}", funcname);
+    logger->debug("FC] Letter {0}", funcname);
     baseEditor->validate(-1, false);
     OutlineItem* item_found = nullptr;
     OutlineItem* item_last = nullptr;
@@ -448,7 +448,7 @@ void FarEditor::locateFunction()
     for (size_t idx = 0; idx < items_num; idx++) {
       OutlineItem* item = structOutliner->getItem(idx);
 
-      if (item->token->toUpper().indexOf(funcname.toUpper()) != -1) {
+      if (UStr::indexOfIgnoreCase(*item->token,funcname) != -1) {
         if (item->lno == (size_t) ei.CurLine) {
           item_last = item;
         }
@@ -857,7 +857,7 @@ void FarEditor::showOutliner(Outliner* outliner)
     for (i = 0; i < items_num; i++) {
       OutlineItem* item = outliner->getItem(i);
 
-      if (filter[0] == '\0' || item->token->toUpper().indexOf(UnicodeString(filter).toUpper()) != -1) {
+      if (filter[0] == '\0' || UStr::indexOfIgnoreCase(*item->token, filter) != -1) {
         auto treeLevel = Outliner::manageTree(treeStack, item->level);
 
         if (maxLevel < treeLevel) {
@@ -935,7 +935,7 @@ void FarEditor::showOutliner(Outliner* outliner)
 
     while (code != 0 && menu_size > 1 && same && plen < FILTER_SIZE) {
       plen = aflen + 1;
-      int auto_ptr = UnicodeString(menu[0].Text).toUpper().indexOf(UnicodeString(autofilter).toUpper());
+      int auto_ptr = UStr::indexOfIgnoreCase(menu[0].Text, autofilter);
 
       if (int(wcslen(menu[0].Text) - auto_ptr) < plen) {
         break;
@@ -945,7 +945,7 @@ void FarEditor::showOutliner(Outliner* outliner)
       prefix[plen] = 0;
 
       for (int j = 1; j < menu_size; j++) {
-        if (UnicodeString(menu[j].Text).toUpper().indexOf(UnicodeString(prefix).toUpper()) == -1) {
+        if (UStr::indexOfIgnoreCase(menu[j].Text,prefix) == -1) {
           same = false;
           break;
         }
@@ -1254,7 +1254,7 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   MAKE_OPAQUE(ec.Color.BackgroundColor);
   MAKE_OPAQUE(ec.Color.ForegroundColor);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
-  spdlog::debug("editor:{0}, line:{1}, start:{2}, end:{3}, color_bg:{4}, color_fg:{5}", editor_id, lno, s, e - 1, col.BackgroundColor,
+  logger->debug("editor:{0}, line:{1}, start:{2}, end:{3}, color_bg:{4}, color_fg:{5}", editor_id, lno, s, e - 1, col.BackgroundColor,
                 col.ForegroundColor);
 }
 

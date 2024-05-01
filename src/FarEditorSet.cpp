@@ -1,14 +1,13 @@
 #include "FarEditorSet.h"
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/null_sink.h>
-#include <spdlog/spdlog.h>
 #include <farcolor.hpp>
 #include "DlgBuilder.hpp"
 #include "HrcSettingsForm.h"
 #include "FarHrcSettings.h"
 #include "SettingsControl.h"
 #include "tools.h"
-
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/null_sink.h>
+#include <spdlog/spdlog.h>
 std::shared_ptr<spdlog::logger> logger;
 
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
@@ -182,7 +181,7 @@ void FarEditorSet::execMenuAction(MENU_ACTION action, FarEditor* editor)
         break;
     }
   } catch (Exception& e) {
-    spdlog::error("{0}", e.what());
+    logger->error("{0}", e.what());
     UnicodeString msg("openMenu: ");
     msg.append(e.what());
     showExceptionMessage(&msg);
@@ -215,7 +214,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
       auto hrd_name = UnicodeString(Opt.HrdName);
       regionMap = parserFactory->createStyledMapper(&DConsole, &hrd_name);
     } catch (ParserFactoryException& e) {
-      spdlog::error("{0}", e.what());
+      logger->error("{0}", e.what());
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
     }
     baseEditor.setRegionMapper(regionMap.get());
@@ -250,7 +249,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
 {
   UnicodeString group = DAutodetect;
   FileType* type = nullptr;
-  HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
+  HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
 
   if (!CurFileType) {
     Menu->SetSelected(1);
@@ -554,7 +553,7 @@ bool FarEditorSet::configure()
     Info.EditorControl(CurrentEditor, ECTL_REDRAW, 0, nullptr);
     return true;
   } catch (Exception& e) {
-    spdlog::error("{0}", e.what());
+    logger->error("{0}", e.what());
 
     UnicodeString msg("configure: ");
     msg.append(UnicodeString(e.what()));
@@ -615,7 +614,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         return 0;
       } break;
       case EE_CHANGE: {
-        //запрещено вызывать EditorControl (getCurrentEditor)
+        // запрещено вызывать EditorControl (getCurrentEditor)
         auto it_editor = farEditorInstances.find(pInfo->EditorID);
         if (it_editor != farEditorInstances.end() && it_editor->second->isColorerEnable()) {
           auto res = it_editor->second->editorEvent(pInfo->Event, pInfo->Param);
@@ -657,7 +656,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         break;
     }
   } catch (Exception& e) {
-    spdlog::error("{0}", e.what());
+    logger->error("{0}", e.what());
 
     UnicodeString msg("editorEvent: ");
     msg.append(UnicodeString(e.what()));
@@ -708,7 +707,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         auto uhrdCons = UnicodeString(hrdCons);
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, &uhrdCons);
       } catch (ParserFactoryException& e) {
-        spdlog::error("{0}", e.what());
+        logger->error("{0}", e.what());
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, nullptr);
       }
     }
@@ -718,7 +717,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         auto uhrdTm = UnicodeString(hrdTm);
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, &uhrdTm);
       } catch (ParserFactoryException& e) {
-        spdlog::error("{0}", e.what());
+        logger->error("{0}", e.what());
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, nullptr);
       }
     }
@@ -748,7 +747,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       }
     }
   } catch (Exception& e) {
-    spdlog::error("{0}", e.what());
+    logger->error("{0}", e.what());
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
     res = false;
@@ -799,20 +798,20 @@ void FarEditorSet::ReloadBase()
     try {
       regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
     } catch (ParserFactoryException& e) {
-      spdlog::error("{0}", e.what());
+      logger->error("{0}", e.what());
       regionMapper = parserFactory->createStyledMapper(&hrdClass, nullptr);
     }
-    //устанавливаем фон редактора при каждой перезагрузке схем.
+    // устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
     addEventTimer();
   } catch (SettingsControlException& e) {
-    spdlog::error("{0}", e.what());
+    logger->error("{0}", e.what());
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
     err_status = ERR_FARSETTINGS_ERROR;
     disableColorer();
   } catch (Exception& e) {
-    spdlog::error("{0}", e.what());
+    logger->error("{0}", e.what());
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
     err_status = ERR_BASE_LOAD;
@@ -937,7 +936,7 @@ void FarEditorSet::dropCurrentEditor(bool clean)
 void FarEditorSet::dropAllEditors(bool clean)
 {
   if (clean) {
-    //мы не имеем доступа к другим редакторам, кроме текущего
+    // мы не имеем доступа к другим редакторам, кроме текущего
     dropCurrentEditor(clean);
   }
   farEditorInstances.clear();
@@ -1184,7 +1183,8 @@ void FarEditorSet::disableColorerInEditor()
   auto it_editor = farEditorInstances.find(ei.EditorID);
   if (it_editor != farEditorInstances.end()) {
     it_editor->second->setFileType(nullptr);
-  }else {
+  }
+  else {
     auto* new_editor = new FarEditor(&Info, parserFactory.get(), nullptr);
     std::pair<intptr_t, FarEditor*> pair_editor(ei.EditorID, new_editor);
     farEditorInstances.emplace(pair_editor);
@@ -1229,7 +1229,8 @@ void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& nam
     const UnicodeString* default_value;
     if (def_filetype) {
       default_value = def_filetype->getParamValue(name);
-    }else {
+    }
+    else {
       default_value = defaultType->getParamValue(name);
     }
     filetype->addParam(name, *default_value);
@@ -1254,11 +1255,11 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
 
   UnicodeString command_type = UnicodeString(params->Values[0].String);
 
-  if (UnicodeString("Settings").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Settings", command_type) == 0) {
     return macroSettings(area, params);
   }
 
-  if (UnicodeString("Menu").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Menu", command_type) == 0) {
     return macroMenu(area, params);
   }
 
@@ -1267,31 +1268,31 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   }
 
-  if (UnicodeString("Types").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Types", command_type) == 0) {
     return macroTypes(area, params);
   }
 
-  if (UnicodeString("Brackets").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Brackets", command_type) == 0) {
     return macroBrackets(area, params);
   }
 
-  if (UnicodeString("Region").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Region", command_type) == 0) {
     return macroRegion(area, params);
   }
 
-  if (UnicodeString("Functions").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Functions", command_type) == 0) {
     return macroFunctions(area, params);
   }
 
-  if (UnicodeString("Errors").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Errors", command_type) == 0) {
     return macroErrors(area, params);
   }
 
-  if (UnicodeString("Editor").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("Editor", command_type) == 0) {
     return macroEditor(area, params);
   }
 
-  if (UnicodeString("ParamsOfType").caseCompare(command_type, 0) == 0) {
+  if (UStr::caseCompare("ParamsOfType", command_type) == 0) {
     return macroParams(area, params);
   }
 
@@ -1312,24 +1313,24 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
   }
   UnicodeString command = UnicodeString(params->Values[1].String);
 
-  if (UnicodeString("Main").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Main", command) == 0) {
     return configure() ? INVALID_HANDLE_VALUE : nullptr;
   }
-  if (UnicodeString("Menu").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Menu", command) == 0) {
     menuConfigure();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("Log").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Log", command) == 0) {
     return configureLogging() ? INVALID_HANDLE_VALUE : nullptr;
   }
-  if (UnicodeString("Hrc").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Hrc", command) == 0) {
     return configureHrc(area == MACROAREA_EDITOR) ? INVALID_HANDLE_VALUE : nullptr;
   }
-  if (UnicodeString("Reload").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Reload", command) == 0) {
     ReloadBase();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("Status").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Status", command) == 0) {
     auto cur_status = isEnable();
     if (params->Count > 2) {
       // change status
@@ -1341,7 +1342,7 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
     }
     return cur_status ? INVALID_HANDLE_VALUE : nullptr;
   }
-  if (UnicodeString("SaveSettings").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("SaveSettings", command) == 0) {
     SaveSettings();
     SaveLogSettings();
     FarHrcSettings p(this, parserFactory.get());
@@ -1369,11 +1370,11 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   UnicodeString command = UnicodeString(params->Values[1].String);
 
-  if (UnicodeString("Menu").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Menu", command) == 0) {
     return chooseType() ? INVALID_HANDLE_VALUE : nullptr;
   }
-  HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
-  if (UnicodeString("Set").caseCompare(command, 0) == 0) {
+  HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
+  if (UStr::caseCompare("Set", command) == 0) {
     if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
       UnicodeString new_type = UnicodeString(params->Values[2].String);
       FarEditor* editor = getCurrentEditor();
@@ -1391,7 +1392,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     }
     return nullptr;
   }
-  if (UnicodeString("Get").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Get", command) == 0) {
     FarEditor* editor = getCurrentEditor();
     if (!editor || !editor->isColorerEnable())
       return nullptr;
@@ -1409,7 +1410,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     else
       return nullptr;
   }
-  if (UnicodeString("List").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("List", command) == 0) {
     auto type_count = hrcLibrary.getFileTypesCount();
     FileType* type = nullptr;
 
@@ -1442,15 +1443,15 @@ void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   UnicodeString command = UnicodeString(params->Values[1].String);
-  if (UnicodeString("Match").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Match", command) == 0) {
     editor->matchPair();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("SelectAll").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("SelectAll", command) == 0) {
     editor->selectBlock();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("SelectIn").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("SelectIn", command) == 0) {
     editor->selectPair();
     return INVALID_HANDLE_VALUE;
   }
@@ -1468,15 +1469,15 @@ void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   UnicodeString command = UnicodeString(params->Values[1].String);
-  if (UnicodeString("Select").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Select", command) == 0) {
     editor->selectRegion();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("Show").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Show", command) == 0) {
     editor->getNameCurrentScheme();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("List").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("List", command) == 0) {
     UnicodeString region, scheme;
     editor->getCurrentRegionInfo(region, scheme);
     auto* out_params = new FarMacroValue[2];
@@ -1500,15 +1501,15 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   UnicodeString command = UnicodeString(params->Values[1].String);
-  if (UnicodeString("Show").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Show", command) == 0) {
     editor->listFunctions();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("Find").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Find", command) == 0) {
     editor->locateFunction();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("List").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("List", command) == 0) {
     auto* outliner = editor->getFunctionOutliner();
     auto items_num = outliner->itemCount();
 
@@ -1549,11 +1550,11 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
 
   UnicodeString command = UnicodeString(params->Values[1].String);
-  if (UnicodeString("Show").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Show", command) == 0) {
     editor->listErrors();
     return INVALID_HANDLE_VALUE;
   }
-  if (UnicodeString("List").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("List", command) == 0) {
     auto* outliner = editor->getErrorOutliner();
     auto items_num = outliner->itemCount();
 
@@ -1594,7 +1595,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   UnicodeString command = UnicodeString(params->Values[1].String);
 
-  if (UnicodeString("Status").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Status", command) == 0) {
     auto cur_status = editor->isColorerEnable();
     if (params->Count > 2) {
       // change status
@@ -1610,7 +1611,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
   if (!editor->isColorerEnable())
     return nullptr;
 
-  if (UnicodeString("CrossVisible").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("CrossVisible", command) == 0) {
     auto cur_style = editor->getVisibleCrossState();
     auto cur_status = editor->getCrossStatus();
 
@@ -1636,12 +1637,12 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return macroReturnValues(out_params, 2);
   }
 
-  if (UnicodeString("Refresh").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Refresh", command) == 0) {
     editor->updateHighlighting();
     return INVALID_HANDLE_VALUE;
   }
 
-  if (UnicodeString("Pair").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Pair", command) == 0) {
     // current status
     auto cur_status = editor->isDrawPairs();
     if (params->Count > 2) {
@@ -1652,7 +1653,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return macroReturnInt(cur_status);
   }
 
-  if (UnicodeString("Syntax").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Syntax", command) == 0) {
     // current status
     auto cur_status = editor->isDrawSyntax();
     if (params->Count > 2) {
@@ -1663,7 +1664,7 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     return macroReturnInt(cur_status);
   }
 
-  if (UnicodeString("Progress").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Progress", command) == 0) {
     auto* out_params = new FarMacroValue[1];
     out_params[0].Type = FMVT_INTEGER;
     out_params[0].Integer = editor->getParseProgress();
@@ -1679,9 +1680,9 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
   if (!Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
 
-  HrcLibrary& hrcLibrary= parserFactory->getHrcLibrary();
+  HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
   UnicodeString command = UnicodeString(params->Values[1].String);
-  if (UnicodeString("List").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("List", command) == 0) {
     if (params->Count > 2 && FMVT_STRING == params->Values[2].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
       auto* file_type = dynamic_cast<FileType*>(hrcLibrary.getFileType(&type));
@@ -1741,7 +1742,7 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   }
 
-  if (UnicodeString("Get").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Get", command) == 0) {
     if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
 
@@ -1764,7 +1765,7 @@ void* FarEditorSet::macroParams(FARMACROAREA area, OpenMacroInfo* params)
     return nullptr;
   }
 
-  if (UnicodeString("Set").caseCompare(command, 0) == 0) {
+  if (UStr::caseCompare("Set", command) == 0) {
     if (params->Count > 3 && FMVT_STRING == params->Values[2].Type && FMVT_STRING == params->Values[3].Type) {
       UnicodeString type = UnicodeString(params->Values[2].String);
       auto* file_type = hrcLibrary.getFileType(&type);
