@@ -23,26 +23,26 @@ INT_PTR WINAPI SettingHrcDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, 
     case DN_INITDIALOG: {
       fes->menuid = -1;
       fes->OnChangeHrc();
-      return false;  //-V601
+      return false;
     }
     case DN_BTNCLICK:
       if (IDX_CH_OK == Param1) {
         fes->OnSaveHrcParams();
-        return false;  //-V601
+        return false;
       }
       break;
     case DN_EDITCHANGE:
       if (IDX_CH_SCHEMAS == Param1) {
         fes->menuid = -1;
         fes->OnChangeHrc();
-        return true;  //-V601
+        return true;
       }
 
       break;
     case DN_LISTCHANGE:
       if (IDX_CH_PARAM_LIST == Param1) {
         fes->OnChangeParam(reinterpret_cast<intptr_t>(Param2));
-        return true;  //-V601
+        return true;
       }
       break;
     default:
@@ -112,7 +112,6 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
       num++;
       group = type->getGroup();
     }
-
   }
   return num;
 }
@@ -123,9 +122,9 @@ FarList* HrcSettingsForm::buildHrcList() const
   UnicodeString group;
   FileType* type;
 
-  auto* hrcList = new FarListItem[num]{};
+  auto* hrcList = new FarListItem[num] {};
 
-  HrcLibrary& hrcLibrary=farEditorSet->parserFactory->getHrcLibrary();
+  HrcLibrary& hrcLibrary = farEditorSet->parserFactory->getHrcLibrary();
   for (int idx = 0, i = 0;; idx++, i++) {
     type = hrcLibrary.enumerateFileTypes(idx);
 
@@ -280,10 +279,10 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
     ret = 2;
   }
   else {
-    if (value->compare(UnicodeString(value_No)) == 0) {
+    if (value->compare(value_No) == 0) {
       ret = 0;
     }
-    else if (value->compare(UnicodeString(value_Yes)) == 0) {
+    else if (value->compare(value_Yes) == 0) {
       ret = 1;
     }
     else {
@@ -313,10 +312,10 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
     ret = 2;
   }
   else {
-    if (value->compare(UnicodeString(value_False)) == 0) {
+    if (value->compare(value_False) == 0) {
       ret = 0;
     }
-    else if (value->compare(UnicodeString(value_True)) == 0) {
+    else if (value->compare(value_True) == 0) {
       ret = 1;
     }
     else {
@@ -369,16 +368,16 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
     ret = 4;
   }
   else {
-    if (value->compare(UnicodeString(value_None)) == 0) {
+    if (value->compare(value_None) == 0) {
       ret = 0;
     }
-    else if (value->compare(UnicodeString(value_Vertical)) == 0) {
+    else if (value->compare(value_Vertical) == 0) {
       ret = 1;
     }
-    else if (value->compare(UnicodeString(value_Horizontal)) == 0) {
+    else if (value->compare(value_Horizontal) == 0) {
       ret = 2;
     }
-    else if (value->compare(UnicodeString(value_Both)) == 0) {
+    else if (value->compare(value_Both) == 0) {
       ret = 3;
     }
   }
@@ -406,10 +405,10 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
     ret = 2;
   }
   else {
-    if (value->compare(UnicodeString(value_Bottom)) == 0) {
+    if (value->compare(value_Bottom) == 0) {
       ret = 0;
     }
-    else if (value->compare(UnicodeString(value_Top)) == 0) {
+    else if (value->compare(value_Top) == 0) {
       ret = 1;
     }
     else {
@@ -435,8 +434,8 @@ const UnicodeString* HrcSettingsForm::getParamDefValue(FileType* type, const Uni
   }
   else {
     auto* p = new UnicodeString("<default-");
-    p->append(UnicodeString(*value));
-    p->append(UnicodeString(">"));
+    p->append(*value);
+    p->append(">");
     return p;
   }
 }
@@ -445,7 +444,7 @@ FarList* HrcSettingsForm::buildParamsList(FileType* type) const
 {
   auto type_params = type->enumParams();
   auto default_params = farEditorSet->defaultType->enumParams();
-  type_params.insert(type_params.end(), default_params.begin(),default_params.end());
+  type_params.insert(type_params.end(), default_params.begin(), default_params.end());
   std::sort(type_params.begin(), type_params.end());
   auto last = std::unique(type_params.begin(), type_params.end());
   type_params.erase(last, type_params.end());
