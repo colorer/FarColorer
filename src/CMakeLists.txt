@@ -50,6 +50,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_RC_FLAGS -D_WIN64)
   endif()
 
+  if("${COLORER_BUILD_ARCH}" STREQUAL "ARM64")
+    # Fix build on GitHub agent (VSCMD_VER: 17.10.5 , VCToolsVersion: 14.40.33807)
+    set(LINK_FLAGS "${LINK_FLAGS} /ALTERNATENAME:__imp___std_init_once_begin_initialize=__imp_InitOnceBeginInitialize")
+    set(LINK_FLAGS "${LINK_FLAGS} /ALTERNATENAME:__imp___std_init_once_complete=__imp_InitOnceComplete")
+  endif()
+
   # xerces-c vs msxml
   add_definitions(-DNOGDI)
   # old functions
