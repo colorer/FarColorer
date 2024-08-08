@@ -1,34 +1,19 @@
-name: Build
+name: "Prebuild vcpkg"
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '.github/workflows/clean_workflow.yml'
-      - '.github/workflows/prebuild.yml'
-      - '.github/workflows/farcolorer-release.yml'
-      - 'ci/**'
-      - 'docs/**'
-      - 'scripts/**'
-      - '.clang-format'
-      - '.gitignore'
-      - 'CMakePresets.json'
-      - 'LICENSE'
-      - 'README.md'
-      - 'version4far.txt'
-  pull_request:
-    branches:
-      - master
+  schedule:
+    - cron: '0 1 * * 1,3,5'
 
 env:
   BUILD_TYPE: Release
-  X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
+  X_VCPKG_NUGET_ID_PREFIX: 'colorer'
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
 jobs:
-  build:
+  windows-vc:
+    runs-on: windows-2022
+
     strategy:
       fail-fast: false
       matrix:
@@ -38,18 +23,19 @@ jobs:
           - { build: x86,    arch: amd64_x86,   triplet: x86-windows-static-rel, }
           - { build: ARM64,  arch: amd64_arm64, triplet: arm64-windows-static-rel, }
 
-    runs-on: windows-2022
+    name: windows-${{ matrix.arch }}
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          # fetch all for vcpkg versions functionality
           fetch-depth: 0
 
       - name: Install vcpkg
         run: |
-          cd external\colorer\external\vcpkg
+          cd external\vcpkg
           .\bootstrap-vcpkg.bat
 
       - name: Add C++ build tools to PATH
@@ -57,10 +43,10 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
 
-      - name: Setup NuGet Credentials for cache
+      - name: Setup NuGet Credentials for vpckg cache
         shell: bash
         run: >
-          `$VCPKG_INSTALLATION_ROOT/vcpkg fetch nuget | tail -n 1`
+          `$GITHUB_WORKSPACE/external/vcpkg/vcpkg fetch nuget | tail -n 1`
           sources add
           -source "https://nuget.pkg.github.com/colorer/index.json"
           -storepasswordincleartext
@@ -71,12 +57,9 @@ jobs:
       - name: Create Build folder
         run: mkdir -p _build
 
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
-
       - name: Configure CMake
         shell: bash
+        # add -DVCPKG_INSTALL_OPTIONS="--debug" for debug output
         run: >
           cmake -S . -B _build -G "Ninja"
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE
@@ -87,8 +70,4 @@ jobs:
           -DVCPKG_OVERLAY_TRIPLETS=$GITHUB_WORKSPACE/external/colorer/external/vcpkg-triplets
           -DVCPKG_FEATURE_FLAGS=manifests,versions
 
-      - name: Build
-        shell: bash
-        run: cmake --build _build --config $BUILD_TYPE -j ${{ steps.cpu-cores.outputs.count }}
-      
-      
+# dependencies are being built at the configuration stage

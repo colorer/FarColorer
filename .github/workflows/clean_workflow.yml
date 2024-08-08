@@ -1,0 +1,46 @@
+name: Delete old artifacts
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *'
+# Run monthly, at 00:00 on the 1st day of month.
+
+jobs:
+  clean_wf_runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 30
+          keep_minimum_runs: 6
+          check_pullrequest_exist: true
+
+  clean_packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+
+      - name: install python packages
+        working-directory: ./ci/clean_packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: execute clean script
+        working-directory: ./ci/clean_packages
+        env:
+          ORG_NAME: colorer
+          PACKAGE_MASK: ^farcolorer_.*
+          PACKAGE_TYPE: nuget
+          GITHUB_TOKEN: ${{ secrets.PACKAGES_GITHUB_TOKEN }}
+        run: python main.py
