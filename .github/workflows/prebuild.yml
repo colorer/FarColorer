@@ -35,7 +35,7 @@ jobs:
 
       - name: Install vcpkg
         run: |
-          cd external\vcpkg
+          cd external\colorer\external\vcpkg
           .\bootstrap-vcpkg.bat
 
       - name: Add C++ build tools to PATH
@@ -46,7 +46,7 @@ jobs:
       - name: Setup NuGet Credentials for vpckg cache
         shell: bash
         run: >
-          `$GITHUB_WORKSPACE/external/vcpkg/vcpkg fetch nuget | tail -n 1`
+          `$GITHUB_WORKSPACE/external/colorer/external/vcpkg/vcpkg fetch nuget | tail -n 1`
           sources add
           -source "https://nuget.pkg.github.com/colorer/index.json"
           -storepasswordincleartext
