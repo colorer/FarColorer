@@ -12,8 +12,8 @@
 #endif
 
 #define PLUGIN_VER_MAJOR 1
-#define PLUGIN_VER_MINOR 4
-#define PLUGIN_VER_PATCH 28
+#define PLUGIN_VER_MINOR 5
+#define PLUGIN_VER_PATCH 0
 #define PLUGIN_DESC L"FarColorer - Syntax Highlighting for Far Manager 3" PLATFORM
 #define PLUGIN_NAME L"FarColorer"
 #define PLUGIN_FILENAME L"colorer.dll"

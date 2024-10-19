@@ -1,6 +1,22 @@
 ﻿				История изменений FarColorer.
 	Информацию, об изменениях в библиотеке схем (базах) смотрите в файле base\CHANGELOG.md
 
+Версия 1.5.0 . 19.10.2024
+    1. Ломающее изменение: замена xerces-c на libxml2
+        если вы использовали в своем catalog.xml или файлах схемы external entity с переменными окружения, то необходимо
+        изменить их описание.
+        Было <!ENTITY catalog-console SYSTEM "%FARHOME%/Plugins/FarColorer/base/hrd/catalog-console.xml">
+        Стало <!ENTITY catalog-console SYSTEM "env:$FARHOME/Plugins/FarColorer/base/hrd/catalog-console.xml">
+
+        Было <!ENTITY catalog-console SYSTEM "jar:%FARHOME%/data/common-allpacked.zip!hrd/catalog-console.xml">
+        Стало <!ENTITY catalog-console SYSTEM "jar:$FARHOME/data/common-allpacked.zip!hrd/catalog-console.xml">
+
+        Т.е. в случае указания на обычный файл с использованием переменных окружения, необходимо добавить env: и меняем формат переменной.
+        Для архивов остается jar:, но меняется формат переменной.
+    2. Замена spdlog на собственную реализацию логирования.
+    3. Исправлена возможное падение при изменении размера окна если курсор стоит на парном элементе. (проявлялось в macOS)
+    4. Выравнивание кода ядра с far2l
+
 Версия 1.4.28 . 01.05.2024
     1. Исправлена ошибка включения плагина
     2. Исправлена "скрытая" ошибка при работе с парными элементами (кавычками, строками). Была всегда, но проявлялась при использовании clang.
