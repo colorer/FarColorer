@@ -1,4 +1,5 @@
 #include "HrcSettingsForm.h"
+#include <algorithm>
 #include "FarHrcSettings.h"
 #include "tools.h"
 

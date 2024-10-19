@@ -2,7 +2,7 @@
 #define FARCOLORER_FARHRCSETTINGS_H
 
 #include <colorer/ParserFactory.h>
-#include <xercesc/dom/DOM.hpp>
+#include "colorer/xml/XMLNode.h"
 #include "FarEditorSet.h"
 
 const wchar_t FarCatalogXml[] = L"\\base\\catalog.xml";
@@ -31,7 +31,7 @@ class FarHrcSettings
   void loadUserHrd(const UnicodeString* filename);
 
  private:
-  void UpdatePrototype(xercesc::DOMElement* elem);
+  void UpdatePrototype(const XMLNode& elem);
 
   ParserFactory* parserFactory;
   FarEditorSet* farEditorSet;

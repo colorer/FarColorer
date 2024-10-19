@@ -1,14 +1,14 @@
 #include "FarEditorSet.h"
+#include <algorithm>
 #include <farcolor.hpp>
 #include "DlgBuilder.hpp"
-#include "HrcSettingsForm.h"
 #include "FarHrcSettings.h"
+#include "HrcSettingsForm.h"
 #include "SettingsControl.h"
+#include "SimpleLogger.h"
 #include "tools.h"
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/null_sink.h>
-#include <spdlog/spdlog.h>
-std::shared_ptr<spdlog::logger> logger;
+
+std::unique_ptr<SimpleLogger> logger;
 
 VOID CALLBACK ColorThread(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 
@@ -181,7 +181,7 @@ void FarEditorSet::execMenuAction(MENU_ACTION action, FarEditor* editor)
         break;
     }
   } catch (Exception& e) {
-    logger->error("{0}", e.what());
+    COLORER_LOG_ERROR("%", e.what());
     UnicodeString msg("openMenu: ");
     msg.append(e.what());
     showExceptionMessage(&msg);
@@ -214,7 +214,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
       auto hrd_name = UnicodeString(Opt.HrdName);
       regionMap = parserFactory->createStyledMapper(&DConsole, &hrd_name);
     } catch (ParserFactoryException& e) {
-      logger->error("{0}", e.what());
+      COLORER_LOG_ERROR("%", e.what());
       regionMap = parserFactory->createStyledMapper(&DConsole, nullptr);
     }
     baseEditor.setRegionMapper(regionMap.get());
@@ -553,7 +553,7 @@ bool FarEditorSet::configure()
     Info.EditorControl(CurrentEditor, ECTL_REDRAW, 0, nullptr);
     return true;
   } catch (Exception& e) {
-    logger->error("{0}", e.what());
+    COLORER_LOG_ERROR("%", e.what());
 
     UnicodeString msg("configure: ");
     msg.append(UnicodeString(e.what()));
@@ -656,7 +656,7 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
         break;
     }
   } catch (Exception& e) {
-    logger->error("{0}", e.what());
+    COLORER_LOG_ERROR("%", e.what());
 
     UnicodeString msg("editorEvent: ");
     msg.append(UnicodeString(e.what()));
@@ -707,7 +707,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         auto uhrdCons = UnicodeString(hrdCons);
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, &uhrdCons);
       } catch (ParserFactoryException& e) {
-        logger->error("{0}", e.what());
+        COLORER_LOG_ERROR("%", e.what());
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DConsole, nullptr);
       }
     }
@@ -717,7 +717,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
         auto uhrdTm = UnicodeString(hrdTm);
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, &uhrdTm);
       } catch (ParserFactoryException& e) {
-        logger->error("{0}", e.what());
+        COLORER_LOG_ERROR("%", e.what());
         regionMapperLocal = parserFactoryLocal->createStyledMapper(&DRgb, nullptr);
       }
     }
@@ -747,7 +747,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
       }
     }
   } catch (Exception& e) {
-    logger->error("{0}", e.what());
+    COLORER_LOG_ERROR("%", e.what());
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
     res = false;
@@ -798,20 +798,20 @@ void FarEditorSet::ReloadBase()
     try {
       regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
     } catch (ParserFactoryException& e) {
-      logger->error("{0}", e.what());
+      COLORER_LOG_ERROR("%", e.what());
       regionMapper = parserFactory->createStyledMapper(&hrdClass, nullptr);
     }
     // устанавливаем фон редактора при каждой перезагрузке схем.
     SetBgEditor();
     addEventTimer();
   } catch (SettingsControlException& e) {
-    logger->error("{0}", e.what());
+    COLORER_LOG_ERROR("%", e.what());
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
     err_status = ERR_FARSETTINGS_ERROR;
     disableColorer();
   } catch (Exception& e) {
-    logger->error("{0}", e.what());
+    COLORER_LOG_ERROR("%", e.what());
     auto error_mes = UnicodeString(e.what());
     showExceptionMessage(&error_mes);
     err_status = ERR_BASE_LOAD;
@@ -979,18 +979,16 @@ void FarEditorSet::applyLogSetting()
 {
   if (Opt.LogEnabled) {
     auto u_loglevel = UnicodeString(Opt.logLevel);
-    auto level = spdlog::level::from_str(UStr::to_stdstr(&u_loglevel));
-    if (level != spdlog::level::off) {
+    auto level = SimpleLogger::getLogLevel(UStr::to_stdstr(&u_loglevel));
+    if (level != Logger::LOG_OFF) {
       try {
         std::string file_name = "farcolorer.log";
         if (Opt.LogPath[0] != '\0') {
           UnicodeString sLogPathExp(*PathToFullS(Opt.LogPath, false));
           file_name = std::string(UStr::to_stdstr(&sLogPathExp)).append("\\").append(file_name);
         }
-        spdlog::drop_all();
-        logger = spdlog::basic_logger_mt("main", file_name);
-        spdlog::set_default_logger(logger);
-        logger->set_level(level);
+        logger = std::make_unique<SimpleLogger>(file_name,level);
+        Log::registerLogger(*logger);
       } catch (std::exception& e) {
         setEmptyLogger();
         auto error_mes = UnicodeString(e.what());
@@ -1079,7 +1077,7 @@ void FarEditorSet::showExceptionMessage(const UnicodeString* message)
 
 bool FarEditorSet::configureLogging()
 {
-  const wchar_t* levelList[] = {L"error", L"warning", L"info", L"debug"};
+  const wchar_t* levelList[] = {L"error", L"warning", L"info", L"debug", L"trace"};
   const auto level_count = std::size(levelList);
 
   int log_level = 0;
@@ -1125,10 +1123,7 @@ HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
 
 void FarEditorSet::setEmptyLogger()
 {
-  spdlog::drop_all();
-  logger = spdlog::null_logger_mt("main");
-  logger->set_level(spdlog::level::off);
-  spdlog::set_default_logger(logger);
+  Log::removeLogger();
 }
 
 int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array)

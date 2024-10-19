@@ -47,9 +47,7 @@ endif()
 #====================================================
 # core library
 find_package(ICU COMPONENTS uc data REQUIRED)
-find_package(XercesC REQUIRED)
-find_package(spdlog REQUIRED)
-find_package(fmt REQUIRED)
+find_package(LibXml2 REQUIRED)
 if(COLORER_USE_ZIPINPUTSOURCE)
   find_package(ZLIB REQUIRED)
   find_package(unofficial-minizip REQUIRED)

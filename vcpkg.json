@@ -2,19 +2,6 @@
   "name": "farcolorer",
   "version": "1.4.28",
   "dependencies": [
-    {
-      "name": "xerces-c",
-      "version>=": "3.2.5#0"
-    },
-    {
-      "name": "spdlog",
-      "version>=": "1.12.0"
-    },
-    "minizip",
-    {
-      "name": "fmt",
-      "version>=": "10.2.1"
-    },
     "minizip",
     {
       "name": "icu",
@@ -23,6 +10,10 @@
       "features": [
         "data-archive"
       ]
+    },
+    {
+      "name": "libxml2",
+      "default-features": false
     }
   ],
   "builtin-baseline": "53bef8994c541b6561884a8395ea35715ece75db"

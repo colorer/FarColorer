@@ -434,7 +434,7 @@ void FarEditor::locateFunction()
     }
 
     UnicodeString funcname(curLine, sword + 1, eword - sword - 1);
-    logger->debug("FC] Letter {0}", funcname);
+    COLORER_LOG_DEBUG("FC] Letter %", funcname);
     baseEditor->validate(-1, false);
     OutlineItem* item_found = nullptr;
     OutlineItem* item_last = nullptr;
@@ -1254,7 +1254,7 @@ void FarEditor::addFARColor(intptr_t lno, intptr_t s, intptr_t e, const FarColor
   MAKE_OPAQUE(ec.Color.BackgroundColor);
   MAKE_OPAQUE(ec.Color.ForegroundColor);
   info->EditorControl(editor_id, ECTL_ADDCOLOR, 0, &ec);
-  logger->debug("editor:{0}, line:{1}, start:{2}, end:{3}, color_bg:{4}, color_fg:{5}", editor_id, lno, s, e - 1, col.BackgroundColor,
+  COLORER_LOG_TRACE("editor:%, line:%, start:%, end:%, color_bg:%, color_fg:%", editor_id, lno, s, e - 1, col.BackgroundColor,
                 col.ForegroundColor);
 }
 

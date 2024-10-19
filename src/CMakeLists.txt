@@ -15,6 +15,7 @@ set(SRC_CPP
     HrcSettingsForm.h
     SettingsControl.cpp
     SettingsControl.h
+    SimpleLogger.h
     const_strings.h
     pcolorer.cpp
     pcolorer.h
