@@ -978,6 +978,7 @@ void FarEditorSet::ReadSettings()
 void FarEditorSet::applyLogSetting()
 {
   if (Opt.LogEnabled) {
+    Log::removeLogger();
     auto u_loglevel = UnicodeString(Opt.logLevel);
     auto level = SimpleLogger::getLogLevel(UStr::to_stdstr(&u_loglevel));
     if (level != Logger::LOG_OFF) {

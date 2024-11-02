@@ -14,21 +14,32 @@ class SimpleLogger : public Logger
   SimpleLogger(const std::string& filename, const std::string& log_level)
   {
     current_level = getLogLevel(log_level);
-    ofs.open(filename.c_str(), std::ofstream::out | std::ofstream::app);
+    log_filename = filename;
+    open_logfile();
   }
 
   SimpleLogger(const std::string& filename, const Logger::LogLevel log_level)
   {
     current_level = log_level;
-    ofs.open(filename.c_str(), std::ofstream::out | std::ofstream::app);
+    log_filename = filename;
+    open_logfile();
   }
 
-  ~SimpleLogger() override
+  ~SimpleLogger() override { ofs.close(); }
+
+  void open_logfile()
   {
-    ofs.close();
+    if (current_level == LOG_OFF || ofs.is_open()) {
+      return;
+    }
+    ofs.open(log_filename.c_str(), std::ofstream::out | std::ofstream::app);
+    if (!ofs.is_open()) {
+      throw std::runtime_error("Could not open file to write logs: " + log_filename);
+    }
   }
 
-  void log(Logger::LogLevel level, const char* /*filename_in*/, int /*line_in*/, const char* /*funcname_in*/, const char* message)
+  void log(Logger::LogLevel level, const char* /*filename_in*/, int /*line_in*/, const char* /*funcname_in*/,
+           const char* message)
   {
     if (level > current_level) {
       return;
@@ -59,17 +70,19 @@ class SimpleLogger : public Logger
   void setLogLevel(Logger::LogLevel level)
   {
     ofs.flush();
+    if (current_level == Logger::LOG_OFF) {
+      current_level = level;
+      open_logfile();
+    }
     current_level = level;
   }
 
-  void flush()
-  {
-    ofs.flush();
-  }
+  void flush() { ofs.flush(); }
 
  private:
   std::ofstream ofs;
   Logger::LogLevel current_level;
+  std::string log_filename;
 };
 
 #endif  // SIMPLELOGGER_H
