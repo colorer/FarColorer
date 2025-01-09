@@ -73,4 +73,8 @@ HOOK WakeAllConditionVariable               ,  4, :dword
 HOOK TryAcquireSRWLockExclusive             ,  4, :dword
 HOOK InitializeSRWLock                      ,  4, :dword
 
+; added to original file for FarColorer
+HOOK GetLocaleInfoEx                        , 16, :dword, :dword, :dword, :dword
+HOOK LocaleNameToLCID                       ,  8, :dword, :dword
+
 end

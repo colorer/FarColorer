@@ -478,6 +478,44 @@ extern "C" BOOL WINAPI WRAPPER(FlsFree)(DWORD FlsIndex)
 	CREATE_AND_RETURN(modules::kernel32, FlsIndex);
 }
 
+// added to original file for FarColorer
+#include "yy_thunks_impl.h"
+
+extern "C" int WINAPI WRAPPER(GetLocaleInfoEx)(LPCWSTR lpLocaleName, LCTYPE LCType, LPWSTR lpLCData, int cchData)
+{
+	struct implementation
+	{
+		static int WINAPI impl(LPCWSTR lpLocaleName, LCTYPE LCType, LPWSTR lpLCData, int cchData)
+		{
+			auto Locale = LocaleNameToLCID(lpLocaleName, 0);
+
+			if (Locale == 0)
+			{
+				SetLastError(ERROR_INVALID_PARAMETER);
+				return 0;
+			}
+			return GetLocaleInfoW(Locale, LCType, lpLCData, cchData);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, lpLocaleName, LCType, lpLCData, cchData);
+}
+
+extern "C" LCID WINAPI WRAPPER(LocaleNameToLCID)(LPCWSTR lpName, DWORD dwFlags)
+{
+	struct implementation
+	{
+		static LCID WINAPI impl(LPCWSTR lpName, DWORD dwFlags)
+		{
+			return local_LocaleNameToLCID(lpName, dwFlags);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, lpName, dwFlags);
+}
+
+// end FarColorer
+
 #undef CREATE_AND_RETURN
 #undef WRAPPER
 
