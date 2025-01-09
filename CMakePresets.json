@@ -14,11 +14,7 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/external/colorer/external/vcpkg-ports",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}/far/plugins/FarColorer"
-      },
-      "environment": {
-        "VCPKG_FEATURE_FLAGS": "manifests,versions"
       }
     },
     {
@@ -34,7 +30,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_COMPILER": "cl",
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "COLORER_BUILD_ARCH": "x64"
       }
     },
@@ -51,7 +46,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_COMPILER": "cl",
-        "VCPKG_TARGET_TRIPLET": "x86-windows-static",
         "COLORER_BUILD_ARCH": "x86"
       }
     }

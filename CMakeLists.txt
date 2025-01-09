@@ -7,6 +7,16 @@ cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0091 NEW)
 
 #====================================================
+# vcpkg settings
+#====================================================
+# set before declare project(...)
+set(COLORER_BUILD_ARCH x64 CACHE STRING "Build architecture")
+if(NOT VCPKG_TARGET_TRIPLET)
+  set(VCPKG_TARGET_TRIPLET "${COLORER_BUILD_ARCH}-windows-static-rel" CACHE STRING "vcpkg triplet")
+endif()
+message(STATUS "Using vcpkg triplet: ${VCPKG_TARGET_TRIPLET}")
+
+#====================================================
 project(farcolorer CXX)
 
 #====================================================
@@ -32,7 +42,6 @@ message("FarColorer configurations for IDE: ${CMAKE_CONFIGURATION_TYPES}")
 # global settings
 #====================================================
 option(FARCOLORER_LEGACY "Build to work on older platforms" ON)
-set(COLORER_BUILD_ARCH x64 CACHE STRING "Build architecture")
 
 if(FARCOLORER_LEGACY)
   set(COLORER_BUILD_OLD_COMPILERS ON CACHE STRING "Use own implementation for standard library")
