@@ -40,6 +40,18 @@ if(MSVC)
   else()
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
   endif()
+
+
+  # support old AMD on winxp
+  if("${COLORER_BUILD_ARCH}" STREQUAL "x86")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:IA32")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:IA32")
+  endif()
+
+  # for vc_crt_fix_impl.cpp
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:threadSafeInit-")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:threadSafeInit-")
+
 endif()
 
 #====================================================
