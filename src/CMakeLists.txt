@@ -34,12 +34,12 @@ if(MSVC)
   set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
   set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
   set(MASM_DEFINES "")
-  if (${CMAKE_CL_64} STREQUAL "0")
+  if(${CMAKE_CL_64} STREQUAL "0")
     find_program(MASM_EXECUTABLE ml)
-  else ()
+  else()
     find_program(MASM_EXECUTABLE ml64)
     set(MASM_DEFINES "/DX64")
-  endif ()
+  endif()
 
   add_custom_command(
       OUTPUT ${ASM_OBJECT}
@@ -51,7 +51,7 @@ if(MSVC)
   set(SRC_CPP ${SRC_CPP}
       ${PROJECT_SOURCE_DIR}/external/far3sdk/vc_crt_fix_impl.cpp
       ${ASM_OBJECTS}
-      )
+  )
 endif()
 
 #====================================================
@@ -103,14 +103,14 @@ add_library(farcolorer SHARED ${SRC_FILES})
 target_link_libraries(farcolorer colorer_lib)
 target_include_directories(farcolorer
     PRIVATE ${PROJECT_SOURCE_DIR}/external/far3sdk/
-    )
+)
 
 set_target_properties(farcolorer PROPERTIES OUTPUT_NAME "colorer")
 set_target_properties(farcolorer PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
-    )
+)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
   target_compile_options(farcolorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_DEBUG}>)
