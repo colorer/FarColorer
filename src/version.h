@@ -12,12 +12,12 @@
 #endif
 
 #define PLUGIN_VER_MAJOR 1
-#define PLUGIN_VER_MINOR 5
-#define PLUGIN_VER_PATCH 1
+#define PLUGIN_VER_MINOR 6
+#define PLUGIN_VER_PATCH 0
 #define PLUGIN_DESC L"FarColorer - Syntax Highlighting for Far Manager 3" PLATFORM
 #define PLUGIN_NAME L"FarColorer"
 #define PLUGIN_FILENAME L"colorer.dll"
-#define PLUGIN_COPYRIGHT L"(c) 1999-2009 Igor Russkih, (c) Aleksey Dobrunov 2009-2024"
+#define PLUGIN_COPYRIGHT L"(c) 1999-2009 Igor Russkih, (c) Aleksey Dobrunov 2009-2025"
 
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
