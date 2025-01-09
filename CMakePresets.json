@@ -34,6 +34,16 @@
       }
     },
     {
+      "name": "x64-debug-full",
+      "description": "icu",
+      "inherits": [
+        "x64-debug"
+      ],
+      "cacheVariables": {
+        "FARCOLORER_LEGACY": "OFF"
+      }
+    },
+    {
       "name": "x86-debug",
       "description": "Sets x86 arch, compilers, build type",
       "inherits": [
