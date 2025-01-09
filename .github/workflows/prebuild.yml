@@ -7,7 +7,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  X_VCPKG_NUGET_ID_PREFIX: 'colorer'
+  X_VCPKG_NUGET_ID_PREFIX: 'farcolorer'
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
 jobs:
