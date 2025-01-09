@@ -15,8 +15,8 @@ mkdir %PROJECT_BUIILDDIR% > NUL
 mkdir %INSTALL_DIR% > NUL
 
 pushd %PROJECT_BUIILDDIR%
-@call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %PROJECT_ARCH%
-cmake.exe %PROJECT_ROOT% -G "NMake Makefiles" -DCOLORER_BUILD_ARCH=%PROJECT_ARCH% -DCMAKE_BUILD_TYPE=%PROJECT_CONFIG% -DCMAKE_TOOLCHAIN_FILE=%PROJECT_ROOT%/external/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=%PROJECT_ARCH%-windows-static -DVCPKG_OVERLAY_PORTS=%PROJECT_ROOT%/external/vcpkg-ports -DVCPKG_FEATURE_FLAGS=versions -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR%
+@call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" %PROJECT_ARCH%
+cmake.exe %PROJECT_ROOT% -G "NMake Makefiles" -DCOLORER_BUILD_ARCH=%PROJECT_ARCH% -DCMAKE_BUILD_TYPE=%PROJECT_CONFIG% -DCMAKE_TOOLCHAIN_FILE=%PROJECT_ROOT%/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=%PROJECT_ARCH%-windows-static  -DVCPKG_OVERLAY_PORTS=%PROJECT_ROOT%/external/colorer/external/vcpkg-ports -DVCPKG_OVERLAY_TRIPLETS=%PROJECT_ROOT%/external/colorer/external/vcpkg-triplets -DVCPKG_FEATURE_FLAGS=manifest,versions -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR%
 cmake --build . --config %PROJECT_CONFIG%
 cmake --install . --config %PROJECT_CONFIG%
 echo See result in directory %INSTALL_DIR%
