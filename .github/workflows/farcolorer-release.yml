@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ x64, x86 , arm64 ]
+        build: [ x64, x86, arm64 ]
+        legacy: [ON, OFF]
         include:
           - { build: x64,    arch: amd64 }
           - { build: x86,    arch: amd64_x86 }
@@ -62,6 +63,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE
           -DCOLORER_BUILD_ARCH=${{ matrix.build }}
           -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DFARCOLORER_LEGACY=${{ matrix.legacy }}
           -DCMAKE_INSTALL_PREFIX=./install/FarColorer
 
       - name: Build
@@ -82,12 +84,24 @@ jobs:
           zipfilename="$(find . -name "colorer-base*.zip")"
           7z x $zipfilename -o./install/FarColorer/base
 
+      - name: Set suffix
+        if: matrix.legacy == 'ON'
+        shell: bash
+        run: |
+          echo "suffix=" >> $GITHUB_ENV
+
+      - name: Set suffix
+        if: matrix.legacy == 'OFF'
+        shell: bash
+        run: |
+          echo "suffix=.icu" >> $GITHUB_ENV
+
       - name: Set the pack file name
         shell: bash
         run: |
-          echo "farcolorer_name=FarColorer.${{ matrix.build }}.${{ github.ref_name }}.7z" >> $GITHUB_ENV
-          echo "farcolorer_pdb_name=FarColorer.${{ matrix.build }}.${{ github.ref_name }}.pdb.7z" >> $GITHUB_ENV
-          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.build }}.${{ github.ref_name }}.wobase.7z" >> $GITHUB_ENV
+          echo "farcolorer_name=FarColorer.${{ matrix.build }}${{env.suffix}}.${{ github.ref_name }}.7z" >> $GITHUB_ENV
+          echo "farcolorer_pdb_name=FarColorer.${{ matrix.build }}${{env.suffix}}.${{ github.ref_name }}.pdb.7z" >> $GITHUB_ENV
+          echo "farcolorer_withoutbase_name=FarColorer.${{ matrix.build }}${{env.suffix}}.${{ github.ref_name }}.wobase.7z" >> $GITHUB_ENV
 
       - name: pack plugin
         working-directory: build
