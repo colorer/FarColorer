@@ -13,8 +13,9 @@
     },
     {
       "name": "libxml2",
+      "version>=": "2.11.9",
       "default-features": false
     }
   ],
-  "builtin-baseline": "53bef8994c541b6561884a8395ea35715ece75db"
+  "builtin-baseline": "3c5b9b4ea547898b1ae2d82edbeeda1333c212e9"
 }
