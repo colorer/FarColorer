@@ -3,6 +3,7 @@ rem Example script for build FarColorer
 set PROJECT_ROOT=%~dp0..
 set PROJECT_CONFIG=Release
 set VCPKG_ROOT=%PROJECT_ROOT%/external/colorer/external/vcpkg
+set LEGACY=ON
 
 set PROJECT_ARCH=x64
 
@@ -17,7 +18,7 @@ mkdir %INSTALL_DIR% > NUL
 
 pushd %PROJECT_BUIILDDIR%
 @call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" %PROJECT_ARCH%
-cmake.exe %PROJECT_ROOT% -G "NMake Makefiles" -DCOLORER_BUILD_ARCH=%PROJECT_ARCH% -DCMAKE_BUILD_TYPE=%PROJECT_CONFIG% -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR%
+cmake.exe %PROJECT_ROOT% -G "NMake Makefiles" -DCOLORER_BUILD_ARCH=%PROJECT_ARCH% -DCMAKE_BUILD_TYPE=%PROJECT_CONFIG% -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DFARCOLORER_LEGACY=%LEGACY% -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR%
 cmake --build . --config %PROJECT_CONFIG%
 cmake --install . --config %PROJECT_CONFIG%
 echo See result in directory %INSTALL_DIR%

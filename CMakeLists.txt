@@ -16,6 +16,12 @@ if(NOT VCPKG_TARGET_TRIPLET)
 endif()
 message(STATUS "Using vcpkg triplet: ${VCPKG_TARGET_TRIPLET}")
 
+option(FARCOLORER_LEGACY "Build to work on older platforms" ON)
+if(NOT FARCOLORER_LEGACY)
+  set(VCPKG_MANIFEST_DIR "${PROJECT_SOURCE_DIR}/manifest/full" CACHE STRING "Use own implementation for standard library")
+endif()
+message(STATUS "Using vcpkg manifest: ${VCPKG_MANIFEST_DIR}/vcpkg.json")
+
 #====================================================
 project(farcolorer CXX)
 
@@ -41,7 +47,6 @@ message("FarColorer configurations for IDE: ${CMAKE_CONFIGURATION_TYPES}")
 #====================================================
 # global settings
 #====================================================
-option(FARCOLORER_LEGACY "Build to work on older platforms" ON)
 
 if(FARCOLORER_LEGACY)
   set(COLORER_BUILD_OLD_COMPILERS ON CACHE STRING "Use own implementation for standard library")
@@ -74,7 +79,10 @@ endif()
 # find dependences
 #====================================================
 # core library
-find_package(ICU COMPONENTS uc data REQUIRED)
+if(NOT FARCOLORER_LEGACY)
+  find_package(ICU COMPONENTS uc data REQUIRED)
+endif()
+
 find_package(LibXml2 REQUIRED)
 if(COLORER_USE_ZIPINPUTSOURCE)
   find_package(ZLIB REQUIRED)
