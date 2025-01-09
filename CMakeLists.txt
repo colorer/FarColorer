@@ -31,7 +31,13 @@ message("FarColorer configurations for IDE: ${CMAKE_CONFIGURATION_TYPES}")
 #====================================================
 # global settings
 #====================================================
+option(FARCOLORER_LEGACY "Build to work on older platforms" ON)
 set(COLORER_BUILD_ARCH x64 CACHE STRING "Build architecture")
+
+if(FARCOLORER_LEGACY)
+  set(COLORER_BUILD_OLD_COMPILERS ON CACHE STRING "Use own implementation for standard library")
+  set(COLORER_USE_ICU_STRINGS OFF CACHE STRING "Use ICU library for strings")
+endif()
 
 if(MSVC)
   # set global Visual C++ runtime
@@ -41,16 +47,17 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
   endif()
 
+  if(FARCOLORER_LEGACY)
+    # support old AMD on winxp
+    if("${COLORER_BUILD_ARCH}" STREQUAL "x86")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:IA32")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:IA32")
+    endif()
 
-  # support old AMD on winxp
-  if("${COLORER_BUILD_ARCH}" STREQUAL "x86")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:IA32")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:IA32")
+    # for vc_crt_fix_impl.cpp
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:threadSafeInit-")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:threadSafeInit-")
   endif()
-
-  # for vc_crt_fix_impl.cpp
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:threadSafeInit-")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:threadSafeInit-")
 
 endif()
 

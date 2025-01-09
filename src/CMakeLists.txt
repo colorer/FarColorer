@@ -29,7 +29,7 @@ set(SRC_DEF pcolorer3.def)
 #====================================================
 # support win2k, winxp
 #====================================================
-if(MSVC)
+if(FARCOLORER_LEGACY AND MSVC)
   set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/external/far3sdk/vc_crt_fix.asm)
   set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
   set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
