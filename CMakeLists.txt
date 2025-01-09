@@ -18,7 +18,7 @@ message(STATUS "Using vcpkg triplet: ${VCPKG_TARGET_TRIPLET}")
 
 option(FARCOLORER_LEGACY "Build to work on older platforms" ON)
 if(NOT FARCOLORER_LEGACY)
-  set(VCPKG_MANIFEST_DIR "${PROJECT_SOURCE_DIR}/manifest/full" CACHE STRING "Use own implementation for standard library")
+  set(VCPKG_MANIFEST_DIR "${CMAKE_HOME_DIRECTORY}/manifest/full" CACHE STRING "Use own implementation for standard library")
 endif()
 message(STATUS "Using vcpkg manifest: ${VCPKG_MANIFEST_DIR}/vcpkg.json")
 
