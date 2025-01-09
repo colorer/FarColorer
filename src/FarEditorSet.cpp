@@ -18,7 +18,7 @@ FarEditorSet::FarEditorSet()
 
   UnicodeString module(Info.ModuleName);
   auto pos = module.lastIndexOf('\\');
-  pos = module.lastIndexOf('\\', 0, pos);
+  pos = module.lastIndexOf('\\', pos);
   pluginPath = std::make_unique<UnicodeString>(module, 0, pos);
 
   hTimerQueue = CreateTimerQueue();

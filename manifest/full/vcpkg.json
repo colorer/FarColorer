@@ -4,12 +4,23 @@
   "dependencies": [
     "minizip",
     {
+      "name": "icu",
+      "default-features": false,
+      "features": [
+        "data-archive"
+      ]
+    },
+    {
       "name": "libxml2",
       "default-features": false
     }
   ],
   "overrides":
   [
+    {
+      "name": "icu",
+      "version": "72.1"
+    },
     {
       "name": "libxml2",
       "version": "2.11.9"

@@ -27,6 +27,34 @@ set(SRC_CPP
 set(SRC_DEF pcolorer3.def)
 
 #====================================================
+# support win2k, winxp
+#====================================================
+if(FARCOLORER_LEGACY AND MSVC AND NOT "${COLORER_BUILD_ARCH}" STREQUAL "arm64")
+  set(ASM_SOURCE ${PROJECT_SOURCE_DIR}/external/far3sdk/vc_crt_fix.asm)
+  set(ASM_OBJECT ${CMAKE_CURRENT_BINARY_DIR}/vc_crt_fix.obj)
+  set(ASM_OBJECTS ${ASM_OBJECTS} ${ASM_OBJECT})
+  set(MASM_DEFINES "")
+  if(${CMAKE_CL_64} STREQUAL "0")
+    find_program(MASM_EXECUTABLE ml)
+  else()
+    find_program(MASM_EXECUTABLE ml64)
+    set(MASM_DEFINES "/DX64")
+  endif()
+
+  add_custom_command(
+      OUTPUT ${ASM_OBJECT}
+      COMMAND ${MASM_EXECUTABLE}
+      ARGS /c ${MASM_DEFINES} /Fo ${ASM_OBJECT} ${ASM_SOURCE}
+      DEPENDS ${ASM_SOURCE}
+  )
+
+  set(SRC_CPP ${SRC_CPP}
+      ${PROJECT_SOURCE_DIR}/external/far3sdk/vc_crt_fix_impl.cpp
+      ${ASM_OBJECTS}
+  )
+endif()
+
+#====================================================
 # common flags
 #====================================================
 
@@ -47,18 +75,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(LINK_FLAGS "${LINK_FLAGS} /incremental:no /OPT:REF /OPT:ICF /debug /ltcg")
   endif()
 
+  add_definitions(-DUNICODE)
+
   if("${COLORER_BUILD_ARCH}" STREQUAL "x64")
     set(CMAKE_RC_FLAGS -D_WIN64)
   endif()
 
-  if("${COLORER_BUILD_ARCH}" STREQUAL "ARM64")
-    # Fix build on GitHub agent (VSCMD_VER: 17.10.5 , VCToolsVersion: 14.40.33807)
-    set(LINK_FLAGS "${LINK_FLAGS} /ALTERNATENAME:__imp___std_init_once_begin_initialize=__imp_InitOnceBeginInitialize")
-    set(LINK_FLAGS "${LINK_FLAGS} /ALTERNATENAME:__imp___std_init_once_complete=__imp_InitOnceComplete")
-  endif()
-
-  # xerces-c vs msxml
-  add_definitions(-DNOGDI)
   # old functions
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
@@ -75,14 +97,14 @@ add_library(farcolorer SHARED ${SRC_FILES})
 target_link_libraries(farcolorer colorer_lib)
 target_include_directories(farcolorer
     PRIVATE ${PROJECT_SOURCE_DIR}/external/far3sdk/
-    )
+)
 
 set_target_properties(farcolorer PROPERTIES OUTPUT_NAME "colorer")
 set_target_properties(farcolorer PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
-    )
+)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
   target_compile_options(farcolorer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${MAIN_FLAGS_CXX_DEBUG}>)
