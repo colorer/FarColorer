@@ -27,24 +27,20 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
 
       - name: Add C++ build tools to PATH
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
 
-      - name: Install vcpkg
+      - name: Setup vcpkg
         run: |
-          cd external\colorer\external\vcpkg
-          .\bootstrap-vcpkg.bat
+          bootstrap-vcpkg.bat
 
       - name: Setup NuGet Credentials for vpckg cache
         shell: bash
         run: >
-          `$VCPKG_INSTALLATION_ROOT/vcpkg fetch nuget | tail -n 1`
+          `vcpkg fetch nuget | tail -n 1`
           sources add
           -source "https://nuget.pkg.github.com/colorer/index.json"
           -storepasswordincleartext
@@ -62,7 +58,7 @@ jobs:
           cmake $GITHUB_WORKSPACE -G "Ninja"
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE
           -DCOLORER_BUILD_ARCH=${{ matrix.build }}
-          -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
           -DFARCOLORER_LEGACY=${{ matrix.legacy }}
           -DCMAKE_INSTALL_PREFIX=./install/FarColorer
 
