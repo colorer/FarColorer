@@ -12,9 +12,22 @@ FarColorer is included in Far Manager since 2013 year (about Far build 3.0.3200)
 
 Other version you must find in [Releases](https://github.com/colorer/FarColorer/releases) on github. New release is auto-created after create tag in git. 
 
-FarColorer has two main verions:
- * 1.3.x - version with Windows XP support. Latest version included in Far Manager 1.3.26 in Far Manager 3.0.5796 (2021.05.09). This version has partial support. See in branch v1.3.x.
- * 1.4.x and higher - current fully supported version, worked only on actual platforms. It included in Far Manager since 3.0.5797 (2021.05.10).
+FarColorer has two main versions - legacy and modern. On [release page](https://github.com/colorer/FarColorer/releases) files of the modern version has suffix `icu`.
+For example, FarColorer.x64.icu.v1.6.1.7z - modern , FarColorer.x64.v1.6.1.7z - legacy.
+
+### Legacy version
+
+ * Included in the Far Manager distribution
+ * Support Windows XP (broken between 1.4.x and 1.5.x)
+ * Used legacy Unicode string which the library was originally built on
+ * Used ghc::filesystem instead of std::filesystem
+
+### Modern version
+
+ * Installed manually
+ * Do not support older platform, like as Windows XP
+ * Used ICU Unicode string
+ * Used std::filesystem
 
 For checking installed version press F9 - Options - Plugins configuration, select FarColorer and press F3.
 
@@ -25,25 +38,48 @@ To build plugin from source, you will need:
   * Visual Studio 2019 or higher
   * git
   * cmake 3.15 or higher
+  * vcpkg
 
 Download the source from git repository:
 
-    git clone https://github.com/colorer/FarColorer.git --recursive
+```bash
+git clone https://github.com/colorer/FarColorer.git --recursive
+```
 
-Setup vcpkg
+Setup vcpkg, or use the preset (set env VCPKG_ROOT)
 
-    cd FarColorer
-    ./external/colorer/external/vcpkg/bootstrap-vcpkg.bat
+```bash
+git clone https://github.com/microsoft/vcpkg.git
+set VCPKG_ROOT=<path_to_vcpkg>
+%VCPKG_ROOT%\bootstrap-vcpkg.bat -disableMetrics
+```
+
+#### IDE
+
+Open folder with Colorer-library from IDE like as Clion, VSCode, VisualStudio.
+In the CMakePresets file.json configurations have been created for standard builds.
+
+#### Console
+
+Setup Visual Studio environment (x64 or x86/arm64 for platforms)
+
+```bash
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+```
 
 Build colorer and dependency, if they are not in the local cache:
 
-    mkdir build
-    cd build
-    cmake -S .. -G "Visual Studio 16 2019" -DCMAKE_TOOLCHAIN_FILE=../external/colorer/external/vcpkg/scripts/buildsystems/vcpkg.cmake -DCOLORER_BUILD_ARCH=x64
-    farcolorer.sln
+```bash
 
-For x86 platform use `-DVCPKG_TARGET_TRIPLET=x86-windows-static` and `-DCOLORER_BUILD_ARCH=x86`.
-Once builded, the dependencies will be cached in the local cache.
+mkdir build
+cd build
+cmake -S .. -G "NMake Makefiles" -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DCOLORER_BUILD_ARCH=x64
+cmake --build .
+```
+
+For x86 platform use `-DVCPKG_TARGET_TRIPLET=x86-windows-static -DCOLORER_BUILD_ARCH=x86`, arm64 - `-DVCPKG_TARGET_TRIPLET=arm64-windows-static -DCOLORER_BUILD_ARCH=arm64`.
+
+Once built, the dependencies will be cached in the local cache.
 
 Links
 ========================
