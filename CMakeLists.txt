@@ -12,7 +12,7 @@ cmake_policy(SET CMP0091 NEW)
 # set before declare project(...)
 set(COLORER_BUILD_ARCH x64 CACHE STRING "Build architecture")
 if(NOT VCPKG_TARGET_TRIPLET)
-  set(VCPKG_TARGET_TRIPLET "${COLORER_BUILD_ARCH}-windows-static-rel" CACHE STRING "vcpkg triplet")
+  set(VCPKG_TARGET_TRIPLET "${COLORER_BUILD_ARCH}-windows-static" CACHE STRING "vcpkg triplet")
 endif()
 message(STATUS "Using vcpkg triplet: ${VCPKG_TARGET_TRIPLET}")
 

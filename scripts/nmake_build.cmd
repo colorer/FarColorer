@@ -2,7 +2,6 @@ rem Example script for build FarColorer
 @echo off
 set PROJECT_ROOT=%~dp0..
 set PROJECT_CONFIG=Release
-set VCPKG_ROOT=%PROJECT_ROOT%/external/colorer/external/vcpkg
 set LEGACY=ON
 
 set PROJECT_ARCH=x64
