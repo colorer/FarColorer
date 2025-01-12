@@ -25,8 +25,13 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo* gInfo)
   gInfo->Version = MAKEFARVERSION(PLUGIN_VER_MAJOR, PLUGIN_VER_MINOR, PLUGIN_VER_PATCH, 0, VS_RELEASE);
   gInfo->Guid = MainGuid;
   gInfo->Title = PLUGIN_NAME;
-  gInfo->Description = L"Syntax highlighting in Far editor";
   gInfo->Author = L"Igor Ruskih, Dobrunov Aleksey, Eugene Efremov";
+
+#ifdef COLORER_FEATURE_ICU
+  gInfo->Description = L"Syntax highlighting in Far editor (ICU)";
+#else
+  gInfo->Description = L"Syntax highlighting in Far editor";
+#endif
 }
 
 /**
