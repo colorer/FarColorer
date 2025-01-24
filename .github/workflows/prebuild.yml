@@ -19,9 +19,9 @@ jobs:
       matrix:
         build: [ x64, x86, arm64 ]
         include:
-          - { build: x64,    arch: amd64 }
-          - { build: x86,    arch: amd64_x86 }
-          - { build: arm64,  arch: amd64_arm64 }
+          - { build: x64,    arch: amd64,       triplet: x64-win-static-rel}
+          - { build: x86,    arch: amd64_x86,   triplet: x86-win-static-rel}
+          - { build: arm64,  arch: amd64_arm64, triplet: arm64-win-static-rel}
 
     name: windows-${{ matrix.arch }}
 
@@ -63,6 +63,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE
           -DCOLORER_BUILD_ARCH=${{ matrix.build }}
           -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
           -DFARCOLORER_LEGACY=OFF
 
 # dependencies are being built at the configuration stage

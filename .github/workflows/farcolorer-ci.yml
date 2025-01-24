@@ -35,9 +35,9 @@ jobs:
         build: [ x64, x86, arm64 ]
         legacy: [ON, OFF]
         include:
-          - { build: x64,   arch: amd64 }
-          - { build: x86,   arch: amd64_x86 }
-          - { build: arm64, arch: amd64_arm64 }
+          - { build: x64,    arch: amd64,       triplet: x64-win-static-rel}
+          - { build: x86,    arch: amd64_x86,   triplet: x86-win-static-rel}
+          - { build: arm64,  arch: amd64_arm64, triplet: arm64-win-static-rel}
 
     runs-on: windows-2022
 
@@ -83,6 +83,7 @@ jobs:
           -DCOLORER_BUILD_ARCH=${{ matrix.build }}
           -DFARCOLORER_LEGACY=${{ matrix.legacy }}
           -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
 
       - name: Build
         shell: bash
