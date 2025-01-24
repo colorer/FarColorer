@@ -3,13 +3,7 @@
   "version": "1.6.3",
   "dependencies": [
     "minizip",
-    {
-      "name": "icu",
-      "default-features": false,
-      "features": [
-        "data-archive"
-      ]
-    },
+    "icu",
     {
       "name": "libxml2",
       "default-features": false
@@ -19,11 +13,11 @@
   [
     {
       "name": "icu",
-      "version": "72.1"
+      "version": "72.1#5"
     },
     {
       "name": "libxml2",
-      "version": "2.11.9"
+      "version": "2.11.9#1"
     }
   ],
   "builtin-baseline": "3c5b9b4ea547898b1ae2d82edbeeda1333c212e9"
