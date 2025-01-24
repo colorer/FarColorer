@@ -17,14 +17,14 @@ For example, FarColorer.x64.icu.v1.6.1.7z - modern , FarColorer.x64.v1.6.1.7z - 
 
 ### Legacy version
 
- * Included in the Far Manager distribution
+ * Installed manually
  * Support Windows XP (broken between 1.4.x and 1.5.x)
  * Used legacy Unicode string which the library was originally built on
  * Used ghc::filesystem instead of std::filesystem
 
 ### Modern version
 
- * Installed manually
+ * Included in the Far Manager distribution
  * Do not support older platform, like as Windows XP
  * Used ICU Unicode string
  * Used std::filesystem
@@ -77,7 +77,7 @@ cmake -S .. -G "NMake Makefiles" -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/bui
 cmake --build .
 ```
 
-For x86 platform use `-DVCPKG_TARGET_TRIPLET=x86-windows-static -DCOLORER_BUILD_ARCH=x86`, arm64 - `-DVCPKG_TARGET_TRIPLET=arm64-windows-static -DCOLORER_BUILD_ARCH=arm64`.
+For x86 platform use `-DCOLORER_BUILD_ARCH=x86`, arm64 - `-DCOLORER_BUILD_ARCH=arm64`.
 
 Once built, the dependencies will be cached in the local cache.
 
