@@ -206,7 +206,7 @@ UnicodeString* ChooseTypeMenu::GenerateName(const FileType* fType)
   else {
     s->append(" ");
   }
-  s->append(" ").append(fType->getDescription());
+  s->append(" ").append(fType->getGroup()).append(": ").append(fType->getDescription());
 
   return s;
 }
