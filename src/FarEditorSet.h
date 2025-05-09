@@ -189,7 +189,7 @@ class FarEditorSet
   /** FAR localized messages */
   static const wchar_t* GetMsg(int msg);
   /** Applies the current settings for editor*/
-  void applySettingsToEditor(FarEditor* editor);
+  void applySettingsToEditor(FarEditor* editor) const;
   /** writes settings in the registry*/
   void SaveSettings() const;
   void SaveLogSettings() const;
@@ -223,25 +223,25 @@ class FarEditorSet
   static FarEditorSet::MENU_ACTION showMenu(bool plugin_enabled, bool editor_enabled);
   void execMenuAction(MENU_ACTION action, FarEditor* editor);
 
-  void* macroSettings(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroMenu(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroTypes(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroBrackets(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroRegion(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroFunctions(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroErrors(FARMACROAREA area, OpenMacroInfo* params);
-  void* macroEditor(FARMACROAREA area, OpenMacroInfo* params);
+  void* macroSettings(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroMenu(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroTypes(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroBrackets(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroRegion(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroFunctions(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroErrors(FARMACROAREA area, const OpenMacroInfo* params);
+  void* macroEditor(FARMACROAREA area, const OpenMacroInfo* params);
   void* macroParams(FARMACROAREA area, OpenMacroInfo* params);
 
   void disableColorerInEditor();
   void enableColorerInEditor();
-  void FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const;
+  void FillTypeMenu(ChooseTypeMenu* Menu, const FileType* CurFileType) const;
   static UnicodeString* getCurrentFileName();
 
   static int getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array);
   // filetype "default"
   FileType* defaultType = nullptr;
-  void addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value, const FileType* def_filetype = nullptr);
+  void addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value, const FileType* def_filetype = nullptr) const;
 
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;

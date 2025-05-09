@@ -49,8 +49,9 @@ void FarEditorSet::menuConfigure()
 
   while (true) {
     shMenu[prev_id].Flags = MIF_SELECTED;
-    menu_id = (int) Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(mSettings), nullptr, L"settingsmenu",
-                              nullptr, nullptr, shMenu, std::size(shMenu));
+    menu_id = static_cast<int>(Info.Menu(&MainGuid, &ConfigMenu, -1, -1, 0, FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE,
+                                         GetMsg(mSettings), nullptr, L"settingsmenu", nullptr, nullptr, shMenu,
+                                         std::size(shMenu)));
     switch (menu_id) {
       case -1:
         return;
@@ -80,8 +81,9 @@ void FarEditorSet::menuConfigure()
 FarEditorSet::MENU_ACTION FarEditorSet::showMenu(bool plugin_enabled, bool editor_enabled)
 {
   if (plugin_enabled && editor_enabled) {
-    int iMenuItems[] = {mListTypes,         mMatchPair,      mSelectBlock, mSelectPair,      mListFunctions, mFindErrors, mSelectRegion,
-                        mCurrentRegionName, mLocateFunction, -1,           mUpdateHighlight, mReloadBase,    mConfigure};
+    int iMenuItems[] = {mListTypes,       mMatchPair,    mSelectBlock,       mSelectPair,     mListFunctions,
+                        mFindErrors,      mSelectRegion, mCurrentRegionName, mLocateFunction, -1,
+                        mUpdateHighlight, mReloadBase,   mConfigure};
     const size_t menu_size = std::size(iMenuItems);
     FarMenuItem menuElements[menu_size] {};
 
@@ -96,8 +98,8 @@ FarEditorSet::MENU_ACTION FarEditorSet::showMenu(bool plugin_enabled, bool edito
       }
     }
 
-    intptr_t menu_id =
-        Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr, menuElements, menu_size);
+    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu",
+                                 nullptr, nullptr, menuElements, menu_size);
     if (menu_id != -1)
       return static_cast<MENU_ACTION>(menu_id);
   }
@@ -105,8 +107,8 @@ FarEditorSet::MENU_ACTION FarEditorSet::showMenu(bool plugin_enabled, bool edito
     FarMenuItem menuElements[1] {};
     menuElements[0].Flags = MIF_SELECTED;
     menuElements[0].Text = GetMsg(mConfigure);
-    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr, menuElements,
-                                 std::size(menuElements));
+    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu",
+                                 nullptr, nullptr, menuElements, std::size(menuElements));
     if (menu_id != -1)
       return MENU_ACTION::CONFIGURE;
   }
@@ -116,8 +118,8 @@ FarEditorSet::MENU_ACTION FarEditorSet::showMenu(bool plugin_enabled, bool edito
     menuElements[1].Flags |= MIF_SEPARATOR;
     menuElements[2].Text = GetMsg(mReloadBase);
     menuElements[3].Text = GetMsg(mConfigure);
-    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu", nullptr, nullptr, menuElements,
-                                 std::size(menuElements));
+    intptr_t menu_id = Info.Menu(&MainGuid, &PluginMenu, -1, -1, 0, FMENU_WRAPMODE, GetMsg(mName), nullptr, L"menu",
+                                 nullptr, nullptr, menuElements, std::size(menuElements));
 
     switch (menu_id) {
       case 0:
@@ -227,7 +229,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     baseEditor.setMaxBlockSize(maxBlockSize);
 
     // initial event
-    baseEditor.lineCountEvent((int) textLinesStore.getLineCount());
+    baseEditor.lineCountEvent(static_cast<int>(textLinesStore.getLineCount()));
     // computing background color
     unsigned int background = 0x1F;
     const StyledRegion* rd = StyledRegion::cast(regionMap->getRegionDefine(UnicodeString(region_DefText)));
@@ -237,7 +239,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
     }
 
     // File viewing in console window
-    TextConsoleViewer viewer(&baseEditor, &textLinesStore, (unsigned short) background);
+    TextConsoleViewer viewer(&baseEditor, &textLinesStore, static_cast<unsigned short>(background));
     viewer.view();
   } catch (Exception& e) {
     auto error_mes = UnicodeString(e.what());
@@ -245,7 +247,7 @@ void FarEditorSet::viewFile(const UnicodeString& path)
   }
 }
 
-void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) const
+void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, const FileType* CurFileType) const
 {
   UnicodeString group = DAutodetect;
   FileType* type = nullptr;
@@ -268,8 +270,7 @@ void FarEditorSet::FillTypeMenu(ChooseTypeMenu* Menu, FileType* CurFileType) con
     }
 
     size_t i;
-    const UnicodeString* v;
-    v = dynamic_cast<FileType*>(type)->getParamValue(UnicodeString(param_Favorite));
+    const UnicodeString* v = dynamic_cast<FileType*>(type)->getParamValue(UnicodeString(param_Favorite));
     if (v && v->compare(UnicodeString(value_True)) == 0) {
       i = Menu->AddFavorite(type);
     }
@@ -326,8 +327,9 @@ bool FarEditorSet::chooseType()
   struct FarKey BreakKeys[3] = {VK_INSERT, 0, VK_DELETE, 0, VK_F4, 0};
   intptr_t BreakCode;
   while (true) {
-    intptr_t i = Info.Menu(&MainGuid, &FileChooseMenu, -1, -1, 0, FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT, GetMsg(mSelectSyntax), bottom,
-                           L"filetypechoose", BreakKeys, &BreakCode, menu.getItems(), menu.getItemsCount());
+    intptr_t i =
+        Info.Menu(&MainGuid, &FileChooseMenu, -1, -1, 0, FMENU_WRAPMODE | FMENU_AUTOHIGHLIGHT, GetMsg(mSelectSyntax),
+                  bottom, L"filetypechoose", BreakKeys, &BreakCode, menu.getItems(), menu.getItemsCount());
 
     if (i >= 0) {
       if (BreakCode == 0) {
@@ -355,25 +357,24 @@ bool FarEditorSet::chooseType()
         }
 
         FarDialogItem KeyAssignDlgData[] = {
-            {DI_DOUBLEBOX, 3, 1, 30, 4, 0, nullptr, nullptr, 0, GetMsg(mKeyAssignDialogTitle)},
-            {DI_TEXT, -1, 2, 0, 2, 0, nullptr, nullptr, 0, GetMsg(mKeyAssignTextTitle)},
-            {DI_EDIT, 5, 3, 28, 3, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON, L""},
+            {DI_DOUBLEBOX,  3, 1, 30, 4, 0, nullptr, nullptr,                             0, GetMsg(mKeyAssignDialogTitle)},
+            {     DI_TEXT, -1, 2,  0, 2, 0, nullptr, nullptr,                             0,   GetMsg(mKeyAssignTextTitle)},
+            {     DI_EDIT,  5, 3, 28, 3, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON,                           L""},
         };
 
-        const UnicodeString* v;
-        v = menu.GetFileType(i)->getParamValue(UnicodeString(param_HotKey));
+        const UnicodeString* v = menu.GetFileType(i)->getParamValue(UnicodeString(param_HotKey));
         if (v && v->length()) {
           key = std::wstring(UStr::to_stdwstr(v));
           KeyAssignDlgData[2].Data = key.c_str();
         }
 
-        HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData, std::size(KeyAssignDlgData), 0, 0,
-                                      KeyDialogProc, nullptr);
+        HANDLE hDlg = Info.DialogInit(&MainGuid, &AssignKeyDlg, -1, -1, 34, 6, L"keyassign", KeyAssignDlgData,
+                                      std::size(KeyAssignDlgData), 0, 0, KeyDialogProc, nullptr);
         intptr_t res = Info.DialogRun(hDlg);
 
         if (res != -1) {
-          KeyAssignDlgData[2].Data =
-              static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr))));
+          KeyAssignDlgData[2].Data = static_cast<const wchar_t*>(
+              trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, 2, nullptr))));
           auto ftype = menu.GetFileType(i);
           auto param_name = UnicodeString(param_HotKey);
           auto hotkey = UnicodeString(KeyAssignDlgData[2].Data);
@@ -425,15 +426,15 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
   auto* fes = reinterpret_cast<FarEditorSet*>(Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, nullptr));
 
   if (DN_BTNCLICK == Msg && fes->settingWindow.okButtonConfig == Param1) {
-    const auto* temp = static_cast<const wchar_t*>(
-        trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.catalogEdit, nullptr))));
-    const auto* userhrd = static_cast<const wchar_t*>(
-        trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrdEdit, nullptr))));
-    const auto* userhrc = static_cast<const wchar_t*>(
-        trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrcEdit, nullptr))));
+    const auto* temp = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(
+        Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.catalogEdit, nullptr))));
+    const auto* userhrd = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(
+        Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrdEdit, nullptr))));
+    const auto* userhrc = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(
+        Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrcEdit, nullptr))));
 
-    int CurPosCons = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr);
-    int CurPosTm = (int) Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr);
+    int CurPosCons = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr));
+    int CurPosTm = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr));
 
     int k = static_cast<int>(Info.SendDlgMessage(hDlg, DM_GETCHECK, fes->settingWindow.turnOff, nullptr));
 
@@ -441,8 +442,10 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
       // не проверяем настройки у отключенного плагина
       return false;
     }
-    return !fes->TestLoadBase(temp, userhrd, userhrc, UStr::to_stdwstr(&fes->hrd_con_instances.at(CurPosCons)->hrd_name).c_str(),
-                              UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false, FarEditorSet::HRC_MODE::HRCM_BOTH);
+    return !fes->TestLoadBase(temp, userhrd, userhrc,
+                              UStr::to_stdwstr(&fes->hrd_con_instances.at(CurPosCons)->hrd_name).c_str(),
+                              UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false,
+                              FarEditorSet::HRC_MODE::HRCM_BOTH);
   }
 
   return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -486,7 +489,8 @@ bool FarEditorSet::configure()
       flag_disable = DIF_DISABLE;
     }
     Builder.AddText(mHRDName);
-    Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
+    Builder.AddComboBox(&current_style, nullptr, 30, console_style.data(), console_style.size(),
+                        DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
     settingWindow.hrdCons = Builder.GetLastID();
 
     Builder.AddCheckbox(mTrueMod, &Opt.TrueModOn);
@@ -508,7 +512,8 @@ bool FarEditorSet::configure()
       flag_disable = DIF_DISABLE;
     }
     Builder.AddText(mHRDNameTrueMod);
-    Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
+    Builder.AddComboBox(&current_rstyle, nullptr, 30, rgb_style.data(), rgb_style.size(),
+                        DIF_LISTWRAPMODE | DIF_DROPDOWNLIST | flag_disable);
     settingWindow.hrdTM = Builder.GetLastID();
 
     Builder.ColumnBreak();
@@ -522,7 +527,8 @@ bool FarEditorSet::configure()
     Builder.AddText(mCrossText);
     const wchar_t* cross_style[] = {GetMsg(mCrossVert), GetMsg(mCrossHoriz), GetMsg(mCrossBoth)};
     int cross_style_id = Opt.CrossStyle - 1;
-    Builder.AddComboBox(&cross_style_id, nullptr, 25, cross_style, std::size(cross_style), DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+    Builder.AddComboBox(&cross_style_id, nullptr, 25, cross_style, std::size(cross_style),
+                        DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
     Builder.EndColumns();
     Builder.AddSeparator(mPerfomance);
@@ -534,8 +540,10 @@ bool FarEditorSet::configure()
 
     if (Builder.ShowDialog()) {
       if (flag_disable == 0) {
-        wcsncpy(Opt.HrdName, UStr::to_stdwstr(&hrd_con_instances.at(current_style)->hrd_name).c_str(), std::size(Opt.HrdName));
-        wcsncpy(Opt.HrdNameTm, UStr::to_stdwstr(&hrd_rgb_instances.at(current_rstyle)->hrd_name).c_str(), std::size(Opt.HrdNameTm));
+        wcsncpy(Opt.HrdName, UStr::to_stdwstr(&hrd_con_instances.at(current_style)->hrd_name).c_str(),
+                std::size(Opt.HrdName));
+        wcsncpy(Opt.HrdNameTm, UStr::to_stdwstr(&hrd_rgb_instances.at(current_rstyle)->hrd_name).c_str(),
+                std::size(Opt.HrdNameTm));
       }
       if (cross_style_id + 1 != Opt.CrossStyle)
         Opt.CrossStyle = cross_style_id + 1;
@@ -667,8 +675,8 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
   return 0;
 }
 
-bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons,
-                                const wchar_t* hrdTm, const bool full, const HRC_MODE hrc_mode)
+bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath,
+                                const wchar_t* hrdCons, const wchar_t* hrdTm, const bool full, const HRC_MODE hrc_mode)
 {
   bool res = true;
   const wchar_t* marr[2] = {GetMsg(mName), GetMsg(mReloading)};
@@ -904,7 +912,7 @@ void FarEditorSet::enableColorer()
   ReloadBase();
 }
 
-void FarEditorSet::applySettingsToEditor(FarEditor* editor)
+void FarEditorSet::applySettingsToEditor(FarEditor* editor) const
 {
   if (editor->isColorerEnable()) {
     editor->setTrueMod(Opt.TrueModOn);
@@ -988,7 +996,7 @@ void FarEditorSet::applyLogSetting()
           UnicodeString sLogPathExp(*PathToFullS(Opt.LogPath, false));
           file_name = std::string(UStr::to_stdstr(&sLogPathExp)).append("\\").append(file_name);
         }
-        logger = std::make_unique<SimpleLogger>(file_name,level);
+        logger = std::make_unique<SimpleLogger>(file_name, level);
         Log::registerLogger(*logger);
       } catch (std::exception& e) {
         setEmptyLogger();
@@ -1073,7 +1081,8 @@ void FarEditorSet::showExceptionMessage(const UnicodeString* message)
 {
   auto str_mes = UStr::to_stdwstr(message);
   const wchar_t* exceptionMessage[3] = {GetMsg(mName), str_mes.c_str(), GetMsg(mDie)};
-  Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], std::size(exceptionMessage), 1);
+  Info.Message(&MainGuid, &ErrorMessage, FMSG_WARNING, L"exception", &exceptionMessage[0], std::size(exceptionMessage),
+               1);
 }
 
 bool FarEditorSet::configureLogging()
@@ -1085,7 +1094,7 @@ bool FarEditorSet::configureLogging()
 
   for (size_t i = 0; i < level_count; ++i) {
     if (UnicodeString(levelList[i]) == UnicodeString(Opt.logLevel)) {
-      log_level = (int) i;
+      log_level = static_cast<int>(i);
       break;
     }
   }
@@ -1093,7 +1102,8 @@ bool FarEditorSet::configureLogging()
   PluginDialogBuilder Builder(Info, MainGuid, LoggingConfig, mLogging, L"configlog");
   Builder.AddCheckbox(mLogTurnOff, &Opt.LogEnabled);
   Builder.AddSeparator();
-  FarDialogItem* box = Builder.AddComboBox(&log_level, Opt.logLevel, 10, levelList, level_count, DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+  FarDialogItem* box =
+      Builder.AddComboBox(&log_level, Opt.logLevel, 10, levelList, level_count, DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
   Builder.AddTextBefore(box, mLogLevel);
   Builder.AddText(mLogPath);
   Builder.AddEditField(Opt.LogPath, MAX_PATH, 28, L"logpath");
@@ -1109,7 +1119,7 @@ bool FarEditorSet::configureLogging()
 
 HANDLE FarEditorSet::openFromCommandLine(const struct OpenInfo* oInfo)
 {
-  auto* ocli = (OpenCommandLineInfo*) oInfo->Data;
+  auto* ocli = reinterpret_cast<OpenCommandLineInfo*>(oInfo->Data);
   // file name, which we received
   const wchar_t* file = ocli->CommandLine;
 
@@ -1127,7 +1137,8 @@ void FarEditorSet::setEmptyLogger()
   Log::removeLogger();
 }
 
-int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances, std::vector<const wchar_t*>* out_array)
+int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<const HrdNode*>* hrd_instances,
+                                         std::vector<const wchar_t*>* out_array)
 {
   size_t hrd_count = hrd_instances->size();
   auto current_style = 0;
@@ -1162,7 +1173,7 @@ int FarEditorSet::getHrdArrayWithCurrent(const wchar_t* current, std::vector<con
     }
 
     if (UnicodeString(current).compare(hrd_node->hrd_name) == 0) {
-      current_style = (int) i;
+      current_style = static_cast<int>(i);
     }
   }
 
@@ -1208,7 +1219,8 @@ void FarEditorSet::enableColorerInEditor()
 void FarEditorSet::addEventTimer()
 {
   if (!hTimer) {
-    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 200, Opt.ThreadBuildPeriod, 0);
+    CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) ColorThread, nullptr, 200, Opt.ThreadBuildPeriod,
+                          0);
   }
 }
 
@@ -1219,7 +1231,8 @@ void FarEditorSet::removeEventTimer()
   hTimer = nullptr;
 }
 
-void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value, const FileType* def_filetype)
+void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value,
+                                    const FileType* def_filetype) const
 {
   if (filetype->getParamValue(name) == nullptr) {
     const UnicodeString* default_value;
@@ -1238,8 +1251,8 @@ void FarEditorSet::addParamAndValue(FileType* filetype, const UnicodeString& nam
 
 HANDLE FarEditorSet::openFromMacro(const struct OpenInfo* oInfo)
 {
-  auto area = (FARMACROAREA) Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr);
-  auto* mi = (OpenMacroInfo*) oInfo->Data;
+  auto area = static_cast<FARMACROAREA>(Info.MacroControl(&MainGuid, MCTL_GETAREA, 0, nullptr));
+  auto* mi = reinterpret_cast<OpenMacroInfo*>(oInfo->Data);
   return execMacro(area, mi);
 }
 
@@ -1295,7 +1308,7 @@ void* FarEditorSet::execMacro(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroSettings(FARMACROAREA area, const OpenMacroInfo* params)
 {
   (void) area;
 
@@ -1348,7 +1361,7 @@ void* FarEditorSet::macroSettings(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroMenu(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroMenu(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR)
     return nullptr;
@@ -1360,7 +1373,7 @@ void* FarEditorSet::macroMenu(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroTypes(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
@@ -1413,7 +1426,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
     auto* array = new FarMacroValue[type_count];
 
     for (size_t idx = 0; idx < type_count; idx++) {
-      type = hrcLibrary.enumerateFileTypes((unsigned int) idx);
+      type = hrcLibrary.enumerateFileTypes(static_cast<unsigned int>(idx));
       if (type == nullptr) {
         break;
       }
@@ -1429,7 +1442,7 @@ void* FarEditorSet::macroTypes(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroBrackets(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
@@ -1455,7 +1468,7 @@ void* FarEditorSet::macroBrackets(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroRegion(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
@@ -1487,7 +1500,7 @@ void* FarEditorSet::macroRegion(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroFunctions(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
@@ -1536,7 +1549,7 @@ void* FarEditorSet::macroFunctions(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroErrors(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
@@ -1581,7 +1594,7 @@ void* FarEditorSet::macroErrors(FARMACROAREA area, OpenMacroInfo* params)
   return nullptr;
 }
 
-void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
+void* FarEditorSet::macroEditor(FARMACROAREA area, const OpenMacroInfo* params)
 {
   if (area != MACROAREA_EDITOR || !Opt.rEnabled || FMVT_STRING != params->Values[1].Type)
     return nullptr;
@@ -1614,13 +1627,15 @@ void* FarEditorSet::macroEditor(FARMACROAREA area, OpenMacroInfo* params)
     if (params->Count > 2) {
       // change status
       int val = static_cast<int>(macroGetValue(params->Values + 2));
-      if (val >= static_cast<int>(FarEditor::CROSS_STATUS::CROSS_OFF) && val <= static_cast<int>(FarEditor::CROSS_STATUS::CROSS_INSCHEME))
+      if (val >= static_cast<int>(FarEditor::CROSS_STATUS::CROSS_OFF) &&
+          val <= static_cast<int>(FarEditor::CROSS_STATUS::CROSS_INSCHEME))
         editor->setCrossState(val, Opt.CrossStyle);
     }
     if (params->Count > 3) {
       // change style
       int val = static_cast<int>(macroGetValue(params->Values + 3));
-      if (val >= static_cast<int>(FarEditor::CROSS_STYLE::CSTYLE_VERT) && val <= static_cast<int>(FarEditor::CROSS_STYLE::CSTYLE_BOTH))
+      if (val >= static_cast<int>(FarEditor::CROSS_STYLE::CSTYLE_VERT) &&
+          val <= static_cast<int>(FarEditor::CROSS_STYLE::CSTYLE_BOTH))
         editor->setCrossStyle(val);
     }
 
