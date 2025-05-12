@@ -706,7 +706,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     auto def_type = hrcLibraryLocal.getFileType(UnicodeString(name_DefaultScheme));
     FarHrcSettings p(this, parserFactoryLocal.get());
     p.loadUserHrd(userHrdPathS.get());
-    p.loadUserHrc(userHrdPathS.get());
+    p.loadUserHrc(userHrcPathS.get());
     p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile(def_type);
 
