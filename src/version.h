@@ -21,7 +21,7 @@
 
 #define PLUGIN_VER_MAJOR 1
 #define PLUGIN_VER_MINOR 6
-#define PLUGIN_VER_PATCH 7
+#define PLUGIN_VER_PATCH 8
 #define PLUGIN_DESC L"FarColorer - Syntax Highlighting for Far Manager 3" PLATFORM USTRING
 #define PLUGIN_NAME L"FarColorer"
 #define PLUGIN_FILENAME L"colorer.dll"
