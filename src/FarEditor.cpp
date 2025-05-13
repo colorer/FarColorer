@@ -235,14 +235,39 @@ void FarEditor::setRegionMapper(RegionMapper* rs)
 {
   baseEditor->setRegionMapper(rs);
   rdBackground = StyledRegion::cast(baseEditor->rd_def_Text);
-  horzCrossColor = convert(StyledRegion::cast(baseEditor->rd_def_HorzCross));
-  vertCrossColor = convert(StyledRegion::cast(baseEditor->rd_def_VertCross));
 
-  if (!horzCrossColor.BackgroundColor && !horzCrossColor.ForegroundColor) {
-    horzCrossColor.ForegroundColor = 0xE;
+  // if horizontal cross color don`t set
+  if (!baseEditor->rd_def_HorzCross) {
+    // set default color
+    horzCrossColor = {};
+    if (TrueMod) {
+      horzCrossColor.BackgroundRGBA = {128, 128, 128, 0xFF};
+    }
+    else {
+      horzCrossColor.BackgroundColor = 0x7;
+      horzCrossColor.Flags |= FCF_4BITMASK;
+    }
   }
-  if (!vertCrossColor.BackgroundColor && !vertCrossColor.ForegroundColor) {
-    vertCrossColor.ForegroundColor = 0xE;
+  else {
+    // else use it
+    horzCrossColor = convert(StyledRegion::cast(baseEditor->rd_def_HorzCross));
+  }
+
+  // if vertical cross color don`t set
+  if (!baseEditor->rd_def_VertCross) {
+    // set default color
+    vertCrossColor = {};
+    if (TrueMod) {
+      vertCrossColor.BackgroundRGBA = {128, 128, 128, 0xFF};
+    }
+    else {
+      vertCrossColor.BackgroundColor = 0x7;
+      vertCrossColor.Flags |= FCF_4BITMASK;
+    }
+  }
+  else {
+    // else use it
+    vertCrossColor = convert(StyledRegion::cast(baseEditor->rd_def_VertCross));
   }
 }
 
