@@ -24,16 +24,16 @@ class HrcSettingsForm
   void setCrossPosValueListToCombobox() const;
   void setCrossValueListToCombobox() const;
   void ChangeParamValueList(FarList* items, bool dropdownlist) const;
-  FarList* buildParamsList(FileType* type) const;
-  const UnicodeString* getParamDefValue(FileType* type, const UnicodeString& param) const;
+  FarList* buildParamsList(const FileType* type) const;
+  UnicodeString getParamDefValue(const FileType* type, const UnicodeString& param) const;
   [[nodiscard]] size_t getCountFileTypeAndGroup() const;
 
   static FarList* buildFarList(FarListItem* list, size_t count);
   static void removeFarList(FarList* list);
 
   FarEditorSet* farEditorSet;
-  intptr_t menuid;
-  FileType* current_filetype;
+  intptr_t menuid = 0;
+  FileType* current_filetype = nullptr;
   FileType* filetype_in_editor;
   HANDLE hDlg {};
 };

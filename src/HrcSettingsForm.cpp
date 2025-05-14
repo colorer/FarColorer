@@ -1,14 +1,12 @@
 #include "HrcSettingsForm.h"
 #include <algorithm>
+#include <array>
 #include "FarHrcSettings.h"
 #include "tools.h"
 
 HrcSettingsForm::HrcSettingsForm(FarEditorSet* _farEditorSet, FileType* filetype)
+    : farEditorSet(_farEditorSet), filetype_in_editor(filetype)
 {
-  menuid = 0;
-  farEditorSet = _farEditorSet;
-  current_filetype = nullptr;
-  filetype_in_editor = filetype;
 }
 
 bool HrcSettingsForm::Show()
@@ -60,15 +58,15 @@ bool HrcSettingsForm::showForm()
 
   FarDialogItem fdi[] = {
       // type, x1, y1, x2, y2, param, history, mask, flags, userdata, ptrdata, maxlen
-      {DI_DOUBLEBOX, 2, 1, 56, 21, 0, nullptr, nullptr, 0, nullptr, 0, 0},               // IDX_CH_BOX,
-      {DI_TEXT, 3, 3, 0, 3, 0, nullptr, nullptr, 0, nullptr, 0, 0},                      // IDX_CH_CAPTIONLIST,
-      {DI_COMBOBOX, 10, 3, 54, 2, 0, nullptr, nullptr, 0, nullptr, 0, 0},                // IDX_CH_SCHEMAS,
-      {DI_LISTBOX, 3, 4, 30, 17, 0, nullptr, nullptr, 0, nullptr, 0, 0},                 // IDX_CH_PARAM_LIST,
-      {DI_TEXT, 32, 5, 0, 5, 0, nullptr, nullptr, 0, nullptr, 0, 0},                     // IDX_CH_PARAM_VALUE_CAPTION
-      {DI_COMBOBOX, 32, 6, 54, 6, 0, nullptr, nullptr, 0, nullptr, 0, 0},                // IDX_CH_PARAM_VALUE_LIST
-      {DI_EDIT, 4, 18, 54, 18, 0, nullptr, nullptr, 0, nullptr, 0, 0},                   // IDX_CH_DESCRIPTION,
-      {DI_BUTTON, 37, 20, 0, 0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0},  // IDX_CH_OK,
-      {DI_BUTTON, 45, 20, 0, 0, 0, nullptr, nullptr, 0, nullptr, 0, 0},                  // IDX_CH_CANCEL,
+      {DI_DOUBLEBOX,  2,  1, 56, 21, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_BOX,
+      {     DI_TEXT,  3,  3,  0,  3, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_CAPTIONLIST,
+      { DI_COMBOBOX, 10,  3, 54,  2, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_SCHEMAS,
+      {  DI_LISTBOX,  3,  4, 30, 17, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_PARAM_LIST,
+      {     DI_TEXT, 32,  5,  0,  5, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_PARAM_VALUE_CAPTION
+      { DI_COMBOBOX, 32,  6, 54,  6, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_PARAM_VALUE_LIST
+      {     DI_EDIT,  4, 18, 54, 18, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_DESCRIPTION,
+      {   DI_BUTTON, 37, 20,  0,  0, 0, nullptr, nullptr, DIF_DEFAULTBUTTON, nullptr, 0, 0}, // IDX_CH_OK,
+      {   DI_BUTTON, 45, 20,  0,  0, 0, nullptr, nullptr,                 0, nullptr, 0, 0}, // IDX_CH_CANCEL,
   };
 
   fdi[IDX_CH_BOX].Data = FarEditorSet::GetMsg(mUserHrcSettingDialog);
@@ -84,7 +82,8 @@ bool HrcSettingsForm::showForm()
 
   fdi[IDX_CH_PARAM_LIST].Flags = DIF_LISTWRAPMODE | DIF_LISTNOCLOSE;
 
-  hDlg = Info.DialogInit(&MainGuid, &HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, std::size(fdi), 0, 0, SettingHrcDialogProc, this);
+  hDlg = Info.DialogInit(&MainGuid, &HrcPluginConfig, -1, -1, 59, 23, L"confighrc", fdi, std::size(fdi), 0, 0,
+                         SettingHrcDialogProc, this);
   if (IDX_CH_OK == Info.DialogRun(hDlg)) {
     SaveChangedValueParam();
   }
@@ -99,10 +98,9 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
 {
   size_t num = 0;
   UnicodeString group;
-  FileType* type;
 
   for (int idx = 0;; idx++) {
-    type = farEditorSet->parserFactory->getHrcLibrary().enumerateFileTypes(idx);
+    const FileType* type = farEditorSet->parserFactory->getHrcLibrary().enumerateFileTypes(idx);
 
     if (type == nullptr) {
       break;
@@ -119,15 +117,14 @@ size_t HrcSettingsForm::getCountFileTypeAndGroup() const
 
 FarList* HrcSettingsForm::buildHrcList() const
 {
-  size_t num = getCountFileTypeAndGroup();
+  const size_t num = getCountFileTypeAndGroup();
   UnicodeString group;
-  FileType* type;
 
   auto* hrcList = new FarListItem[num] {};
 
   HrcLibrary& hrcLibrary = farEditorSet->parserFactory->getHrcLibrary();
   for (int idx = 0, i = 0;; idx++, i++) {
-    type = hrcLibrary.enumerateFileTypes(idx);
+    FileType* type = hrcLibrary.enumerateFileTypes(idx);
 
     if (type == nullptr) {
       break;
@@ -154,7 +151,8 @@ FarList* HrcSettingsForm::buildHrcList() const
     }
 
     hrcList[i].Text = new wchar_t[255];
-    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars.c_str(), UStr::to_stdwstr(type->getDescription()).c_str());
+    _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars.c_str(),
+               UStr::to_stdwstr(type->getDescription()).c_str());
     hrcList[i].UserData = (intptr_t) type;
   }
 
@@ -172,10 +170,9 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
     return;
 
   menuid = idx;
-  UnicodeString p = UnicodeString(List.Item.Text);
+  const auto p = UnicodeString(List.Item.Text);
 
-  const UnicodeString* value;
-  value = current_filetype->getParamDescription(p);
+  const UnicodeString* value = current_filetype->getParamDescription(p);
   if (value == nullptr) {
     value = farEditorSet->defaultType->getParamDescription(p);
   }
@@ -197,7 +194,8 @@ void HrcSettingsForm::OnChangeParam(intptr_t idx)
     else if (UnicodeString(param_MaxLen).compare(p) == 0 || UnicodeString(param_Backparse).compare(p) == 0 ||
              UnicodeString(param_DefFore).compare(p) == 0 || UnicodeString(param_DefBack).compare(p) == 0 ||
              UnicodeString(param_Firstlines).compare(p) == 0 || UnicodeString(param_Firstlinebytes).compare(p) == 0 ||
-             UnicodeString(param_HotKey).compare(p) == 0 || UnicodeString(param_MaxBlockSize).compare(p) == 0) {
+             UnicodeString(param_HotKey).compare(p) == 0 || UnicodeString(param_MaxBlockSize).compare(p) == 0)
+    {
       setCustomListValueToCombobox(UnicodeString(List.Item.Text));
     }
     else if (UnicodeString(param_Fullback).compare(p) == 0) {
@@ -225,20 +223,20 @@ void HrcSettingsForm::SaveChangedValueParam() const
     return;
 
   // param name
-  UnicodeString p = UnicodeString(List.Item.Text);
+  const auto p = UnicodeString(List.Item.Text);
   // param value
-  UnicodeString v = UnicodeString(trim(reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
+  const auto v = UnicodeString(trim(
+      reinterpret_cast<wchar_t*>(Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, IDX_CH_PARAM_VALUE_LIST, nullptr))));
 
   const UnicodeString* value = current_filetype->getParamUserValue(p);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, p);
-  if (v.compare(*def_value) == 0) {
+  const UnicodeString def_value = getParamDefValue(current_filetype, p);
+  if (v.compare(def_value) == 0) {
     if (value != nullptr)
       current_filetype->setParamValue(p, nullptr);
   }
   else if (value == nullptr || v.compare(*value) != 0) {  // changed
     farEditorSet->addParamAndValue(current_filetype, p, v);
   }
-  delete def_value;
 }
 
 void HrcSettingsForm::getCurrentTypeInDialog()
@@ -266,14 +264,12 @@ void HrcSettingsForm::OnChangeHrc()
 void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
 {
   const UnicodeString* value = current_filetype->getParamUserValue(param);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, param);
+  const UnicodeString def_value = getParamDefValue(current_filetype, param);
 
-  size_t count = 3;
-  auto* fcross = new FarListItem[count] {};
+  std::array<FarListItem, 3> fcross {};
   fcross[0].Text = _wcsdup(value_No);
   fcross[1].Text = _wcsdup(value_Yes);
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
-  delete def_value;
 
   size_t ret;
   if (value == nullptr || !value->length()) {
@@ -291,22 +287,19 @@ void HrcSettingsForm::setYNListValueToCombobox(const UnicodeString& param) const
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
-  auto* lcross = buildFarList(fcross, count);
-  ChangeParamValueList(lcross, true);
-  removeFarList(lcross);
+  FarList lcross {sizeof(FarList), fcross.size(), fcross.data()};
+  ChangeParamValueList(&lcross, true);
 }
 
 void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
 {
   const UnicodeString* value = current_filetype->getParamUserValue(param);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, param);
+  const UnicodeString def_value = getParamDefValue(current_filetype, param);
 
-  size_t count = 3;
-  auto* fcross = new FarListItem[count] {};
+  std::array<FarListItem, 3> fcross {};
   fcross[0].Text = _wcsdup(value_False);
   fcross[1].Text = _wcsdup(value_True);
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
-  delete def_value;
 
   size_t ret;
   if (value == nullptr || !value->length()) {
@@ -324,25 +317,21 @@ void HrcSettingsForm::setTFListValueToCombobox(const UnicodeString& param) const
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
-  auto* lcross = buildFarList(fcross, count);
-  ChangeParamValueList(lcross, true);
-  removeFarList(lcross);
+  FarList lcross {sizeof(FarList), fcross.size(), fcross.data()};
+  ChangeParamValueList(&lcross, true);
 }
 
 void HrcSettingsForm::setCustomListValueToCombobox(const UnicodeString& param) const
 {
   const UnicodeString* value = current_filetype->getParamUserValue(param);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, param);
+  const UnicodeString def_value = getParamDefValue(current_filetype, param);
 
-  size_t count = 1;
-  auto* fcross = new FarListItem[count] {};
+  std::array<FarListItem, 1> fcross {};
   fcross[0].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
-  delete def_value;
 
   fcross[0].Flags = LIF_SELECTED;
-  auto* lcross = buildFarList(fcross, count);
-  ChangeParamValueList(lcross, false);
-  removeFarList(lcross);
+  FarList lcross {sizeof(FarList), fcross.size(), fcross.data()};
+  ChangeParamValueList(&lcross, false);
 
   if (value != nullptr) {
     Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, IDX_CH_PARAM_VALUE_LIST, (void*) UStr::to_stdwstr(value).c_str());
@@ -353,16 +342,14 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
 {
   auto uparam = UnicodeString(param_ShowCross);
   const UnicodeString* value = current_filetype->getParamUserValue(uparam);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, uparam);
+  const UnicodeString def_value = getParamDefValue(current_filetype, uparam);
 
-  size_t count = 5;
-  auto* fcross = new FarListItem[count] {};
+  std::array<FarListItem, 5> fcross {};
   fcross[0].Text = _wcsdup(value_None);
   fcross[1].Text = _wcsdup(value_Vertical);
   fcross[2].Text = _wcsdup(value_Horizontal);
   fcross[3].Text = _wcsdup(value_Both);
   fcross[4].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
-  delete def_value;
 
   size_t ret = 0;
   if (value == nullptr || !value->length()) {
@@ -383,23 +370,20 @@ void HrcSettingsForm::setCrossValueListToCombobox() const
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
-  auto* lcross = buildFarList(fcross, count);
-  ChangeParamValueList(lcross, true);
-  removeFarList(lcross);
+  FarList lcross {sizeof(FarList), fcross.size(), fcross.data()};
+  ChangeParamValueList(&lcross, true);
 }
 
 void HrcSettingsForm::setCrossPosValueListToCombobox() const
 {
   auto uparam = UnicodeString(param_CrossZorder);
   const UnicodeString* value = current_filetype->getParamUserValue(uparam);
-  const UnicodeString* def_value = getParamDefValue(current_filetype, uparam);
+  const UnicodeString def_value = getParamDefValue(current_filetype, uparam);
 
-  size_t count = 3;
-  auto* fcross = new FarListItem[count] {};
+  std::array<FarListItem, 3> fcross {};
   fcross[0].Text = _wcsdup(value_Bottom);
   fcross[1].Text = _wcsdup(value_Top);
   fcross[2].Text = _wcsdup(UStr::to_stdwstr(def_value).c_str());
-  delete def_value;
 
   size_t ret;
   if (value == nullptr || !value->length()) {
@@ -417,31 +401,30 @@ void HrcSettingsForm::setCrossPosValueListToCombobox() const
     }
   }
   fcross[ret].Flags = LIF_SELECTED;
-  auto* lcross = buildFarList(fcross, count);
 
-  ChangeParamValueList(lcross, true);
-  removeFarList(lcross);
+  FarList lcross {sizeof(FarList), fcross.size(), fcross.data()};
+  ChangeParamValueList(&lcross, true);
 }
 
-const UnicodeString* HrcSettingsForm::getParamDefValue(FileType* type, const UnicodeString& param) const
+UnicodeString HrcSettingsForm::getParamDefValue(const FileType* type, const UnicodeString& param) const
 {
-  const UnicodeString* value;
-  value = type->getParamDefaultValue(param);
+  const UnicodeString* value = type->getParamDefaultValue(param);
   if (value == nullptr) {
     value = farEditorSet->defaultType->getParamValue(param);
   }
+
+  UnicodeString p("<default-");
+
   if (value == nullptr) {
-    return new UnicodeString("<default->");
+    return p+">";
   }
-  else {
-    auto* p = new UnicodeString("<default-");
-    p->append(*value);
-    p->append(">");
-    return p;
-  }
+
+  p.append(*value);
+  p.append(">");
+  return p;
 }
 
-FarList* HrcSettingsForm::buildParamsList(FileType* type) const
+FarList* HrcSettingsForm::buildParamsList(const FileType* type) const
 {
   auto type_params = type->enumParams();
   auto default_params = farEditorSet->defaultType->enumParams();
