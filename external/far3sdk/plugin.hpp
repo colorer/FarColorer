@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6250.0
+Plugin API for Far Manager 3.0.6480.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6250
+#define FARMANAGERVERSION_BUILD 6480
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -63,8 +63,10 @@ other possible license with no implications from the above license on them.
 typedef GUID UUID;
 
 
-#define CP_UNICODE    ((uintptr_t)1200)
-#define CP_REVERSEBOM ((uintptr_t)1201)
+#define CP_UTF16LE    ((uintptr_t)1200)
+#define CP_UTF16BE    ((uintptr_t)1201)
+#define CP_UNICODE    CP_UTF16LE
+#define CP_REVERSEBOM CP_UTF16BE
 #define CP_DEFAULT    ((uintptr_t)-1)
 #define CP_REDETECT   ((uintptr_t)-2)
 
@@ -102,17 +104,21 @@ FAR_INLINE_CONSTANT FARCOLORFLAGS
 	FCF_FG_STRIKEOUT       = 0x0200000000000000ULL,
 	FCF_FG_FAINT           = 0x0400000000000000ULL,
 	FCF_FG_BLINK           = 0x0800000000000000ULL,
-	FCF_FG_INVERSE         = 0x0010000000000000ULL,
+	FCF_INVERSE            = 0x0010000000000000ULL,
 	FCF_FG_INVISIBLE       = 0x0020000000000000ULL,
 	FCF_FG_U_DATA2         = 0x0040000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
 
-	FCF_FG_UNDERLINE_MASK  = 0xC040000000000000ULL,  // FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2,
+	FCF_FG_UNDERLINE_MASK  = 0xC040000000000000ULL, // FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2,
 
-	FCF_STYLEMASK          = 0xFFF0000000000000ULL,
+	FCF_STYLE_MASK         = 0xFFF0000000000000ULL,
 
 	FCF_NONE               = 0;
 
-struct rgba
+struct
+#if defined(__cplusplus) && !defined(__cplusplus_cli)
+alignas(COLORREF)
+#endif
+rgba
 {
 	unsigned char
 		r,
@@ -121,7 +127,11 @@ struct rgba
 		a;
 };
 
-struct color_index
+struct
+#if defined(__cplusplus) && !defined(__cplusplus_cli)
+alignas(COLORREF)
+#endif
+color_index
 {
 	unsigned char
 		i,
@@ -800,6 +810,7 @@ FAR_INLINE_CONSTANT FARDIALOGFLAGS
 	FDLG_NODRAWPANEL         = 0x0000000000000008ULL,
 	FDLG_KEEPCONSOLETITLE    = 0x0000000000000010ULL,
 	FDLG_NONMODAL            = 0x0000000000000020ULL,
+	FDLG_STAY_ON_TOP         = 0x0000000000000040ULL,
 	FDLG_NONE                = 0;
 
 typedef intptr_t(WINAPI *FARWINDOWPROC)(
@@ -2023,6 +2034,7 @@ enum FAR_REGEXP_CONTROL_COMMANDS
 	RECTL_SEARCHEX                  = 5,
 	RECTL_BRACKETSCOUNT             = 6,
 	RECTL_NAMEDGROUPINDEX           = 7,
+	RECTL_GETNAMEDGROUPS            = 8,
 };
 
 struct RegExpMatch
@@ -2038,6 +2050,12 @@ struct RegExpSearch
 	struct RegExpMatch* Match;
 	intptr_t Count;
 	void* Reserved;
+};
+
+struct RegExpNamedGroup
+{
+	size_t Index;
+	const wchar_t* Name;
 };
 
 enum FAR_SETTINGS_CONTROL_COMMANDS
@@ -2364,6 +2382,14 @@ FAR_INLINE_CONSTANT FARFORMATFILESIZEFLAGS
 
 typedef size_t (WINAPI *FARFORMATFILESIZE)(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
 
+struct DetectCodePageInfo
+{
+	size_t StructSize;
+	const wchar_t* FileName;
+};
+
+typedef uintptr_t (WINAPI *FARSTDDETECTCODEPAGE)(struct DetectCodePageInfo* Info);
+
 typedef struct FarStandardFunctions
 {
 	size_t StructSize;
@@ -2422,6 +2448,7 @@ typedef struct FarStandardFunctions
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
 	FARSTDCOMPARESTRINGS       CompareStrings;
+	FARSTDDETECTCODEPAGE       DetectCodePage;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
@@ -2792,17 +2819,22 @@ enum MACROCALLTYPE
 
 enum MACROPLUGINRETURNTYPE
 {
-	MPRT_NORMALFINISH  = 0,
-	MPRT_ERRORFINISH   = 1,
-	MPRT_ERRORPARSE    = 2,
-	MPRT_KEYS          = 3,
-	MPRT_PRINT         = 4,
-	MPRT_PLUGINCALL    = 5,
-	MPRT_PLUGINMENU    = 6,
-	MPRT_PLUGINCONFIG  = 7,
-	MPRT_PLUGINCOMMAND = 8,
-	MPRT_USERMENU      = 9,
-	MPRT_HASNOMACRO    = 10,
+	MPRT_NORMALFINISH     = 0,
+	MPRT_ERRORFINISH      = 1,
+	MPRT_ERRORPARSE       = 2,
+	MPRT_KEYS             = 3,
+	MPRT_PRINT            = 4,
+	MPRT_PLUGINCALL       = 5,
+	MPRT_PLUGINMENU       = 6,
+	MPRT_PLUGINCONFIG     = 7,
+	MPRT_PLUGINCOMMAND    = 8,
+	MPRT_USERMENU         = 9,
+	MPRT_HASNOMACRO       = 10,
+	MPRT_FILEASSOCIATIONS = 11,
+	MPRT_FILEHIGHLIGHT    = 12,
+	MPRT_FILEPANELMODES   = 13,
+	MPRT_FOLDERSHORTCUTS  = 14,
+	MPRT_FILEMASKGROUPS   = 15,
 };
 
 struct OpenMacroPluginInfo
