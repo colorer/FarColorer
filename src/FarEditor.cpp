@@ -245,7 +245,7 @@ void FarEditor::setRegionMapper(RegionMapper* rs)
     }
     else {
       horzCrossColor.BackgroundColor = 0x7;
-      horzCrossColor.Flags |= FCF_4BITMASK;
+      horzCrossColor.Flags |= FCF_INDEXMASK;
     }
   }
   else {
@@ -262,7 +262,7 @@ void FarEditor::setRegionMapper(RegionMapper* rs)
     }
     else {
       vertCrossColor.BackgroundColor = 0x7;
-      vertCrossColor.Flags |= FCF_4BITMASK;
+      vertCrossColor.Flags |= FCF_INDEXMASK;
     }
   }
   else {
@@ -1257,7 +1257,7 @@ FarColor FarEditor::convert(const StyledRegion* rd) const
   }
 
   if (!TrueMod) {
-    col.Flags |= FCF_4BITMASK;
+    col.Flags |= FCF_INDEXMASK;
   }
   else {
     col.ForegroundColor = revertRGB(col.ForegroundColor);
