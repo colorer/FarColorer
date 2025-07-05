@@ -705,8 +705,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
     auto def_type = hrcLibraryLocal.getFileType(UnicodeString(name_DefaultScheme));
     FarHrcSettings p(this, parserFactoryLocal.get());
-    p.loadUserHrd(userHrdPathS.get());
-    p.loadUserHrc(userHrcPathS.get());
+    parserFactoryLocal->loadHrdPath(userHrdPathS.get());
+    parserFactoryLocal->loadHrcPath(userHrcPathS.get());
     p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile(def_type);
 
@@ -798,8 +798,8 @@ void FarEditorSet::ReloadBase()
     HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
     defaultType = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
     FarHrcSettings p(this, parserFactory.get());
-    p.loadUserHrd(sUserHrdPathExp.get());
-    p.loadUserHrc(sUserHrcPathExp.get());
+    parserFactory->loadHrdPath(sUserHrdPathExp.get());
+    parserFactory->loadHrcPath(sUserHrcPathExp.get());
     p.readPluginHrcSettings(pluginPath.get());
     p.readUserProfile();
 
