@@ -22,8 +22,10 @@ class FarHrcSettings
     parserFactory = _parserFactory;
     farEditorSet = _farEditorSet;
   }
+  void applySettings(const UnicodeString* catalog_xml, const UnicodeString* user_hrd, const UnicodeString* user_hrc,
+                     const UnicodeString* user_hrc_settings, const UnicodeString* plugin_path);
   void readPluginHrcSettings(const UnicodeString* plugin_path);
-  void readUserProfile(const FileType* def_filetype = nullptr);
+  void readUserProfile();
   void writeUserProfile();
 
  private:
@@ -31,4 +33,4 @@ class FarHrcSettings
   FarEditorSet* farEditorSet;
 };
 
-#endif // FARCOLORER_FARHRCSETTINGS_H
+#endif  // FARCOLORER_FARHRCSETTINGS_H

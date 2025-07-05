@@ -2,16 +2,29 @@
 #include "SettingsControl.h"
 #include "colorer/parsers/CatalogParser.h"
 
+void FarHrcSettings::applySettings(const UnicodeString* catalog_xml, const UnicodeString* user_hrd,
+                                   const UnicodeString* user_hrc, const UnicodeString* user_hrc_settings,
+                                   const UnicodeString* plugin_path)
+{
+  parserFactory->loadCatalog(catalog_xml);
+  readPluginHrcSettings(plugin_path);
+  parserFactory->loadHrdPath(user_hrd);
+  parserFactory->loadHrcPath(user_hrc);
+  parserFactory->loadHrcSettings(user_hrc_settings, true);
+  readUserProfile();
+}
+
 void FarHrcSettings::readPluginHrcSettings(const UnicodeString* plugin_path)
 {
   auto path = UnicodeString(*plugin_path);
   path.append(UnicodeString(FarProfileXml));
-  parserFactory->loadHrcSettings(&path,false);
+  parserFactory->loadHrcSettings(&path, false);
 }
 
-void FarHrcSettings::readUserProfile(const FileType* def_filetype)
+void FarHrcSettings::readUserProfile()
 {
   auto& hrcLibrary = parserFactory->getHrcLibrary();
+  auto def_filetype = hrcLibrary.getFileType("default");
 
   SettingsControl ColorerSettings;
   auto hrc_subkey = ColorerSettings.rGetSubKey(0, HrcSettings);
@@ -31,7 +44,8 @@ void FarHrcSettings::readUserProfile(const FileType* def_filetype)
           if (ColorerSettings.rEnum(type_subkey, &type_fse)) {
             for (size_t j = 0; j < type_fse.Count; j++) {
               if (type_fse.Items[j].Type == FST_STRING) {
-                const wchar_t* p = ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
+                const wchar_t* p =
+                    ColorerSettings.Get(type_subkey, type_fse.Items[j].Name, static_cast<wchar_t*>(nullptr));
                 if (p) {
                   UnicodeString name_fse = UnicodeString(type_fse.Items[j].Name);
                   UnicodeString dp = UnicodeString(p);

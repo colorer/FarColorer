@@ -701,14 +701,8 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
   try {
     parserFactoryLocal = std::make_unique<ParserFactory>();
-    parserFactoryLocal->loadCatalog(tpath.get());
-    auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
-    auto def_type = hrcLibraryLocal.getFileType(UnicodeString(name_DefaultScheme));
     FarHrcSettings p(this, parserFactoryLocal.get());
-    parserFactoryLocal->loadHrdPath(userHrdPathS.get());
-    parserFactoryLocal->loadHrcPath(userHrcPathS.get());
-    p.readPluginHrcSettings(pluginPath.get());
-    p.readUserProfile(def_type);
+    p.applySettings(tpath.get(), userHrdPathS.get(), userHrcPathS.get(), nullptr, pluginPath.get());
 
     if (hrc_mode == HRC_MODE::HRCM_CONSOLE || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
@@ -731,6 +725,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
     }
 
     if (full) {
+      auto& hrcLibraryLocal = parserFactoryLocal->getHrcLibrary();
       for (int idx = 0;; idx++) {
         FileType* type = hrcLibraryLocal.enumerateFileTypes(idx);
 
@@ -794,14 +789,11 @@ void FarEditorSet::ReloadBase()
     }
 
     parserFactory = std::make_unique<ParserFactory>();
-    parserFactory->loadCatalog(sCatalogPathExp.get());
+    FarHrcSettings p(this, parserFactory.get());
+    p.applySettings(sCatalogPathExp.get(), sUserHrdPathExp.get(), sUserHrcPathExp.get(), nullptr, pluginPath.get());
+
     HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
     defaultType = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
-    FarHrcSettings p(this, parserFactory.get());
-    parserFactory->loadHrdPath(sUserHrdPathExp.get());
-    parserFactory->loadHrcPath(sUserHrcPathExp.get());
-    p.readPluginHrcSettings(pluginPath.get());
-    p.readUserProfile();
 
     try {
       regionMapper = parserFactory->createStyledMapper(&hrdClass, &hrdName);
