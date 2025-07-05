@@ -50,14 +50,17 @@ zawierającymi schematy użytkownika. Jeżeli podany jest folder, to przetwarzan
   #Pliki stylów kolorów użytkownika#
      Pełna ścieżka do pliku ustawień stylów kolorów użytkownika.
 
-  #Styl koloru:#
+  #Custom schemas settings file (hrcsettings)#
+     The full path to the file with custom schema settings
+
+  #Styl koloru#
      Wybór stylu koloru, jaki będzie użyty do kolorowania tekstu. Wybór nie ma znaczenia jeżeli
 wtyczka jest wyłączona.
 
   #Włącz TrueMod#
      Włącza/Wyłącza tryb TrueMod we wtyczce.
 
-  #Styl koloru TrueMod:#
+  #Styl koloru TrueMod#
      Wybierz styl koloru, który zostanie użyty do kolorowania w trybie TrueMod. Wybór nie ma znaczenia,
 jeżeli wtyczka jest wyłączona.
 
@@ -431,11 +434,9 @@ $ # FarColorer jest wtyczką podświetlającą składnię podczas edycji plików
 
     #Igor Ruskih# (Cail Lomecb) Copyright (c) 1999-2009
            email  : irusskih at gmail dot com
-           web    : http://cail.nm.ru
 
     #Eugene Efremov#
            email  : 4mirror at mail dot ru
 
-    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2021
-           email  : ctapmex at gmail dot com
-           web    : http://dobrunov.ru
+    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2025
+           email  : ctapmex at ctapmex dot com

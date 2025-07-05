@@ -6,10 +6,12 @@ $# FarColorer
 
     ~Settings menu.~@settingsmenu@
     ~Plugin setup.~@config@
-    ~Schemes settings.~@confighrc@
     ~Logging settings.~@configlog@
     ~Command line support.~@cmdline@
     ~Plugin's menus.~@menu@
+
+    ~Colorer base`s settings~@customize@
+    ~Schemes settings.~@confighrc@
 
     ~Using a plugin in macros:~@MacroCallPlugin@
       ~Macro functions.~@MacroCall@
@@ -38,22 +40,28 @@ $# FarColorer's settings
   #Enabled#
      Enable/Disable FarColorer.
 
-  #catalog.xml file:#
+  The following four parameters are used to configure the basic library of schemes and styles
+  used in the plug-in. For more information, see ~Configuring the Schema and Style database~@customize@
+
+  #catalog.xml file#
      Full file path sets default catalog file for FarColorer. If this field is empty FarColorer trying to find the file automatically in a subfolder of "base" parent directory plugin.
 
-  #Users file of schemes#
-     Full file path in this field specifies a file analogous to proto.hrc, or a directory with files containing with user schemes. If a directory is specified, only * .hrc files are processed.
+  #Custom schemas folder (hrc)#
+     The full path to the folder with custom schema files
 
-  #Users file of color styles#
-     Full file path sets the users file of color styles.
+  #Custom color styles folder (hrd)#
+     The full path to the file or folder with custom color style files
 
-  #Color style:#
+  #Custom schemas settings file (hrcsettings)#
+     The full path to the file with custom schema settings
+
+  #Color style#
      Choose a color style, which will be used for coloring text. The choice does not work if the plugin is disabled.
 
   #TrueMod Enabled#
      Enable/Disable TrueMod in plugin.
 
-  #TrueMod color style:#
+  #TrueMod color style#
      Choose a color style, which will be used for coloring text in TrueMod. The choice does not work if the plugin is disabled.
 
   #Pairs#
@@ -81,6 +89,30 @@ $# FarColorer's settings
 
   #{ Ok }#
      Closes dialog and save settings.
+
+@customize
+$^#Colorer base`s settings#
+    FarColorer comes with a basic library of HRC schemas and HRD styles, the root file of which is catalog.xml .
+    To change the set and behavior of HRC schemes and HRD styles, the file path parameters are used in the plugin settings dialog.,
+    as well as the ~Schema Settings~@confighrc dialog.
+
+    The necessary steps to change the base library are shown on the page ~https://colorer.github.io/advanced/custom/~ .
+
+    When working with the settings library of schemes and styles, the following loading order is applied:
+    1. Read the value of the "catalog.xml file"
+        - if filled in, then use the specified file as catalog.xml
+        - otherwise we will use catalog.xml supplied with the plugin
+    2. Read the hrcsettings.xml included in the plug-in delivery
+    3. Read the value of the "Custom schemas folder (hrc)"
+        - if this file is filled in, then we process the file as a set of hrd-sets (an outdated method, for backward compatibility)
+        - if this folder is filled in, then we load everything from it *.hrd files
+    4. Read the value of the "Custom color styles folder (hrd)"
+        - if this file is filled in, then we process it in the same way as proto.hrc (outdated method, for backward compatibility)
+        - if this folder is filled in, then we load everything from it *.hrc files
+    5. Read the value of the "Custom schemas settings file (hrcsettings)" (custom hrcsettings.xml)
+        - if it is filled in, then load it.
+        - if it is not filled in, check the environment variable COLORER_HRC_SETTINGS with the path to the file.
+    6. Read the scheme settings from the plugin settings in FarManager
 
 @confighrc
 $# Schemes settings
@@ -389,15 +421,16 @@ $# Define key
 @author
 $# FarColorer is a syntax highlighting plugin for FAR Manager.
     #Plugin home site#
-           http://colorer.sf.net/
+           https://github.com/colorer/FarColorer
+    #Colorer library site#
+           https://colorer.sf.net
+           https://colorer.github.io
 
     #Igor Ruskih# (Cail Lomecb) Copyright (c) 1999-2009
            email  : irusskih at gmail dot com
-           web    : http://cail.nm.ru
 
     #Eugene Efremov#
            email  : 4mirror at mail dot ru
 
-    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2021
-           email  : ctapmex at gmail dot com
-           web    : http://dobrunov.ru
+    #ctapmex# (Aleksey Dobrunov) Copyright (c) 2009-2025
+           email  : ctapmex at ctapmex dot com
