@@ -66,8 +66,8 @@ void FarEditorSet::menuConfigure()
         configureLogging();
         break;
       case 4:
-        TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, Opt.HrdName, Opt.HrdNameTm, true,
-                     Opt.TrueModOn ? HRC_MODE::HRCM_BOTH : HRC_MODE::HRCM_CONSOLE);
+        TestLoadBase(Opt.CatalogPath, Opt.UserHrdPath, Opt.UserHrcPath, Opt.UserHrcSettingsPath, Opt.HrdName,
+                     Opt.HrdNameTm, true, Opt.TrueModOn ? HRC_MODE::HRCM_BOTH : HRC_MODE::HRCM_CONSOLE);
         break;
       default:
         return;
@@ -432,6 +432,8 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
         Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrdEdit, nullptr))));
     const auto* userhrc = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(
         Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrcEdit, nullptr))));
+    const auto* userhrc_settings = static_cast<const wchar_t*>(trim(reinterpret_cast<wchar_t*>(
+        Info.SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, fes->settingWindow.hrcSettingsEdit, nullptr))));
 
     int CurPosCons = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdCons, nullptr));
     int CurPosTm = static_cast<int>(Info.SendDlgMessage(hDlg, DM_LISTGETCURPOS, fes->settingWindow.hrdTM, nullptr));
@@ -442,7 +444,7 @@ INT_PTR WINAPI SettingDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, voi
       // не проверяем настройки у отключенного плагина
       return false;
     }
-    return !fes->TestLoadBase(temp, userhrd, userhrc,
+    return !fes->TestLoadBase(temp, userhrd, userhrc, userhrc_settings,
                               UStr::to_stdwstr(&fes->hrd_con_instances.at(CurPosCons)->hrd_name).c_str(),
                               UStr::to_stdwstr(&fes->hrd_rgb_instances.at(CurPosTm)->hrd_name).c_str(), false,
                               FarEditorSet::HRC_MODE::HRCM_BOTH);
@@ -467,6 +469,9 @@ bool FarEditorSet::configure()
     Builder.AddText(mUserHrdFile);
     Builder.AddEditField(Opt.UserHrdPath, MAX_PATH, 65, L"userhrd");
     settingWindow.hrdEdit = Builder.GetLastID();
+    Builder.AddText(mUserHrcSettings);
+    Builder.AddEditField(Opt.UserHrcSettingsPath, MAX_PATH, 65, L"userhrcset");
+    settingWindow.hrcSettingsEdit = Builder.GetLastID();
     Builder.AddSeparator(mStyleConf);
 
     Builder.StartColumns();
@@ -676,7 +681,8 @@ int FarEditorSet::editorEvent(const struct ProcessEditorEventInfo* pInfo)
 }
 
 bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath,
-                                const wchar_t* hrdCons, const wchar_t* hrdTm, const bool full, const HRC_MODE hrc_mode)
+                                const wchar_t* userHrcSettingsPath, const wchar_t* hrdCons, const wchar_t* hrdTm,
+                                const bool full, const HRC_MODE hrc_mode)
 {
   bool res = true;
   const wchar_t* marr[2] = {GetMsg(mName), GetMsg(mReloading)};
@@ -688,6 +694,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
   std::unique_ptr<UnicodeString> catalogPathS(PathToFullS(catalogPath, false));
   std::unique_ptr<UnicodeString> userHrdPathS(PathToFullS(userHrdPath, false));
   std::unique_ptr<UnicodeString> userHrcPathS(PathToFullS(userHrcPath, false));
+  std::unique_ptr<UnicodeString> userHrcSettingsPathS(PathToFullS(userHrcSettingsPath, false));
 
   std::unique_ptr<UnicodeString> tpath;
   if (!catalogPathS || !catalogPathS->length()) {
@@ -702,7 +709,7 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
   try {
     parserFactoryLocal = std::make_unique<ParserFactory>();
     FarHrcSettings p(this, parserFactoryLocal.get());
-    p.applySettings(tpath.get(), userHrdPathS.get(), userHrcPathS.get(), nullptr, pluginPath.get());
+    p.applySettings(tpath.get(), userHrdPathS.get(), userHrcPathS.get(), userHrcSettingsPathS.get(), pluginPath.get());
 
     if (hrc_mode == HRC_MODE::HRCM_CONSOLE || hrc_mode == HRC_MODE::HRCM_BOTH) {
       try {
@@ -790,7 +797,8 @@ void FarEditorSet::ReloadBase()
 
     parserFactory = std::make_unique<ParserFactory>();
     FarHrcSettings p(this, parserFactory.get());
-    p.applySettings(sCatalogPathExp.get(), sUserHrdPathExp.get(), sUserHrcPathExp.get(), nullptr, pluginPath.get());
+    p.applySettings(sCatalogPathExp.get(), sUserHrdPathExp.get(), sUserHrcPathExp.get(), sUserHrcSettingsPathExp.get(),
+                    pluginPath.get());
 
     HrcLibrary& hrcLibrary = parserFactory->getHrcLibrary();
     defaultType = hrcLibrary.getFileType(UnicodeString(name_DefaultScheme));
@@ -951,6 +959,8 @@ void FarEditorSet::ReadSettings()
   ColorerSettings.Get(0, cRegCatalog, Opt.CatalogPath, std::size(Opt.CatalogPath), cCatalogDefault);
   ColorerSettings.Get(0, cRegUserHrcPath, Opt.UserHrcPath, std::size(Opt.UserHrcPath), cUserHrcPathDefault);
   ColorerSettings.Get(0, cRegUserHrdPath, Opt.UserHrdPath, std::size(Opt.UserHrdPath), cUserHrdPathDefault);
+  ColorerSettings.Get(0, cRegUserHrcSettingsPath, Opt.UserHrcSettingsPath, std::size(Opt.UserHrcSettingsPath),
+                      cUserHrcSettingsPathDefault);
   ColorerSettings.Get(0, cRegLogPath, Opt.LogPath, std::size(Opt.LogPath), cLogPathDefault);
   ColorerSettings.Get(0, cRegLogLevel, Opt.logLevel, std::size(Opt.LogPath), cLogLevelDefault);
 
@@ -962,6 +972,7 @@ void FarEditorSet::ReadSettings()
   }
   sUserHrdPathExp.reset(PathToFullS(Opt.UserHrdPath, false));
   sUserHrcPathExp.reset(PathToFullS(Opt.UserHrcPath, false));
+  sUserHrcSettingsPathExp.reset(PathToFullS(Opt.UserHrcSettingsPath, false));
 
   Opt.rEnabled = ColorerSettings.Get(0, cRegEnabled, cEnabledDefault);
   Opt.drawPairs = ColorerSettings.Get(0, cRegPairsDraw, cPairsDrawDefault);
@@ -1016,6 +1027,7 @@ void FarEditorSet::SaveSettings() const
   ColorerSettings.Set(0, cRegChangeBgEditor, Opt.ChangeBgEditor);
   ColorerSettings.Set(0, cRegUserHrdPath, Opt.UserHrdPath);
   ColorerSettings.Set(0, cRegUserHrcPath, Opt.UserHrcPath);
+  ColorerSettings.Set(0, cRegUserHrcSettingsPath, Opt.UserHrcSettingsPath);
   ColorerSettings.Set(0, cRegCrossDraw, Opt.drawCross);
   ColorerSettings.Set(0, cRegCrossStyle, Opt.CrossStyle);
   ColorerSettings.Set(0, cThreadBuildPeriod, Opt.ThreadBuildPeriod);

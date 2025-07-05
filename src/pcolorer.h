@@ -78,6 +78,7 @@ enum {
   mChangeBackgroundEditor,
   mUserHrdFile,
   mUserHrcFile,
+  mUserHrcSettings,
   mUserHrcSetting,
   mUserHrcSettingDialog,
   mListSyntax,
