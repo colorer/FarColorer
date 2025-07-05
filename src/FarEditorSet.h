@@ -20,6 +20,7 @@ const wchar_t cRegTrueMod[] = L"TrueMod";
 const wchar_t cRegChangeBgEditor[] = L"ChangeBgEditor";
 const wchar_t cRegUserHrdPath[] = L"UserHrdPath";
 const wchar_t cRegUserHrcPath[] = L"UserHrcPath";
+const wchar_t cRegUserHrcSettingsPath[] = L"UserHrcSettingsPath";
 const wchar_t cRegLogPath[] = L"LogPath";
 const wchar_t cRegLogLevel[] = L"LogLevel";
 const wchar_t cRegLogEnabled[] = L"LogEnabled";
@@ -39,6 +40,7 @@ const bool cTrueMod = false;
 const bool cChangeBgEditor = false;
 const wchar_t cUserHrdPathDefault[] = L"";
 const wchar_t cUserHrcPathDefault[] = L"";
+const wchar_t cUserHrcSettingsPathDefault[] = L"";
 const wchar_t cLogPathDefault[] = L"";
 const wchar_t cLogLevelDefault[] = L"INFO";
 const bool cLogEnabledDefault = false;
@@ -83,6 +85,7 @@ struct Options
   wchar_t CatalogPath[MAX_PATH];
   wchar_t UserHrdPath[MAX_PATH];
   wchar_t UserHrcPath[MAX_PATH];
+  wchar_t UserHrcSettingsPath[MAX_PATH];
   wchar_t LogPath[MAX_PATH];
   wchar_t logLevel[10];
 };
@@ -93,6 +96,7 @@ struct SettingWindow
   int okButtonConfig;
   int catalogEdit;
   int hrcEdit;
+  int hrcSettingsEdit;
   int hrdEdit;
   int hrdCons;
   int hrdTM;
@@ -142,8 +146,9 @@ class FarEditorSet
    * trying to load the database on the specified path
    */
   enum class HRC_MODE { HRCM_CONSOLE, HRCM_RGB, HRCM_BOTH };
-  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath, const wchar_t* hrdCons, const wchar_t* hrdTm,
-                    bool full, HRC_MODE hrc_mode);
+  bool TestLoadBase(const wchar_t* catalogPath, const wchar_t* userHrdPath, const wchar_t* userHrcPath,
+                    const wchar_t* userHrcSettingsPath, const wchar_t* hrdCons, const wchar_t* hrdTm, bool full,
+                    HRC_MODE hrc_mode);
 
   [[nodiscard]] bool isEnable() const
   {
@@ -254,6 +259,7 @@ class FarEditorSet
   std::unique_ptr<UnicodeString> sCatalogPathExp;
   std::unique_ptr<UnicodeString> sUserHrdPathExp;
   std::unique_ptr<UnicodeString> sUserHrcPathExp;
+  std::unique_ptr<UnicodeString> sUserHrcSettingsPathExp;
 
   std::unique_ptr<UnicodeString> pluginPath;
 
