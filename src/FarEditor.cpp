@@ -632,21 +632,26 @@ int FarEditor::editorEvent(intptr_t event, void* param)
     auto cur_line_length = current_string.StringLength;
     auto cur_line_position = ecp_cl.DestPos;
 
+    // position of the left border in real characters
+    EditorConvertPos ecp_cl2 {sizeof(EditorConvertPos), lno, cur_editor.LeftPos};
+    info->EditorControl(editor_id, ECTL_TABTOREAL, 0, &ecp_cl2);
+    auto left_pos = ecp_cl2.DestPos;
+
     if (drawSyntax) {
       LineRegion* cur_region = baseEditor->getLineRegions((int) lno);
       if (cur_region) {
         for (; cur_region; cur_region = cur_region->next) {
-          if (cur_region->special || cur_region->start == cur_region->end || (cur_region->end != -1 && cur_region->end < cur_editor.LeftPos)) {
+          if (cur_region->special || cur_region->start == cur_region->end || (cur_region->end != -1 && cur_region->end < left_pos)) {
             continue;
           }
-          if (cur_region->start > cur_editor.LeftPos + cur_editor.WindowSizeX) {
+          if (cur_region->start > left_pos + cur_editor.WindowSizeX) {
             break;
           }
 
           intptr_t lend = cur_region->end;
           if (lend == -1) {
             if (fullBackground){
-              lend = cur_editor.LeftPos + cur_editor.WindowSizeX * 2;
+              lend = left_pos + cur_editor.WindowSizeX * 2;
             }else{
               lend = cur_line_length;
             }
