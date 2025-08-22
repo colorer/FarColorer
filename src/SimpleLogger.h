@@ -79,6 +79,11 @@ class SimpleLogger : public Logger
 
   void flush() { ofs.flush(); }
 
+  Logger::LogLevel getCurrentLogLevel() override
+  {
+    return current_level;
+  }
+
  private:
   std::ofstream ofs;
   Logger::LogLevel current_level;
