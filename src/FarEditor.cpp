@@ -131,11 +131,11 @@ void FarEditor::reloadTypeSettings()
   maxLineLength = def->getParamValueInt(UnicodeString(param_MaxLen), 0);
   maxLineLength = ftype->getParamValueInt(UnicodeString(param_MaxLen), maxLineLength);
 
-  newfore = def->getParamValueInt(UnicodeString(param_DefFore), -1);
-  newfore = ftype->getParamValueInt(UnicodeString(param_DefFore), newfore);
+  newfore = def->getParamValueHex(UnicodeString(param_DefFore), -1);
+  newfore = ftype->getParamValueHex(UnicodeString(param_DefFore), newfore);
 
-  newback = def->getParamValueInt(UnicodeString(param_DefBack), -1);
-  newback = ftype->getParamValueInt(UnicodeString(param_DefBack), newback);
+  newback = def->getParamValueHex(UnicodeString(param_DefBack), -1);
+  newback = ftype->getParamValueHex(UnicodeString(param_DefBack), newback);
 
   const UnicodeString* value;
   value = ftype->getParamValue(UnicodeString(param_Fullback));
