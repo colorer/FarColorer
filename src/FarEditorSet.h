@@ -248,6 +248,8 @@ class FarEditorSet
   FileType* defaultType = nullptr;
   void addParamAndValue(FileType* filetype, const UnicodeString& name, const UnicodeString& value, const FileType* def_filetype = nullptr) const;
 
+  FarEditor* getCurrentEditorNoExcept();
+
   std::unordered_map<intptr_t, FarEditor*> farEditorInstances;
   std::unique_ptr<ParserFactory> parserFactory;
   std::unique_ptr<RegionMapper> regionMapper;
