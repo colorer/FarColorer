@@ -13,5 +13,6 @@
 		<param name="maxblocksize" value="300" description="Maximum length of regexp block in text"/>
 		<param name="disabled" value="false" description="Disable coloring for the prototype. See 'use-default'."/>
 		<param name="use-default" value="false" description="Use the default type if this prototype is disabled"/>
+		<param name="chunk-long-lines" value="true" description="Long-line chunk coloring."/>
 	</prototype>
 </hrc-settings>

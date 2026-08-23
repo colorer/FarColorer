@@ -22,6 +22,7 @@ static const wchar_t param_DefBack[] = L"default-back";
 static const wchar_t param_Fullback[] = L"fullback";
 static const wchar_t param_HotKey[] = L"hotkey";
 static const wchar_t param_Favorite[] = L"favorite";
+static const wchar_t param_ChunkLines[] = L"chunk-long-lines";
 static const wchar_t param_Firstlines[] = L"firstlines";
 static const wchar_t param_Firstlinebytes[] = L"firstlinebytes";
 static const wchar_t region_DefOutlined[] = L"def:Outlined";

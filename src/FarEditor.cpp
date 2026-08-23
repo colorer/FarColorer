@@ -159,6 +159,14 @@ void FarEditor::reloadTypeSettings()
   int maxBlockSize = def->getParamValueInt(UnicodeString(param_MaxBlockSize), 300);
   maxBlockSize = ftype->getParamValueInt(UnicodeString(param_MaxBlockSize), maxBlockSize);
   baseEditor->setMaxBlockSize(maxBlockSize);
+
+  const UnicodeString* v = def->getParamValue(UnicodeString(param_ChunkLines));
+  if (v && v->compare(UnicodeString(value_False)) == 0) {
+    baseEditor->setChunkLongLines(false);
+  }
+  else {
+    baseEditor->setChunkLongLines(true);
+  }
 }
 
 FileType* FarEditor::getFileType() const
