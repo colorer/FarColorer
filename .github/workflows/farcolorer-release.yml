@@ -26,13 +26,13 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Add C++ build tools to PATH
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: ${{ matrix.arch }}
 
@@ -112,7 +112,7 @@ jobs:
           7z a -m0=LZMA -mf=off -mx9 ${{ env.farcolorer_pdb_name }} ./src/colorer.pdb
 
       - name: Upload result to cache
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: result-${{ matrix.arch }}-${{ matrix.legacy }}
           path: ./build/*.7z
@@ -124,13 +124,13 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Download result
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: result
           pattern: result-*
