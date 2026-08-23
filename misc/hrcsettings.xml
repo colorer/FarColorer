@@ -3,7 +3,7 @@
 	<prototype name="default">
 		<param name="show-cross" value="none"  description="Visibility of the cross (horizontal, vertical, both, none)"/>
 		<param name="cross-zorder" value="bottom" description="Position of the cross, which points out cursor position"/>
-		<param name="maxlinelength" value="5000" description="Maximum parsed length of line of the text"/>
+		<param name="maxlinelength" value="500000" description="Maximum parsed length of line of the text"/>
 		<param name="backparse" value="6000" description="Number of lines, after which parser stops continuous analysis. Infinite, if zero."/>
 		<param name="fullback" value="yes" description="If yes, draws background in inlined languages till end of the screen"/>
 		<param name="default-fore" value="" description="User-defined foreground color for this particular type"/>
