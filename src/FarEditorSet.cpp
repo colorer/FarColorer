@@ -770,10 +770,9 @@ bool FarEditorSet::TestLoadBase(const wchar_t* catalogPath, const wchar_t* userH
 
         UnicodeString tname;
 
-        if (type->getGroup() != nullptr) {
-          tname.append(type->getGroup());
-          tname.append(": ");
-        }
+
+        tname.append(type->getGroup());
+        tname.append(": ");
 
         tname.append(type->getDescription());
         std::wstring str_message = UStr::to_stdwstr(&tname);

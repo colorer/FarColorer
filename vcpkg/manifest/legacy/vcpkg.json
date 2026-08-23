@@ -8,12 +8,11 @@
       "default-features": false
     }
   ],
-  "overrides":
-  [
+  "overrides": [
     {
       "name": "libxml2",
-      "version": "2.11.9#1"
+      "version": "2.15.3#0"
     }
   ],
-  "builtin-baseline": "3c5b9b4ea547898b1ae2d82edbeeda1333c212e9"
+  "builtin-baseline": "127402f1c75bb3d5ff6bce04b285faa4930a5aca"
 }

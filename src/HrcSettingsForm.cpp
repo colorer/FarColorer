@@ -143,12 +143,7 @@ FarList* HrcSettingsForm::buildHrcList() const
 
     std::wstring groupChars;
 
-    if (group != nullptr) {
-      groupChars = UStr::to_stdwstr(group);
-    }
-    else {
-      groupChars = std::wstring(L"<no group>");
-    }
+    groupChars = UStr::to_stdwstr(group);
 
     hrcList[i].Text = new wchar_t[255];
     _snwprintf(const_cast<wchar_t*>(hrcList[i].Text), 255, L"%s: %s", groupChars.c_str(),
