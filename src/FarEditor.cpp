@@ -441,8 +441,10 @@ void FarEditor::locateFunction()
   int sword = cpos;
   int eword = cpos;
 
-  while (cpos < curLine.length() && (Character::isLetterOrDigit(curLine[cpos]) || curLine[cpos] != '_')) {
-    while (Character::isLetterOrDigit(curLine[eword]) || curLine[eword] == '_') {
+  while (cpos < curLine.length() &&
+         (Character::isLetter(curLine[cpos]) || Character::isDigit(curLine[cpos]) || curLine[cpos] != '_'))
+  {
+    while (Character::isLetterOrDigitOrUnderscore(curLine[eword])) {
       if (eword == curLine.length() - 1) {
         break;
       }
@@ -450,7 +452,7 @@ void FarEditor::locateFunction()
       eword++;
     }
 
-    while (Character::isLetterOrDigit(curLine[sword]) || curLine[sword] == '_') {
+    while (Character::isLetterOrDigitOrUnderscore(curLine[sword])) {
       if (sword == 0) {
         break;
       }
