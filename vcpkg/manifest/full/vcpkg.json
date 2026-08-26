@@ -1,6 +1,6 @@
 {
   "name": "farcolorer",
-  "version": "1.6.13",
+  "version": "1.7.1",
   "dependencies": [
     "minizip",
     "icu",
