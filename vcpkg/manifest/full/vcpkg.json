@@ -12,7 +12,7 @@
   "overrides": [
     {
       "name": "icu",
-      "version": "78.3#2"
+      "version": "72.1#5"
     },
     {
       "name": "libxml2",
