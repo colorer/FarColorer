@@ -45,7 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename T>
 static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
-	const auto Module = GetModuleHandleW(ModuleName);
+	auto Module = GetModuleHandleW(ModuleName);
+	if (!Module)
+		Module = LoadLibraryW(ModuleName);
 	const auto Address = Module? GetProcAddress(Module, FunctionName) : nullptr;
 	return Address? reinterpret_cast<T>(reinterpret_cast<void*>(Address)) : Replacement;
 }
@@ -58,6 +60,7 @@ static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName,
 namespace modules
 {
 	static const wchar_t kernel32[] = L"kernel32";
+	static const wchar_t bcrypt[] = L"bcrypt";
 }
 
 static void* XorPointer(void* Ptr)
@@ -76,6 +79,107 @@ static void* XorPointer(void* Ptr)
 		return Result;
 	}();
 	return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Ptr) ^ Cookie);
+}
+
+namespace fallback
+{
+	// Adapted from YY-Thunks (MIT, Chuyu-Team): bcrypt.hpp / api-ms-win-core-synch.hpp
+	constexpr LONG StatusSuccess = 0;
+	constexpr LONG StatusUnsuccessful = static_cast<LONG>(0xC0000001L);
+	constexpr LONG StatusNotImplemented = static_cast<LONG>(0xC0000002L);
+	constexpr LONG StatusInvalidParameter = static_cast<LONG>(0xC000000DL);
+	constexpr ULONG BcryptUseSystemPreferredRng = 0x00000002ul;
+
+	static CRITICAL_SECTION* srw_cs(PSRWLOCK SRWLock)
+	{
+		auto* cs = static_cast<CRITICAL_SECTION*>(SRWLock->Ptr);
+		if (cs)
+			return cs;
+
+		cs = static_cast<CRITICAL_SECTION*>(HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(CRITICAL_SECTION)));
+		if (!cs)
+			return nullptr;
+
+		InitializeCriticalSection(cs);
+		const auto previous = InterlockedCompareExchangePointer(&SRWLock->Ptr, cs, nullptr);
+		if (previous)
+		{
+			DeleteCriticalSection(cs);
+			HeapFree(GetProcessHeap(), 0, cs);
+			return static_cast<CRITICAL_SECTION*>(previous);
+		}
+		return cs;
+	}
+
+	static void acquire_srw(PSRWLOCK SRWLock)
+	{
+		if (const auto cs = srw_cs(SRWLock))
+			EnterCriticalSection(cs);
+	}
+
+	static void release_srw(PSRWLOCK SRWLock)
+	{
+		if (auto* cs = static_cast<CRITICAL_SECTION*>(SRWLock->Ptr))
+			LeaveCriticalSection(cs);
+	}
+
+	static BOOL init_once_execute_once(PINIT_ONCE InitOnce, PINIT_ONCE_FN InitFn, PVOID Parameter, LPVOID *Context)
+	{
+		auto* const slot = &InitOnce->Ptr;
+
+		for (;;)
+		{
+			const auto current = *slot;
+			const auto bits = reinterpret_cast<ULONG_PTR>(current) & 3;
+
+			if (bits == 2 || bits == 3)
+			{
+				if (Context)
+					*Context = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(current) & ~ULONG_PTR(3));
+				return TRUE;
+			}
+
+			if (bits == 0)
+			{
+				if (InterlockedCompareExchangePointer(slot, reinterpret_cast<PVOID>(ULONG_PTR(1)), current) == current)
+					break;
+				continue;
+			}
+
+			SwitchToThread();
+		}
+
+		PVOID context = Context ? *Context : nullptr;
+		if (InitFn && InitFn(InitOnce, Parameter, &context))
+		{
+			const auto completed = reinterpret_cast<PVOID>((reinterpret_cast<ULONG_PTR>(context) & ~ULONG_PTR(3)) | 3);
+			InterlockedExchangePointer(slot, completed);
+			if (Context)
+				*Context = context;
+			return TRUE;
+		}
+
+		InterlockedExchangePointer(slot, nullptr);
+		return FALSE;
+	}
+
+	static LONG bcrypt_gen_random(PVOID hAlgorithm, PUCHAR pbBuffer, ULONG cbBuffer, ULONG dwFlags)
+	{
+		if (!pbBuffer)
+			return StatusInvalidParameter;
+		if (cbBuffer == 0)
+			return StatusSuccess;
+		if ((dwFlags & BcryptUseSystemPreferredRng) && hAlgorithm)
+			return StatusInvalidParameter;
+
+		using RtlGenRandomFn = BOOLEAN (WINAPI *)(PVOID, ULONG);
+		static const auto RtlGenRandom = reinterpret_cast<RtlGenRandomFn>(reinterpret_cast<void*>(
+			GetProcAddress(GetModuleHandleW(L"advapi32"), "SystemFunction036")));
+		if (!RtlGenRandom)
+			return StatusNotImplemented;
+
+		return RtlGenRandom(pbBuffer, cbBuffer) ? StatusSuccess : StatusUnsuccessful;
+	}
 }
 
 // EncodePointer (VC2010)
@@ -374,9 +478,9 @@ extern "C" void WINAPI WRAPPER(AcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-		static void WINAPI impl(PSRWLOCK)
+		static void WINAPI impl(PSRWLOCK SRWLock)
 		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			fallback::acquire_srw(SRWLock);
 		}
 	};
 
@@ -388,9 +492,9 @@ extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-		static void WINAPI impl(PSRWLOCK)
+		static void WINAPI impl(PSRWLOCK SRWLock)
 		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			fallback::release_srw(SRWLock);
 		}
 	};
 
@@ -402,14 +506,79 @@ extern "C" BOOLEAN WINAPI WRAPPER(TryAcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-		static BOOLEAN WINAPI impl(PSRWLOCK)
+		static BOOLEAN WINAPI impl(PSRWLOCK SRWLock)
 		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			if (const auto cs = fallback::srw_cs(SRWLock))
+				return TryEnterCriticalSection(cs) ? TRUE : FALSE;
 			return FALSE;
 		}
 	};
 
 	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2022
+extern "C" void WINAPI WRAPPER(AcquireSRWLockShared)(PSRWLOCK SRWLock)
+{
+	struct implementation
+	{
+		static void WINAPI impl(PSRWLOCK SRWLock)
+		{
+			fallback::acquire_srw(SRWLock);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2022
+extern "C" void WINAPI WRAPPER(ReleaseSRWLockShared)(PSRWLOCK SRWLock)
+{
+	struct implementation
+	{
+		static void WINAPI impl(PSRWLOCK SRWLock)
+		{
+			fallback::release_srw(SRWLock);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2022
+extern "C" BOOL WINAPI WRAPPER(InitOnceExecuteOnce)(PINIT_ONCE InitOnce, PINIT_ONCE_FN InitFn, PVOID Parameter, LPVOID *Context)
+{
+	struct implementation
+	{
+		static BOOL WINAPI impl(PINIT_ONCE InitOnce, PINIT_ONCE_FN InitFn, PVOID Parameter, LPVOID *Context)
+		{
+			return fallback::init_once_execute_once(InitOnce, InitFn, Parameter, Context);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, InitOnce, InitFn, Parameter, Context);
+}
+
+// VC2022
+extern "C" LONG WINAPI WRAPPER(BCryptGenRandom)(PVOID hAlgorithm, PUCHAR pbBuffer, ULONG cbBuffer, ULONG dwFlags)
+{
+	struct implementation
+	{
+		static LONG WINAPI impl(PVOID hAlgorithm, PUCHAR pbBuffer, ULONG cbBuffer, ULONG dwFlags)
+		{
+			return fallback::bcrypt_gen_random(hAlgorithm, pbBuffer, cbBuffer, dwFlags);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::bcrypt, hAlgorithm, pbBuffer, cbBuffer, dwFlags);
+}
+
+// libxml2 calls BCryptGenRandom without dllimport. Providing the stdcall
+// symbol keeps the linker from pulling bcrypt.lib, which would redefine
+// __imp_BCryptGenRandom (LNK2005) and add a hard import of bcrypt.dll.
+extern "C" LONG WINAPI BCryptGenRandom(PVOID hAlgorithm, PUCHAR pbBuffer, ULONG cbBuffer, ULONG dwFlags)
+{
+	return WRAPPER(BCryptGenRandom)(hAlgorithm, pbBuffer, cbBuffer, dwFlags);
 }
 
 // VC2019
