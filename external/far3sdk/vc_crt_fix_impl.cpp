@@ -473,6 +473,14 @@ extern "C" LONG WINAPI WRAPPER(BCryptGenRandom)(PVOID hAlgorithm, PUCHAR pbBuffe
 	CREATE_AND_RETURN(modules::bcrypt, hAlgorithm, pbBuffer, cbBuffer, dwFlags);
 }
 
+// libxml2 calls BCryptGenRandom without dllimport. Providing the stdcall
+// symbol keeps the linker from pulling bcrypt.lib, which would redefine
+// __imp_BCryptGenRandom (LNK2005) and add a hard import of bcrypt.dll.
+extern "C" LONG WINAPI BCryptGenRandom(PVOID hAlgorithm, PUCHAR pbBuffer, ULONG cbBuffer, ULONG dwFlags)
+{
+	return WRAPPER(BCryptGenRandom)(hAlgorithm, pbBuffer, cbBuffer, dwFlags);
+}
+
 // VC2019
 extern "C" void WINAPI WRAPPER(InitializeSRWLock)(PSRWLOCK SRWLock)
 {
