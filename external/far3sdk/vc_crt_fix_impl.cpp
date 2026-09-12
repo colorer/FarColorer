@@ -45,7 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename T>
 static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
-	const auto Module = GetModuleHandleW(ModuleName);
+	auto Module = GetModuleHandleW(ModuleName);
+	if (!Module)
+		Module = LoadLibraryW(ModuleName);
 	const auto Address = Module? GetProcAddress(Module, FunctionName) : nullptr;
 	return Address? reinterpret_cast<T>(reinterpret_cast<void*>(Address)) : Replacement;
 }
@@ -58,6 +60,7 @@ static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName,
 namespace modules
 {
 	static const wchar_t kernel32[] = L"kernel32";
+	static const wchar_t bcrypt[] = L"bcrypt";
 }
 
 static void* XorPointer(void* Ptr)
@@ -453,6 +456,21 @@ extern "C" BOOL WINAPI WRAPPER(InitOnceExecuteOnce)(PINIT_ONCE InitOnce, PINIT_O
 	};
 
 	CREATE_AND_RETURN(modules::kernel32, InitOnce, InitFn, Parameter, Context);
+}
+
+// VC2022
+extern "C" LONG WINAPI WRAPPER(BCryptGenRandom)(PVOID hAlgorithm, PUCHAR pbBuffer, ULONG cbBuffer, ULONG dwFlags)
+{
+	struct implementation
+	{
+		static LONG WINAPI impl(PVOID, PUCHAR, ULONG, ULONG)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return 0xC0000002L; // STATUS_NOT_IMPLEMENTED
+		}
+	};
+
+	CREATE_AND_RETURN(modules::bcrypt, hAlgorithm, pbBuffer, cbBuffer, dwFlags);
 }
 
 // VC2019

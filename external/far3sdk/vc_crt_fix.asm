@@ -75,6 +75,7 @@ HOOK InitializeSRWLock                      ,  4, :dword
 HOOK AcquireSRWLockShared                   ,  4, :dword
 HOOK ReleaseSRWLockShared                   ,  4, :dword
 HOOK InitOnceExecuteOnce                    , 16, :dword, :dword, :dword, :dword
+HOOK BCryptGenRandom                        , 16, :dword, :dword, :dword, :dword
 
 ; added to original file for FarColorer
 HOOK GetLocaleInfoEx                        , 16, :dword, :dword, :dword, :dword
