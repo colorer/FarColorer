@@ -84,7 +84,42 @@ jobs:
           -DFARCOLORER_LEGACY=${{ matrix.legacy }}
           -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
           -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+          -DCMAKE_INSTALL_PREFIX=./_build/install/FarColorer
 
       - name: Build
         shell: bash
         run: cmake --build _build --config $BUILD_TYPE -j ${{ steps.cpu-cores.outputs.count }}
+
+      - name: Install
+        shell: bash
+        run: cmake --install _build --config $BUILD_TYPE
+
+      - name: Set suffix
+        if: matrix.legacy == 'ON'
+        shell: bash
+        run: |
+          echo "suffix=.legacy" >> $GITHUB_ENV
+
+      - name: Set suffix
+        if: matrix.legacy == 'OFF'
+        shell: bash
+        run: |
+          echo "suffix=.icu" >> $GITHUB_ENV
+
+      - name: Set the pack file name
+        shell: bash
+        run: |
+          echo "farcolorer_name=FarColorer.${{ matrix.build }}${{env.suffix}}" >> $GITHUB_ENV
+
+      - name: pack plugin
+        working-directory: _build
+        shell: bash
+        run: |
+          cp ./src/colorer.pdb ./install/FarColorer/bin/ 
+
+      - name: Upload result
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.farcolorer_name }}
+          path: ./_build/install/FarColorer/*
+          retention-days: 2
