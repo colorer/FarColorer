@@ -412,6 +412,49 @@ extern "C" BOOLEAN WINAPI WRAPPER(TryAcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 	CREATE_AND_RETURN(modules::kernel32, SRWLock);
 }
 
+// VC2022
+extern "C" void WINAPI WRAPPER(AcquireSRWLockShared)(PSRWLOCK SRWLock)
+{
+	struct implementation
+	{
+		static void WINAPI impl(PSRWLOCK)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2022
+extern "C" void WINAPI WRAPPER(ReleaseSRWLockShared)(PSRWLOCK SRWLock)
+{
+	struct implementation
+	{
+		static void WINAPI impl(PSRWLOCK)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2022
+extern "C" BOOL WINAPI WRAPPER(InitOnceExecuteOnce)(PINIT_ONCE InitOnce, PINIT_ONCE_FN InitFn, PVOID Parameter, LPVOID *Context)
+{
+	struct implementation
+	{
+		static BOOL WINAPI impl(PINIT_ONCE, PINIT_ONCE_FN, PVOID, LPVOID*)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return FALSE;
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, InitOnce, InitFn, Parameter, Context);
+}
+
 // VC2019
 extern "C" void WINAPI WRAPPER(InitializeSRWLock)(PSRWLOCK SRWLock)
 {
